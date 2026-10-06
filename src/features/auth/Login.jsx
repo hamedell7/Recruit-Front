@@ -79,19 +79,19 @@ function Login({ onLogin }) {
               <span>سامانه مدیریت درخواست</span>
             </div>
           </div>
-          <span className="secure-pill">امنیت‌محور</span>
+          <span className="secure-pill">گزینش و استخدام</span>
         </div>
         <div className="showcase-main">
-          <span className="eyebrow">یک مسیر دیجیتال، یک پرونده منسجم</span>
-          <h1>از ثبت درخواست تا<br /><span>تکمیل پرونده</span></h1>
-          <p>اطلاعات را مرحله‌به‌مرحله ثبت کنید، وضعیت پرونده را ببینید و بدون سردرگمی ادامه دهید.</p>
+          <span className="eyebrow">فرایند گزینش و استخدام</span>
+          <h1>از ثبت اطلاعات تا<br /><span>تکمیل پرونده استخدام</span></h1>
+          <p>اطلاعات موردنیاز گزینش و استخدام را مرحله‌به‌مرحله ثبت کنید و روند پرونده خود را پیگیری کنید.</p>
           <div className="trust-grid">
-            <div><b>۲۵</b><span>مرحله گزینش</span></div>
-            <div><b>۱</b><span>پرونده یکپارچه</span></div>
-            <div><b>۱۰۰٪</b><span>تجربه فارسی و RTL</span></div>
+            <div><b>ثبت</b><span>اطلاعات گزینش</span></div>
+            <div><b>تکمیل</b><span>پرونده استخدام</span></div>
+            <div><b>پیگیری</b><span>وضعیت درخواست</span></div>
           </div>
         </div>
-        <div className="showcase-foot">اطلاعات شما در مسیر رمزگذاری‌شده و با دسترسی کنترل‌شده پردازش می‌شود.</div>
+        <div className="showcase-foot">اطلاعات ثبت‌شده برای بررسی و تکمیل پرونده گزینش و استخدام استفاده می‌شود.</div>
       </div>
 
       <div className="auth-panel">
