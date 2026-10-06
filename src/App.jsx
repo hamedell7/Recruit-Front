@@ -376,8 +376,14 @@ function Login({ onLogin, onError }) {
           text: "لطفاً خطاهای فرم ورود را اصلاح کنید.",
           requestId: error.requestId,
         });
+      } else if (error.status === 401 || error.code === "INVALID_CREDENTIALS") {
+        onError({
+          type: "error",
+          text: "کد ملی یا شماره موبایل واردشده صحیح نیست.",
+          requestId: error.requestId,
+        });
       } else {
-        onError({ type: "error", text: error.message, requestId: error.requestId });
+        onError({ type: "error", text: error.message || "خطایی در ورود به حساب رخ داد.", requestId: error.requestId });
       }
     } finally {
       setBusy(false);
