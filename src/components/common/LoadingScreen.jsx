@@ -6,4 +6,6 @@ function LoadingScreen() {
       <strong>در حال آماده‌سازی سامانه</strong>
     </div>
   );
-}\n\nexport default LoadingScreen;\n
+}
+
+export default LoadingScreen;
