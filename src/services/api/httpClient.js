@@ -90,4 +90,59 @@ function humanizeValidationMessage(message, type) {
 
 
 
+async function apiFetch(path, options = {}) {
+  const method = (options.method || "GET").toUpperCase();
+  const stateChanging = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+  const body = options.body;
+
+  const headers = {
+    Accept: "application/json",
+    "X-Request-ID": requestId(),
+    ...(options.headers || {}),
+  };
+
+  if (body !== undefined && !(body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (stateChanging) {
+    const csrf = getCookie("recruit_csrf");
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+  }
+
+  const response = await fetch(API_BASE_URL + path, {
+    ...options,
+    method,
+    credentials: "include",
+    body: body instanceof FormData || body === undefined ? body : JSON.stringify(body),
+    headers,
+  });
+
+  if (response.status === 204) return null;
+
+  const contentType = response.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json")
+    ? await response.json()
+    : await response.text();
+
+  if (!response.ok) {
+    const validationErrors = normalizeValidationErrors(payload);
+    const fallbackMessage = validationErrors[0]?.message;
+    const payloadCode = typeof payload === "object" ? payload?.code : undefined;
+    const rawMessage = typeof payload === "object" && payload?.message
+      ? payload.message
+      : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه");
+    const errorMessage = humanizeApiErrorMessage(response.status, payloadCode, rawMessage);
+    const error = new Error(errorMessage);
+    error.status = response.status;
+    error.code = typeof payload === "object" ? payload?.code : undefined;
+    error.requestId = response.headers.get("X-Request-ID") || (typeof payload === "object" ? payload?.request_id : undefined);
+    error.payload = payload;
+    error.validationErrors = validationErrors;
+    throw error;
+  }
+
+  return payload;
+}
+
 export { apiFetch, API_BASE_URL };
