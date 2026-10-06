@@ -55,4 +55,4 @@ function SelectField({ label, value, onChange, options = [], required, readOnly,
   );
 }
 
-\n\nexport default TextField;\n
+\n\nexport { TextArea, SelectField };\nexport default TextField;\n
