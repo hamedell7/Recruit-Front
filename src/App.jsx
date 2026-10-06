@@ -336,24 +336,34 @@ function Login({ onLogin, onError }) {
   const [nationalId, setNationalId] = useState("");
   const [mobile, setMobile] = useState("");
   const [busy, setBusy] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const clearFieldError = (field) => {
+    setValidationErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  };
 
   const submit = async (event) => {
     event.preventDefault();
+    setValidationErrors({});
     setBusy(true);
     try {
       const result = await api.login(nationalId, mobile);
       onLogin(result.user);
     } catch (error) {
       if (error.validationErrors?.length) {
-        applyValidationErrors(error.validationErrors);
-        onError({
-          type: "error",
-          text: "سامانه چند مورد از اطلاعات واردشده را معتبر ندانست؛ جزئیات کنار فیلدها نمایش داده شده است.",
-          requestId: error.requestId,
+        const next = {};
+        error.validationErrors.forEach((item) => {
+          const key = item.path || "form";
+          if (!next[key]) next[key] = item.message;
         });
-      } else {
-        onError({ type: "error", text: error.message, requestId: error.requestId });
+        setValidationErrors(next);
       }
+      onError({ type: "error", text: error.message, requestId: error.requestId });
     } finally {
       setBusy(false);
     }
@@ -393,30 +403,35 @@ function Login({ onLogin, onError }) {
             <p>برای مشاهده درخواست‌ها، کد ملی و شماره موبایل خود را وارد کنید.</p>
           </div>
           <form onSubmit={submit}>
-            <label className="field">
+            <label className={"field " + (validationErrors.national_id ? "has-error" : "")}>
               <span>کد ملی</span>
               <input
                 inputMode="numeric"
                 autoComplete="username"
                 maxLength={10}
                 value={nationalId}
-                onChange={(e) => setNationalId(e.target.value)}
+                onChange={(e) => { clearFieldError("national_id"); clearFieldError("form"); setNationalId(e.target.value); }}
                 placeholder="مثلاً ۰۰۱۲۳۴۵۶۷۸"
                 required
+                aria-invalid={validationErrors.national_id ? "true" : undefined}
               />
+              <FieldError error={validationErrors.national_id} />
             </label>
-            <label className="field">
+            <label className={"field " + (validationErrors.mobile ? "has-error" : "")}>
               <span>شماره موبایل</span>
               <input
                 inputMode="tel"
                 autoComplete="tel"
                 maxLength={13}
                 value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
+                onChange={(e) => { clearFieldError("mobile"); clearFieldError("form"); setMobile(e.target.value); }}
                 placeholder="۰۹۱۲…"
                 required
+                aria-invalid={validationErrors.mobile ? "true" : undefined}
               />
+              <FieldError error={validationErrors.mobile} />
             </label>
+            {validationErrors.form && <div className="validation-summary" role="alert" aria-live="polite"><div className="validation-summary-icon">!</div><div><strong>خطا در ورود</strong><p>{validationErrors.form}</p></div></div>}
             <button className="primary-button wide" disabled={busy}>
               {busy ? <><span className="button-spinner" /> در حال ورود…</> : <>ورود به پنل <span>←</span></>}
             </button>
