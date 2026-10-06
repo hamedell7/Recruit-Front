@@ -10,7 +10,9 @@ import DocumentsStep from "./steps/DocumentsStep";
 import ReviewStep from "./steps/ReviewStep";
 import StepRail from "./StepRail";
 import StepRailItem from "./StepRailItem";
-import StepRenderer from "./StepRenderer";\n\nfunction RequestWizard({ user, request, onBack, onError }) {
+import StepRenderer from "./StepRenderer";
+
+function RequestWizard({ user, request, onBack, onError }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
   const [resume, setResume] = useState(null);
@@ -319,4 +321,6 @@ import StepRenderer from "./StepRenderer";\n\nfunction RequestWizard({ user, req
       </div>
     </main>
   );
-}\n\nexport default RequestWizard;\n
+}
+
+export default RequestWizard;
