@@ -10,4 +10,6 @@ function Toast({ toast, onClose }) {
       <button onClick={onClose} aria-label="بستن">×</button>
     </div>
   );
-}\n\nexport default Toast;\n
+}
+
+export default Toast;
