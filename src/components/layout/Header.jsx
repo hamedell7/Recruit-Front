@@ -14,4 +14,6 @@ function Header({ user, onLogout }) {
       </div>
     </header>
   );
-}\n\nexport default Header;\n
+}
+
+export default Header;
