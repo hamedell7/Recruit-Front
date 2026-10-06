@@ -100,5 +100,6 @@ export const api = {
   provinces: (countryId) => apiFetch("/geo/provinces?country_id=" + path(countryId)),
   counties: (provinceId) => apiFetch("/geo/counties?province_id=" + path(provinceId)),
   cities: (countyId) => apiFetch("/geo/cities?county_id=" + path(countyId)),
+  citiesByProvince: (provinceId) => apiFetch("/geo/cities?province_id=" + path(provinceId)),
   villages: (countyId) => apiFetch("/geo/villages?county_id=" + path(countyId)),
 };
