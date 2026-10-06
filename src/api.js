@@ -40,6 +40,19 @@ function normalizeValidationErrors(payload) {
   });
 }
 
+function humanizeApiErrorMessage(status, code, message) {
+  if (status === 401 && code === "INVALID_CREDENTIALS") {
+    return "کد ملی یا شماره موبایل واردشده صحیح نیست.";
+  }
+  if (status === 401) {
+    return "نشست شما معتبر نیست یا منقضی شده است. لطفاً دوباره وارد سامانه شوید.";
+  }
+  if (status === 429) {
+    return "تعداد درخواست‌ها بیش از حد مجاز است. لطفاً چند لحظه صبر کنید و دوباره تلاش کنید.";
+  }
+  return message;
+}
+
 function humanizeValidationMessage(message, type) {
   const value = String(message || "").trim();
   const kind = String(type || "");
@@ -113,12 +126,11 @@ async function apiFetch(path, options = {}) {
   if (!response.ok) {
     const validationErrors = normalizeValidationErrors(payload);
     const fallbackMessage = validationErrors[0]?.message;
-    const isInvalidCredentials = response.status === 401 && typeof payload === "object" && payload?.code === "INVALID_CREDENTIALS";
-    const errorMessage = isInvalidCredentials
-      ? "کد ملی یا شماره موبایل واردشده صحیح نیست."
-      : typeof payload === "object" && payload?.message
-        ? payload.message
-        : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه");
+    const payloadCode = typeof payload === "object" ? payload?.code : undefined;
+    const rawMessage = typeof payload === "object" && payload?.message
+      ? payload.message
+      : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه");
+    const errorMessage = humanizeApiErrorMessage(response.status, payloadCode, rawMessage);
     const error = new Error(errorMessage);
     error.status = response.status;
     error.code = typeof payload === "object" ? payload?.code : undefined;
