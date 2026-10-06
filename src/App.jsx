@@ -342,6 +342,7 @@ function Login({ onLogin, onError }) {
   const [mobile, setMobile] = useState("");
   const [busy, setBusy] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [authError, setAuthError] = useState(null);
   const validationSummaryRef = useRef(null);
 
   const applyLoginValidationErrors = (errors) => {
@@ -366,30 +367,40 @@ function Login({ onLogin, onError }) {
     });
   };
 
+  const clearAuthError = () => setAuthError(null);
+
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true);
+    setAuthError(null);
     try {
       const result = await api.login(nationalId, mobile);
       setValidationErrors({});
       onLogin(result.user);
     } catch (error) {
+      const message = error.validationErrors?.length
+        ? "لطفاً خطاهای فرم ورود را اصلاح کنید."
+        : error.status === 401 || error.code === "INVALID_CREDENTIALS"
+          ? "کد ملی یا شماره موبایل واردشده صحیح نیست."
+          : error.status === 429
+            ? "تعداد درخواست‌های ورود بیش از حد مجاز است. لطفاً چند لحظه صبر کنید و دوباره تلاش کنید."
+            : error.message || "خطایی در ورود به حساب رخ داد.";
+      const nextError = {
+        text: message,
+        requestId: error.requestId,
+      };
+
       if (error.validationErrors?.length) {
         applyLoginValidationErrors(error.validationErrors);
-        onError({
-          type: "error",
-          text: "لطفاً خطاهای فرم ورود را اصلاح کنید.",
-          requestId: error.requestId,
-        });
-      } else if (error.status === 401 || error.code === "INVALID_CREDENTIALS") {
-        onError({
-          type: "error",
-          text: "کد ملی یا شماره موبایل واردشده صحیح نیست.",
-          requestId: error.requestId,
-        });
       } else {
-        onError({ type: "error", text: error.message || "خطایی در ورود به حساب رخ داد.", requestId: error.requestId });
+        setAuthError(nextError);
       }
+
+      onError({
+        type: "error",
+        text: message,
+        requestId: error.requestId,
+      });
     } finally {
       setBusy(false);
     }
@@ -428,6 +439,16 @@ function Login({ onLogin, onError }) {
             <h2>خوش آمدید</h2>
             <p>برای مشاهده درخواست‌ها، کد ملی و شماره موبایل خود را وارد کنید.</p>
           </div>
+          {authError && (
+            <div className="auth-error" role="alert" aria-live="assertive">
+              <span className="auth-error-icon">!</span>
+              <div>
+                <strong>ورود انجام نشد</strong>
+                <p>{authError.text}</p>
+                {authError.requestId && <small>کد پیگیری خطا: {authError.requestId}</small>}
+              </div>
+            </div>
+          )}
           <form onSubmit={submit}>
             {Object.keys(validationErrors).length > 0 && (
               <ValidationSummary errors={validationErrors} summaryRef={validationSummaryRef} />
@@ -441,6 +462,7 @@ function Login({ onLogin, onError }) {
                 value={nationalId}
                 onChange={(e) => {
                   clearLoginValidationError("national_id");
+                  clearAuthError();
                   setNationalId(e.target.value);
                 }}
                 placeholder="مثلاً ۰۰۱۲۳۴۵۶۷۸"
@@ -458,6 +480,7 @@ function Login({ onLogin, onError }) {
                 value={mobile}
                 onChange={(e) => {
                   clearLoginValidationError("mobile");
+                  clearAuthError();
                   setMobile(e.target.value);
                 }}
                 placeholder="۰۹۱۲…"
@@ -500,7 +523,7 @@ function Header({ user, onLogout }) {
 
 function Toast({ toast, onClose }) {
   return (
-    <div className={"toast " + (toast.type || "info")}>
+    <div className={"toast " + (toast.type || "info")} role="status" aria-live="polite">
       <div className="toast-dot" />
       <div>
         <strong>{toast.type === "success" ? "انجام شد" : toast.type === "error" ? "خطا" : "توجه"}</strong>
