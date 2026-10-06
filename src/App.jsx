@@ -852,8 +852,14 @@ function RequestWizard({ user, request, onBack, onError }) {
           text: "سامانه چند مورد از اطلاعات واردشده را معتبر ندانست؛ جزئیات کنار فیلدها نمایش داده شده است.",
           requestId: error.requestId,
         });
+      } else if (error.status === 401 || error.code === "INVALID_CREDENTIALS") {
+        onError({
+          type: "error",
+          text: "اعتبار نشست شما برای ثبت این فرم تأیید نشد. لطفاً دوباره وارد سامانه شوید.",
+          requestId: error.requestId,
+        });
       } else {
-        onError({ type: "error", text: error.message, requestId: error.requestId });
+        onError({ type: "error", text: error.message || "ثبت اطلاعات با خطا مواجه شد.", requestId: error.requestId });
       }
     } finally {
       setSaving(false);
