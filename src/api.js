@@ -113,11 +113,13 @@ async function apiFetch(path, options = {}) {
   if (!response.ok) {
     const validationErrors = normalizeValidationErrors(payload);
     const fallbackMessage = validationErrors[0]?.message;
-    const error = new Error(
-      typeof payload === "object" && payload?.message
+    const isInvalidCredentials = response.status === 401 && typeof payload === "object" && payload?.code === "INVALID_CREDENTIALS";
+    const errorMessage = isInvalidCredentials
+      ? "کد ملی یا شماره موبایل واردشده صحیح نیست."
+      : typeof payload === "object" && payload?.message
         ? payload.message
-        : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه")
-    );
+        : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه");
+    const error = new Error(errorMessage);
     error.status = response.status;
     error.code = typeof payload === "object" ? payload?.code : undefined;
     error.requestId = response.headers.get("X-Request-ID") || (typeof payload === "object" ? payload?.request_id : undefined);
