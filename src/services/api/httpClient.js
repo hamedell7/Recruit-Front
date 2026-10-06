@@ -66,6 +66,9 @@ function humanizeValidationMessage(message, type) {
   if (/string should have at most (\d+)/i.test(value)) {
     return "طول این مقدار بیشتر از حد مجاز است.";
   }
+  if (/input.*(?:valid|string)|(?:valid|string).*input/i.test(value) || /string_type|string_type/i.test(kind)) {
+    return "مقدار واردشده معتبر نیست.";
+  }
   if (/valid email|email address/i.test(value) || /email/i.test(kind)) {
     return "ایمیل واردشده معتبر نیست.";
   }
@@ -85,7 +88,11 @@ function humanizeValidationMessage(message, type) {
     return "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.";
   }
 
-  return value || "مقدار واردشده معتبر نیست.";
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (/\binput\b/i.test(normalized)) {
+    return "مقدار واردشده معتبر نیست.";
+  }
+  return normalized || "مقدار واردشده معتبر نیست.";
 }
 
 
