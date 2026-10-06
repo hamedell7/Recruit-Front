@@ -1,4 +1,6 @@
-import { formatDate } from "../../utils/date";\n\nfunction DraftStatus({ state, updatedAt }) {
+import { formatDate } from "../../utils/date";
+
+function DraftStatus({ state, updatedAt }) {
   const labels = {
     idle: "آماده ذخیره خودکار",
     dirty: "در حال ثبت تغییرات…",
@@ -7,4 +9,6 @@ import { formatDate } from "../../utils/date";\n\nfunction DraftStatus({ state, 
     error: "ذخیره خودکار ناموفق بود",
   };
   return <div className={"draft-status " + state}><span className="draft-pulse" /><span>{labels[state] || labels.idle}</span>{updatedAt && state === "saved" && <time>{formatDate(updatedAt)}</time>}</div>;
-}\n\nexport default DraftStatus;\n
+}
+
+export default DraftStatus;
