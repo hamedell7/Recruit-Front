@@ -702,7 +702,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       } else {
         result = await api.completeStep(appRequest.id, currentKey, form || {});
       }
-      await refreshWorkflow(workflowSteps.indexOf(result.next_step));
+      await refreshWorkflow(result.next_step ? workflowSteps.indexOf(result.next_step) : workflowSteps.length - 1);
     } catch (error) {
       onError({ type: "error", text: error.message, requestId: error.requestId });
     } finally {
@@ -1168,6 +1168,22 @@ function ReviewStep({ workflowSteps, steps, currentIndex, request }) {
         return <div className="review-item" key={key}><span className={"review-state " + tone}>{tone === "approved" ? "✓" : index + 1}</span><div><small>{meta?.kicker}</small><strong>{meta?.title}</strong></div><b>{label}</b></div>;
       })}</div>
       <div className="request-summary"><span>کد رهگیری</span><strong>{request.tracking_code}</strong><span>وضعیت فعلی</span><b>{statusLabel(request.status)[0]}</b></div>
+    </div>
+  );
+}
+
+function Modal({ title, children, onClose }) {
+  return (
+    <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose();
+    }}>
+      <section className="modal" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="modal-top">
+          <div><span className="eyebrow">Recruit</span><h3>{title}</h3></div>
+          <button className="modal-close" onClick={onClose} aria-label="بستن">×</button>
+        </div>
+        {children}
+      </section>
     </div>
   );
 }
