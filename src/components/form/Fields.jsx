@@ -1,4 +1,6 @@
-import FieldError from "./FieldError";\n\nfunction TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error }) {
+import FieldError from "./FieldError";
+
+function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error }) {
   return (
     <label className={"field " + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
@@ -55,4 +57,7 @@ function SelectField({ label, value, onChange, options = [], required, readOnly,
   );
 }
 
-\n\nexport { TextArea, SelectField };\nexport default TextField;\n
+
+
+export { TextArea, SelectField };
+export default TextField;
