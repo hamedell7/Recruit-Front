@@ -90,4 +90,4 @@ function humanizeValidationMessage(message, type) {
 
 
 
-export { apiFetch };
+export { apiFetch, API_BASE_URL };
