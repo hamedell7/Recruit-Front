@@ -40,6 +40,18 @@ function normalizeValidationErrors(payload) {
   });
 }
 
+const API_ERROR_MESSAGES = {
+  INVALID_CREDENTIALS: "کد ملی یا شماره موبایل صحیح نیست.",
+  UNAUTHORIZED: "برای انجام این عملیات باید وارد حساب کاربری شوید.",
+  FORBIDDEN: "شما مجوز انجام این عملیات را ندارید.",
+  NOT_FOUND: "اطلاعات موردنظر پیدا نشد.",
+  CONFLICT: "این عملیات با وضعیت فعلی اطلاعات سازگار نیست.",
+  RATE_LIMITED: "تعداد درخواست‌ها بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.",
+  TOO_MANY_REQUESTS: "تعداد درخواست‌ها بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.",
+  VALIDATION_ERROR: "اطلاعات واردشده معتبر نیست.",
+  STEP_NOT_CURRENT: "این مرحله در حال حاضر قابل ثبت نیست.",
+};
+
 function humanizeValidationMessage(message, type) {
   const value = String(message || "").trim();
   const kind = String(type || "");
@@ -73,6 +85,22 @@ function humanizeValidationMessage(message, type) {
   }
 
   return value || "مقدار واردشده معتبر نیست.";
+}
+
+function humanizeApiError(payload, validationErrors) {
+  if (typeof payload !== "object" || !payload) {
+    return validationErrors[0]?.message || "خطا در ارتباط با سامانه";
+  }
+
+  if (payload.code && API_ERROR_MESSAGES[payload.code]) {
+    return API_ERROR_MESSAGES[payload.code];
+  }
+
+  if (payload.message) {
+    return humanizeValidationMessage(payload.message, payload.code);
+  }
+
+  return validationErrors[0]?.message || "خطا در ارتباط با سامانه";
 }
 
 async function apiFetch(path, options = {}) {
@@ -114,9 +142,9 @@ async function apiFetch(path, options = {}) {
     const validationErrors = normalizeValidationErrors(payload);
     const fallbackMessage = validationErrors[0]?.message;
     const error = new Error(
-      typeof payload === "object" && payload?.message
-        ? payload.message
-        : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه")
+      humanizeApiError(payload, validationErrors) ||
+      fallbackMessage ||
+      (typeof payload === "string" && payload.trim() ? payload : "خطا در ارتباط با سامانه")
     );
     error.status = response.status;
     error.code = typeof payload === "object" ? payload?.code : undefined;
