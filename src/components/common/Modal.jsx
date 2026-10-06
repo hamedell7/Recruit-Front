@@ -12,4 +12,6 @@ function Modal({ title, children, onClose }) {
       </section>
     </div>
   );
-}\n\nexport default Modal;\n
+}
+
+export default Modal;
