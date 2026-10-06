@@ -1,6 +1,8 @@
 import { STEP_META } from "../../../config/workflow";
 import { statusLabel } from "../../../utils/status";
-import { formatDate } from "../../../utils/date";\n\nfunction RequestCard({ request, onOpen }) {
+import { formatDate } from "../../../utils/date";
+
+function RequestCard({ request, onOpen }) {
   const [label, tone] = statusLabel(request.status);
   const step = STEP_META[request.current_step_key];
   const progressText = request.workflow_key === "screening" ? "فرآیند گزینش" : "فرآیند استخدام";
@@ -21,4 +23,6 @@ import { formatDate } from "../../../utils/date";\n\nfunction RequestCard({ requ
       </button>
     </article>
   );
-}\n\nexport default RequestCard;\n
+}
+
+export default RequestCard;
