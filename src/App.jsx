@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 
 const STEP_META = {
@@ -612,6 +612,10 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [saving, setSaving] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [form, setForm] = useState(null);
+  const [draftStatus, setDraftStatus] = useState("idle");
+  const [lastDraftSaved, setLastDraftSaved] = useState(null);
+  const [draftHydrated, setDraftHydrated] = useState(false);
+  const autosaveSequence = useRef(0);
 
   const workflowSteps = useMemo(() => {
     if (appRequest?.workflow_key === "employment") {
@@ -651,30 +655,78 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   useEffect(() => {
     if (!appRequest || !currentKey) return;
+    let cancelled = false;
     const load = async () => {
       setStepData(null);
       setForm(null);
+      setDraftHydrated(false);
+      setDraftStatus("idle");
+      setLastDraftSaved(null);
       try {
         if (currentKey === "documents") {
           const docs = await api.documents(appRequest.id);
-          setDocuments(normalizeList(docs));
+          if (!cancelled) setDocuments(normalizeList(docs));
           return;
         }
-        if (currentKey === "review") {
-          return;
+        if (currentKey === "review") return;
+
+        const [dataResult, draftResult] = await Promise.allSettled([
+          api.stepData(appRequest.id, currentKey),
+          api.stepDraft(appRequest.id, currentKey),
+        ]);
+
+        if (cancelled) return;
+
+        const data = dataResult.status === "fulfilled" ? dataResult.value : null;
+        if (dataResult.status === "rejected" && ![404, 409].includes(dataResult.reason?.status)) {
+          onError({ type: "error", text: dataResult.reason.message, requestId: dataResult.reason.requestId });
         }
-        const data = await api.stepData(appRequest.id, currentKey);
+
+        const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
+        const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data);
         setStepData(data);
-        setForm(makeForm(currentKey, data, user));
+        setForm(merged);
+        setLastDraftSaved(draft?.updated_at || null);
+        setDraftHydrated(true);
+        if (draft?.data) setDraftStatus("saved");
       } catch (error) {
-        if (error.status !== 404 && error.status !== 409) {
+        if (!cancelled) {
           onError({ type: "error", text: error.message, requestId: error.requestId });
+          setForm(makeForm(currentKey, null, user));
+          setDraftHydrated(true);
         }
-        setForm(makeForm(currentKey, null, user));
       }
     };
     load();
+    return () => { cancelled = true; };
   }, [appRequest, currentKey, user]);
+
+  useEffect(() => {
+    if (
+      !appRequest ||
+      !form ||
+      !draftHydrated ||
+      readOnly ||
+      currentKey === "documents" ||
+      currentKey === "review"
+    ) return undefined;
+
+    const sequence = ++autosaveSequence.current;
+    setDraftStatus("dirty");
+    const timer = setTimeout(async () => {
+      setDraftStatus("saving");
+      try {
+        const result = await api.saveDraft(appRequest.id, currentKey, cleanPayload(form));
+        if (sequence !== autosaveSequence.current) return;
+        setLastDraftSaved(result.updated_at);
+        setDraftStatus("saved");
+      } catch {
+        if (sequence === autosaveSequence.current) setDraftStatus("error");
+      }
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [appRequest?.id, currentKey, form, draftHydrated, readOnly]);
 
   const refreshWorkflow = async (nextIndexOverride) => {
     const [requestData, resumeData, stepsData] = await Promise.all([
@@ -694,6 +746,11 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const complete = async () => {
     if (readOnly) return;
+    const validationError = validateStep(currentKey, form || {});
+    if (validationError) {
+      onError({ type: "error", text: validationError });
+      return;
+    }
     setSaving(true);
     try {
       let result;
@@ -701,6 +758,9 @@ function RequestWizard({ user, request, onBack, onError }) {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
         result = await api.completeStep(appRequest.id, currentKey, cleanPayload(form || {}));
+      }
+      if (currentKey !== "documents" && currentKey !== "review") {
+        try { await api.deleteDraft(appRequest.id, currentKey); } catch {}
       }
       await refreshWorkflow(result.next_step ? workflowSteps.indexOf(result.next_step) : workflowSteps.length - 1);
     } catch (error) {
@@ -756,6 +816,9 @@ function RequestWizard({ user, request, onBack, onError }) {
               <span className="eyebrow">{meta.kicker}</span>
               <h1>{meta.title}</h1>
               <p>{stepDescription(currentKey)}</p>
+              {!readOnly && !["documents", "review"].includes(currentKey) && (
+                <DraftStatus state={draftStatus} updatedAt={lastDraftSaved} />
+              )}
             </div>
             <div className="step-number">{String(index + 1).padStart(2, "0")}</div>
           </div>
@@ -1003,7 +1066,7 @@ function RecordStep({ fields, form, setForm, countries, readOnly }) {
         <div className="record-card">
           <div className="record-head"><span>ردیف {index + 1}</span><strong>{fields[0]?.label || "مورد"}</strong></div>
           <div className="field-grid">
-            {fields.map((field) => (
+            {fields.filter((field) => !["province_id", "county_id", "city_id", "village_id"].includes(field.key)).map((field) => (
               <FieldInput
                 key={field.key}
                 field={field}
@@ -1011,8 +1074,12 @@ function RecordStep({ fields, form, setForm, countries, readOnly }) {
                 countries={countries}
                 onChange={(value) => setRecord({ ...record, [field.key]: value })}
                 readOnly={readOnly}
+                record={record}
               />
             ))}
+            {(fields.some((field) => ["province_id", "county_id", "city_id", "village_id"].includes(field.key))) && (
+              <GeoFields record={record} setRecord={setRecord} countries={countries} readOnly={readOnly} />
+            )}
           </div>
         </div>
       )}
@@ -1048,7 +1115,8 @@ function ListEditor({ title, hint, items, setItems, empty, render, readOnly, com
   );
 }
 
-function FieldInput({ field, value, onChange, countries, readOnly }) {
+function FieldInput({ field, value, onChange, countries, readOnly, record }) {
+  if (field.visibleWhen && !field.visibleWhen(record || {})) return null;
   if (field.type === "country") {
     return <SelectField label={field.label} value={value} onChange={onChange} options={countries.map((c) => ({ value: c.id, label: c.name }))} required={field.required} readOnly={readOnly} />;
   }
@@ -1196,6 +1264,69 @@ function cleanPayload(value) {
     );
   }
   return value === "" ? null : value;
+}
+
+function mergeDraft(base, draft) {
+  if (!draft || typeof draft !== "object") return base;
+  if (Array.isArray(base)) return Array.isArray(draft) ? draft : base;
+  return { ...(base || {}), ...draft };
+}
+
+function validateStep(stepKey, form) {
+  const empty = (value) => value === undefined || value === null || String(value).trim() === "";
+
+  if (stepKey === "personal") {
+    if (empty(form?.first_name)) return "نام را وارد کنید.";
+    if (empty(form?.last_name)) return "نام خانوادگی را وارد کنید.";
+    const nid = normalizeDigits(String(form?.national_id || "")).replace(/[-\s]/g, "");
+    if (!/^\d{10}$/.test(nid)) return "کد ملی باید ۱۰ رقم باشد.";
+    if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "ایمیل واردشده معتبر نیست.";
+  }
+
+  if (stepKey === "marriage") {
+    if (empty(form?.status)) return "وضعیت تأهل را انتخاب کنید.";
+    if (["متأهل", "ازدواج مجدد"].includes(form.status)) {
+      if (empty(form?.spouse?.first_name) || empty(form?.spouse?.last_name)) {
+        return "نام و نام خانوادگی همسر را وارد کنید.";
+      }
+    }
+  }
+
+  if (stepKey === "declaration" && !form?.accepted) {
+    return "برای ثبت نهایی باید تعهدنامه را تأیید کنید.";
+  }
+
+  if (stepKey === "family" || stepKey === "social_relations") {
+    for (let i = 0; i < (form?.people || []).length; i += 1) {
+      const person = form.people[i];
+      if (empty(person.first_name) || empty(person.last_name)) {
+        return `نام و نام خانوادگی مورد ${i + 1} را کامل کنید.`;
+      }
+    }
+  }
+
+  if (stepKey === "residence") {
+    for (let i = 0; i < (form?.addresses || []).length; i += 1) {
+      const address = form.addresses[i];
+      if (empty(address.country_id) || empty(address.address_line)) {
+        return `کشور و آدرس مورد ${i + 1} را کامل کنید.`;
+      }
+    }
+  }
+
+  const fields = RECORDS[stepKey];
+  if (fields && Array.isArray(form?.records)) {
+    for (let i = 0; i < form.records.length; i += 1) {
+      for (const field of fields) {
+        if (!field.required || (field.visibleWhen && !field.visibleWhen(form.records[i]))) continue;
+        if (empty(form.records[i]?.[field.key])) {
+          return `«${field.label}» در ردیف ${i + 1} الزامی است.`;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 function makeForm(stepKey, data, user) {
