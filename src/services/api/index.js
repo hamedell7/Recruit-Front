@@ -1,4 +1,4 @@
-import { apiFetch } from "./httpClient";
+import { apiFetch, API_BASE_URL } from "./httpClient";
 
 const path = (value) => encodeURIComponent(value);
 
@@ -35,7 +35,7 @@ const api = {
     if (stepKey) form.append("step_key", stepKey);
     return apiFetch("/requests/" + path(id) + "/documents", { method: "POST", body: form });
   },
-  downloadDocumentUrl: (fileId) => "/api/v1/requests/documents/" + path(fileId) + "/download",
+  downloadDocumentUrl: (fileId) => API_BASE_URL + "/requests/documents/" + path(fileId) + "/download",
   countries: () => apiFetch("/geo/countries"),
   provinces: (countryId) => apiFetch("/geo/provinces?country_id=" + path(countryId)),
   counties: (provinceId) => apiFetch("/geo/counties?province_id=" + path(provinceId)),
