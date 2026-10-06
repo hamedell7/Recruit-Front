@@ -1,5 +1,7 @@
 import { getFieldError } from "../../../utils/validation";
-import FieldError from "../../../components/form/FieldError";\n\nfunction DeclarationStep({ form, setForm, readOnly, errors, clearValidationError }) {
+import FieldError from "../../../components/form/FieldError";
+
+function DeclarationStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const declaration = "اینجانب متعهد می‌شوم کلیه اطلاعات خواسته شده در پرسشنامه را صادقانه، در صورت لزوم با ارائه مدرک و مستند و به‌صورت خوانا و دقیق، شامل آدرس، شماره تماس، اسامی منابع و موارد خواسته‌شده ثبت نمایم. در صورت عدم پاسخ، پاسخ غیرصحیح یا ناقص بودن اطلاعات، مرجع گزینش می‌تواند مطابق ضوابط تصمیم مقتضی اتخاذ نماید.";
   return (
     <div className="form-stack">
@@ -16,4 +18,6 @@ import FieldError from "../../../components/form/FieldError";\n\nfunction Declar
       </label>
     </div>
   );
-}\n\nexport default DeclarationStep;\n
+}
+
+export default DeclarationStep;
