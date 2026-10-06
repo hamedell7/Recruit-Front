@@ -1,4 +1,6 @@
-import { formatErrorPath } from "../../utils/validation";\n\nfunction ValidationSummary({ errors, summaryRef }) {
+import { formatErrorPath } from "../../utils/validation";
+
+function ValidationSummary({ errors, summaryRef }) {
   const entries = Object.entries(errors || {});
   if (entries.length === 0) return null;
 
@@ -18,4 +20,6 @@ import { formatErrorPath } from "../../utils/validation";\n\nfunction Validation
       </div>
     </section>
   );
-}\n\nexport default ValidationSummary;\n
+}
+
+export default ValidationSummary;
