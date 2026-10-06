@@ -1,6 +1,8 @@
 import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
-import FormSection from "../../../components/form/FormSection";\n\nfunction MarriageStep({ form, setForm, readOnly, errors, clearValidationError }) {
+import FormSection from "../../../components/form/FormSection";
+
+function MarriageStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const spouse = form.spouse || {};
   const update = (key, value) => {
     clearValidationError(key);
@@ -38,4 +40,6 @@ import FormSection from "../../../components/form/FormSection";\n\nfunction Marr
       )}
     </div>
   );
-}\n\nexport default MarriageStep;\n
+}
+
+export default MarriageStep;
