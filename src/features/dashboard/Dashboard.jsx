@@ -5,7 +5,9 @@ import Modal from "../../components/common/Modal";
 import StatCard from "./cards/StatCard";
 import RequestCard from "./cards/RequestCard";
 import EmptyState from "./cards/EmptyState";
-import SkeletonCard from "./cards/SkeletonCard";\n\nfunction Dashboard({ user, onOpenRequest, onCreated, onError }) {
+import SkeletonCard from "./cards/SkeletonCard";
+
+function Dashboard({ user, onOpenRequest, onCreated, onError }) {
   const [requests, setRequests] = useState([]);
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,4 +110,6 @@ import SkeletonCard from "./cards/SkeletonCard";\n\nfunction Dashboard({ user, o
       )}
     </main>
   );
-}\n\nexport default Dashboard;\n
+}
+
+export default Dashboard;
