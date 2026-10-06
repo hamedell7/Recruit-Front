@@ -79,6 +79,9 @@ export const api = {
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
   stepData: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key)),
+  stepDraft: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft"),
+  saveDraft: (id, key, data) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft", { method: "PUT", body: { data } }),
+  deleteDraft: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft", { method: "DELETE" }),
   completeGeneric: (id, key) => apiFetch("/requests/" + path(id) + "/workflow/" + path(key) + "/complete", { method: "POST" }),
   completeStep: (id, key, payload) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/complete", {
     method: "POST",
