@@ -1,5 +1,7 @@
 import { STEP_META, STATUS } from "../../../config/workflow";
-import { statusLabel } from "../../../utils/status";\n\nfunction ReviewStep({ workflowSteps, steps, currentIndex, request }) {
+import { statusLabel } from "../../../utils/status";
+
+function ReviewStep({ workflowSteps, steps, currentIndex, request }) {
   const statusByKey = new Map();
   steps.forEach((step) => statusByKey.set(step.step_key, step.status));
   return (
@@ -13,4 +15,6 @@ import { statusLabel } from "../../../utils/status";\n\nfunction ReviewStep({ wo
       <div className="request-summary"><span>کد رهگیری</span><strong>{request.tracking_code}</strong><span>وضعیت فعلی</span><b>{statusLabel(request.status)[0]}</b></div>
     </div>
   );
-}\n\nexport default ReviewStep;\n
+}
+
+export default ReviewStep;
