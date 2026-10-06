@@ -293,7 +293,6 @@ function App() {
   }, [toast]);
 
   if (booting) return <LoadingScreen />;
-  if (!user) return <Login onLogin={(me) => { setUser(me); setView("dashboard"); }} onError={setToast} />;
 
   const openRequest = async (request) => {
     setActiveRequest(request);
@@ -311,12 +310,18 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Header user={user} onLogout={logout} />
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
-      {view === "dashboard" ? (
-        <Dashboard user={user} onOpenRequest={openRequest} onCreated={openRequest} onError={setToast} />
+      {!user ? (
+        <Login onLogin={(me) => { setUser(me); setView("dashboard"); setToast(null); }} onError={setToast} />
       ) : (
-        <RequestWizard user={user} request={activeRequest} onBack={() => setView("dashboard")} onError={setToast} />
+        <>
+          <Header user={user} onLogout={logout} />
+          {view === "dashboard" ? (
+            <Dashboard user={user} onOpenRequest={openRequest} onCreated={openRequest} onError={setToast} />
+          ) : (
+            <RequestWizard user={user} request={activeRequest} onBack={() => setView("dashboard")} onError={setToast} />
+          )}
+        </>
       )}
     </div>
   );
