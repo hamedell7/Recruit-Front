@@ -3,7 +3,9 @@ import { emptyRecord } from "../../../config/workflow";
 import { getFieldError } from "../../../utils/validation";
 import ListEditor from "../../../components/form/ListEditor";
 import FieldInput from "../../../components/form/FieldInput";
-import GeoFields from "../../../components/form/GeoFields";\n\nfunction RecordStep({ fields, form, setForm, countries, readOnly, errors, clearValidationError }) {
+import GeoFields from "../../../components/form/GeoFields";
+
+function RecordStep({ fields, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const records = normalizeList(form?.records);
   return (
     <ListEditor title="موارد ثبت‌شده" hint="در صورت نداشتن سابقه، می‌توانید این بخش را خالی بگذارید و ادامه دهید."
@@ -30,4 +32,6 @@ import GeoFields from "../../../components/form/GeoFields";\n\nfunction RecordSt
       }}
     />
   );
-}\n\nexport default RecordStep;\n
+}
+
+export default RecordStep;
