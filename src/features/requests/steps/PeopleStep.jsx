@@ -3,7 +3,9 @@ import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import ListEditor from "../../../components/form/ListEditor";
 import FormSection from "../../../components/form/FormSection";
-import AddressFields from "./AddressFields";\n\nfunction PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearValidationError }) {
+import AddressFields from "./AddressFields";
+
+function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const people = normalizeList(form?.people);
   const isFamily = kind === "family";
   const empty = () => ({
@@ -61,4 +63,6 @@ import AddressFields from "./AddressFields";\n\nfunction PeopleStep({ kind, form
       }}
     />
   );
-}\n\nexport default PeopleStep;\n
+}
+
+export default PeopleStep;
