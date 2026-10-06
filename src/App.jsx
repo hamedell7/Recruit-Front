@@ -336,19 +336,44 @@ function Login({ onLogin, onError }) {
   const [nationalId, setNationalId] = useState("");
   const [mobile, setMobile] = useState("");
   const [busy, setBusy] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const validationSummaryRef = useRef(null);
+
+  const applyLoginValidationErrors = (errors) => {
+    const next = {};
+    (errors || []).forEach((item) => {
+      const key = item.path || "";
+      if (!next[key]) next[key] = item.message;
+    });
+    setValidationErrors(next);
+    if (Object.keys(next).length > 0) {
+      requestAnimationFrame(() => validationSummaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  };
+
+  const clearLoginValidationError = (fieldPath) => {
+    setValidationErrors((current) => {
+      const next = { ...current };
+      Object.keys(next).forEach((key) => {
+        if (key === fieldPath || key.startsWith(fieldPath + ".")) delete next[key];
+      });
+      return next;
+    });
+  };
 
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true);
     try {
       const result = await api.login(nationalId, mobile);
+      setValidationErrors({});
       onLogin(result.user);
     } catch (error) {
       if (error.validationErrors?.length) {
-        applyValidationErrors(error.validationErrors);
+        applyLoginValidationErrors(error.validationErrors);
         onError({
           type: "error",
-          text: "سامانه چند مورد از اطلاعات واردشده را معتبر ندانست؛ جزئیات کنار فیلدها نمایش داده شده است.",
+          text: "لطفاً خطاهای فرم ورود را اصلاح کنید.",
           requestId: error.requestId,
         });
       } else {
@@ -393,29 +418,42 @@ function Login({ onLogin, onError }) {
             <p>برای مشاهده درخواست‌ها، کد ملی و شماره موبایل خود را وارد کنید.</p>
           </div>
           <form onSubmit={submit}>
-            <label className="field">
+            {Object.keys(validationErrors).length > 0 && (
+              <ValidationSummary errors={validationErrors} summaryRef={validationSummaryRef} />
+            )}
+            <label className={"field " + (getFieldError(validationErrors, "national_id") ? "has-error" : "")}>
               <span>کد ملی</span>
               <input
                 inputMode="numeric"
                 autoComplete="username"
                 maxLength={10}
                 value={nationalId}
-                onChange={(e) => setNationalId(e.target.value)}
+                onChange={(e) => {
+                  clearLoginValidationError("national_id");
+                  setNationalId(e.target.value);
+                }}
                 placeholder="مثلاً ۰۰۱۲۳۴۵۶۷۸"
                 required
+                aria-invalid={getFieldError(validationErrors, "national_id") ? "true" : undefined}
               />
+              <FieldError error={getFieldError(validationErrors, "national_id")} />
             </label>
-            <label className="field">
+            <label className={"field " + (getFieldError(validationErrors, "mobile") ? "has-error" : "")}>
               <span>شماره موبایل</span>
               <input
                 inputMode="tel"
                 autoComplete="tel"
                 maxLength={13}
                 value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
+                onChange={(e) => {
+                  clearLoginValidationError("mobile");
+                  setMobile(e.target.value);
+                }}
                 placeholder="۰۹۱۲…"
                 required
+                aria-invalid={getFieldError(validationErrors, "mobile") ? "true" : undefined}
               />
+              <FieldError error={getFieldError(validationErrors, "mobile")} />
             </label>
             <button className="primary-button wide" disabled={busy}>
               {busy ? <><span className="button-spinner" /> در حال ورود…</> : <>ورود به پنل <span>←</span></>}
