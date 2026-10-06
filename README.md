@@ -1,12 +1,42 @@
 # Recruit Front
 
-Frontend حرفه‌ای و فارسی سامانه Recruit با React 19.3 و Vite 8.
+Frontend حرفه‌ای و فارسی سامانه Recruit مبتنی بر React 19 و Vite 8.
+
+## معماری پروژه
+
+ساختار پروژه بر اساس تفکیک مسئولیت و Feature-based organization تنظیم شده است:
+
+```text
+src/
+├── app/                     # orchestration و bootstrap اپلیکیشن
+├── components/              # کامپوننت‌های عمومی و قابل‌استفاده مجدد
+│   ├── common/
+│   ├── form/
+│   └── layout/
+├── config/                  # تنظیمات و متادیتای workflowها
+├── features/
+│   ├── auth/                # ورود و احراز هویت
+│   ├── dashboard/           # داشبورد و کارت‌های درخواست
+│   └── requests/            # Wizard، navigation و تمام Stepها
+├── services/
+│   └── api/                 # HTTP client و endpointهای Backend
+├── styles/                  # CSS تفکیک‌شده بر اساس لایه و feature
+└── utils/                   # توابع pure و utilityهای عمومی
+```
+
+`src/App.jsx` فقط مسئول orchestration سطح بالا است؛ منطق UI، فرم، API، workflow و validation در ماژول‌های مستقل نگهداری می‌شوند.
 
 ## جریان کار
 
 کاربر وارد پنل می‌شود و ابتدا درخواست‌های خودش را می‌بیند. از همان‌جا می‌تواند درخواست جدید بسازد یا پرونده قبلی را از مرحله جاری ادامه دهد.
 
-برای Workflow گزینش، فرم مطابق ساختار کاربرگ ۶ صفحه‌ای و ۳۱ بخش اصلی به صورت Wizard مرحله‌ای و امن پیاده‌سازی شده است؛ هر مرحله پس از تأیید با Backend ذخیره و سپس transition می‌شود.
+برای Workflow گزینش، فرم به‌صورت Wizard مرحله‌ای پیاده‌سازی شده است؛ هر مرحله پس از تأیید با Backend ذخیره و سپس transition می‌شود.
+
+## لایه API
+
+تمام ارتباطات Backend از `src/services/api/httpClient.js` عبور می‌کند. این لایه مسئول credentials، CSRF، request correlation، parsing پاسخ‌ها، validation error normalization و mapping خطاهای رایج مانند 401 و 429 است.
+
+Endpointهای دامنه‌ای در `src/services/api/index.js` نگهداری می‌شوند تا UI مستقیماً با جزئیات transport درگیر نباشد.
 
 ## امنیت
 
@@ -20,14 +50,25 @@ Frontend حرفه‌ای و فارسی سامانه Recruit با React 19.3 و V
 
 ## اجرا
 
-1. مقدار VITE_API_BASE_URL را در .env تنظیم کنید.
-2. npm install
-3. npm run dev
+```bash
+npm install
+npm run dev
+```
 
-پیش‌فرض محلی: http://localhost:8000/api/v1
+برای Backend URL می‌توان مقدار `VITE_API_BASE_URL` را در `.env` تنظیم کرد.
 
-## نکته Backend
+پیش‌فرض API محلی:
+`http://localhost:8000/api/v1`
 
-Backend باید CORS origin مربوط به URL این frontend را در CORS_ORIGINS داشته باشد. چون session در cookie نگهداری می‌شود، استفاده از HTTPS در production و تنظیم Secure cookie اجباری است.
+برای production:
 
-نسخه فعلی React: 19.3.0.
+```bash
+npm run build
+npm run preview
+```
+
+## کیفیت کد
+
+هر تغییر روی branch اصلی از طریق GitHub Actions با `npm install` و `npm run build` بررسی می‌شود.
+
+فونت اصلی پروژه Iran Yekan است و فایل‌های فونت قدیمی Vazir حذف شده‌اند.
