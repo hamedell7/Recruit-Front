@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
 import { getFieldError } from "../../utils/validation";
-import { SelectField } from "./Fields";\n\nfunction GeoFields({ record, setRecord, countries, readOnly, prefix = "", errors, errorPrefix = "", clearValidationError }) {
+import { SelectField } from "./Fields";
+
+function GeoFields({ record, setRecord, countries, readOnly, prefix = "", errors, errorPrefix = "", clearValidationError }) {
   const has = (key) => Object.prototype.hasOwnProperty.call(record, key);
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
@@ -76,4 +78,6 @@ import { SelectField } from "./Fields";\n\nfunction GeoFields({ record, setRecor
       </div>
     </div>
   );
-}\n\nexport default GeoFields;\n
+}
+
+export default GeoFields;
