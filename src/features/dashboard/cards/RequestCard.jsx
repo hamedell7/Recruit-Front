@@ -1,4 +1,5 @@
 import { STEP_META } from "../../../config/workflow";
+import { statusLabel } from "../../../utils/status";
 import { formatDate } from "../../../utils/date";\n\nfunction RequestCard({ request, onOpen }) {
   const [label, tone] = statusLabel(request.status);
   const step = STEP_META[request.current_step_key];
