@@ -954,7 +954,7 @@ function MarriageStep({ form, setForm, readOnly }) {
         </FormSection>
       ) : (
         <div className="inline-info"><strong>در این وضعیت، اطلاعات همسر لازم نیست.</strong><span>در صورت تغییر وضعیت تأهل، می‌توانید این مرحله را اصلاح کنید.</span></div>
-      )
+      )}
     </div>
   );
 }
