@@ -4,7 +4,9 @@ import TextField, { TextArea, SelectField } from "../../../components/form/Field
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
 import GeoFields from "../../../components/form/GeoFields";
-import AddressFields from "./AddressFields";\n\nfunction PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
+import AddressFields from "./AddressFields";
+
+function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
   const update = (key, value) => {
     clearValidationError(key);
     setForm((current) => ({ ...current, [key]: value }));
@@ -61,4 +63,6 @@ import AddressFields from "./AddressFields";\n\nfunction PersonalStep({ form, se
       />
     </div>
   );
-}\n\nexport default PersonalStep;\n
+}
+
+export default PersonalStep;
