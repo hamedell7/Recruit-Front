@@ -41,7 +41,7 @@ const RECORDS = {
     { key: "end_date", label: "تاریخ پایان", type: "date" },
     { key: "booklet_status", label: "وضعیت دفترچه", type: "text" },
     { key: "absence_status", label: "وضعیت غیبت", type: "text" },
-    { key: "exemption_reason", label: "علت معافیت", type: "textarea", full: true },
+    { key: "exemption_reason", label: "علت معافیت", type: "textarea", full: true, visibleWhen: (record) => record.status === "معاف" },
   ],
   education: [
     { key: "degree_level", label: "مقطع تحصیلی / سطح", type: "text", required: true },
@@ -62,7 +62,7 @@ const RECORDS = {
     { key: "position", label: "سمت و شغل", type: "text", required: true },
     { key: "start_date", label: "تاریخ به‌کارگیری", type: "date", required: true },
     { key: "end_date", label: "تاریخ قطع همکاری", type: "date" },
-    { key: "termination_reason", label: "علت ترک خدمت", type: "textarea", full: true },
+    { key: "termination_reason", label: "علت ترک خدمت", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
     { key: "work_address", label: "نشانی محل کار", type: "textarea", full: true },
     { key: "manager_name", label: "نام مسئول", type: "text" },
     { key: "manager_phone", label: "تلفن مسئول", type: "text" },
@@ -103,7 +103,7 @@ const RECORDS = {
     { key: "organization_name", label: "نام سازمان / اداره", type: "text", required: true },
     { key: "screening_date", label: "تاریخ گزینش", type: "date" },
     { key: "result", label: "نتیجه گزینش", type: "text", required: true },
-    { key: "rejection_reason", label: "علت عدم پذیرش", type: "textarea", full: true },
+    { key: "rejection_reason", label: "علت عدم پذیرش", type: "textarea", full: true, visibleWhen: (record) => /رد|عدم پذیرش|نپذیرفته/.test(record.result || "") },
     { key: "address", label: "نشانی محل گزینش", type: "textarea", full: true },
     { key: "phone", label: "تلفن محل گزینش", type: "text" },
   ],
@@ -157,7 +157,7 @@ const RECORDS = {
     { key: "end_date", label: "تا تاریخ", type: "date" },
     { key: "reason", label: "علت اشتغال / ارتباط", type: "textarea", full: true },
     { key: "acquaintance_method", label: "زمینه / نحوه آشنایی", type: "textarea", full: true },
-    { key: "termination_reason", label: "علت قطع ارتباط", type: "textarea", full: true },
+    { key: "termination_reason", label: "علت قطع ارتباط", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
   ],
   addiction: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
@@ -205,7 +205,7 @@ const RECORDS = {
     { key: "end_date", label: "تا تاریخ", type: "date" },
     { key: "responsibility", label: "نوع مسئولیت / فعالیت", type: "textarea", full: true },
     { key: "motivation", label: "علت / انگیزه فعالیت", type: "textarea", full: true },
-    { key: "termination_reason", label: "علت ترک فعالیت", type: "textarea", full: true },
+    { key: "termination_reason", label: "علت ترک فعالیت", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
     { key: "manager_name", label: "نام مسئول", type: "text" },
     { key: "address", label: "نشانی محل فعالیت", type: "textarea", full: true },
     { key: "phone", label: "تلفن", type: "text" },
@@ -938,18 +938,22 @@ function MarriageStep({ form, setForm, readOnly }) {
           <TextField label="علت پایان" value={form.end_reason} onChange={(v) => setForm({ ...form, end_reason: v })} readOnly={readOnly} />
         </div>
       </FormSection>
-      <FormSection title="مشخصات همسر" hint="در صورت وجود همسر، اطلاعات زیر را تکمیل کنید.">
-        <div className="field-grid">
-          <TextField label="نام" value={spouse.first_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, first_name: v } })} readOnly={readOnly} />
-          <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, last_name: v } })} readOnly={readOnly} />
-          <TextField label="نام پدر" value={spouse.father_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, father_name: v } })} readOnly={readOnly} />
-          <TextField label="کد ملی" value={spouse.national_id} onChange={(v) => setForm({ ...form, spouse: { ...spouse, national_id: v } })} readOnly={readOnly} />
-          <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(v) => setForm({ ...form, spouse: { ...spouse, birth_date: v } })} readOnly={readOnly} />
-          <TextField label="شغل" value={spouse.occupation} onChange={(v) => setForm({ ...form, spouse: { ...spouse, occupation: v } })} readOnly={readOnly} />
-          <TextField label="تحصیلات" value={spouse.education} onChange={(v) => setForm({ ...form, spouse: { ...spouse, education: v } })} readOnly={readOnly} />
-          <TextArea label="ملاحظات" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} full readOnly={readOnly} />
-        </div>
-      </FormSection>
+      {["متأهل", "ازدواج مجدد"].includes(form.status) ? (
+        <FormSection title="مشخصات همسر" hint="اطلاعات همسر را مطابق آخرین وضعیت ثبت کنید.">
+          <div className="field-grid">
+            <TextField label="نام" value={spouse.first_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, first_name: v } })} readOnly={readOnly} />
+            <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, last_name: v } })} readOnly={readOnly} />
+            <TextField label="نام پدر" value={spouse.father_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, father_name: v } })} readOnly={readOnly} />
+            <TextField label="کد ملی" value={spouse.national_id} onChange={(v) => setForm({ ...form, spouse: { ...spouse, national_id: v } })} readOnly={readOnly} />
+            <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(v) => setForm({ ...form, spouse: { ...spouse, birth_date: v } })} readOnly={readOnly} />
+            <TextField label="شغل" value={spouse.occupation} onChange={(v) => setForm({ ...form, spouse: { ...spouse, occupation: v } })} readOnly={readOnly} />
+            <TextField label="تحصیلات" value={spouse.education} onChange={(v) => setForm({ ...form, spouse: { ...spouse, education: v } })} readOnly={readOnly} />
+            <TextArea label="ملاحظات" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} full readOnly={readOnly} />
+          </div>
+        </FormSection>
+      ) : (
+        <div className="inline-info"><strong>در این وضعیت، اطلاعات همسر لازم نیست.</strong><span>در صورت تغییر وضعیت تأهل، می‌توانید این مرحله را اصلاح کنید.</span></div>
+      )
     </div>
   );
 }
@@ -991,10 +995,11 @@ function PeopleStep({ kind, form, setForm, countries, readOnly }) {
             <TextField label="نام" value={item.first_name} onChange={(v) => setItem({ ...item, first_name: v })} readOnly={readOnly} />
             <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => setItem({ ...item, last_name: v })} readOnly={readOnly} />
             <TextField label="نام پدر" value={item.father_name} onChange={(v) => setItem({ ...item, father_name: v })} readOnly={readOnly} />
-            <TextField label="کد ملی" value={item.national_id} onChange={(v) => setItem({ ...item, national_id: v })} readOnly={readOnly} />
+            {isFamily && <TextField label="کد ملی" value={item.national_id} onChange={(v) => setItem({ ...item, national_id: v })} readOnly={readOnly} />}
             <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => setItem({ ...item, birth_date: v })} readOnly={readOnly} />
             <TextField label="تحصیلات" value={item.education} onChange={(v) => setItem({ ...item, education: v })} readOnly={readOnly} />
-            <TextField label="شغل" value={item.occupation} onChange={(v) => setItem({ ...item, occupation: v })} readOnly={readOnly} />
+            <TextField label="شغل" value={item.occupation} onChange={(v) => updatePersonField(item, "occupation", v, setItem)} readOnly={readOnly} />
+            {isFamily && <SelectField label="جنسیت" value={item.gender} onChange={(v) => setItem({ ...item, gender: v })} options={["مرد", "زن"]} readOnly={readOnly} />}
             {isFamily && <SelectField label="وضعیت حیات" value={item.alive_status} onChange={(v) => setItem({ ...item, alive_status: v })} options={["زنده", "فوت شده"]} readOnly={readOnly} />}
             <TextArea label="توضیحات" value={item.notes} onChange={(v) => setItem({ ...item, notes: v })} full readOnly={readOnly} />
           </div>
@@ -1256,6 +1261,12 @@ function Modal({ title, children, onClose }) {
   );
 }
 
+function normalizeDigits(value) {
+  return String(value || "")
+    .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
+    .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
+}
+
 function cleanPayload(value) {
   if (Array.isArray(value)) return value.map(cleanPayload);
   if (value && typeof value === "object") {
@@ -1327,6 +1338,95 @@ function validateStep(stepKey, form) {
   }
 
   return null;
+}
+
+function updatePersonField(item, key, value, setItem) {
+  setItem({ ...item, [key]: value });
+}
+
+function DraftStatus({ state, updatedAt }) {
+  const labels = {
+    idle: "آماده ذخیره خودکار",
+    dirty: "در حال ثبت تغییرات…",
+    saving: "در حال ذخیره امن…",
+    saved: "ذخیره شد",
+    error: "ذخیره خودکار ناموفق بود",
+  };
+  return <div className={"draft-status " + state}><span className="draft-pulse" /><span>{labels[state] || labels.idle}</span>{updatedAt && state === "saved" && <time>{formatDate(updatedAt)}</time>}</div>;
+}
+
+function GeoFields({ record, setRecord, countries, readOnly, prefix = "" }) {
+  const has = (key) => Object.prototype.hasOwnProperty.call(record, key);
+  const countryKey = prefix + "country_id";
+  const provinceKey = prefix + "province_id";
+  const countyKey = prefix + "county_id";
+  const cityKey = prefix + "city_id";
+  const villageKey = prefix + "village_id";
+  const countryId = has(countryKey) ? record[countryKey] : (countries[0]?.id || "");
+  const [provinces, setProvinces] = useState([]);
+  const [counties, setCounties] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [villages, setVillages] = useState([]);
+
+  useEffect(() => {
+    if (!countryId || !has(provinceKey)) return undefined;
+    let cancelled = false;
+    api.provinces(countryId).then((items) => { if (!cancelled) setProvinces(normalizeList(items)); }).catch(() => setProvinces([]));
+    return () => { cancelled = true; };
+  }, [countryId, provinceKey]);
+
+  useEffect(() => {
+    const provinceId = record[provinceKey];
+    if (!provinceId || !has(countyKey)) return undefined;
+    let cancelled = false;
+    api.counties(provinceId).then((items) => { if (!cancelled) setCounties(normalizeList(items)); }).catch(() => setCounties([]));
+    return () => { cancelled = true; };
+  }, [record[provinceKey], countyKey]);
+
+  useEffect(() => {
+    const provinceId = record[provinceKey];
+    const countyId = record[countyKey];
+    if ((!countyId && !provinceId) || !has(cityKey)) return undefined;
+    let cancelled = false;
+    const call = countyId ? api.cities(countyId) : api.citiesByProvince(provinceId);
+    call.then((items) => { if (!cancelled) setCities(normalizeList(items)); }).catch(() => setCities([]));
+    return () => { cancelled = true; };
+  }, [record[provinceKey], record[countyKey], cityKey]);
+
+  useEffect(() => {
+    const countyId = record[countyKey];
+    if (!countyId || !has(villageKey)) return undefined;
+    let cancelled = false;
+    api.villages(countyId).then((items) => { if (!cancelled) setVillages(normalizeList(items)); }).catch(() => setVillages([]));
+    return () => { cancelled = true; };
+  }, [record[countyKey], villageKey]);
+
+  const setValue = (key, value) => {
+    const next = { ...record, [key]: value };
+    if (key === countryKey) {
+      [provinceKey, countyKey, cityKey, villageKey].forEach((child) => { if (has(child)) next[child] = ""; });
+    }
+    if (key === provinceKey) {
+      [countyKey, cityKey, villageKey].forEach((child) => { if (has(child)) next[child] = ""; });
+    }
+    if (key === countyKey) {
+      [cityKey, villageKey].forEach((child) => { if (has(child)) next[child] = ""; });
+    }
+    setRecord(next);
+  };
+
+  return (
+    <div className="geo-block field full">
+      <div className="geo-caption"><strong>موقعیت جغرافیایی</strong><span>انتخاب‌ها به صورت وابسته از بالا به پایین هستند.</span></div>
+      <div className="field-grid geo-grid">
+        {has(countryKey) && <SelectField label="کشور" value={record[countryKey]} onChange={(v) => setValue(countryKey, v)} options={countries.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(provinceKey) && <SelectField label="استان" value={record[provinceKey]} onChange={(v) => setValue(provinceKey, v)} options={provinces.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(countyKey) && <SelectField label="شهرستان" value={record[countyKey]} onChange={(v) => setValue(countyKey, v)} options={counties.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(cityKey) && <SelectField label="شهر" value={record[cityKey]} onChange={(v) => setValue(cityKey, v)} options={cities.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(villageKey) && <SelectField label="روستا" value={record[villageKey]} onChange={(v) => setValue(villageKey, v)} options={villages.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+      </div>
+    </div>
+  );
 }
 
 function makeForm(stepKey, data, user) {
