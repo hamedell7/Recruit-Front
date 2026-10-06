@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
 import { STEP_META, FLOW_SECTIONS } from "../../config/workflow";
+import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanPayload, makeForm, mergeDraft, validateStep } from "../../utils/form";
 import ValidationSummary from "../../components/form/ValidationSummary";
@@ -8,6 +9,7 @@ import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
 import ReviewStep from "./steps/ReviewStep";
 import StepRail from "./StepRail";
+import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";\n\nfunction RequestWizard({ user, request, onBack, onError }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
