@@ -161,16 +161,16 @@ a{color:inherit;text-decoration:none}
 .auth-card{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:24px;padding:35px;box-shadow:var(--shadow)}
 .auth-heading h2{margin:8px 0 7px;font-size:29px}.auth-heading p{margin:0 0 26px;color:var(--muted);font-size:12px;line-height:1.8}
 .field{display:flex;flex-direction:column;gap:7px}
-.field>span{font-size:11px;color:#344054;font-weight:600}.field em{color:#d92d20;font-style:normal;margin-right:3px}
-.field input,.field select,.field textarea{width:100%;border:1px solid var(--line-strong);background:#fff;color:var(--ink);border-radius:11px;outline:none;padding:11px 12px;font-size:12px;transition:border-color .2s,box-shadow .2s}
-.field input,.field select{height:44px}
+.field>span{font-size:12px;color:#344054;font-weight:600;line-height:1.7}.field em{color:#d92d20;font-style:normal;margin-right:3px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line-strong);background:#fff;color:var(--ink);border-radius:11px;outline:none;padding:12px 13px;font-size:13px;transition:border-color .2s,box-shadow .2s}
+.field input,.field select{height:46px}
 .field textarea{resize:vertical;line-height:1.9;min-height:110px}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:#86a8d3;box-shadow:0 0 0 4px rgba(71,115,178,.09)}
 .field input[readonly],.field textarea[readonly]{background:#f8fafc;color:#667085}
 .field select:disabled{background:#f8fafc;color:#667085}
 .field.has-error>input,.field.has-error>select,.field.has-error>textarea{border-color:#e5484d;background:#fffafa}
 .field.has-error>input:focus,.field.has-error>select:focus,.field.has-error>textarea:focus{border-color:#e5484d;box-shadow:0 0 0 4px rgba(229,72,77,.1)}
-.field-error{display:block;color:#b42318;font-size:10px;line-height:1.7;margin-top:-2px}
+.field-error{display:block;color:#b42318;font-size:11px;line-height:1.7;margin-top:-2px}
 .validation-summary{display:grid;grid-template-columns:34px minmax(0,1fr);gap:11px;align-items:start;margin:-6px 0 18px;padding:13px 14px;border:1px solid #f0c7ca;background:#fff8f8;border-radius:14px;color:#7f1d1d}
 .validation-summary-icon{width:28px;height:28px;border-radius:9px;background:#b42318;color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
 .validation-summary strong{display:block;font-size:12px;color:#8f1d23}
