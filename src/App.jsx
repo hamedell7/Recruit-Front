@@ -344,7 +344,16 @@ function Login({ onLogin, onError }) {
       const result = await api.login(nationalId, mobile);
       onLogin(result.user);
     } catch (error) {
-      onError({ type: "error", text: error.message, requestId: error.requestId });
+      if (error.validationErrors?.length) {
+        applyValidationErrors(error.validationErrors);
+        onError({
+          type: "error",
+          text: "سامانه چند مورد از اطلاعات واردشده را معتبر ندانست؛ جزئیات کنار فیلدها نمایش داده شده است.",
+          requestId: error.requestId,
+        });
+      } else {
+        onError({ type: "error", text: error.message, requestId: error.requestId });
+      }
     } finally {
       setBusy(false);
     }
@@ -615,6 +624,8 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [draftStatus, setDraftStatus] = useState("idle");
   const [lastDraftSaved, setLastDraftSaved] = useState(null);
   const [draftHydrated, setDraftHydrated] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
+  const validationSummaryRef = useRef(null);
   const autosaveSequence = useRef(0);
 
   const workflowSteps = useMemo(() => {
@@ -627,6 +638,28 @@ function RequestWizard({ user, request, onBack, onError }) {
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
   const readOnly = resume?.status === "SUBMITTED" || resume?.status === "APPROVED" || resume?.status === "REJECTED" || index < backendCurrentIndex;
+
+  const clearValidationError = (fieldPath) => {
+    setValidationErrors((current) => {
+      const next = { ...current };
+      Object.keys(next).forEach((key) => {
+        if (key === fieldPath || key.startsWith(fieldPath + ".")) delete next[key];
+      });
+      return next;
+    });
+  };
+
+  const applyValidationErrors = (errors) => {
+    const next = {};
+    (errors || []).forEach((item) => {
+      const key = item.path || "";
+      if (!next[key]) next[key] = item.message;
+    });
+    setValidationErrors(next);
+    if (Object.keys(next).length > 0) {
+      requestAnimationFrame(() => validationSummaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  };
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -662,6 +695,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       setDraftHydrated(false);
       setDraftStatus("idle");
       setLastDraftSaved(null);
+      setValidationErrors({});
       try {
         if (currentKey === "documents") {
           const docs = await api.documents(appRequest.id);
@@ -746,11 +780,14 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const complete = async () => {
     if (readOnly) return;
-    const validationError = validateStep(currentKey, form || {});
-    if (validationError) {
-      onError({ type: "error", text: validationError });
+    const localErrors = validateStep(currentKey, form || {});
+    if (Object.keys(localErrors).length > 0) {
+      setValidationErrors(localErrors);
+      requestAnimationFrame(() => validationSummaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      onError({ type: "error", text: "برخی از فیلدهای فرم نیاز به اصلاح دارند." });
       return;
     }
+    setValidationErrors({});
     setSaving(true);
     try {
       let result;
@@ -823,6 +860,10 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div className="step-number">{String(index + 1).padStart(2, "0")}</div>
           </div>
 
+          {Object.keys(validationErrors).length > 0 && (
+            <ValidationSummary errors={validationErrors} summaryRef={validationSummaryRef} />
+          )}
+
           {resume?.status === "RETURNED" && backendCurrentIndex === index && (
             <div className="return-alert"><strong>این مرحله برای اصلاح برگشت داده شده است.</strong><span>پس از اصلاح اطلاعات، دکمه ثبت و ادامه را بزنید تا دوباره وارد فرآیند بررسی شود.</span></div>
           )}
@@ -832,7 +873,16 @@ function RequestWizard({ user, request, onBack, onError }) {
           ) : currentKey === "review" ? (
             <ReviewStep workflowSteps={workflowSteps} steps={steps} currentIndex={backendCurrentIndex} request={appRequest} />
           ) : (
-            <StepRenderer stepKey={currentKey} form={form} setForm={setForm} data={stepData} countries={countries} readOnly={readOnly} />
+            <StepRenderer
+              stepKey={currentKey}
+              form={form}
+              setForm={setForm}
+              data={stepData}
+              countries={countries}
+              readOnly={readOnly}
+              errors={validationErrors}
+              clearValidationError={clearValidationError}
+            />
           )}
 
           <div className="wizard-footer">
@@ -871,16 +921,16 @@ function StepRailItem({ keyName, active, completed, onClick, order }) {
   );
 }
 
-function StepRenderer({ stepKey, form, setForm, data, countries, readOnly }) {
+function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, errors, clearValidationError }) {
   if (!form && stepKey !== "additional") return <div className="loading-inline">در حال آماده‌سازی فرم…</div>;
-  if (stepKey === "personal") return <PersonalStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} />;
-  if (stepKey === "marriage") return <MarriageStep form={form} setForm={setForm} readOnly={readOnly} />;
-  if (stepKey === "family") return <PeopleStep kind="family" form={form} setForm={setForm} countries={countries} readOnly={readOnly} />;
-  if (stepKey === "social_relations") return <PeopleStep kind="social" form={form} setForm={setForm} countries={countries} readOnly={readOnly} />;
-  if (stepKey === "residence") return <ResidenceStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} />;
-  if (stepKey === "additional") return <TextareaStep value={form?.details || ""} onChange={(value) => setForm({ details: value })} readOnly={readOnly} />;
-  if (stepKey === "declaration") return <DeclarationStep form={form} setForm={setForm} readOnly={readOnly} />;
-  return <RecordStep fields={RECORDS[stepKey] || []} form={form || { records: [] }} setForm={setForm} countries={countries} readOnly={readOnly} />;
+  if (stepKey === "personal") return <PersonalStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "marriage") return <MarriageStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "family") return <PeopleStep kind="family" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "social_relations") return <PeopleStep kind="social" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "residence") return <ResidenceStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "additional") return <TextareaStep value={form?.details || ""} onChange={(value) => { clearValidationError("details"); setForm({ details: value }); }} readOnly={readOnly} error={errors.details} />;
+  if (stepKey === "declaration") return <DeclarationStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  return <RecordStep fields={RECORDS[stepKey] || []} form={form || { records: [] }} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
 }
 
 function PersonalStep({ form, setForm, countries, readOnly }) {
@@ -1135,35 +1185,63 @@ function FieldInput({ field, value, onChange, countries, readOnly, record }) {
   return <TextField label={field.label} type={field.type} value={value} onChange={onChange} required={field.required} readOnly={readOnly} />;
 }
 
-function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode }) {
+function FieldError({ error }) {
+  return error ? <small className="field-error" role="alert">{error}</small> : null;
+}
+
+function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error }) {
   return (
-    <label className="field">
+    <label className={"field " + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
-      <input type={type} value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={required && !readOnly} readOnly={readOnly} inputMode={inputMode} />
+      <input
+        type={type}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        required={required && !readOnly}
+        readOnly={readOnly}
+        inputMode={inputMode}
+        aria-invalid={error ? "true" : undefined}
+      />
+      <FieldError error={error} />
     </label>
   );
 }
 
-function TextArea({ label, value, onChange, required, full, readOnly, rows = 5 }) {
+function TextArea({ label, value, onChange, required, full, readOnly, rows = 5, error }) {
   return (
-    <label className={"field " + (full ? "full" : "")}>
+    <label className={"field " + (full ? "full " : "") + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
-      <textarea value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={required && !readOnly} readOnly={readOnly} rows={rows} />
+      <textarea
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        required={required && !readOnly}
+        readOnly={readOnly}
+        rows={rows}
+        aria-invalid={error ? "true" : undefined}
+      />
+      <FieldError error={error} />
     </label>
   );
 }
 
-function SelectField({ label, value, onChange, options = [], required, readOnly }) {
+function SelectField({ label, value, onChange, options = [], required, readOnly, error }) {
   return (
-    <label className="field">
+    <label className={"field " + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
-      <select value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={required && !readOnly} disabled={readOnly}>
+      <select
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value)}
+        required={required && !readOnly}
+        disabled={readOnly}
+        aria-invalid={error ? "true" : undefined}
+      >
         <option value="">انتخاب کنید</option>
         {options.map((option) => {
           const normalized = typeof option === "string" ? { value: option, label: option } : option;
           return <option key={String(normalized.value)} value={normalized.value}>{normalized.label}</option>;
         })}
       </select>
+      <FieldError error={error} />
     </label>
   );
 }
