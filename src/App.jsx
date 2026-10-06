@@ -910,6 +910,7 @@ function PersonalStep({ form, setForm, countries, readOnly }) {
           <TextArea label="نوع بیماری / توضیحات جسمانی" value={form.disease_description} onChange={(v) => update("disease_description", v)} full readOnly={readOnly} />
           <TextArea label="معلولیت" value={form.disability_description} onChange={(v) => update("disability_description", v)} full readOnly={readOnly} />
           <TextArea label="علائم مشخصه" value={form.distinguishing_marks} onChange={(v) => update("distinguishing_marks", v)} full readOnly={readOnly} />
+          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" />
         </div>
       </FormSection>
       <ListEditor title="راه‌های تماس" hint="می‌توانید چند شماره تلفن یا شناسه فضای مجازی ثبت کنید." readOnly={readOnly} items={contacts} setItems={(items) => update("contacts", items)} empty={() => ({ contact_type: "موبایل", value: "", owner_type: "APPLICANT", owner_name: "", is_primary: false })} render={(item, setItem) => (
