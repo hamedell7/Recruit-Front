@@ -1,4 +1,4 @@
-const STEP_META = const STEP_META = {
+const STEP_META = {
   personal: { title: "مشخصات فردی", kicker: "هویت و اطلاعات تماس" },
   marriage: { title: "وضعیت تأهل و همسر", kicker: "وضعیت خانوادگی" },
   military: { title: "وضعیت نظام وظیفه", kicker: "خدمت و معافیت" },
