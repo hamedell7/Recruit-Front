@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
-import { STEP_META, FLOW_SECTIONS } from "../../config/workflow";
+import { STEP_META, STEP_DESCRIPTIONS, FLOW_SECTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanPayload, makeForm, mergeDraft, validateStep } from "../../utils/form";
@@ -269,7 +269,7 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div>
               <span className="eyebrow">{meta.kicker}</span>
               <h1>{meta.title}</h1>
-              <p>{stepDescription(currentKey)}</p>
+              <p>{STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را با دقت تکمیل کنید."}</p>
               {!readOnly && !["documents", "review"].includes(currentKey) && (
                 <DraftStatus state={draftStatus} updatedAt={lastDraftSaved} />
               )}
