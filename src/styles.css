@@ -74,8 +74,9 @@
 }
 
 *{box-sizing:border-box}
-html{min-width:320px;background:var(--bg)}
-body{margin:0;min-width:320px;background:var(--bg);color:var(--ink);font-family:"Vazir",Tahoma,Arial,sans-serif}
+html{min-width:320px;background:var(--bg);font-family:"Vazir",Tahoma,Arial,sans-serif}
+body,#root{margin:0;min-width:320px;background:var(--bg);color:var(--ink);font-family:inherit}
+*,*::before,*::after{font-family:inherit}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.55}
