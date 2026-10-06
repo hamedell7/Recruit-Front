@@ -19,4 +19,7 @@ function ListEditor({ title, hint, items, setItems, empty, render, readOnly, com
       )}
     </section>
   );
-}\n\nexport default ListEditor;\n
+}
+
+export default ListEditor;
+
