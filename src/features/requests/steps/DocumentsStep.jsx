@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { api } from "../../../services/api";
 import FormSection from "../../../components/form/FormSection";
-import { SelectField } from "../../../components/form/Fields";\n\nfunction DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) {
+import { SelectField } from "../../../components/form/Fields";
+
+function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) {
   const [file, setFile] = useState(null);
   const [documentType, setDocumentType] = useState("identity");
   const [busy, setBusy] = useState(false);
@@ -61,4 +63,6 @@ import { SelectField } from "../../../components/form/Fields";\n\nfunction Docum
       </FormSection>
     </div>
   );
-}\n\nexport default DocumentsStep;\n
+}
+
+export default DocumentsStep;
