@@ -700,7 +700,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       if (currentKey === "documents" || currentKey === "review") {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
-        result = await api.completeStep(appRequest.id, currentKey, form || {});
+        result = await api.completeStep(appRequest.id, currentKey, cleanPayload(form || {}));
       }
       await refreshWorkflow(result.next_step ? workflowSteps.indexOf(result.next_step) : workflowSteps.length - 1);
     } catch (error) {
@@ -1186,6 +1186,16 @@ function Modal({ title, children, onClose }) {
       </section>
     </div>
   );
+}
+
+function cleanPayload(value) {
+  if (Array.isArray(value)) return value.map(cleanPayload);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, cleanPayload(entry)])
+    );
+  }
+  return value === "" ? null : value;
 }
 
 function makeForm(stepKey, data, user) {
