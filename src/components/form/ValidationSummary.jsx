@@ -12,8 +12,8 @@ function ValidationSummary({ errors, summaryRef }) {
         <div className="validation-summary-list">
           {entries.map(([path, message]) => (
             <div key={path || message} className="validation-summary-item">
-              <span>{formatErrorPath(path)}</span>
-              <b>{message}</b>
+              <span className="validation-summary-field">{formatErrorPath(path)}:</span>
+              <b className="validation-summary-message">{message}</b>
             </div>
           ))}
         </div>
