@@ -801,7 +801,16 @@ function RequestWizard({ user, request, onBack, onError }) {
       }
       await refreshWorkflow(result.next_step ? workflowSteps.indexOf(result.next_step) : workflowSteps.length - 1);
     } catch (error) {
-      onError({ type: "error", text: error.message, requestId: error.requestId });
+      if (error.validationErrors?.length) {
+        applyValidationErrors(error.validationErrors);
+        onError({
+          type: "error",
+          text: "سامانه چند مورد از اطلاعات واردشده را معتبر ندانست؛ جزئیات کنار فیلدها نمایش داده شده است.",
+          requestId: error.requestId,
+        });
+      } else {
+        onError({ type: "error", text: error.message, requestId: error.requestId });
+      }
     } finally {
       setSaving(false);
     }
@@ -1185,6 +1194,70 @@ function FieldInput({ field, value, onChange, countries, readOnly, record }) {
   return <TextField label={field.label} type={field.type} value={value} onChange={onChange} required={field.required} readOnly={readOnly} />;
 }
 
+function ValidationSummary({ errors, summaryRef }) {
+  const entries = Object.entries(errors || {});
+  if (entries.length === 0) return null;
+
+  return (
+    <section className="validation-summary" ref={summaryRef} role="alert" aria-live="polite">
+      <div className="validation-summary-icon">!</div>
+      <div>
+        <strong>لطفاً موارد زیر را اصلاح کنید.</strong>
+        <div className="validation-summary-list">
+          {entries.map(([path, message]) => (
+            <div key={path || message} className="validation-summary-item">
+              <span>{formatErrorPath(path)}</span>
+              <b>{message}</b>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function getFieldError(errors, path) {
+  return errors?.[path] || null;
+}
+
+function formatErrorPath(path) {
+  if (!path) return "اطلاعات فرم";
+  const parts = path.split(".");
+  const labels = {
+    first_name: "نام",
+    last_name: "نام خانوادگی",
+    father_name: "نام پدر",
+    national_id: "کد ملی",
+    email: "ایمیل",
+    status: "وضعیت",
+    accepted: "تأیید تعهدنامه",
+    country_id: "کشور",
+    province_id: "استان",
+    county_id: "شهرستان",
+    city_id: "شهر",
+    village_id: "روستا",
+    address_line: "آدرس دقیق",
+  };
+
+  if (parts[0] === "records" && parts.length >= 3) {
+    const index = Number(parts[1]);
+    return Number.isNaN(index) ? labels[parts[2]] || parts[2] : `ردیف ${index + 1}، ${labels[parts[2]] || parts[2]}`;
+  }
+  if (parts[0] === "people" && parts.length >= 3) {
+    const index = Number(parts[1]);
+    return Number.isNaN(index) ? "عضو خانواده / منبع شناخت" : `مورد ${index + 1}، ${labels[parts[2]] || parts[2]}`;
+  }
+  if (parts[0] === "addresses" && parts.length >= 3) {
+    const index = Number(parts[1]);
+    return Number.isNaN(index) ? "آدرس" : `آدرس ${index + 1}، ${labels[parts[2]] || parts[2]}`;
+  }
+  if (parts[0] === "spouse" && parts.length >= 2) {
+    return `همسر، ${labels[parts[1]] || parts[1]}`;
+  }
+
+  return labels[path] || path;
+}
+
 function FieldError({ error }) {
   return error ? <small className="field-error" role="alert">{error}</small> : null;
 }
@@ -1364,43 +1437,45 @@ function mergeDraft(base, draft) {
 
 function validateStep(stepKey, form) {
   const empty = (value) => value === undefined || value === null || String(value).trim() === "";
+  const errors = {};
+
+  const add = (path, message) => {
+    if (!errors[path]) errors[path] = message;
+  };
 
   if (stepKey === "personal") {
-    if (empty(form?.first_name)) return "نام را وارد کنید.";
-    if (empty(form?.last_name)) return "نام خانوادگی را وارد کنید.";
+    if (empty(form?.first_name)) add("first_name", "نام را وارد کنید.");
+    if (empty(form?.last_name)) add("last_name", "نام خانوادگی را وارد کنید.");
     const nid = normalizeDigits(String(form?.national_id || "")).replace(/[-\s]/g, "");
-    if (!/^\d{10}$/.test(nid)) return "کد ملی باید ۱۰ رقم باشد.";
-    if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return "ایمیل واردشده معتبر نیست.";
+    if (!/^\d{10}$/.test(nid)) add("national_id", "کد ملی باید ۱۰ رقم باشد.");
+    if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) add("email", "ایمیل واردشده معتبر نیست.");
   }
 
   if (stepKey === "marriage") {
-    if (empty(form?.status)) return "وضعیت تأهل را انتخاب کنید.";
-    if (["متأهل", "ازدواج مجدد"].includes(form.status)) {
-      if (empty(form?.spouse?.first_name) || empty(form?.spouse?.last_name)) {
-        return "نام و نام خانوادگی همسر را وارد کنید.";
-      }
+    if (empty(form?.status)) add("status", "وضعیت تأهل را انتخاب کنید.");
+    if (["متأهل", "ازدواج مجدد"].includes(form?.status)) {
+      if (empty(form?.spouse?.first_name)) add("spouse.first_name", "نام همسر را وارد کنید.");
+      if (empty(form?.spouse?.last_name)) add("spouse.last_name", "نام خانوادگی همسر را وارد کنید.");
     }
   }
 
   if (stepKey === "declaration" && !form?.accepted) {
-    return "برای ثبت نهایی باید تعهدنامه را تأیید کنید.";
+    add("accepted", "برای ثبت نهایی باید تعهدنامه را تأیید کنید.");
   }
 
   if (stepKey === "family" || stepKey === "social_relations") {
     for (let i = 0; i < (form?.people || []).length; i += 1) {
       const person = form.people[i];
-      if (empty(person.first_name) || empty(person.last_name)) {
-        return `نام و نام خانوادگی مورد ${i + 1} را کامل کنید.`;
-      }
+      if (empty(person.first_name)) add(`people.${i}.first_name`, "نام را وارد کنید.");
+      if (empty(person.last_name)) add(`people.${i}.last_name`, "نام خانوادگی را وارد کنید.");
     }
   }
 
   if (stepKey === "residence") {
     for (let i = 0; i < (form?.addresses || []).length; i += 1) {
       const address = form.addresses[i];
-      if (empty(address.country_id) || empty(address.address_line)) {
-        return `کشور و آدرس مورد ${i + 1} را کامل کنید.`;
-      }
+      if (empty(address.country_id)) add(`addresses.${i}.country_id`, "کشور را انتخاب کنید.");
+      if (empty(address.address_line)) add(`addresses.${i}.address_line`, "آدرس دقیق را وارد کنید.");
     }
   }
 
@@ -1410,13 +1485,13 @@ function validateStep(stepKey, form) {
       for (const field of fields) {
         if (!field.required || (field.visibleWhen && !field.visibleWhen(form.records[i]))) continue;
         if (empty(form.records[i]?.[field.key])) {
-          return `«${field.label}» در ردیف ${i + 1} الزامی است.`;
+          add(`records.${i}.${field.key}`, `«${field.label}» در این ردیف الزامی است.`);
         }
       }
     }
   }
 
-  return null;
+  return errors;
 }
 
 function updatePersonField(item, key, value, setItem) {
