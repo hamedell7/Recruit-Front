@@ -942,73 +942,96 @@ function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, error
   return <RecordStep fields={RECORDS[stepKey] || []} form={form || { records: [] }} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
 }
 
-function PersonalStep({ form, setForm, countries, readOnly }) {
-  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
+  const update = (key, value) => {
+    clearValidationError(key);
+    setForm((current) => ({ ...current, [key]: value }));
+  };
   const contacts = normalizeList(form?.contacts);
   const addresses = normalizeList(form?.addresses);
   return (
     <div className="form-stack">
       <FormSection title="اطلاعات هویتی" hint="اطلاعات پایه داوطلب را با دقت وارد کنید.">
         <div className="field-grid">
-          <TextField label="نام" value={form.first_name} onChange={(v) => update("first_name", v)} required readOnly={readOnly} />
-          <TextField label="نام خانوادگی" value={form.last_name} onChange={(v) => update("last_name", v)} required readOnly={readOnly} />
-          <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} readOnly={readOnly} />
-          <TextField label="کد ملی" value={form.national_id} onChange={(v) => update("national_id", v)} required inputMode="numeric" readOnly={readOnly} />
-          <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} readOnly={readOnly} />
-          <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} readOnly={readOnly} />
-          <TextField label="تاریخ تولد" type="date" value={form.birth_date} onChange={(v) => update("birth_date", v)} readOnly={readOnly} />
-          <SelectField label="جنسیت" value={form.gender} onChange={(v) => update("gender", v)} options={["مرد", "زن"]} readOnly={readOnly} />
-          <TextField label="تابعیت" value={form.nationality} onChange={(v) => update("nationality", v)} readOnly={readOnly} />
-          <TextField label="دین" value={form.religion} onChange={(v) => update("religion", v)} readOnly={readOnly} />
-          <TextField label="مذهب" value={form.sect} onChange={(v) => update("sect", v)} readOnly={readOnly} />
-          <SelectField label="وضعیت جسمانی" value={form.physical_status} onChange={(v) => update("physical_status", v)} options={["سالم", "بیمار"]} readOnly={readOnly} />
-          <TextField label="وزن (کیلوگرم)" type="number" value={form.weight_kg} onChange={(v) => update("weight_kg", v)} readOnly={readOnly} />
-          <TextField label="قد (سانتی‌متر)" type="number" value={form.height_cm} onChange={(v) => update("height_cm", v)} readOnly={readOnly} />
-          <TextField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} readOnly={readOnly} />
-          <TextField label="ایمیل" value={form.email} onChange={(v) => update("email", v)} readOnly={readOnly} />
-          <TextArea label="نوع بیماری / توضیحات جسمانی" value={form.disease_description} onChange={(v) => update("disease_description", v)} full readOnly={readOnly} />
-          <TextArea label="معلولیت" value={form.disability_description} onChange={(v) => update("disability_description", v)} full readOnly={readOnly} />
-          <TextArea label="علائم مشخصه" value={form.distinguishing_marks} onChange={(v) => update("distinguishing_marks", v)} full readOnly={readOnly} />
-          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" />
+          <TextField label="نام" value={form.first_name} onChange={(v) => update("first_name", v)} error={getFieldError(errors, "first_name")} required readOnly={readOnly} />
+          <TextField label="نام خانوادگی" value={form.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, "last_name")} required readOnly={readOnly} />
+          <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, "father_name")} readOnly={readOnly} />
+          <TextField label="کد ملی" value={form.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly={readOnly} />
+          <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
+          <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} error={getFieldError(errors, "previous_last_name")} readOnly={readOnly} />
+          <TextField label="تاریخ تولد" type="date" value={form.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, "birth_date")} readOnly={readOnly} />
+          <SelectField label="جنسیت" value={form.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, "gender")} options={["مرد", "زن"]} readOnly={readOnly} />
+          <TextField label="تابعیت" value={form.nationality} onChange={(v) => update("nationality", v)} error={getFieldError(errors, "nationality")} readOnly={readOnly} />
+          <TextField label="دین" value={form.religion} onChange={(v) => update("religion", v)} error={getFieldError(errors, "religion")} readOnly={readOnly} />
+          <TextField label="مذهب" value={form.sect} onChange={(v) => update("sect", v)} error={getFieldError(errors, "sect")} readOnly={readOnly} />
+          <SelectField label="وضعیت جسمانی" value={form.physical_status} onChange={(v) => update("physical_status", v)} error={getFieldError(errors, "physical_status")} options={["سالم", "بیمار"]} readOnly={readOnly} />
+          <TextField label="وزن (کیلوگرم)" type="number" value={form.weight_kg} onChange={(v) => update("weight_kg", v)} error={getFieldError(errors, "weight_kg")} readOnly={readOnly} />
+          <TextField label="قد (سانتی‌متر)" type="number" value={form.height_cm} onChange={(v) => update("height_cm", v)} error={getFieldError(errors, "height_cm")} readOnly={readOnly} />
+          <TextField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} readOnly={readOnly} />
+          <TextField label="ایمیل" value={form.email} onChange={(v) => update("email", v)} error={getFieldError(errors, "email")} readOnly={readOnly} />
+          <TextArea label="نوع بیماری / توضیحات جسمانی" value={form.disease_description} onChange={(v) => update("disease_description", v)} error={getFieldError(errors, "disease_description")} full readOnly={readOnly} />
+          <TextArea label="معلولیت" value={form.disability_description} onChange={(v) => update("disability_description", v)} error={getFieldError(errors, "disability_description")} full readOnly={readOnly} />
+          <TextArea label="علائم مشخصه" value={form.distinguishing_marks} onChange={(v) => update("distinguishing_marks", v)} error={getFieldError(errors, "distinguishing_marks")} full readOnly={readOnly} />
+          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" errors={errors} errorPrefix="" clearValidationError={clearValidationError} />
         </div>
       </FormSection>
-      <ListEditor title="راه‌های تماس" hint="می‌توانید چند شماره تلفن یا شناسه فضای مجازی ثبت کنید." readOnly={readOnly} items={contacts} setItems={(items) => update("contacts", items)} empty={() => ({ contact_type: "موبایل", value: "", owner_type: "APPLICANT", owner_name: "", is_primary: false })} render={(item, setItem) => (
-        <div className="mini-grid">
-          <TextField label="نوع تماس" value={item.contact_type} onChange={(v) => setItem({ ...item, contact_type: v })} readOnly={readOnly} />
-          <TextField label="شماره / شناسه" value={item.value} onChange={(v) => setItem({ ...item, value: v })} readOnly={readOnly} />
-          <TextField label="نوع مالکیت" value={item.owner_type} onChange={(v) => setItem({ ...item, owner_type: v })} readOnly={readOnly} />
-          <TextField label="نام مالک" value={item.owner_name} onChange={(v) => setItem({ ...item, owner_name: v })} readOnly={readOnly} />
-          <label className="checkbox-line"><input type="checkbox" checked={Boolean(item.is_primary)} onChange={(e) => setItem({ ...item, is_primary: e.target.checked })} disabled={readOnly} /> تماس اصلی</label>
-        </div>
-      )} />
-      <ListEditor title="نشانی محل سکونت و آدرس‌ها" hint="برای آدرس فعلی یا سوابق آدرس می‌توانید چند مورد ثبت کنید." readOnly={readOnly} items={addresses} setItems={(items) => update("addresses", items)} empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })} render={(item, setItem) => <AddressFields item={item} setItem={setItem} countries={countries} readOnly={readOnly} />} />
+
+      <ListEditor title="راه‌های تماس" hint="می‌توانید چند شماره تلفن یا شناسه فضای مجازی ثبت کنید." readOnly={readOnly}
+        items={contacts} setItems={(items) => setForm((current) => ({ ...current, contacts: items }))}
+        clearValidationError={clearValidationError} errorPrefix="contacts"
+        empty={() => ({ contact_type: "موبایل", value: "", owner_type: "APPLICANT", owner_name: "", is_primary: false })}
+        render={(item, setItem, index) => (
+          <div className="mini-grid">
+            <TextField label="نوع تماس" value={item.contact_type} onChange={(v) => { const p=`contacts.${index}.contact_type`; clearValidationError(p); setItem({ ...item, contact_type: v }); }} error={getFieldError(errors, `contacts.${index}.contact_type`)} readOnly={readOnly} />
+            <TextField label="شماره / شناسه" value={item.value} onChange={(v) => { const p=`contacts.${index}.value`; clearValidationError(p); setItem({ ...item, value: v }); }} error={getFieldError(errors, `contacts.${index}.value`)} readOnly={readOnly} />
+            <TextField label="نوع مالکیت" value={item.owner_type} onChange={(v) => { const p=`contacts.${index}.owner_type`; clearValidationError(p); setItem({ ...item, owner_type: v }); }} error={getFieldError(errors, `contacts.${index}.owner_type`)} readOnly={readOnly} />
+            <TextField label="نام مالک" value={item.owner_name} onChange={(v) => { const p=`contacts.${index}.owner_name`; clearValidationError(p); setItem({ ...item, owner_name: v }); }} error={getFieldError(errors, `contacts.${index}.owner_name`)} readOnly={readOnly} />
+            <label className="checkbox-line"><input type="checkbox" checked={Boolean(item.is_primary)} onChange={(e) => { clearValidationError(`contacts.${index}.is_primary`); setItem({ ...item, is_primary: e.target.checked }); }} disabled={readOnly} /> تماس اصلی</label>
+          </div>
+        )}
+      />
+
+      <ListEditor title="نشانی محل سکونت و آدرس‌ها" hint="برای آدرس فعلی یا سوابق آدرس می‌توانید چند مورد ثبت کنید." readOnly={readOnly}
+        items={addresses} setItems={(items) => setForm((current) => ({ ...current, addresses: items }))}
+        clearValidationError={clearValidationError} errorPrefix="addresses"
+        empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
+        render={(item, setItem, index) => <AddressFields item={item} setItem={setItem} countries={countries} readOnly={readOnly} errors={errors} errorPrefix={`addresses.${index}`} clearValidationError={clearValidationError} />}
+      />
     </div>
   );
 }
 
-function MarriageStep({ form, setForm, readOnly }) {
+function MarriageStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const spouse = form.spouse || {};
+  const update = (key, value) => {
+    clearValidationError(key);
+    setForm({ ...form, [key]: value });
+  };
+  const updateSpouse = (key, value) => {
+    clearValidationError(`spouse.${key}`);
+    setForm({ ...form, spouse: { ...spouse, [key]: value } });
+  };
   return (
     <div className="form-stack">
       <FormSection title="وضعیت تأهل" hint="مطابق اطلاعات واقعی و آخرین وضعیت ثبتی ثبت کنید.">
         <div className="field-grid">
-          <SelectField label="وضعیت" value={form.status} onChange={(v) => setForm({ ...form, status: v })} options={["مجرد", "در شرف ازدواج", "متأهل", "متارکه", "فوت همسر", "ازدواج مجدد"]} readOnly={readOnly} />
-          <TextField label="تاریخ ازدواج" type="date" value={form.marriage_date} onChange={(v) => setForm({ ...form, marriage_date: v })} readOnly={readOnly} />
-          <TextField label="تاریخ پایان" type="date" value={form.end_date} onChange={(v) => setForm({ ...form, end_date: v })} readOnly={readOnly} />
-          <TextField label="علت پایان" value={form.end_reason} onChange={(v) => setForm({ ...form, end_reason: v })} readOnly={readOnly} />
+          <SelectField label="وضعیت" value={form.status} onChange={(v) => update("status", v)} error={getFieldError(errors, "status")} options={["مجرد", "در شرف ازدواج", "متأهل", "متارکه", "فوت همسر", "ازدواج مجدد"]} readOnly={readOnly} />
+          <TextField label="تاریخ ازدواج" type="date" value={form.marriage_date} onChange={(v) => update("marriage_date", v)} error={getFieldError(errors, "marriage_date")} readOnly={readOnly} />
+          <TextField label="تاریخ پایان" type="date" value={form.end_date} onChange={(v) => update("end_date", v)} error={getFieldError(errors, "end_date")} readOnly={readOnly} />
+          <TextField label="علت پایان" value={form.end_reason} onChange={(v) => update("end_reason", v)} error={getFieldError(errors, "end_reason")} readOnly={readOnly} />
         </div>
       </FormSection>
       {["متأهل", "ازدواج مجدد"].includes(form.status) ? (
         <FormSection title="مشخصات همسر" hint="اطلاعات همسر را مطابق آخرین وضعیت ثبت کنید.">
           <div className="field-grid">
-            <TextField label="نام" value={spouse.first_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, first_name: v } })} readOnly={readOnly} />
-            <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, last_name: v } })} readOnly={readOnly} />
-            <TextField label="نام پدر" value={spouse.father_name} onChange={(v) => setForm({ ...form, spouse: { ...spouse, father_name: v } })} readOnly={readOnly} />
-            <TextField label="کد ملی" value={spouse.national_id} onChange={(v) => setForm({ ...form, spouse: { ...spouse, national_id: v } })} readOnly={readOnly} />
-            <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(v) => setForm({ ...form, spouse: { ...spouse, birth_date: v } })} readOnly={readOnly} />
-            <TextField label="شغل" value={spouse.occupation} onChange={(v) => setForm({ ...form, spouse: { ...spouse, occupation: v } })} readOnly={readOnly} />
-            <TextField label="تحصیلات" value={spouse.education} onChange={(v) => setForm({ ...form, spouse: { ...spouse, education: v } })} readOnly={readOnly} />
-            <TextArea label="ملاحظات" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} full readOnly={readOnly} />
+            <TextField label="نام" value={spouse.first_name} onChange={(v) => updateSpouse("first_name", v)} error={getFieldError(errors, "spouse.first_name")} readOnly={readOnly} />
+            <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(v) => updateSpouse("last_name", v)} error={getFieldError(errors, "spouse.last_name")} readOnly={readOnly} />
+            <TextField label="نام پدر" value={spouse.father_name} onChange={(v) => updateSpouse("father_name", v)} error={getFieldError(errors, "spouse.father_name")} readOnly={readOnly} />
+            <TextField label="کد ملی" value={spouse.national_id} onChange={(v) => updateSpouse("national_id", v)} error={getFieldError(errors, "spouse.national_id")} readOnly={readOnly} />
+            <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(v) => updateSpouse("birth_date", v)} error={getFieldError(errors, "spouse.birth_date")} readOnly={readOnly} />
+            <TextField label="شغل" value={spouse.occupation} onChange={(v) => updateSpouse("occupation", v)} error={getFieldError(errors, "spouse.occupation")} readOnly={readOnly} />
+            <TextField label="تحصیلات" value={spouse.education} onChange={(v) => updateSpouse("education", v)} error={getFieldError(errors, "spouse.education")} readOnly={readOnly} />
+            <TextArea label="ملاحظات" value={form.notes} onChange={(v) => update("notes", v)} error={getFieldError(errors, "notes")} full readOnly={readOnly} />
           </div>
         </FormSection>
       ) : (
@@ -1018,88 +1041,98 @@ function MarriageStep({ form, setForm, readOnly }) {
   );
 }
 
-function PeopleStep({ kind, form, setForm, countries, readOnly }) {
+function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const people = normalizeList(form?.people);
   const isFamily = kind === "family";
   const empty = () => ({
-    person_id: null,
-    role_type: isFamily ? "FATHER" : "FRIEND",
-    relation_to_applicant: "",
-    first_name: "",
-    last_name: "",
-    father_name: "",
-    national_id: "",
-    birth_date: "",
-    gender: "",
-    alive_status: "",
-    education: "",
-    occupation: "",
-    contacts: [],
-    addresses: [],
-    notes: "",
+    person_id: null, role_type: isFamily ? "FATHER" : "FRIEND", relation_to_applicant: "",
+    first_name: "", last_name: "", father_name: "", national_id: "", birth_date: "",
+    gender: "", alive_status: "", education: "", occupation: "", contacts: [], addresses: [], notes: "",
   });
+
   return (
-    <ListEditor
-      title={isFamily ? "اعضای خانواده" : "منابع شناخت و معاشرین"}
+    <ListEditor title={isFamily ? "اعضای خانواده" : "منابع شناخت و معاشرین"}
       hint={isFamily ? "والدین، خواهر و برادر، همسر، فرزندان و سایر اعضای خانوادگی را ثبت کنید." : "دوستان، همسایگان، معرفین و بستگانی که شناخت کافی از شما دارند را ثبت کنید."}
-      readOnly={readOnly}
-      items={people}
-      setItems={(items) => setForm({ people: items })}
-      empty={empty}
-      render={(item, setItem) => (
-        <div className="person-card">
-          <div className="card-badge">{isFamily ? "اعضای خانواده" : "منبع شناخت"}</div>
-          <div className="field-grid">
-            <SelectField label="نقش" value={item.role_type} onChange={(v) => setItem({ ...item, role_type: v })} options={isFamily ? ["FATHER", "MOTHER", "SIBLING", "CHILD", "SPOUSE_FATHER", "SPOUSE_MOTHER", "SPOUSE_SIBLING", "GRANDPARENT"] : ["FRIEND", "NEIGHBOR", "REFERENCE", "RELATIVE", "FAMILY_FRIEND", "MILITARY_RELATIVE"]} readOnly={readOnly} />
-            <TextField label="نسبت" value={item.relation_to_applicant} onChange={(v) => setItem({ ...item, relation_to_applicant: v })} readOnly={readOnly} />
-            <TextField label="نام" value={item.first_name} onChange={(v) => setItem({ ...item, first_name: v })} readOnly={readOnly} />
-            <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => setItem({ ...item, last_name: v })} readOnly={readOnly} />
-            <TextField label="نام پدر" value={item.father_name} onChange={(v) => setItem({ ...item, father_name: v })} readOnly={readOnly} />
-            {isFamily && <TextField label="کد ملی" value={item.national_id} onChange={(v) => setItem({ ...item, national_id: v })} readOnly={readOnly} />}
-            <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => setItem({ ...item, birth_date: v })} readOnly={readOnly} />
-            <TextField label="تحصیلات" value={item.education} onChange={(v) => setItem({ ...item, education: v })} readOnly={readOnly} />
-            <TextField label="شغل" value={item.occupation} onChange={(v) => updatePersonField(item, "occupation", v, setItem)} readOnly={readOnly} />
-            {isFamily && <SelectField label="جنسیت" value={item.gender} onChange={(v) => setItem({ ...item, gender: v })} options={["مرد", "زن"]} readOnly={readOnly} />}
-            {isFamily && <SelectField label="وضعیت حیات" value={item.alive_status} onChange={(v) => setItem({ ...item, alive_status: v })} options={["زنده", "فوت شده"]} readOnly={readOnly} />}
-            <TextArea label="توضیحات" value={item.notes} onChange={(v) => setItem({ ...item, notes: v })} full readOnly={readOnly} />
+      readOnly={readOnly} items={people} setItems={(items) => setForm({ people: items })}
+      clearValidationError={clearValidationError} errorPrefix="people" empty={empty}
+      render={(item, setItem, index) => {
+        const prefix = `people.${index}`;
+        const update = (key, value) => { clearValidationError(`${prefix}.${key}`); setItem({ ...item, [key]: value }); };
+        return (
+          <div className="person-card">
+            <div className="card-badge">{isFamily ? "اعضای خانواده" : "منبع شناخت"}</div>
+            <div className="field-grid">
+              <SelectField label="نقش" value={item.role_type} onChange={(v) => update("role_type", v)} error={getFieldError(errors, `${prefix}.role_type`)} options={isFamily ? ["FATHER", "MOTHER", "SIBLING", "CHILD", "SPOUSE_FATHER", "SPOUSE_MOTHER", "SPOUSE_SIBLING", "GRANDPARENT"] : ["FRIEND", "NEIGHBOR", "REFERENCE", "RELATIVE", "FAMILY_FRIEND", "MILITARY_RELATIVE"]} readOnly={readOnly} />
+              <TextField label="نسبت" value={item.relation_to_applicant} onChange={(v) => update("relation_to_applicant", v)} error={getFieldError(errors, `${prefix}.relation_to_applicant`)} readOnly={readOnly} />
+              <TextField label="نام" value={item.first_name} onChange={(v) => update("first_name", v)} error={getFieldError(errors, `${prefix}.first_name`)} readOnly={readOnly} />
+              <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, `${prefix}.last_name`)} readOnly={readOnly} />
+              <TextField label="نام پدر" value={item.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, `${prefix}.father_name`)} readOnly={readOnly} />
+              {isFamily && <TextField label="کد ملی" value={item.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, `${prefix}.national_id`)} readOnly={readOnly} />}
+              <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, `${prefix}.birth_date`)} readOnly={readOnly} />
+              <TextField label="تحصیلات" value={item.education} onChange={(v) => update("education", v)} error={getFieldError(errors, `${prefix}.education`)} readOnly={readOnly} />
+              <TextField label="شغل" value={item.occupation} onChange={(v) => update("occupation", v)} error={getFieldError(errors, `${prefix}.occupation`)} readOnly={readOnly} />
+              {isFamily && <SelectField label="جنسیت" value={item.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, `${prefix}.gender`)} options={["مرد", "زن"]} readOnly={readOnly} />}
+              {isFamily && <SelectField label="وضعیت حیات" value={item.alive_status} onChange={(v) => update("alive_status", v)} error={getFieldError(errors, `${prefix}.alive_status`)} options={["زنده", "فوت شده"]} readOnly={readOnly} />}
+              <TextArea label="توضیحات" value={item.notes} onChange={(v) => update("notes", v)} error={getFieldError(errors, `${prefix}.notes`)} full readOnly={readOnly} />
+            </div>
+
+            <div className="subeditor">
+              <ListEditor title="تماس‌ها" items={normalizeList(item.contacts)} setItems={(items) => setItem({ ...item, contacts: items })}
+                clearValidationError={clearValidationError} errorPrefix={`${prefix}.contacts`}
+                empty={() => ({ contact_type: "موبایل", value: "", owner_type: "", owner_name: "", is_primary: false })} readOnly={readOnly} compact
+                render={(contact, setContact, contactIndex) => (
+                  <div className="mini-grid">
+                    <TextField label="نوع" value={contact.contact_type} onChange={(v) => { const p=`${prefix}.contacts.${contactIndex}.contact_type`; clearValidationError(p); setContact({ ...contact, contact_type: v }); }} error={getFieldError(errors, `${prefix}.contacts.${contactIndex}.contact_type`)} readOnly={readOnly} />
+                    <TextField label="شماره / شناسه" value={contact.value} onChange={(v) => { const p=`${prefix}.contacts.${contactIndex}.value`; clearValidationError(p); setContact({ ...contact, value: v }); }} error={getFieldError(errors, `${prefix}.contacts.${contactIndex}.value`)} readOnly={readOnly} />
+                  </div>
+                )}
+              />
+              <ListEditor title="نشانی‌ها" items={normalizeList(item.addresses)} setItems={(items) => setItem({ ...item, addresses: items })}
+                clearValidationError={clearValidationError} errorPrefix={`${prefix}.addresses`}
+                empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
+                readOnly={readOnly} compact
+                render={(address, setAddress, addressIndex) => <AddressFields item={address} setItem={setAddress} countries={countries} readOnly={readOnly} errors={errors} errorPrefix={`${prefix}.addresses.${addressIndex}`} clearValidationError={clearValidationError} />}
+              />
+            </div>
           </div>
-          <div className="subeditor">
-            <ListEditor title="تماس‌ها" items={normalizeList(item.contacts)} setItems={(items) => setItem({ ...item, contacts: items })} empty={() => ({ contact_type: "موبایل", value: "", owner_type: "", owner_name: "", is_primary: false })} readOnly={readOnly} compact render={(contact, setContact) => (
-              <div className="mini-grid">
-                <TextField label="نوع" value={contact.contact_type} onChange={(v) => setContact({ ...contact, contact_type: v })} readOnly={readOnly} />
-                <TextField label="شماره / شناسه" value={contact.value} onChange={(v) => setContact({ ...contact, value: v })} readOnly={readOnly} />
-              </div>
-            )} />
-            <ListEditor title="نشانی‌ها" items={normalizeList(item.addresses)} setItems={(items) => setItem({ ...item, addresses: items })} empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })} readOnly={readOnly} compact render={(address, setAddress) => <AddressFields item={address} setItem={setAddress} countries={countries} readOnly={readOnly} />} />
-          </div>
-        </div>
-      )}
+        );
+      }}
     />
   );
 }
 
-function ResidenceStep({ form, setForm, countries, readOnly }) {
+function ResidenceStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
   const addresses = normalizeList(form?.addresses);
   return (
-    <ListEditor title="نشانی‌های محل سکونت" hint="از ده سال پیش تا امروز، به ترتیب زمانی، نشانی‌ها را ثبت کنید." items={addresses} setItems={(items) => setForm({ addresses: items })} empty={() => ({ address_type: "RESIDENCE", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })} readOnly={readOnly} render={(item, setItem) => <AddressFields item={item} setItem={setItem} countries={countries} readOnly={readOnly} residence />} />
+    <ListEditor title="نشانی‌های محل سکونت" hint="از ده سال پیش تا امروز، به ترتیب زمانی، نشانی‌ها را ثبت کنید."
+      items={addresses} setItems={(items) => setForm({ addresses: items })} clearValidationError={clearValidationError} errorPrefix="addresses"
+      empty={() => ({ address_type: "RESIDENCE", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
+      readOnly={readOnly}
+      render={(item, setItem, index) => <AddressFields item={item} setItem={setItem} countries={countries} readOnly={readOnly} residence errors={errors} errorPrefix={`addresses.${index}`} clearValidationError={clearValidationError} />}
+    />
   );
 }
 
-function AddressFields({ item, setItem, countries, readOnly, residence }) {
+function AddressFields({ item, setItem, countries, readOnly, residence, errors, errorPrefix = "", clearValidationError }) {
+  const fieldPath = (key) => errorPrefix ? `${errorPrefix}.${key}` : key;
+  const update = (key, value) => {
+    clearValidationError?.(fieldPath(key));
+    setItem({ ...item, [key]: value });
+  };
   return (
     <div className="field-grid">
-      <SelectField label="نوع آدرس" value={item.address_type} onChange={(v) => setItem({ ...item, address_type: v })} options={residence ? ["RESIDENCE", "PREVIOUS_RESIDENCE"] : ["CURRENT", "FAMILY", "WORK"]} readOnly={readOnly} />
-      <SelectField label="کشور" value={item.country_id} onChange={(v) => setItem({ ...item, country_id: v })} options={countries.map((c) => ({ value: c.id, label: c.name }))} readOnly={readOnly} />
-      <TextField label="کد پستی" value={item.postal_code} onChange={(v) => setItem({ ...item, postal_code: v })} readOnly={readOnly} />
-      <TextField label="تلفن" value={item.phone} onChange={(v) => setItem({ ...item, phone: v })} readOnly={readOnly} />
-      <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => setItem({ ...item, from_date: v })} readOnly={readOnly} />
-      <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => setItem({ ...item, to_date: v })} readOnly={readOnly} />
-      <TextArea label="آدرس دقیق" value={item.address_line} onChange={(v) => setItem({ ...item, address_line: v })} full readOnly={readOnly} />
+      <SelectField label="نوع آدرس" value={item.address_type} onChange={(v) => update("address_type", v)} error={getFieldError(errors, fieldPath("address_type"))} options={residence ? ["RESIDENCE", "PREVIOUS_RESIDENCE"] : ["CURRENT", "FAMILY", "WORK"]} readOnly={readOnly} />
+      <SelectField label="کشور" value={item.country_id} onChange={(v) => update("country_id", v)} error={getFieldError(errors, fieldPath("country_id"))} options={countries.map((c) => ({ value: c.id, label: c.name }))} readOnly={readOnly} />
+      <TextField label="کد پستی" value={item.postal_code} onChange={(v) => update("postal_code", v)} error={getFieldError(errors, fieldPath("postal_code"))} readOnly={readOnly} />
+      <TextField label="تلفن" value={item.phone} onChange={(v) => update("phone", v)} error={getFieldError(errors, fieldPath("phone"))} readOnly={readOnly} />
+      <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
+      <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />
+      <TextArea label="آدرس دقیق" value={item.address_line} onChange={(v) => update("address_line", v)} error={getFieldError(errors, fieldPath("address_line"))} full readOnly={readOnly} />
     </div>
   );
 }
 
-function DeclarationStep({ form, setForm, readOnly }) {
+function DeclarationStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const declaration = "اینجانب متعهد می‌شوم کلیه اطلاعات خواسته شده در پرسشنامه را صادقانه، در صورت لزوم با ارائه مدرک و مستند و به‌صورت خوانا و دقیق، شامل آدرس، شماره تماس، اسامی منابع و موارد خواسته‌شده ثبت نمایم. در صورت عدم پاسخ، پاسخ غیرصحیح یا ناقص بودن اطلاعات، مرجع گزینش می‌تواند مطابق ضوابط تصمیم مقتضی اتخاذ نماید.";
   return (
     <div className="form-stack">
@@ -1107,91 +1140,87 @@ function DeclarationStep({ form, setForm, readOnly }) {
         <div className="declaration-number">01</div>
         <div><span className="eyebrow">متن تعهدنامه</span><h3>تعهد ثبت اطلاعات صحیح</h3><p>{declaration}</p></div>
       </div>
-      <label className="accept-card">
-        <input type="checkbox" checked={Boolean(form.accepted)} onChange={(e) => setForm({ ...form, accepted: e.target.checked, declaration_version: "1" })} disabled={readOnly} />
+      <label className={"accept-card " + (getFieldError(errors, "accepted") ? "has-error" : "")}>
+        <input type="checkbox" checked={Boolean(form.accepted)}
+          onChange={(e) => { clearValidationError("accepted"); setForm({ ...form, accepted: e.target.checked, declaration_version: "1" }); }}
+          disabled={readOnly} aria-invalid={getFieldError(errors, "accepted") ? "true" : undefined} />
         <span className="check-custom">✓</span>
-        <div><strong>متن تعهدنامه را مطالعه کردم و آن را تأیید می‌کنم.</strong><small>پس از تأیید، این مرحله پرونده را برای ثبت نهایی ارسال می‌کند.</small></div>
+        <div><strong>متن تعهدنامه را مطالعه کردم و آن را تأیید می‌کنم.</strong><small>پس از تأیید، این مرحله پرونده را برای ثبت نهایی ارسال می‌کند.</small><FieldError error={getFieldError(errors, "accepted")} /></div>
       </label>
     </div>
   );
 }
 
-function RecordStep({ fields, form, setForm, countries, readOnly }) {
+function RecordStep({ fields, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const records = normalizeList(form?.records);
-  const setRecords = (items) => setForm({ records: items });
   return (
-    <ListEditor
-      title="موارد ثبت‌شده"
-      hint="در صورت نداشتن سابقه، می‌توانید این بخش را خالی بگذارید و ادامه دهید."
-      items={records}
-      setItems={setRecords}
-      empty={() => emptyRecord(fields)}
-      readOnly={readOnly}
-      render={(record, setRecord, index) => (
-        <div className="record-card">
-          <div className="record-head"><span>ردیف {index + 1}</span><strong>{fields[0]?.label || "مورد"}</strong></div>
-          <div className="field-grid">
-            {fields.filter((field) => !["province_id", "county_id", "city_id", "village_id"].includes(field.key)).map((field) => (
-              <FieldInput
-                key={field.key}
-                field={field}
-                value={record[field.key]}
-                countries={countries}
-                onChange={(value) => setRecord({ ...record, [field.key]: value })}
-                readOnly={readOnly}
-                record={record}
-              />
-            ))}
-            {(fields.some((field) => ["province_id", "county_id", "city_id", "village_id"].includes(field.key))) && (
-              <GeoFields record={record} setRecord={setRecord} countries={countries} readOnly={readOnly} />
-            )}
+    <ListEditor title="موارد ثبت‌شده" hint="در صورت نداشتن سابقه، می‌توانید این بخش را خالی بگذارید و ادامه دهید."
+      items={records} setItems={(items) => setForm({ records: items })} clearValidationError={clearValidationError} errorPrefix="records"
+      empty={() => emptyRecord(fields)} readOnly={readOnly}
+      render={(record, setRecord, index) => {
+        const prefix = `records.${index}`;
+        return (
+          <div className="record-card">
+            <div className="record-head"><span>ردیف {index + 1}</span><strong>{fields[0]?.label || "مورد"}</strong></div>
+            <div className="field-grid">
+              {fields.filter((field) => !["province_id", "county_id", "city_id", "village_id"].includes(field.key)).map((field) => (
+                <FieldInput key={field.key} field={field} value={record[field.key]} countries={countries}
+                  onChange={(value) => { clearValidationError(`${prefix}.${field.key}`); setRecord({ ...record, [field.key]: value }); }}
+                  readOnly={readOnly} record={record} error={getFieldError(errors, `${prefix}.${field.key}`)} />
+              ))}
+              {fields.some((field) => ["province_id", "county_id", "city_id", "village_id"].includes(field.key)) && (
+                <GeoFields record={record} setRecord={setRecord} countries={countries} readOnly={readOnly}
+                  errors={errors} errorPrefix={prefix} clearValidationError={clearValidationError} />
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      }}
     />
   );
 }
 
-function TextareaStep({ value, onChange, readOnly }) {
-  return <FormSection title="توضیحات تکمیلی" hint="هر نکته‌ای که در بخش‌های قبل پوشش داده نشده و لازم است ثبت شود."><TextArea label="متن توضیحات" value={value} onChange={onChange} rows={12} full readOnly={readOnly} /></FormSection>;
+function TextareaStep({ value, onChange, readOnly, error }) {
+  return <FormSection title="توضیحات تکمیلی" hint="هر نکته‌ای که در بخش‌های قبل پوشش داده نشده و لازم است ثبت شود."><TextArea label="متن توضیحات" value={value} onChange={onChange} error={error} rows={12} full readOnly={readOnly} /></FormSection>;
 }
 
 function FormSection({ title, hint, children }) {
   return <section className="form-section"><div className="form-section-head"><div><h3>{title}</h3><p>{hint}</p></div></div>{children}</section>;
 }
 
-function ListEditor({ title, hint, items, setItems, empty, render, readOnly, compact = false }) {
+function ListEditor({ title, hint, items, setItems, empty, render, readOnly, compact = false, clearValidationError, errorPrefix }) {
   const list = normalizeList(items);
+  const clearListErrors = () => errorPrefix && clearValidationError?.(errorPrefix);
   return (
     <section className={"form-section " + (compact ? "compact-section" : "")}>
       <div className="form-section-head">
         <div><h3>{title}</h3>{hint && <p>{hint}</p>}</div>
-        {!readOnly && <button className="add-button" onClick={() => setItems([...list, empty()])}>+ افزودن مورد</button>}
+        {!readOnly && <button className="add-button" onClick={() => { clearListErrors(); setItems([...list, empty()]); }}>+ افزودن مورد</button>}
       </div>
       {list.length === 0 ? (
-        <div className="inline-empty"><span>∅</span><p>هنوز موردی ثبت نشده است.</p>{!readOnly && <button className="text-button" onClick={() => setItems([empty()])}>افزودن اولین مورد</button>}</div>
+        <div className="inline-empty"><span>∅</span><p>هنوز موردی ثبت نشده است.</p>{!readOnly && <button className="text-button" onClick={() => { clearListErrors(); setItems([empty()]); }}>افزودن اولین مورد</button>}</div>
       ) : (
         <div className="list-stack">{list.map((item, index) => {
           const setItem = (next) => setItems(list.map((entry, i) => i === index ? next : entry));
-          return <div key={index} className="list-item-wrap">{render(item, setItem, index)}{!readOnly && <button className="remove-button" onClick={() => setItems(list.filter((_, i) => i !== index))}>حذف این مورد</button>}</div>;
+          return <div key={index} className="list-item-wrap">{render(item, setItem, index)}{!readOnly && <button className="remove-button" onClick={() => { clearListErrors(); setItems(list.filter((_, i) => i !== index)); }}>حذف این مورد</button>}</div>;
         })}</div>
       )}
     </section>
   );
 }
 
-function FieldInput({ field, value, onChange, countries, readOnly, record }) {
+function FieldInput({ field, value, onChange, countries, readOnly, record, error }) {
   if (field.visibleWhen && !field.visibleWhen(record || {})) return null;
   if (field.type === "country") {
-    return <SelectField label={field.label} value={value} onChange={onChange} options={countries.map((c) => ({ value: c.id, label: c.name }))} required={field.required} readOnly={readOnly} />;
+    return <SelectField label={field.label} value={value} onChange={onChange} error={error} options={countries.map((c) => ({ value: c.id, label: c.name }))} required={field.required} readOnly={readOnly} />;
   }
-  if (field.type === "select") return <SelectField label={field.label} value={value} onChange={onChange} options={field.options || []} required={field.required} readOnly={readOnly} />;
-  if (field.type === "textarea") return <TextArea label={field.label} value={value} onChange={onChange} required={field.required} full={field.full} readOnly={readOnly} />;
+  if (field.type === "select") return <SelectField label={field.label} value={value} onChange={onChange} error={error} options={field.options || []} required={field.required} readOnly={readOnly} />;
+  if (field.type === "textarea") return <TextArea label={field.label} value={value} onChange={onChange} error={error} required={field.required} full={field.full} readOnly={readOnly} />;
   if (field.type === "boolean") {
     const selected = value === true ? "true" : value === false ? "false" : "";
-    return <SelectField label={field.label} value={selected} onChange={(v) => onChange(v === "" ? null : v === "true")} options={[{ value: "", label: "مشخص نشده" }, { value: "true", label: "بله" }, { value: "false", label: "خیر" }]} readOnly={readOnly} />;
+    return <SelectField label={field.label} value={selected} error={error} onChange={(v) => onChange(v === "" ? null : v === "true")} options={[{ value: "", label: "مشخص نشده" }, { value: "true", label: "بله" }, { value: "false", label: "خیر" }]} readOnly={readOnly} />;
   }
-  return <TextField label={field.label} type={field.type} value={value} onChange={onChange} required={field.required} readOnly={readOnly} />;
+  return <TextField label={field.label} type={field.type} value={value} onChange={onChange} error={error} required={field.required} readOnly={readOnly} />;
 }
 
 function ValidationSummary({ errors, summaryRef }) {
