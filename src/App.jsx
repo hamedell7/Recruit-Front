@@ -1538,7 +1538,7 @@ function DraftStatus({ state, updatedAt }) {
   return <div className={"draft-status " + state}><span className="draft-pulse" /><span>{labels[state] || labels.idle}</span>{updatedAt && state === "saved" && <time>{formatDate(updatedAt)}</time>}</div>;
 }
 
-function GeoFields({ record, setRecord, countries, readOnly, prefix = "" }) {
+function GeoFields({ record, setRecord, countries, readOnly, prefix = "", errors, errorPrefix = "", clearValidationError }) {
   const has = (key) => Object.prototype.hasOwnProperty.call(record, key);
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
@@ -1546,6 +1546,7 @@ function GeoFields({ record, setRecord, countries, readOnly, prefix = "" }) {
   const cityKey = prefix + "city_id";
   const villageKey = prefix + "village_id";
   const countryId = has(countryKey) ? record[countryKey] : (countries[0]?.id || "");
+  const pathFor = (key) => errorPrefix ? `${errorPrefix}.${key}` : key;
   const [provinces, setProvinces] = useState([]);
   const [counties, setCounties] = useState([]);
   const [cities, setCities] = useState([]);
@@ -1586,6 +1587,7 @@ function GeoFields({ record, setRecord, countries, readOnly, prefix = "" }) {
 
   const setValue = (key, value) => {
     const next = { ...record, [key]: value };
+    clearValidationError?.(pathFor(key));
     if (key === countryKey) {
       [provinceKey, countyKey, cityKey, villageKey].forEach((child) => { if (has(child)) next[child] = ""; });
     }
@@ -1602,11 +1604,11 @@ function GeoFields({ record, setRecord, countries, readOnly, prefix = "" }) {
     <div className="geo-block field full">
       <div className="geo-caption"><strong>موقعیت جغرافیایی</strong><span>انتخاب‌ها به صورت وابسته از بالا به پایین هستند.</span></div>
       <div className="field-grid geo-grid">
-        {has(countryKey) && <SelectField label="کشور" value={record[countryKey]} onChange={(v) => setValue(countryKey, v)} options={countries.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
-        {has(provinceKey) && <SelectField label="استان" value={record[provinceKey]} onChange={(v) => setValue(provinceKey, v)} options={provinces.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
-        {has(countyKey) && <SelectField label="شهرستان" value={record[countyKey]} onChange={(v) => setValue(countyKey, v)} options={counties.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
-        {has(cityKey) && <SelectField label="شهر" value={record[cityKey]} onChange={(v) => setValue(cityKey, v)} options={cities.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
-        {has(villageKey) && <SelectField label="روستا" value={record[villageKey]} onChange={(v) => setValue(villageKey, v)} options={villages.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(countryKey) && <SelectField label="کشور" value={record[countryKey]} onChange={(v) => setValue(countryKey, v)} error={getFieldError(errors, pathFor(countryKey))} options={countries.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(provinceKey) && <SelectField label="استان" value={record[provinceKey]} onChange={(v) => setValue(provinceKey, v)} error={getFieldError(errors, pathFor(provinceKey))} options={provinces.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(countyKey) && <SelectField label="شهرستان" value={record[countyKey]} onChange={(v) => setValue(countyKey, v)} error={getFieldError(errors, pathFor(countyKey))} options={counties.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(cityKey) && <SelectField label="شهر" value={record[cityKey]} onChange={(v) => setValue(cityKey, v)} error={getFieldError(errors, pathFor(cityKey))} options={cities.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
+        {has(villageKey) && <SelectField label="روستا" value={record[villageKey]} onChange={(v) => setValue(villageKey, v)} error={getFieldError(errors, pathFor(villageKey))} options={villages.map((x) => ({ value: x.id, label: x.name }))} readOnly={readOnly} />}
       </div>
     </div>
   );
