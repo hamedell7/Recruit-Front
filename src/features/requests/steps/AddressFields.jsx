@@ -1,5 +1,7 @@
 import { getFieldError } from "../../../utils/validation";
-import TextField, { TextArea, SelectField } from "../../../components/form/Fields";\n\nfunction AddressFields({ item, setItem, countries, readOnly, residence, errors, errorPrefix = "", clearValidationError }) {
+import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
+
+function AddressFields({ item, setItem, countries, readOnly, residence, errors, errorPrefix = "", clearValidationError }) {
   const fieldPath = (key) => errorPrefix ? `${errorPrefix}.${key}` : key;
   const update = (key, value) => {
     clearValidationError?.(fieldPath(key));
@@ -16,4 +18,6 @@ import TextField, { TextArea, SelectField } from "../../../components/form/Field
       <TextArea label="آدرس دقیق" value={item.address_line} onChange={(v) => update("address_line", v)} error={getFieldError(errors, fieldPath("address_line"))} full readOnly={readOnly} />
     </div>
   );
-}\n\nexport default AddressFields;\n
+}
+
+export default AddressFields;
