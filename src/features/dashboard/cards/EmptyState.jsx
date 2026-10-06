@@ -7,4 +7,6 @@ function EmptyState({ onCreate }) {
       <button className="primary-button" onClick={onCreate}>شروع اولین درخواست</button>
     </div>
   );
-}\n\nexport default EmptyState;\n
+}
+
+export default EmptyState;
