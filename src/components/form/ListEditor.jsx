@@ -1,3 +1,5 @@
+import { normalizeList } from "../../utils/collections";
+
 function ListEditor({ title, hint, items, setItems, empty, render, readOnly, compact = false, clearValidationError, errorPrefix }) {
   const list = normalizeList(items);
   const clearListErrors = () => errorPrefix && clearValidationError?.(errorPrefix);
