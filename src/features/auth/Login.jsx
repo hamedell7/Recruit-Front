@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { api } from "../../services/api";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import { getFieldError } from "../../utils/validation";
-import FieldError from "../../components/form/FieldError";\n\nfunction Login({ onLogin }) {
+import FieldError from "../../components/form/FieldError";
+
+function Login({ onLogin }) {
   const [nationalId, setNationalId] = useState("");
   const [mobile, setMobile] = useState("");
   const [busy, setBusy] = useState(false);
@@ -161,4 +163,6 @@ import FieldError from "../../components/form/FieldError";\n\nfunction Login({ o
       </div>
     </div>
   );
-}\n\nexport default Login;\n
+}
+
+export default Login;
