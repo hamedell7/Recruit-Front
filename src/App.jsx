@@ -312,7 +312,7 @@ function App() {
     <div className="app-shell">
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
       {!user ? (
-        <Login onLogin={(me) => { setUser(me); setView("dashboard"); setToast(null); }} onError={setToast} />
+        <Login onLogin={(me) => { setUser(me); setView("dashboard"); setToast(null); }} />
       ) : (
         <>
           <Header user={user} onLogout={logout} />
@@ -337,7 +337,7 @@ function LoadingScreen() {
   );
 }
 
-function Login({ onLogin, onError }) {
+function Login({ onLogin }) {
   const [nationalId, setNationalId] = useState("");
   const [mobile, setMobile] = useState("");
   const [busy, setBusy] = useState(false);
@@ -396,11 +396,6 @@ function Login({ onLogin, onError }) {
         setAuthError(nextError);
       }
 
-      onError({
-        type: "error",
-        text: message,
-        requestId: error.requestId,
-      });
     } finally {
       setBusy(false);
     }
