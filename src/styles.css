@@ -1,53 +1,38 @@
 @font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir.woff2") format("woff2");
+  font-family:"IranYekan";
+  src:url("./assets/fonts/IRANYekanWebThin.woff2") format("woff2");
+  font-weight:100;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"IranYekan";
+  src:url("./assets/fonts/IRANYekanWebLight.woff2") format("woff2");
+  font-weight:300;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:"IranYekan";
+  src:url("./assets/fonts/IRANYekanWebRegular.woff2") format("woff2");
   font-weight:400;
   font-style:normal;
   font-display:swap;
-  unicode-range:U+0020-007E;
 }
 @font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir-arabic.woff2") format("woff2");
-  font-weight:400;
+  font-family:"IranYekan";
+  src:url("./assets/fonts/IRANYekanWebMedium.woff2") format("woff2");
+  font-weight:500 600;
   font-style:normal;
   font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F;
 }
 @font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir-Medium.woff2") format("woff2");
-  font-weight:500;
+  font-family:"IranYekan";
+  src:url("./assets/fonts/IRANYekanWebBold.woff2") format("woff2");
+  font-weight:700 900;
   font-style:normal;
   font-display:swap;
-  unicode-range:U+0020-007E;
-}
-@font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir-arabic.woff2") format("woff2");
-  font-weight:500;
-  font-style:normal;
-  font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F;
-}
-@font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir-Bold.woff2") format("woff2");
-  font-weight:700;
-  font-style:normal;
-  font-display:swap;
-  unicode-range:U+0020-007E;
-}
-@font-face{
-  font-family:"Vazir";
-  src:url("./assets/fonts/Vazir-Bold-arabic.woff2") format("woff2");
-  font-weight:700;
-  font-style:normal;
-  font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F;
-}
-
-:root{
+}:root{
   --bg:#f4f7fb;
   --surface:#ffffff;
   --surface-2:#f8fafc;
@@ -66,7 +51,7 @@
   --danger-soft:#fff0ee;
   --shadow:0 18px 50px rgba(16,24,40,.08);
   --shadow-sm:0 7px 22px rgba(16,24,40,.06);
-  font-family:"Vazir",Tahoma,Arial,sans-serif;
+  font-family:"IranYekan",Tahoma,Arial,sans-serif;
   color:var(--ink);
   background:var(--bg);
   font-synthesis:none;
@@ -74,7 +59,7 @@
 }
 
 *{box-sizing:border-box}
-html{min-width:320px;background:var(--bg);font-family:"Vazir",Tahoma,Arial,sans-serif}
+html{min-width:320px;background:var(--bg);font-family:"IranYekan",Tahoma,Arial,sans-serif}
 body,#root{margin:0;min-width:320px;background:var(--bg);color:var(--ink);font-family:inherit}
 *,*::before,*::after{font-family:inherit}
 button,input,select,textarea{font:inherit}
