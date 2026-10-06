@@ -10,6 +10,7 @@ function formatErrorPath(path) {
     last_name: "نام خانوادگی",
     father_name: "نام پدر",
     national_id: "کد ملی",
+    mobile: "شماره موبایل",
     birth_date: "تاریخ تولد",
     gender: "جنسیت",
     previous_last_name: "نام خانوادگی قبلی",
