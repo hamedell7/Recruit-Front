@@ -164,9 +164,19 @@ export function todayJalali() {
 }
 
 export function getJalaliDateParts(value) {
-  const jalali = parseJalali(value);
+  const raw = String(value ?? "").trim();
+  if (/^\d{4}-\d{1,2}-\d{1,2}/.test(raw)) {
+    const gregorian = parseGregorian(raw);
+    if (gregorian) {
+      const [year, month, day] = gregorianToJalali(gregorian.year, gregorian.month, gregorian.day);
+      return { year, month, day };
+    }
+  }
+
+  const jalali = parseJalali(raw);
   if (jalali) return jalali;
-  const gregorian = parseGregorian(value);
+
+  const gregorian = parseGregorian(raw);
   if (gregorian) {
     const [year, month, day] = gregorianToJalali(gregorian.year, gregorian.month, gregorian.day);
     return { year, month, day };
