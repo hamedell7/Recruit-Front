@@ -159,7 +159,7 @@ const RECORDS = {
     { key: "relative_relation", label: "نسبت با متقاضی", type: "select", options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "relative_first_name", label: "نام شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
-    { key: "incident_type", label: "نوع سابقه", type: "text", required: true },
+    { key: "incident_type", label: "نوع سابقه", type: "select", required: true, options: ["احضار/ بازداشت/دستگیری"] },
     { key: "incident_date", label: "تاریخ", type: "date" },
     { key: "reason", label: "علت", type: "textarea", full: true },
     { key: "location", label: "محل وقوع", type: "text" },
