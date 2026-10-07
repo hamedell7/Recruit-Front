@@ -90,13 +90,30 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     }));
   };
 
-  const contacts = normalizeList(form?.contacts);
+  const allContacts = normalizeList(form?.contacts);
+  const socialNetworkValues = new Set(SOCIAL_NETWORKS.map((network) => network.value));
+  const contacts = allContacts.filter((contact) => !socialNetworkValues.has(contact.contact_type));
+
+  const updateRegularContact = (index, key, value) => {
+    const item = contacts[index];
+    const actualIndex = allContacts.indexOf(item);
+    if (actualIndex >= 0) updateContact(actualIndex, key, value);
+  };
+
+  const setRegularContacts = (items) => {
+    const socialContacts = allContacts.filter((contact) => socialNetworkValues.has(contact.contact_type));
+    setForm((current) => ({
+      ...current,
+      contacts: [...normalizeList(items), ...socialContacts],
+    }));
+  };
+
   const selectedSocialNetworks = SOCIAL_NETWORKS.filter((network) =>
-    contacts.some((contact) => contact.contact_type === network.value)
+    allContacts.some((contact) => contact.contact_type === network.value)
   );
 
   const toggleSocialNetwork = (network) => {
-    const existingIndex = contacts.findIndex((contact) => contact.contact_type === network.value);
+    const existingIndex = allContacts.findIndex((contact) => contact.contact_type === network.value);
     if (existingIndex >= 0) {
       if (readOnly) return;
       setForm((current) => ({
@@ -183,7 +200,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         hint="می‌توانید چند شماره تماس ثبت کنید."
         readOnly={readOnly}
         items={contacts}
-        setItems={(items) => setForm((current) => ({ ...current, contacts: items }))}
+        setItems={setRegularContacts}
         clearValidationError={clearValidationError}
         errorPrefix="contacts"
         empty={() => ({ contact_type: "موبایل", value: "", owner_type: "OWNER", owner_name: "", is_primary: false })}
@@ -192,14 +209,14 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
             <TextField
               label="نوع تماس"
               value={item.contact_type}
-              onChange={(v) => updateContact(index, "contact_type", v)}
+              onChange={(v) => updateRegularContact(index, "contact_type", v)}
               error={getFieldError(errors, `contacts.${index}.contact_type`)}
               readOnly={readOnly}
             />
             <TextField
               label="شماره تماس"
               value={item.value}
-              onChange={(v) => updateContact(index, "value", v)}
+              onChange={(v) => updateRegularContact(index, "value", v)}
               error={getFieldError(errors, `contacts.${index}.value`)}
               readOnly={readOnly}
             />
@@ -207,8 +224,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
               label="نوع مالکیت"
               value={item.owner_type || "OWNER"}
               onChange={(v) => {
-                updateContact(index, "owner_type", v);
-                if (v === "OWNER") updateContact(index, "owner_name", "");
+                updateRegularContact(index, "owner_type", v);
+                if (v === "OWNER") updateRegularContact(index, "owner_name", "");
               }}
               error={getFieldError(errors, `contacts.${index}.owner_type`)}
               options={OWNERSHIP_OPTIONS}
@@ -218,7 +235,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
               <TextField
                 label="نام مالک"
                 value={item.owner_name}
-                onChange={(v) => updateContact(index, "owner_name", v)}
+                onChange={(v) => updateRegularContact(index, "owner_name", v)}
                 error={getFieldError(errors, `contacts.${index}.owner_name`)}
                 required
                 readOnly={readOnly}
@@ -247,8 +264,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         <div className="social-network-grid">
           {SOCIAL_NETWORKS.map((network) => {
             const selected = selectedSocialNetworks.some((item) => item.value === network.value);
-            const contactIndex = contacts.findIndex((item) => item.contact_type === network.value);
-            const contact = contactIndex >= 0 ? contacts[contactIndex] : null;
+            const contactIndex = allContacts.findIndex((item) => item.contact_type === network.value);
+            const contact = contactIndex >= 0 ? allContacts[contactIndex] : null;
 
             return (
               <div key={network.value} className={"social-network-item " + (selected ? "selected" : "")}>
