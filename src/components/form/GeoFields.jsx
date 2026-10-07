@@ -15,7 +15,7 @@ function GeoFields({
   clearValidationError,
   caption = "موقعیت جغرافیایی",
   hint = "کشور، استان و شهر را انتخاب کنید."
-) {
+}) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
   const cityKey = prefix + "city_id";
