@@ -383,7 +383,11 @@ export function makeForm(stepKey, data, user) {
       blood_type: profile.blood_type || "",
       distinguishing_marks: profile.distinguishing_marks || "",
       email: profile.email || "",
-      contacts: normalizeList(data?.contacts),
+      contacts: normalizeList(data?.contacts).map((contact) => {
+        const next = { ...contact };
+        delete next.is_primary;
+        return next;
+      }),
       current_address: {
         country_id: profile.current_country_id || data?.current_address?.country_id || "",
         province_id: profile.current_province_id || data?.current_address?.province_id || "",
