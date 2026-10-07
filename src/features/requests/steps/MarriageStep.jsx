@@ -1,5 +1,5 @@
 import { getFieldError } from "../../../utils/validation";
-import TextField, { TextArea } from "../../../components/form/Fields";
+import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
 
@@ -25,8 +25,10 @@ const emptyMarriage = () => ({
     gender: "",
     occupation: "",
     education: "",
+    physical_status: "",
+    disease_description: "",
   },
-  notes: "",
+  spouse_family_residence_address: "",
 });
 
 function ChoiceGroup({ label, required, value, options, name, onChange, readOnly, error }) {
