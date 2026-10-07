@@ -176,8 +176,8 @@ const RECORDS = {
   ],
   affiliations: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
-    { key: "entity_name", label: "نام فرد / شرکت / کشور", type: "text", required: true },
-    { key: "country_id", label: "کشور", type: "country" },
+    { key: "entity_name", label: "نام فرد / شرکت", type: "text", required: true },
+    { key: "country_name", label: "کشور", type: "text" },
     { key: "relation_type", label: "نوع اشتغال / ارتباط / همکاری", type: "text", required: true },
     { key: "activity_title", label: "عنوان فعالیت / مسئولیت", type: "text" },
     { key: "start_date", label: "از تاریخ", type: "date" },
