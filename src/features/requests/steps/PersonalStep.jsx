@@ -38,6 +38,21 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     }));
   };
 
+  const updatePhysicalStatus = (value) => {
+    clearValidationError("physical_status");
+    setForm((current) => ({
+      ...current,
+      physical_status: value,
+      ...(value === "سالم"
+        ? {
+            disease_description: "",
+            disability_description: "",
+            distinguishing_marks: "",
+          }
+        : {}),
+    }));
+  };
+
   const clearCurrentAddress = () => {
     clearValidationError("current_address");
     setForm((current) => ({
@@ -64,15 +79,32 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           <TextField label="تابعیت" value={form.nationality} onChange={(v) => update("nationality", v)} error={getFieldError(errors, "nationality")} readOnly={readOnly} />
           <TextField label="دین" value={form.religion} onChange={(v) => update("religion", v)} error={getFieldError(errors, "religion")} readOnly={readOnly} />
           <TextField label="مذهب" value={form.sect} onChange={(v) => update("sect", v)} error={getFieldError(errors, "sect")} readOnly={readOnly} />
-          <SelectField label="وضعیت جسمانی" value={form.physical_status} onChange={(v) => update("physical_status", v)} error={getFieldError(errors, "physical_status")} options={["سالم", "بیمار"]} readOnly={readOnly} />
+          <TextField label="ایمیل" value={form.email} onChange={(v) => update("email", v)} error={getFieldError(errors, "email")} readOnly={readOnly} />
+          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" errors={errors} errorPrefix="" clearValidationError={clearValidationError} />
+        </div>
+      </FormSection>
+
+      <FormSection title="وضعیت جسمانی" hint="ابتدا وضعیت جسمانی را انتخاب کنید؛ جزئیات بیماری فقط برای وضعیت «بیمار» نمایش داده می‌شود.">
+        <div className="field-grid">
+          <SelectField
+            label="وضعیت جسمانی"
+            value={form.physical_status}
+            onChange={updatePhysicalStatus}
+            error={getFieldError(errors, "physical_status")}
+            options={["سالم", "بیمار"]}
+            readOnly={readOnly}
+          />
           <TextField label="وزن (کیلوگرم)" type="number" value={form.weight_kg} onChange={(v) => update("weight_kg", v)} error={getFieldError(errors, "weight_kg")} readOnly={readOnly} />
           <TextField label="قد (سانتی‌متر)" type="number" value={form.height_cm} onChange={(v) => update("height_cm", v)} error={getFieldError(errors, "height_cm")} readOnly={readOnly} />
           <TextField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} readOnly={readOnly} />
-          <TextField label="ایمیل" value={form.email} onChange={(v) => update("email", v)} error={getFieldError(errors, "email")} readOnly={readOnly} />
-          <TextArea label="نوع بیماری / توضیحات جسمانی" value={form.disease_description} onChange={(v) => update("disease_description", v)} error={getFieldError(errors, "disease_description")} full readOnly={readOnly} />
-          <TextArea label="معلولیت" value={form.disability_description} onChange={(v) => update("disability_description", v)} error={getFieldError(errors, "disability_description")} full readOnly={readOnly} />
-          <TextArea label="علائم مشخصه" value={form.distinguishing_marks} onChange={(v) => update("distinguishing_marks", v)} error={getFieldError(errors, "distinguishing_marks")} full readOnly={readOnly} />
-          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" errors={errors} errorPrefix="" clearValidationError={clearValidationError} />
+
+          {form.physical_status === "بیمار" && (
+            <>
+              <TextArea label="نوع بیماری / توضیحات جسمانی" value={form.disease_description} onChange={(v) => update("disease_description", v)} error={getFieldError(errors, "disease_description")} full readOnly={readOnly} />
+              <TextArea label="معلولیت" value={form.disability_description} onChange={(v) => update("disability_description", v)} error={getFieldError(errors, "disability_description")} full readOnly={readOnly} />
+              <TextArea label="علائم مشخصه" value={form.distinguishing_marks} onChange={(v) => update("distinguishing_marks", v)} error={getFieldError(errors, "distinguishing_marks")} full readOnly={readOnly} />
+            </>
+          )}
         </div>
       </FormSection>
 
