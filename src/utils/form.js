@@ -1,5 +1,6 @@
 import { RECORDS } from "../config/workflow";
 import { normalizeList } from "./collections";
+import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
 
 export function normalizeDigits(value) {
   return String(value || "")
@@ -7,14 +8,37 @@ export function normalizeDigits(value) {
     .replace(/[٠-٩]/g, (digit) => "٠١٢٣٤٥٦٧٨٩".indexOf(digit));
 }
 
-export function cleanPayload(value) {
-  if (Array.isArray(value)) return value.map(cleanPayload);
+const DATE_FIELD_PATTERN = /(^|_)(date)$/;
+
+function cleanPayload(value, key = "") {
+  if (Array.isArray(value)) return value.map((entry) => cleanPayload(entry, key));
   if (value && typeof value === "object") {
     return Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [key, cleanPayload(entry)])
+      Object.entries(value).map(([entryKey, entry]) => [entryKey, cleanPayload(entry, entryKey)])
     );
   }
-  return value === "" ? null : value;
+
+  if (value === "") return null;
+  if (DATE_FIELD_PATTERN.test(key) && typeof value === "string" && value.includes("/")) {
+    return jalaliToGregorianString(value);
+  }
+  return value;
+}
+
+function hydrateDateValue(value) {
+  if (typeof value !== "string") return value;
+  if (/^\\d{4}-\\d{1,2}-\\d{1,2}/.test(value.trim())) return gregorianToJalaliString(value);
+  return value;
+}
+
+function hydrateDateFields(value, key = "") {
+  if (Array.isArray(value)) return value.map((entry) => hydrateDateFields(entry, key));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([entryKey, entry]) => [entryKey, hydrateDateFields(entry, entryKey)])
+    );
+  }
+  return DATE_FIELD_PATTERN.test(key) ? hydrateDateValue(value) : value;
 }
 
 export function sanitizeMarriageForm(value) {
@@ -89,9 +113,11 @@ export function cleanMilitaryPayload(value) {
 }
 
 export function mergeDraft(base, draft) {
-  if (!draft || typeof draft !== "object") return base;
-  if (Array.isArray(base)) return Array.isArray(draft) ? draft : base;
-  return { ...(base || {}), ...draft };
+  const hydratedBase = hydrateDateFields(base);
+  if (!draft || typeof draft !== "object") return hydratedBase;
+  const hydratedDraft = hydrateDateFields(draft);
+  if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
+  return { ...(hydratedBase || {}), ...hydratedDraft };
 }
 
 export function validateStep(stepKey, form) {
@@ -262,6 +288,6 @@ export function makeForm(stepKey, data, user) {
       conscription_date: record.conscription_date || "",
     };
   }
-  if (RECORDS[stepKey]) return { records: normalizeList(data?.records) };
+  if (RECORDS[stepKey]) return { records: normalizeList(data?.records).map((record) => hydrateDateFields(record)) };
   return {};
 }
