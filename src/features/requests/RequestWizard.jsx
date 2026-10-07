@@ -248,6 +248,16 @@ function RequestWizard({ user, request, onBack, onError }) {
     cancelPendingAutosave();
     setSaving(true);
     try {
+      // Re-check the persisted backend state immediately before completion so a
+      // stale UI can never submit a step that is no longer current.
+      const liveResume = await api.resume(appRequest.id);
+      if (liveResume.current_step !== currentKey) {
+        setResume(liveResume);
+        const liveIndex = workflowSteps.indexOf(liveResume.current_step);
+        if (liveIndex >= 0) setIndex(liveIndex);
+        return;
+      }
+
       let result;
       if (currentKey === "documents" || currentKey === "review") {
         result = await api.completeGeneric(appRequest.id, currentKey);
