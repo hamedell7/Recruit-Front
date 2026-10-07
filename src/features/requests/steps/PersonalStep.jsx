@@ -32,9 +32,23 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     setForm((current) => ({
       ...current,
       current_address: {
-        ...(current.current_address || { address_line: "", postal_code: "", phone: "" }),
+        ...(current.current_address || {
+          country_id: "",
+          province_id: "",
+          city_id: "",
+          address_line: "",
+          postal_code: "",
+          phone: "",
+        }),
         [key]: value,
       },
+    }));
+  };
+
+  const setCurrentAddress = (nextAddress) => {
+    setForm((current) => ({
+      ...current,
+      current_address: nextAddress,
     }));
   };
 
@@ -57,12 +71,26 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     clearValidationError("current_address");
     setForm((current) => ({
       ...current,
-      current_address: { address_line: "", postal_code: "", phone: "" },
+      current_address: {
+        country_id: "",
+        province_id: "",
+        city_id: "",
+        address_line: "",
+        postal_code: "",
+        phone: "",
+      },
     }));
   };
 
   const contacts = normalizeList(form?.contacts);
-  const currentAddress = form?.current_address || { address_line: "", postal_code: "", phone: "" };
+  const currentAddress = form?.current_address || {
+    country_id: "",
+    province_id: "",
+    city_id: "",
+    address_line: "",
+    postal_code: "",
+    phone: "",
+  };
 
   return (
     <div className="form-stack">
@@ -75,14 +103,14 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, "father_name")} readOnly={readOnly} />
           <TextField label="کد ملی" value={form.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly={readOnly} />
           <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
+          <TextField label="محل صدور شناسنامه" value={form.birth_certificate_issue_location} onChange={(v) => update("birth_certificate_issue_location", v)} error={getFieldError(errors, "birth_certificate_issue_location")} readOnly={readOnly} />
           <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} error={getFieldError(errors, "previous_last_name")} readOnly={readOnly} />
           <TextField label="تاریخ تولد" type="date" value={form.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, "birth_date")} readOnly={readOnly} />
           <SelectField label="جنسیت" value={form.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, "gender")} options={["مرد", "زن"]} readOnly={readOnly} />
-          <TextField label="تابعیت" value={form.nationality} onChange={(v) => update("nationality", v)} error={getFieldError(errors, "nationality")} readOnly={readOnly} />
+          <TextField label="ملیت" value={form.nationality} onChange={(v) => update("nationality", v)} error={getFieldError(errors, "nationality")} readOnly={readOnly} />
           <TextField label="دین" value={form.religion} onChange={(v) => update("religion", v)} error={getFieldError(errors, "religion")} readOnly={readOnly} />
           <TextField label="مذهب" value={form.sect} onChange={(v) => update("sect", v)} error={getFieldError(errors, "sect")} readOnly={readOnly} />
           <TextField label="ایمیل" value={form.email} onChange={(v) => update("email", v)} error={getFieldError(errors, "email")} readOnly={readOnly} />
-          <GeoFields record={form} setRecord={setForm} countries={countries} readOnly={readOnly} prefix="birth_" errors={errors} errorPrefix="" clearValidationError={clearValidationError} />
         </div>
       </FormSection>
 
@@ -156,24 +184,39 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
                 readOnly={readOnly}
               />
             )}
-            <label className="checkbox-line">
-              <input
-                type="checkbox"
-                checked={Boolean(item.is_primary)}
-                onChange={(e) => {
-                  clearValidationError(`contacts.${index}.is_primary`);
-                  setItem({ ...item, is_primary: e.target.checked });
-                }}
-                disabled={readOnly}
-              />
-              تماس اصلی
-            </label>
+            <div className="contact-primary-field">
+              <span>اولویت تماس</span>
+              <label className="contact-primary-control">
+                <input
+                  type="checkbox"
+                  checked={Boolean(item.is_primary)}
+                  onChange={(e) => {
+                    clearValidationError(`contacts.${index}.is_primary`);
+                    setItem({ ...item, is_primary: e.target.checked });
+                  }}
+                  disabled={readOnly}
+                />
+                <span>تماس اصلی</span>
+              </label>
+            </div>
           </div>
         )}
       />
 
       <FormSection title="نشانی محل سکونت" hint="آدرس محل سکونت فعلی خود را وارد کنید. فقط یک نشانی در این مرحله ثبت می‌شود.">
-        <div className="field-grid">
+        <div className="field-grid address-current-grid">
+          <GeoFields
+            record={currentAddress}
+            setRecord={setCurrentAddress}
+            countries={countries}
+            readOnly={readOnly}
+            prefix=""
+            errors={errors}
+            errorPrefix="current_address"
+            clearValidationError={clearValidationError}
+            caption="موقعیت جغرافیایی"
+            hint="کشور، استان و شهر محل سکونت فعلی را مشخص کنید."
+          />
           <TextArea
             label="آدرس دقیق"
             value={currentAddress.address_line}
