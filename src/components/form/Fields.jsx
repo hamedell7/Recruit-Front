@@ -2,6 +2,10 @@ import FieldError from "./FieldError";
 import PersianDateField from "./PersianDateField";
 
 function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error }) {
+  if (type === "date") {
+    return <PersianDateField label={label} value={value} onChange={onChange} error={error} required={required} readOnly={readOnly} />;
+  }
+
   return (
     <label className={"field " + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
