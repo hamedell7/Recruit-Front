@@ -181,16 +181,13 @@ function MilitaryStep({ form, setForm, countries, readOnly, errors, clearValidat
             <TextField label="یگان خدمتی" value={form.unit_name} onChange={(v) => update("unit_name", v)} error={getFieldError(errors, "unit_name")} required readOnly={readOnly} />
             <TextField label="تاریخ شروع خدمت" type="date" value={form.start_date} onChange={(v) => update("start_date", v)} error={getFieldError(errors, "start_date")} required readOnly={readOnly} />
             <TextField label="تاریخ پایان خدمت" type="date" value={form.end_date} onChange={(v) => update("end_date", v)} error={getFieldError(errors, "end_date")} required readOnly={readOnly} />
-            <div className="field">
-              <SelectField
-                label="استان محل خدمت"
-                value={serviceProvinceId}
-                onChange={updateProvince}
-                options={provinces.map((item) => ({ value: item.id, label: item.name }))}
-                readOnly={readOnly}
-                error={getFieldError(errors, "service_city_id")}
-              />
-            </div>
+            <SelectField
+              label="استان محل خدمت"
+              value={serviceProvinceId}
+              onChange={updateProvince}
+              options={provinces.map((item) => ({ value: item.id, label: item.name }))}
+              readOnly={readOnly}
+            />
             <SelectField
               label="شهر محل خدمت"
               value={form.service_city_id}
