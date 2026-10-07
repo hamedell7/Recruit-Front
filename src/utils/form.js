@@ -349,6 +349,7 @@ export function makeForm(stepKey, data, user) {
       alias_first_name: profile.alias_first_name || "",
       alias_last_name: profile.alias_last_name || "",
       birth_certificate_no: profile.birth_certificate_no || "",
+      birth_certificate_issue_location: profile.birth_certificate_issue_location || "",
       birth_country_id: profile.birth_country_id || "",
       birth_province_id: profile.birth_province_id || "",
       birth_city_id: profile.birth_city_id || "",
@@ -365,6 +366,9 @@ export function makeForm(stepKey, data, user) {
       email: profile.email || "",
       contacts: normalizeList(data?.contacts),
       current_address: {
+        country_id: profile.current_country_id || data?.current_address?.country_id || "",
+        province_id: profile.current_province_id || data?.current_address?.province_id || "",
+        city_id: profile.current_city_id || data?.current_address?.city_id || "",
         address_line: profile.current_address_line || data?.current_address?.address_line || "",
         postal_code: profile.current_postal_code || data?.current_address?.postal_code || "",
         phone: profile.current_address_phone || data?.current_address?.phone || "",
