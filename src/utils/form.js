@@ -181,10 +181,9 @@ export function validateStep(stepKey, form) {
     }
   }
 
-  if (stepKey === "education" || stepKey === "employment") {
+  if (stepKey === "education" || stepKey === "employment" || stepKey === "accommodation") {
     return {
       records: normalizeList(data?.records).map((record) => hydrateDateFields(record)),
-      accommodations: normalizeList(data?.accommodations).map((record) => hydrateDateFields(record)),
     };
   }
   if (stepKey === "addiction") {
@@ -330,14 +329,14 @@ export function validateStep(stepKey, form) {
     }
   }
 
-  if (stepKey === "education" || stepKey === "employment") {
-    const accommodations = Array.isArray(form?.accommodations) ? form.accommodations : [];
-    for (let i = 0; i < accommodations.length; i += 1) {
-      const accommodation = accommodations[i];
-      const prefix = "accommodations." + i;
-      if (empty(accommodation?.name)) add(prefix + ".name", "نام خوابگاه یا پانسیون را وارد کنید.");
-      if (empty(accommodation?.start_date)) add(prefix + ".start_date", "تاریخ شروع اسکان را وارد کنید.");
-      if (accommodation?.start_date && accommodation?.end_date && accommodation.end_date < accommodation.start_date) {
+  if (stepKey === "accommodation") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (empty(record?.name)) add(prefix + ".name", "نام خوابگاه یا پانسیون را وارد کنید.");
+      if (empty(record?.start_date)) add(prefix + ".start_date", "تاریخ شروع اسکان را وارد کنید.");
+      if (record?.start_date && record?.end_date && record.end_date < record.start_date) {
         add(prefix + ".end_date", "تاریخ پایان اسکان نمی‌تواند قبل از تاریخ شروع باشد.");
       }
     }
