@@ -10,6 +10,14 @@ const OWNERSHIP_OPTIONS = [
   { value: "OPERATOR", label: "بهره‌بردار" },
 ];
 
+const SOCIAL_NETWORKS = [
+  { value: "Twitter", label: "توییتر" },
+  { value: "Instagram", label: "اینستاگرام" },
+  { value: "Telegram", label: "تلگرام" },
+  { value: "Eitaa", label: "ایتا" },
+  { value: "Bale", label: "بله" },
+];
+
 function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
   const update = (key, value) => {
     clearValidationError(key);
@@ -83,6 +91,38 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
   };
 
   const contacts = normalizeList(form?.contacts);
+  const selectedSocialNetworks = SOCIAL_NETWORKS.filter((network) =>
+    contacts.some((contact) => contact.contact_type === network.value)
+  );
+
+  const toggleSocialNetwork = (network) => {
+    const existingIndex = contacts.findIndex((contact) => contact.contact_type === network.value);
+    if (existingIndex >= 0) {
+      if (readOnly) return;
+      setForm((current) => ({
+        ...current,
+        contacts: normalizeList(current.contacts).filter((_, index) => index !== existingIndex),
+      }));
+      clearValidationError(`contacts.${existingIndex}.value`);
+      return;
+    }
+
+    if (readOnly) return;
+    setForm((current) => ({
+      ...current,
+      contacts: [
+        ...normalizeList(current.contacts),
+        {
+          contact_type: network.value,
+          value: "",
+          owner_type: "OWNER",
+          owner_name: "",
+          is_primary: false,
+        },
+      ],
+    }));
+  };
+
   const currentAddress = form?.current_address || {
     country_id: "",
     province_id: "",
@@ -203,6 +243,40 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         )}
       />
 
+      <FormSection title="شبکه‌های اجتماعی" hint="شبکه‌های اجتماعی مورد استفاده خود را انتخاب کنید؛ برای هر مورد انتخاب‌شده، نام کاربری یا شماره تماس را ثبت نمایید.">
+        <div className="social-network-grid">
+          {SOCIAL_NETWORKS.map((network) => {
+            const selected = selectedSocialNetworks.some((item) => item.value === network.value);
+            const contactIndex = contacts.findIndex((item) => item.contact_type === network.value);
+            const contact = contactIndex >= 0 ? contacts[contactIndex] : null;
+
+            return (
+              <div key={network.value} className={"social-network-item " + (selected ? "selected" : "")}>
+                <label className="social-network-check">
+                  <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => toggleSocialNetwork(network)}
+                    disabled={readOnly}
+                  />
+                  <span>{network.label}</span>
+                </label>
+                {selected && (
+                  <TextField
+                    label="نام کاربری / شماره"
+                    value={contact?.value || ""}
+                    onChange={(value) => updateContact(contactIndex, "value", value)}
+                    error={getFieldError(errors, `contacts.${contactIndex}.value`)}
+                    required
+                    readOnly={readOnly}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </FormSection>
+
       <FormSection title="نشانی محل سکونت" hint="آدرس محل سکونت فعلی خود را وارد کنید. فقط یک نشانی در این مرحله ثبت می‌شود.">
         <div className="field-grid address-current-grid">
           <GeoFields
@@ -216,6 +290,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
             clearValidationError={clearValidationError}
             caption="موقعیت جغرافیایی"
             hint="کشور، استان و شهر محل سکونت فعلی را مشخص کنید."
+            required
           />
           <TextArea
             label="آدرس دقیق"
