@@ -5,6 +5,7 @@ import PeopleStep from "./steps/PeopleStep";
 import ResidenceStep from "./steps/ResidenceStep";
 import MilitaryStep from "./steps/MilitaryStep";
 import VeteranStep from "./steps/VeteranStep";
+import TravelStep from "./steps/TravelStep";
 import DeclarationStep from "./steps/DeclarationStep";
 import RecordStep from "./steps/RecordStep";
 import PassportStep from "./steps/PassportStep";
@@ -15,6 +16,7 @@ function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, error
   if (stepKey === "personal") return <PersonalStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "military") return <MilitaryStep form={form} setForm={setForm} data={data} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "veteran") return <VeteranStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "travel") return <TravelStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "marriage") return <MarriageStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "family") return <PeopleStep kind="family" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "social_relations") return <PeopleStep kind="social" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
