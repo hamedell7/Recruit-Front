@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getJalaliDateParts, gregorianToJalaliString, jalaliMonthLength, jalaliToGregorianString, parseJalali, todayJalali, toEnglishDigits, fromEnglishDigits } from "../../utils/date";
+import { getJalaliDateParts, jalaliMonthLength, jalaliToGregorianString, parseJalali, todayJalali, toEnglishDigits, fromEnglishDigits } from "../../utils/date";
 import FieldError from "./FieldError";
 
 const MONTHS = [
@@ -93,6 +93,9 @@ function PersianDateField({ label, value, onChange, required, readOnly, error })
           value={fromEnglishDigits(draft)}
           onFocus={() => !readOnly && setOpen(true)}
           onChange={onInputChange}
+          onBlur={() => {
+            if (draft && !parseJalali(draft)) setDraft(value || "");
+          }}
           onKeyDown={(event) => {
             if (event.key === "Escape") setOpen(false);
             if (event.key === "Enter" && parseJalali(draft)) setOpen(false);
