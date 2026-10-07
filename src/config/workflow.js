@@ -151,7 +151,14 @@ const RECORDS = {
   ],
 
   legal_incidents: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
+    { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [
+      { value: "APPLICANT", label: "خود متقاضی" },
+      { value: "SPOUSE", label: "همسر" },
+      { value: "RELATIVE", label: "یکی از بستگان" },
+    ] },
+    { key: "relative_relation", label: "نسبت با متقاضی", type: "select", options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_first_name", label: "نام شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "incident_type", label: "نوع سابقه", type: "text", required: true },
     { key: "incident_date", label: "تاریخ", type: "date" },
     { key: "reason", label: "علت", type: "textarea", full: true },
