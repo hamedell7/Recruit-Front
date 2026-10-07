@@ -132,10 +132,17 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
           const spouse = marriage?.spouse || {};
           const isCurrent = marriage?.status === "current";
 
+          const currentNumber = isCurrent
+            ? marriages.slice(0, index + 1).filter((item) => item?.status === "current").length
+            : null;
+          const endedNumber = !isCurrent
+            ? marriages.slice(0, index + 1).filter((item) => item?.status === "ended").length
+            : null;
+
           return (
             <div className="record-card marriage-card">
               <div className="record-head">
-                <span>{isCurrent ? `همسر فعلی ${currentCount > 1 ? "" : ""}` : "سابقه ازدواج"} · ردیف {index + 1}</span>
+                <span>{isCurrent ? `همسر فعلی ${currentNumber}` : `سابقه ازدواج ${endedNumber}`}</span>
                 <strong>{isCurrent ? "جاری" : "پایان‌یافته"}</strong>
               </div>
 
@@ -175,18 +182,16 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
                       readOnly={readOnly}
                       required
                     />
-                    <div className="field-grid nested-field-grid">
-                      <ChoiceGroup
-                        label="علت پایان"
-                        required
-                        name={`marriage-end-reason-${index}`}
-                        value={marriage?.end_reason || ""}
-                        onChange={(value) => { clearValidationError(`${prefix}.end_reason`); updateMarriage(index, { ...marriage, end_reason: value }); }}
-                        readOnly={readOnly}
-                        error={getFieldError(errors, `${prefix}.end_reason`)}
-                        options={END_REASONS}
-                      />
-                    </div>
+                    <ChoiceGroup
+                      label="علت پایان"
+                      required
+                      name={`marriage-end-reason-${index}`}
+                      value={marriage?.end_reason || ""}
+                      onChange={(value) => { clearValidationError(`${prefix}.end_reason`); updateMarriage(index, { ...marriage, end_reason: value }); }}
+                      readOnly={readOnly}
+                      error={getFieldError(errors, `${prefix}.end_reason`)}
+                      options={END_REASONS}
+                    />
                   </>
                 )}
 
