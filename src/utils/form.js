@@ -224,6 +224,10 @@ export function validateStep(stepKey, form) {
       if (empty(marriage?.spouse?.last_name)) add(prefix + ".spouse.last_name", "نام خانوادگی همسر را وارد کنید.");
       if (empty(marriage?.marriage_date)) add(prefix + ".marriage_date", "تاریخ ازدواج را وارد کنید.");
 
+      if (empty(marriage?.spouse?.physical_status)) add(prefix + ".spouse.physical_status", "وضعیت جسمانی همسر را انتخاب کنید.");
+      if (marriage?.spouse?.physical_status === "بیمار" && empty(marriage?.spouse?.disease_description)) {
+        add(prefix + ".spouse.disease_description", "توضیحات بیماری همسر را وارد کنید.");
+      }
       if (marriage?.status === "ended") {
         if (empty(marriage?.end_date)) add(prefix + ".end_date", "تاریخ پایان ازدواج را وارد کنید.");
         if (empty(marriage?.end_reason)) add(prefix + ".end_reason", "علت پایان ازدواج را انتخاب کنید.");
@@ -415,8 +419,10 @@ export function makeForm(stepKey, data, user) {
           gender: item.spouse?.gender || "",
           occupation: item.spouse?.occupation || "",
           education: item.spouse?.education || "",
+          physical_status: item.spouse?.physical_status || "",
+          disease_description: item.spouse?.disease_description || "",
         },
-        notes: item.notes || "",
+        spouse_family_residence_address: item.spouse_family_residence_address || "",
       })),
     };
   }
