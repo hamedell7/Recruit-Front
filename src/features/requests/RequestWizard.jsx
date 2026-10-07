@@ -12,6 +12,14 @@ import StepRail from "./StepRail";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
+function buildWorkflowSteps(appRequest, applicantIsFemale) {
+  const baseSteps = appRequest?.workflow_key === "employment"
+    ? ["personal", "education", "employment", "documents", "review", "declaration"]
+    : FLOW_SECTIONS.flatMap(([, items]) => items);
+
+  return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
+}
+
 function RequestWizard({ user, request, onBack, onError }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
@@ -25,17 +33,19 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [form, setForm] = useState(null);
   const [draftStatus, setDraftStatus] = useState("idle");
   const [lastDraftSaved, setLastDraftSaved] = useState(null);
+  const [applicantGender, setApplicantGender] = useState("");
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const validationSummaryRef = useRef(null);
   const autosaveSequence = useRef(0);
 
-  const workflowSteps = useMemo(() => {
-    if (appRequest?.workflow_key === "employment") {
-      return ["personal", "education", "employment", "documents", "review", "declaration"];
-    }
-    return FLOW_SECTIONS.flatMap(([, items]) => items);
-  }, [appRequest]);
+  const workflowSteps = useMemo(
+    () => buildWorkflowSteps(
+      appRequest,
+      form?.gender === "زن" || applicantGender === "زن",
+    ),
+    [appRequest, form?.gender, applicantGender],
+  );
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
@@ -67,17 +77,21 @@ function RequestWizard({ user, request, onBack, onError }) {
     const bootstrap = async () => {
       setLoading(true);
       try {
-        const [requestData, resumeData, stepsData, countriesData] = await Promise.all([
+        const [requestData, resumeData, stepsData, countriesData, personalData] = await Promise.all([
           api.request(request.id),
           api.resume(request.id),
           api.steps(request.id),
           api.countries(),
+          api.stepData(request.id, "personal"),
         ]);
+        const femaleApplicant = personalData?.person?.gender === "زن";
+        const initialWorkflowSteps = buildWorkflowSteps(requestData, femaleApplicant);
         setAppRequest(requestData);
         setResume(resumeData);
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
-        const initialIndex = Math.max(0, workflowSteps.indexOf(resumeData.current_step));
+        setApplicantGender(personalData?.person?.gender || "");
+        const initialIndex = Math.max(0, initialWorkflowSteps.indexOf(resumeData.current_step));
         setIndex(initialIndex);
       } catch (error) {
         onError({ type: "error", text: error.message, requestId: error.requestId });
@@ -167,15 +181,19 @@ function RequestWizard({ user, request, onBack, onError }) {
   }, [appRequest?.id, currentKey, form, draftHydrated, readOnly]);
 
   const refreshWorkflow = async (nextIndexOverride) => {
-    const [requestData, resumeData, stepsData] = await Promise.all([
+    const [requestData, resumeData, stepsData, personalData] = await Promise.all([
       api.request(appRequest.id),
       api.resume(appRequest.id),
       api.steps(appRequest.id),
+      api.stepData(appRequest.id, "personal"),
     ]);
+    const femaleApplicant = personalData?.person?.gender === "زن";
+    const refreshedWorkflowSteps = buildWorkflowSteps(requestData, femaleApplicant);
     setAppRequest(requestData);
     setResume(resumeData);
     setSteps(normalizeList(stepsData));
-    const target = nextIndexOverride ?? workflowSteps.indexOf(resumeData.current_step);
+    setApplicantGender(personalData?.person?.gender || "");
+    const target = nextIndexOverride ?? refreshedWorkflowSteps.indexOf(resumeData.current_step);
     setIndex(Math.max(0, target));
     if (resumeData.status === "SUBMITTED") {
       onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
@@ -257,7 +275,7 @@ function RequestWizard({ user, request, onBack, onError }) {
             ) : FLOW_SECTIONS.map(([heading, items]) => (
               <div className="step-section" key={heading}>
                 <span className="step-section-title">{heading}</span>
-                {items.map((key) => {
+                {items.filter((key) => workflowSteps.includes(key)).map((key) => {
                   const target = workflowSteps.indexOf(key);
                   return <StepRailItem key={key} keyName={key} active={currentKey === key} completed={target < backendCurrentIndex || resume?.status === "SUBMITTED"} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
