@@ -134,10 +134,11 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
                     </>
                   )}
 
-                  <TextField
+                  <SelectField
                     label="نوع ایثارگری"
                     value={record?.veteran_type || ""}
                     onChange={(value) => update("veteran_type", value)}
+                    options={["رزمندگی", "جانبازي", "آزادگی", "شهادت"]}
                     error={getFieldError(errors, prefix + ".veteran_type")}
                     required
                     readOnly={readOnly}
