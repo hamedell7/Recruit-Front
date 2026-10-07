@@ -14,7 +14,8 @@ function GeoFields({
   errorPrefix = "",
   clearValidationError,
   caption = "موقعیت جغرافیایی",
-  hint = "کشور، استان و شهر را انتخاب کنید."
+  hint = "کشور، استان و شهر را انتخاب کنید.",
+  required = false
 }) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
@@ -90,6 +91,7 @@ function GeoFields({
           onChange={(value) => setValue(countryKey, value)}
           error={getFieldError(errors, pathFor(countryKey))}
           options={countries.map((item) => ({ value: item.id, label: item.name }))}
+          required={required}
           readOnly={readOnly}
         />
         <SelectField
@@ -98,6 +100,7 @@ function GeoFields({
           onChange={(value) => setValue(provinceKey, value)}
           error={getFieldError(errors, pathFor(provinceKey))}
           options={provinces.map((item) => ({ value: item.id, label: item.name }))}
+          required={required}
           readOnly={readOnly || !countryId}
         />
         <SelectField
@@ -106,6 +109,7 @@ function GeoFields({
           onChange={(value) => setValue(cityKey, value)}
           error={getFieldError(errors, pathFor(cityKey))}
           options={cities.map((item) => ({ value: item.id, label: item.name }))}
+          required={required}
           readOnly={readOnly || !provinceId}
         />
       </div>
