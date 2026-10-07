@@ -1,17 +1,9 @@
-import { SelectField } from "../../../components/form/Fields";
 import TextField, { TextArea } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
 import GeoFields from "../../../components/form/GeoFields";
 import { getFieldError } from "../../../utils/validation";
 import { normalizeList } from "../../../utils/collections";
-
-const PASSPORT_TYPES = [
-  { value: "ordinary", label: "عادی" },
-  { value: "service", label: "خدمت" },
-  { value: "diplomatic", label: "سیاسی" },
-  { value: "other", label: "سایر" },
-];
 
 const PERSON_TYPES = [
   { value: "APPLICANT", label: "متقاضی" },
@@ -24,9 +16,7 @@ const emptyPassport = () => ({
   passport_number: "",
   issue_date: "",
   expiry_date: "",
-  issue_country_id: "",
-  issue_province_id: "",
-  issue_city_id: "",
+  issue_location: "",
   notes: "",
 });
 
@@ -53,8 +43,7 @@ function PassportStep({ form, setForm, countries, readOnly, errors, clearValidat
               setRecord({ ...record, [key]: value });
             };
 
-            const typeLabel =
-              PASSPORT_TYPES.find((item) => item.value === record?.passport_type)?.label || "گذرنامه";
+            const typeLabel = record?.passport_type?.trim() || "گذرنامه";
 
             return (
               <div className="record-card">
@@ -73,11 +62,10 @@ function PassportStep({ form, setForm, countries, readOnly, errors, clearValidat
                     readOnly={readOnly}
                   />
 
-                  <SelectField
+                                    <TextField
                     label="نوع گذرنامه"
                     value={record?.passport_type || ""}
                     onChange={(value) => update("passport_type", value)}
-                    options={PASSPORT_TYPES}
                     error={getFieldError(errors, prefix + ".passport_type")}
                     required
                     readOnly={readOnly}
@@ -102,7 +90,7 @@ function PassportStep({ form, setForm, countries, readOnly, errors, clearValidat
                   />
 
                   <TextField
-                    label="مدت اعتبار"
+                    label="تاریخ انقضا"
                     type="date"
                     value={record?.expiry_date || ""}
                     onChange={(value) => update("expiry_date", value)}
@@ -110,17 +98,12 @@ function PassportStep({ form, setForm, countries, readOnly, errors, clearValidat
                     readOnly={readOnly}
                   />
 
-                  <GeoFields
-                    record={record}
-                    setRecord={setRecord}
-                    countries={countries}
+                  <TextField
+                    label="محل دریافت"
+                    value={record?.issue_location || ""}
+                    onChange={(value) => update("issue_location", value)}
+                    error={getFieldError(errors, prefix + ".issue_location")}
                     readOnly={readOnly}
-                    prefix="issue_"
-                    errors={errors}
-                    errorPrefix={prefix}
-                    clearValidationError={clearValidationError}
-                    caption="محل دریافت"
-                    hint="کشور، استان و شهر محل دریافت را انتخاب کنید."
                   />
 
                   <TextArea
