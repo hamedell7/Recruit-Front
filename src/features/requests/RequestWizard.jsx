@@ -8,15 +8,16 @@ import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
 import ReviewStep from "./steps/ReviewStep";
-import StepRail from "./StepRail";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
 function buildWorkflowSteps(appRequest, applicantIsFemale) {
-  const baseSteps = appRequest?.workflow_key === "employment"
-    ? ["personal", "education", "employment", "documents", "review", "declaration"]
-    : FLOW_SECTIONS.flatMap(([, items]) => items);
-
+  // Keep the UI sequence aligned with the backend workflow registry.
+  // Legacy/partial "employment" flows must not be used here because they skip
+  // workflow steps such as marriage and can reset the UI index to zero after a
+  // successful backend transition.
+  void appRequest;
+  const baseSteps = FLOW_SECTIONS.flatMap(([, items]) => items);
   return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
 
@@ -39,6 +40,15 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [validationErrors, setValidationErrors] = useState({});
   const validationSummaryRef = useRef(null);
   const autosaveSequence = useRef(0);
+  const autosaveTimer = useRef(null);
+
+  const cancelPendingAutosave = () => {
+    ++autosaveSequence.current;
+    if (autosaveTimer.current !== null) {
+      clearTimeout(autosaveTimer.current);
+      autosaveTimer.current = null;
+    }
+  };
 
   const workflowSteps = useMemo(
     () => buildWorkflowSteps(
@@ -168,6 +178,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
     const sequence = ++autosaveSequence.current;
     setDraftStatus("dirty");
+    if (autosaveTimer.current !== null) clearTimeout(autosaveTimer.current);
     const timer = setTimeout(async () => {
       setDraftStatus("saving");
       try {
@@ -180,11 +191,15 @@ function RequestWizard({ user, request, onBack, onError }) {
         if (sequence === autosaveSequence.current) setDraftStatus("error");
       }
     }, 1200);
+    autosaveTimer.current = timer;
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (autosaveTimer.current === timer) autosaveTimer.current = null;
+    };
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly]);
 
-  const refreshWorkflow = async (nextIndexOverride) => {
+  const refreshWorkflow = async (nextStepOverride) => {
     const [requestData, resumeData, stepsData, personalData] = await Promise.all([
       api.request(appRequest.id),
       api.resume(appRequest.id),
@@ -197,7 +212,11 @@ function RequestWizard({ user, request, onBack, onError }) {
     setResume(resumeData);
     setSteps(normalizeList(stepsData));
     setApplicantGender(personalData?.person?.gender || "");
-    const target = nextIndexOverride ?? refreshedWorkflowSteps.indexOf(resumeData.current_step);
+    const preferredIndex = nextStepOverride
+      ? refreshedWorkflowSteps.indexOf(nextStepOverride)
+      : -1;
+    const serverIndex = refreshedWorkflowSteps.indexOf(resumeData.current_step);
+    const target = preferredIndex >= 0 ? preferredIndex : serverIndex;
     setIndex(Math.max(0, target));
     if (resumeData.status === "SUBMITTED") {
       onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
@@ -206,10 +225,6 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const complete = async () => {
     if (readOnly) return;
-    // Invalidate any pending debounced autosave before advancing the workflow.
-    // Otherwise the old step can be autosaved after the backend has already moved
-    // current_step_key to the next step, causing STEP_NOT_CURRENT.
-    ++autosaveSequence.current;
     const localErrors = validateStep(currentKey, form || {});
     if (Object.keys(localErrors).length > 0) {
       setValidationErrors(localErrors);
@@ -218,6 +233,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       return;
     }
     setValidationErrors({});
+    cancelPendingAutosave();
     setSaving(true);
     try {
       let result;
@@ -254,12 +270,12 @@ function RequestWizard({ user, request, onBack, onError }) {
   };
 
   const movePrevious = () => {
-    ++autosaveSequence.current;
+    cancelPendingAutosave();
     setIndex((value) => Math.max(0, value - 1));
   };
   const moveTo = (target) => {
     if (target <= backendCurrentIndex) {
-      ++autosaveSequence.current;
+      cancelPendingAutosave();
       setIndex(target);
     }
   };
@@ -284,9 +300,7 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div className="progress-track"><span style={{ width: ((resume?.status === "SUBMITTED" ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
-            {appRequest.workflow_key === "employment" ? (
-              <StepRail items={workflowSteps} currentKey={currentKey} backendCurrentIndex={backendCurrentIndex} onMove={moveTo} />
-            ) : FLOW_SECTIONS.map(([heading, items]) => (
+            FLOW_SECTIONS.map(([heading, items]) => (
               <div className="step-section" key={heading}>
                 <span className="step-section-title">{heading}</span>
                 {items.filter((key) => workflowSteps.includes(key)).map((key) => {
