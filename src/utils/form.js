@@ -150,6 +150,26 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "travel") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+        country_name: record.country_name || "",
+        travel_type: record.travel_type || "",
+        duration: record.duration || "",
+        exit_border: record.exit_border || "",
+        passport_number: record.passport_number || "",
+        reason: record.reason || "",
+        transport_type: record.transport_type || "",
+        stay_type: record.stay_type || "",
+        stay_place: record.stay_place || "",
+      })),
+    };
+  }
   if (stepKey === "veteran") {
     return {
       records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
@@ -233,6 +253,25 @@ export function validateStep(stepKey, form) {
         if (empty(record?.relative_relation)) add(prefix + ".relative_relation", "نسبت با متقاضی را انتخاب کنید.");
         if (empty(record?.relative_first_name)) add(prefix + ".relative_first_name", "نام شخص ایثارگر را وارد کنید.");
         if (empty(record?.relative_last_name)) add(prefix + ".relative_last_name", "نام خانوادگی شخص ایثارگر را وارد کنید.");
+      }
+    }
+  }
+
+  if (stepKey === "travel") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (empty(record?.beneficiary_type)) add(prefix + ".beneficiary_type", "مشخص کنید این سابقه مربوط به چه کسی است.");
+      if (record?.beneficiary_type === "RELATIVE") {
+        if (empty(record?.relative_relation)) add(prefix + ".relative_relation", "نسبت با متقاضی را انتخاب کنید.");
+        if (empty(record?.relative_first_name)) add(prefix + ".relative_first_name", "نام شخص را وارد کنید.");
+        if (empty(record?.relative_last_name)) add(prefix + ".relative_last_name", "نام خانوادگی شخص را وارد کنید.");
+      }
+      if (empty(record?.country_name)) add(prefix + ".country_name", "کشور خارجی را وارد کنید.");
+      if (empty(record?.travel_type)) add(prefix + ".travel_type", "نوع مسافرت / اقامت را وارد کنید.");
+      if (record?.start_date && record?.end_date && record.end_date < record.start_date) {
+        add(prefix + ".end_date", "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.");
       }
     }
   }
