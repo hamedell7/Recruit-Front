@@ -1,6 +1,6 @@
 const STEP_META = {
   personal: { title: "مشخصات فردی", kicker: "هویت و اطلاعات تماس" },
-  marriage: { title: "همسران و سوابق ازدواج", kicker: "وضعیت خانوادگی" },
+  marriage: { title: "سوابق ازدواج", kicker: "وضعیت خانوادگی" },
   military: { title: "وضعیت نظام وظیفه", kicker: "خدمت و معافیت" },
   education: { title: "سوابق تحصیلی", kicker: "مدارک دانشگاهی و حوزوی" },
   employment: { title: "سوابق شغلی", kicker: "تجربه و محل‌های کار" },
