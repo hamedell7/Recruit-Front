@@ -55,6 +55,14 @@
 
 .draft-status{display:flex;align-items:center;gap:6px;margin-top:9px;color:#667085;font-size:9px}.draft-pulse{width:7px;height:7px;border-radius:50%;background:#98a2b3}.draft-status.saving .draft-pulse,.draft-status.dirty .draft-pulse{background:#9a6700;box-shadow:0 0 0 4px rgba(154,103,0,.08)}.draft-status.saved .draft-pulse{background:#167d55;box-shadow:0 0 0 4px rgba(22,125,85,.08)}.draft-status.error .draft-pulse{background:#b42318}.draft-status time{margin-right:4px;color:#98a2b3}.inline-info{border:1px dashed #cfd8e5;background:#fbfcfe;border-radius:13px;padding:15px;color:#667085;font-size:10px;line-height:1.8}.inline-info strong{display:block;color:#344054;margin-bottom:2px}.geo-block{margin-top:2px;padding:13px;border:1px solid #dce5ef;border-radius:13px;background:#fbfdff}.geo-caption{display:flex;justify-content:space-between;gap:10px;align-items:end;margin-bottom:11px}.geo-caption strong{font-size:10px}.geo-caption span{color:#98a2b3;font-size:8px}.geo-grid{gap:10px}.address-editor{display:flex;flex-direction:column;gap:10px}
 
+.social-network-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.social-network-item{border:1px solid var(--line);border-radius:13px;background:#fff;padding:11px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.social-network-item.selected{border-color:#9bb5d5;background:#fbfdff}
+.social-network-check{display:flex;align-items:center;gap:8px;min-height:34px;cursor:pointer;color:#344054}
+.social-network-check input{width:17px;height:17px;margin:0;accent-color:var(--brand);flex:0 0 auto}
+.social-network-check span{font-size:var(--form-label-size);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.social-network-item .field{width:100%}
+.address-current-grid .geo-block{grid-column:1 / -1}
 .choice-field{grid-column:1 / -1}
 .choice-label{font-size:11px;font-weight:700;color:#344054;margin-bottom:9px}.choice-label em{font-style:normal;color:var(--danger);margin-right:3px}
 .choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -91,13 +99,14 @@
 .calendar-footer{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
 .calendar-footer span{margin-right:auto;color:#98a2b3;font-size:8px}
 .danger-text{color:var(--danger)}
-@media (max-width:560px){.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
+@media (max-width:900px){.social-network-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.social-network-grid{grid-template-columns:1fr 1fr}.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
 
 
 /* Professional Persian date picker */
 .date-picker-control{position:relative;width:100%;direction:rtl}
 .recruit-date-picker{display:block!important;width:100%!important}
-.recruit-date-picker .rmdp-input.recruit-date-input{width:100%!important;height:46px!important;box-sizing:border-box!important;margin:0!important;padding:0 14px!important;border:1px solid var(--line)!important;border-radius:10px!important;background:#fff!important;color:var(--ink)!important;font:inherit!important;font-size:14px!important;line-height:46px!important;text-align:right!important;direction:rtl!important;outline:none!important;transition:border-color .18s ease,box-shadow .18s ease}
+.recruit-date-picker .rmdp-input.recruit-date-input{width:100%!important;height:var(--form-control-height)!important;box-sizing:border-box!important;margin:0!important;padding:0 14px!important;border:1px solid var(--line)!important;border-radius:10px!important;background:#fff!important;color:var(--ink)!important;font:inherit!important;font-size:var(--form-control-size)!important;line-height:var(--form-control-height)!important;text-align:right!important;direction:rtl!important;outline:none!important;transition:border-color .18s ease,box-shadow .18s ease}
 .recruit-date-picker .rmdp-input.recruit-date-input:focus{border-color:var(--brand)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 12%,transparent)!important}
 .recruit-date-picker .rmdp-input.recruit-date-input:disabled{background:var(--surface-muted,#f6f7f9)!important;color:var(--muted)!important;cursor:not-allowed!important}
 .date-picker-control .rmdp-wrapper{border:1px solid var(--line)!important;border-radius:14px!important;box-shadow:0 16px 36px rgba(15,23,42,.14)!important;overflow:hidden}
