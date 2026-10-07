@@ -181,6 +181,12 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "education" || stepKey === "employment") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)),
+      accommodations: normalizeList(data?.accommodations).map((record) => hydrateDateFields(record)),
+    };
+  }
   if (stepKey === "addiction") {
     const records = Array.isArray(form?.records) ? form.records : [];
     for (let i = 0; i < records.length; i += 1) {
@@ -320,6 +326,19 @@ export function validateStep(stepKey, form) {
       if (empty(record?.travel_type)) add(prefix + ".travel_type", "نوع مسافرت / اقامت را وارد کنید.");
       if (record?.start_date && record?.end_date && record.end_date < record.start_date) {
         add(prefix + ".end_date", "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.");
+      }
+    }
+  }
+
+  if (stepKey === "education" || stepKey === "employment") {
+    const accommodations = Array.isArray(form?.accommodations) ? form.accommodations : [];
+    for (let i = 0; i < accommodations.length; i += 1) {
+      const accommodation = accommodations[i];
+      const prefix = "accommodations." + i;
+      if (empty(accommodation?.name)) add(prefix + ".name", "نام خوابگاه یا پانسیون را وارد کنید.");
+      if (empty(accommodation?.start_date)) add(prefix + ".start_date", "تاریخ شروع اسکان را وارد کنید.");
+      if (accommodation?.start_date && accommodation?.end_date && accommodation.end_date < accommodation.start_date) {
+        add(prefix + ".end_date", "تاریخ پایان اسکان نمی‌تواند قبل از تاریخ شروع باشد.");
       }
     }
   }
