@@ -162,6 +162,25 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "addiction") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (empty(record?.beneficiary_type)) {
+        add(prefix + ".beneficiary_type", "مشخص کنید این سابقه اعتیاد مربوط به چه کسی است.");
+      }
+      if (record?.beneficiary_type === "RELATIVE") {
+        if (empty(record?.relative_relation)) add(prefix + ".relative_relation", "نسبت با متقاضی را انتخاب کنید.");
+        if (empty(record?.relative_first_name)) add(prefix + ".relative_first_name", "نام شخص را وارد کنید.");
+        if (empty(record?.relative_last_name)) add(prefix + ".relative_last_name", "نام خانوادگی شخص را وارد کنید.");
+      }
+      if (record?.start_date && record?.end_date && record.end_date < record.start_date) {
+        add(prefix + ".end_date", "تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.");
+      }
+    }
+  }
+
   if (stepKey === "legal_incidents") {
     const records = Array.isArray(form?.records) ? form.records : [];
     for (let i = 0; i < records.length; i += 1) {
@@ -233,6 +252,17 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "addiction") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+      })),
+    };
+  }
   if (stepKey === "veteran") {
     const records = Array.isArray(form?.records) ? form.records : [];
     for (let i = 0; i < records.length; i += 1) {
@@ -315,7 +345,9 @@ export function makeForm(stepKey, data, user) {
       national_id: person.national_id || user?.national_id || "",
       birth_date: person.birth_date || "",
       gender: person.gender || "",
-      previous_last_name: person.previous_last_name || "",
+      previous_last_name: profile.previous_last_name || "",
+      alias_first_name: profile.alias_first_name || "",
+      alias_last_name: profile.alias_last_name || "",
       birth_certificate_no: profile.birth_certificate_no || "",
       birth_country_id: profile.birth_country_id || "",
       birth_province_id: profile.birth_province_id || "",
