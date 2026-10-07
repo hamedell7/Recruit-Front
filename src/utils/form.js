@@ -181,11 +181,6 @@ export function validateStep(stepKey, form) {
     }
   }
 
-  if (stepKey === "education" || stepKey === "employment" || stepKey === "accommodation") {
-    return {
-      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)),
-    };
-  }
   if (stepKey === "addiction") {
     const records = Array.isArray(form?.records) ? form.records : [];
     for (let i = 0; i < records.length; i += 1) {
@@ -280,17 +275,6 @@ export function validateStep(stepKey, form) {
     }
   }
 
-  if (stepKey === "addiction") {
-    return {
-      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
-        ...record,
-        beneficiary_type: record.beneficiary_type || "APPLICANT",
-        relative_relation: record.relative_relation || "",
-        relative_first_name: record.relative_first_name || "",
-        relative_last_name: record.relative_last_name || "",
-      })),
-    };
-  }
   if (stepKey === "veteran") {
     const records = Array.isArray(form?.records) ? form.records : [];
     for (let i = 0; i < records.length; i += 1) {
