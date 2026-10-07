@@ -29,17 +29,6 @@ const STEP_META = {
 };
 
 const RECORDS = {
-  military: [
-    { key: "status", label: "وضعیت", type: "select", options: ["پایان خدمت", "مشمول", "معاف", "غیبت"] },
-    { key: "card_type", label: "نوع کارت", type: "text" },
-    { key: "organization_name", label: "سازمان خدمتی", type: "text" },
-    { key: "unit_name", label: "یگان خدمتی", type: "text" },
-    { key: "start_date", label: "تاریخ شروع", type: "date" },
-    { key: "end_date", label: "تاریخ پایان", type: "date" },
-    { key: "booklet_status", label: "وضعیت دفترچه", type: "text" },
-    { key: "absence_status", label: "وضعیت غیبت", type: "text" },
-    { key: "exemption_reason", label: "علت معافیت", type: "textarea", full: true, visibleWhen: (record) => record.status === "معاف" },
-  ],
   education: [
     { key: "degree_level", label: "مقطع تحصیلی / سطح", type: "text", required: true },
     { key: "institution_name", label: "نام دانشگاه / حوزه", type: "text", required: true },
