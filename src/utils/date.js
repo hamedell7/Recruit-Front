@@ -12,7 +12,7 @@ function toEnglishDigits(value) {
 }
 
 function fromEnglishDigits(value) {
-  return String(value ?? "").replace(/d/g, (digit) => PERSIAN_DIGITS[Number(digit)]);
+  return String(value ?? "").replace(/\d/g, (digit) => PERSIAN_DIGITS[Number(digit)]);
 }
 
 function jalaliToGregorian(jy, jm, jd) {
