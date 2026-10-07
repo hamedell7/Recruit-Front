@@ -11,12 +11,10 @@ import ReviewStep from "./steps/ReviewStep";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
-function buildWorkflowSteps(appRequest, applicantIsFemale) {
+function buildWorkflowSteps(applicantIsFemale) {
   // Keep the UI sequence aligned with the backend workflow registry.
-  // Legacy/partial "employment" flows must not be used here because they skip
-  // workflow steps such as marriage and can reset the UI index to zero after a
-  // successful backend transition.
-  void appRequest;
+  // Legacy/partial flows must not be used here because they skip workflow steps
+  // such as marriage and can reset the UI index to zero after a successful transition.
   const baseSteps = FLOW_SECTIONS.flatMap(([, items]) => items);
   return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
@@ -51,10 +49,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   };
 
   const workflowSteps = useMemo(
-    () => buildWorkflowSteps(
-      appRequest,
-      form?.gender === "زن" || applicantGender === "زن",
-    ),
+    () => buildWorkflowSteps(form?.gender === "زن" || applicantGender === "زن"),
     [appRequest, form?.gender, applicantGender],
   );
 
@@ -96,7 +91,7 @@ function RequestWizard({ user, request, onBack, onError }) {
           api.stepData(request.id, "personal"),
         ]);
         const femaleApplicant = personalData?.person?.gender === "زن";
-        const initialWorkflowSteps = buildWorkflowSteps(requestData, femaleApplicant);
+        const initialWorkflowSteps = buildWorkflowSteps(femaleApplicant);
         setAppRequest(requestData);
         setResume(resumeData);
         setSteps(normalizeList(stepsData));
