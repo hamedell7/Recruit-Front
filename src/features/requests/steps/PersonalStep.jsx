@@ -75,20 +75,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     }));
   };
 
-  const clearCurrentAddress = () => {
-    clearValidationError("current_address");
-    setForm((current) => ({
-      ...current,
-      current_address: {
-        country_id: "",
-        province_id: "",
-        city_id: "",
-        address_line: "",
-        postal_code: "",
-        phone: "",
-      },
-    }));
-  };
 
   const allContacts = normalizeList(form?.contacts);
   const socialNetworkValues = new Set(SOCIAL_NETWORKS.map((network) => network.value));
@@ -129,7 +115,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           value: null,
           owner_type: "OWNER",
           owner_name: null,
-          is_primary: false,
         },
       ],
     }));
@@ -198,7 +183,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         setItems={setRegularContacts}
         clearValidationError={clearValidationError}
         errorPrefix="contacts"
-        empty={() => ({ contact_type: "موبایل", value: "", owner_type: "OWNER", owner_name: "", is_primary: false })}
+        empty={() => ({ contact_type: "موبایل", value: "", owner_type: "OWNER", owner_name: "" })}
         render={(item, setItem, index) => (
           <div className="mini-grid">
             <TextField
@@ -236,21 +221,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
                 readOnly={readOnly}
               />
             )}
-            <div className="contact-primary-field">
-              <span>اولویت تماس</span>
-              <label className="contact-primary-control">
-                <input
-                  type="checkbox"
-                  checked={Boolean(item.is_primary)}
-                  onChange={(e) => {
-                    clearValidationError(`contacts.${index}.is_primary`);
-                    setItem({ ...item, is_primary: e.target.checked });
-                  }}
-                  disabled={readOnly}
-                />
-                <span>تماس اصلی</span>
-              </label>
-            </div>
           </div>
         )}
       />
@@ -315,11 +285,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
             error={getFieldError(errors, "current_address.phone")}
             readOnly={readOnly}
           />
-          {!readOnly && (
-            <button className="text-button" type="button" onClick={clearCurrentAddress}>
-              پاک کردن نشانی
-            </button>
-          )}
         </div>
       </FormSection>
     </div>
