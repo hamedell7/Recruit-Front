@@ -56,17 +56,6 @@ function ChoiceGroup({ label, required, value, options, name, onChange, readOnly
 
 function MarriageStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const marriages = Array.isArray(form?.marriages) ? form.marriages : [];
-  const currentCount = marriages.filter((item) => item?.status === "current").length;
-  const endedCount = marriages.filter((item) => item?.status === "ended").length;
-
-  const summaryTitle = currentCount > 1
-    ? `متأهل با ${currentCount} همسر فعلی`
-    : currentCount === 1
-      ? "متأهل با یک همسر فعلی"
-      : endedCount > 0
-        ? "مجرد با سابقه ازدواج"
-        : "مجرد و بدون سابقه ازدواج";
-
   const updateMarriage = (index, next) => {
     const nextItems = marriages.map((item, i) => (i === index ? next : item));
     setForm({ marriages: nextItems });
@@ -118,7 +107,7 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
       </div>
 
       <ListEditor
-        title="همسران و سوابق ازدواج"
+        title="سوابق ازدواج"
         hint="هر ازدواج یک رکورد مستقل است. برای ازدواج جاری فقط وضعیت جاری و تاریخ ازدواج را ثبت کنید؛ برای ازدواج پایان‌یافته علت و تاریخ پایان را هم وارد کنید."
         items={marriages}
         setItems={(items) => setForm({ marriages: items })}
