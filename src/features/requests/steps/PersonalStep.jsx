@@ -108,10 +108,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
     }));
   };
 
-  const selectedSocialNetworks = SOCIAL_NETWORKS.filter((network) =>
-    allContacts.some((contact) => contact.contact_type === network.value)
-  );
-
   const toggleSocialNetwork = (network) => {
     const existingIndex = allContacts.findIndex((contact) => contact.contact_type === network.value);
     if (existingIndex >= 0) {
@@ -120,7 +116,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         ...current,
         contacts: normalizeList(current.contacts).filter((_, index) => index !== existingIndex),
       }));
-      clearValidationError(`contacts.${existingIndex}.value`);
       return;
     }
 
@@ -131,9 +126,9 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         ...normalizeList(current.contacts),
         {
           contact_type: network.value,
-          value: "",
+          value: null,
           owner_type: "OWNER",
-          owner_name: "",
+          owner_name: null,
           is_primary: false,
         },
       ],
@@ -260,12 +255,10 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         )}
       />
 
-      <FormSection title="شبکه‌های اجتماعی" hint="شبکه‌های اجتماعی مورد استفاده خود را انتخاب کنید؛ برای هر مورد انتخاب‌شده، نام کاربری یا شماره تماس را ثبت نمایید.">
+      <FormSection title="شبکه‌های اجتماعی" hint="شبکه‌های اجتماعی مورد استفاده خود را فقط انتخاب کنید.">
         <div className="social-network-grid">
           {SOCIAL_NETWORKS.map((network) => {
-            const selected = selectedSocialNetworks.some((item) => item.value === network.value);
-            const contactIndex = allContacts.findIndex((item) => item.contact_type === network.value);
-            const contact = contactIndex >= 0 ? allContacts[contactIndex] : null;
+            const selected = allContacts.some((item) => item.contact_type === network.value);
 
             return (
               <div key={network.value} className={"social-network-item " + (selected ? "selected" : "")}>
@@ -278,16 +271,6 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
                   />
                   <span>{network.label}</span>
                 </label>
-                {selected && (
-                  <TextField
-                    label="نام کاربری / شماره"
-                    value={contact?.value || ""}
-                    onChange={(value) => updateContact(contactIndex, "value", value)}
-                    error={getFieldError(errors, `contacts.${contactIndex}.value`)}
-                    required
-                    readOnly={readOnly}
-                  />
-                )}
               </div>
             );
           })}
