@@ -187,7 +187,14 @@ const RECORDS = {
     { key: "termination_reason", label: "علت قطع ارتباط", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
   ],
   addiction: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
+    { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [
+      { value: "APPLICANT", label: "خود متقاضی" },
+      { value: "SPOUSE", label: "همسر" },
+      { value: "RELATIVE", label: "یکی از بستگان" },
+    ] },
+    { key: "relative_relation", label: "نسبت با متقاضی", type: "select", options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_first_name", label: "نام شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "substance_type", label: "ماده مورد استعمال", type: "text", required: true },
     { key: "start_date", label: "از تاریخ", type: "date" },
     { key: "end_date", label: "تا تاریخ", type: "date" },
