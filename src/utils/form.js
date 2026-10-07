@@ -149,12 +149,34 @@ export function validateStep(stepKey, form) {
     if (!form?.current_address || empty(form.current_address.address_line)) {
       add("current_address.address_line", "آدرس محل سکونت را وارد کنید.");
     }
+    if (!form?.current_address || empty(form.current_address.country_id)) {
+      add("current_address.country_id", "کشور محل سکونت را انتخاب کنید.");
+    }
+    if (!form?.current_address || empty(form.current_address.province_id)) {
+      add("current_address.province_id", "استان محل سکونت را انتخاب کنید.");
+    }
+    if (!form?.current_address || empty(form.current_address.city_id)) {
+      add("current_address.city_id", "شهر محل سکونت را انتخاب کنید.");
+    }
 
+    const socialNetworkLabels = {
+      Twitter: "توییتر",
+      Instagram: "اینستاگرام",
+      Telegram: "تلگرام",
+      Eitaa: "ایتا",
+      Bale: "بله",
+    };
     for (let i = 0; i < (form?.contacts || []).length; i += 1) {
       const contact = form.contacts[i];
       const prefix = "contacts." + i;
       if (empty(contact?.contact_type)) add(prefix + ".contact_type", "نوع تماس را وارد کنید.");
-      if (empty(contact?.value)) add(prefix + ".value", "شماره تماس را وارد کنید.");
+      if (empty(contact?.value)) {
+        const socialLabel = socialNetworkLabels[contact?.contact_type];
+        add(
+          prefix + ".value",
+          socialLabel ? ("اطلاعات تماس " + socialLabel + " را وارد کنید.") : "شماره تماس را وارد کنید."
+        );
+      }
       if (empty(contact?.owner_type)) add(prefix + ".owner_type", "نوع مالکیت را انتخاب کنید.");
       if (contact?.owner_type === "OPERATOR" && empty(contact?.owner_name)) {
         add(prefix + ".owner_name", "نام مالک را وارد کنید.");
