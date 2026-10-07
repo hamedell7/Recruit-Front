@@ -32,20 +32,6 @@ const emptyMarriage = () => ({
 });
 
 function ChoiceGroup({ label, required, value, options, name, onChange, readOnly, error }) {
-  const updateSpousePhysicalStatus = (index, value) => {
-    clearValidationError("marriages." + index + ".spouse.physical_status");
-    clearValidationError("marriages." + index + ".spouse.disease_description");
-    const marriage = marriages[index];
-    updateMarriage(index, {
-      ...marriage,
-      spouse: {
-        ...(marriage?.spouse || {}),
-        physical_status: value,
-        ...(value === "سالم" ? { disease_description: "" } : {}),
-      },
-    });
-  };
-
   return (
     <div className={"choice-field " + (error ? "has-error" : "")}>
       <div className="choice-label">{label}{required && <em>*</em>}</div>
@@ -95,6 +81,20 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
     updateMarriage(index, {
       ...marriage,
       spouse: { ...(marriage?.spouse || {}), [key]: value },
+    });
+  };
+
+  const updateSpousePhysicalStatus = (index, value) => {
+    clearValidationError("marriages." + index + ".spouse.physical_status");
+    clearValidationError("marriages." + index + ".spouse.disease_description");
+    const marriage = marriages[index];
+    updateMarriage(index, {
+      ...marriage,
+      spouse: {
+        ...(marriage?.spouse || {}),
+        physical_status: value,
+        ...(value === "سالم" ? { disease_description: "" } : {}),
+      },
     });
   };
 
