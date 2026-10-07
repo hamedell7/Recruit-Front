@@ -35,7 +35,7 @@
 .status-badge i{width:6px;height:6px;border-radius:50%;background:currentColor}
 .status-badge.progress{background:var(--brand-soft);color:var(--brand)}
 .status-badge.returned{background:var(--warning-soft);color:var(--warning)}
-.status-badge.submitted,.status-badge.review{background:#f1f4f8;color:#475467}
+.status-badge.submitted{background:var(--success-soft);color:var(--success)}.status-badge.review{background:#f1f4f8;color:#475467}
 .status-badge.approved{background:var(--success-soft);color:var(--success)}
 .status-badge.danger{background:var(--danger-soft);color:var(--danger)}
 .request-card-title span{font-size:11px;color:var(--muted)}
