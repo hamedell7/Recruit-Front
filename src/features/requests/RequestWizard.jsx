@@ -243,10 +243,14 @@ function RequestWizard({ user, request, onBack, onError }) {
         const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : currentKey === "marriage" ? cleanMarriagePayload(form || {}) : currentKey === "legal_incidents" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
-      if (currentKey !== "documents" && currentKey !== "review") {
-        try { await api.deleteDraft(appRequest.id, currentKey); } catch {}
+      // complete_step already persists the submitted data and removes the draft
+      // in the same transaction. Use its committed next_step as the immediate UI target,
+      // then reconcile the persisted workflow state from the backend.
+      if (result?.next_step) {
+        const immediateIndex = workflowSteps.indexOf(result.next_step);
+        if (immediateIndex >= 0) setIndex(immediateIndex);
       }
-      // Always resolve the next screen from the freshly persisted backend resume state.\n      // Do not trust result.next_step for navigation: a stale backend/container response\n      // must never be able to skip steps (for example employment -> passport).\n      await refreshWorkflow();
+      await refreshWorkflow(result?.next_step || null);
     } catch (error) {
       if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
@@ -300,7 +304,7 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div className="progress-track"><span style={{ width: ((resume?.status === "SUBMITTED" ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
-            FLOW_SECTIONS.map(([heading, items]) => (
+            {FLOW_SECTIONS.map(([heading, items]) => (
               <div className="step-section" key={heading}>
                 <span className="step-section-title">{heading}</span>
                 {items.filter((key) => workflowSteps.includes(key)).map((key) => {
