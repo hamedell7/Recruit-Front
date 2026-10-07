@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
-import { getJalaliDateParts } from "../../../utils/date";
-import FieldError from "../../../components/form/FieldError";
+import { getJalaliDateParts } from "../../utils/date";
+import FieldError from "./FieldError";
 
 function PersianDateField({ label, value, onChange, required, readOnly, error }) {
   const pickerValue = useMemo(() => {
