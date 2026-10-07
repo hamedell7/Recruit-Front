@@ -170,6 +170,23 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "passport") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (record?.issue_province_id && !record?.issue_country_id) {
+        add(prefix + ".issue_country_id", "برای انتخاب استان، کشور محل دریافت را انتخاب کنید.");
+      }
+      if (record?.issue_city_id && !record?.issue_province_id) {
+        add(prefix + ".issue_province_id", "برای انتخاب شهر، استان محل دریافت را انتخاب کنید.");
+      }
+      if (record?.issue_date && record?.expiry_date && record.expiry_date < record.issue_date) {
+        add(prefix + ".expiry_date", "مدت اعتبار نمی‌تواند قبل از تاریخ صدور باشد.");
+      }
+    }
+  }
+
   if (stepKey === "declaration" && !form?.accepted) add("accepted", "برای ثبت نهایی باید تعهدنامه را تأیید کنید.");
 
   if (stepKey === "military") {
