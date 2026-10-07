@@ -3,7 +3,7 @@ import { api } from "../../services/api";
 import { STEP_META, STEP_DESCRIPTIONS, FLOW_SECTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
-import { cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, validateStep } from "../../utils/form";
+import { cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMilitaryForm, validateStep } from "../../utils/form";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
@@ -120,8 +120,9 @@ function RequestWizard({ user, request, onBack, onError }) {
 
         const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
         const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data);
+        const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : merged;
         setStepData(data);
-        setForm(merged);
+        setForm(normalizedForm);
         setLastDraftSaved(draft?.updated_at || null);
         setDraftHydrated(true);
         if (draft?.data) setDraftStatus("saved");
