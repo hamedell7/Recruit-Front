@@ -63,6 +63,18 @@ export function cleanMarriagePayload(value) {
   return cleanPayload(sanitized);
 }
 
+export function cleanLegalIncidentPayload(value) {
+  const records = Array.isArray(value?.records) ? value.records : [];
+  return cleanPayload({
+    ...value,
+    records: records.map((record) => {
+      const next = { ...record };
+      delete next.person_role;
+      return next;
+    }),
+  });
+}
+
 export function sanitizeMilitaryForm(value) {
   const next = { ...(value || {}) };
 
@@ -150,37 +162,20 @@ export function validateStep(stepKey, form) {
     }
   }
 
-  if (stepKey === "travel") {
-    return {
-      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
-        ...record,
-        beneficiary_type: record.beneficiary_type || "APPLICANT",
-        relative_relation: record.relative_relation || "",
-        relative_first_name: record.relative_first_name || "",
-        relative_last_name: record.relative_last_name || "",
-        country_name: record.country_name || "",
-        travel_type: record.travel_type || "",
-        duration: record.duration || "",
-        exit_border: record.exit_border || "",
-        passport_number: record.passport_number || "",
-        reason: record.reason || "",
-        transport_type: record.transport_type || "",
-        stay_type: record.stay_type || "",
-        stay_place: record.stay_place || "",
-      })),
-    };
+  if (stepKey === "legal_incidents") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (empty(record?.beneficiary_type)) add(prefix + ".beneficiary_type", "مشخص کنید این سابقه قضایی و انتظامی مربوط به چه کسی است.");
+      if (record?.beneficiary_type === "RELATIVE") {
+        if (empty(record?.relative_relation)) add(prefix + ".relative_relation", "نسبت با متقاضی را انتخاب کنید.");
+        if (empty(record?.relative_first_name)) add(prefix + ".relative_first_name", "نام شخص را وارد کنید.");
+        if (empty(record?.relative_last_name)) add(prefix + ".relative_last_name", "نام خانوادگی شخص را وارد کنید.");
+      }
+    }
   }
-  if (stepKey === "veteran") {
-    return {
-      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
-        ...record,
-        beneficiary_type: record.beneficiary_type || "APPLICANT",
-        relative_relation: record.relative_relation || "",
-        relative_first_name: record.relative_first_name || "",
-        relative_last_name: record.relative_last_name || "",
-      })),
-    };
-  }
+
   if (stepKey === "marriage") {
     const marriages = Array.isArray(form?.marriages) ? form.marriages : [];
     for (let i = 0; i < marriages.length; i += 1) {
@@ -384,6 +379,48 @@ export function makeForm(stepKey, data, user) {
       booklet_status: record.booklet_status || "",
       absence_status: record.absence_status || "",
       conscription_date: record.conscription_date || "",
+    };
+  }
+  if (stepKey === "veteran") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+      })),
+    };
+  }
+  if (stepKey === "travel") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+        country_name: record.country_name || "",
+        travel_type: record.travel_type || "",
+        duration: record.duration || "",
+        exit_border: record.exit_border || "",
+        passport_number: record.passport_number || "",
+        reason: record.reason || "",
+        transport_type: record.transport_type || "",
+        stay_type: record.stay_type || "",
+        stay_place: record.stay_place || "",
+      })),
+    };
+  }
+  if (stepKey === "legal_incidents") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+      })),
     };
   }
   if (RECORDS[stepKey]) return { records: normalizeList(data?.records).map((record) => hydrateDateFields(record)) };
