@@ -78,7 +78,7 @@ const RECORDS = {
   ],
   foreign_contacts: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
-    { key: "country_id", label: "کشور", type: "country", required: true },
+    { key: "country_name", label: "کشور", type: "text", required: true },
     { key: "entity_name", label: "نام فرد / مؤسسه", type: "text", required: true },
     { key: "contact_type", label: "نوع ارتباط", type: "text", required: true },
     { key: "start_date", label: "تاریخ شروع", type: "date" },
@@ -88,7 +88,6 @@ const RECORDS = {
     { key: "notes", label: "ملاحظات", type: "textarea", full: true },
   ],
   accommodation: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
     { key: "name", label: "نام خوابگاه / پانسیون", type: "text", required: true },
     { key: "start_date", label: "تاریخ شروع اسکان", type: "date", required: true },
     { key: "end_date", label: "تاریخ پایان اسکان", type: "date" },
@@ -99,7 +98,6 @@ const RECORDS = {
     { key: "night_manager_phone", label: "تلفن مسئول شب", type: "text" },
   ],
   screening_history: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
     { key: "organization_name", label: "نام سازمان / اداره", type: "text", required: true },
     { key: "screening_date", label: "تاریخ گزینش", type: "date" },
     { key: "result", label: "نتیجه گزینش", type: "text", required: true },
@@ -226,8 +224,9 @@ const RECORDS = {
 
 const FLOW_SECTIONS = [
   ["هویت و اطلاعات پایه", ["personal", "marriage", "military"]],
-  ["تحصیل و اشتغال", ["education", "employment", "passport", "accommodation"]],
+  ["تحصیل و اشتغال", ["education", "employment", "passport"]],
   ["ارتباطات و سوابق", ["foreign_contacts", "screening_history", "veteran", "travel", "legal_incidents", "migration"]],
+  ["اقامت و اسکان", ["accommodation"]],
   ["ارتباطات تکمیلی", ["affiliations", "addiction", "foreign_company_relations", "embassy_relations", "exit_restrictions", "activities", "weapons"]],
   ["خانواده و منابع شناخت", ["family", "social_relations", "residence"]],
   ["جمع‌بندی", ["additional", "declaration"]],
