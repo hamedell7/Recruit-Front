@@ -222,7 +222,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       if (currentKey !== "documents" && currentKey !== "review") {
         try { await api.deleteDraft(appRequest.id, currentKey); } catch {}
       }
-      await refreshWorkflow(result.next_step ? workflowSteps.indexOf(result.next_step) : workflowSteps.length - 1);
+      // Always resolve the next screen from the freshly persisted backend resume state.\n      // Do not trust result.next_step for navigation: a stale backend/container response\n      // must never be able to skip steps (for example employment -> passport).\n      await refreshWorkflow();
     } catch (error) {
       if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
