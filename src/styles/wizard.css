@@ -92,3 +92,24 @@
 .calendar-footer span{margin-right:auto;color:#98a2b3;font-size:8px}
 .danger-text{color:var(--danger)}
 @media (max-width:560px){.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
+
+
+/* Professional Persian date picker */
+.date-picker-control{position:relative;width:100%;direction:rtl}
+.recruit-date-picker{display:block!important;width:100%!important}
+.recruit-date-picker .rmdp-input.recruit-date-input{width:100%!important;height:46px!important;box-sizing:border-box!important;margin:0!important;padding:0 14px!important;border:1px solid var(--line)!important;border-radius:10px!important;background:#fff!important;color:var(--ink)!important;font:inherit!important;font-size:14px!important;line-height:46px!important;text-align:right!important;direction:rtl!important;outline:none!important;transition:border-color .18s ease,box-shadow .18s ease}
+.recruit-date-picker .rmdp-input.recruit-date-input:focus{border-color:var(--brand)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 12%,transparent)!important}
+.recruit-date-picker .rmdp-input.recruit-date-input:disabled{background:var(--surface-muted,#f6f7f9)!important;color:var(--muted)!important;cursor:not-allowed!important}
+.date-picker-control .rmdp-wrapper{border:1px solid var(--line)!important;border-radius:14px!important;box-shadow:0 16px 36px rgba(15,23,42,.14)!important;overflow:hidden}
+.date-picker-control .rmdp-calendar{padding:10px!important}
+.date-picker-control .rmdp-header{border-bottom:1px solid var(--line-soft,var(--line))!important;padding:4px 4px 10px!important;margin-bottom:6px!important}
+.date-picker-control .rmdp-header-values{font-weight:700!important}
+.date-picker-control .rmdp-header-values span{border-radius:7px;padding:4px 6px;transition:background .15s ease,color .15s ease}
+.date-picker-control .rmdp-header-values span:hover{background:var(--brand-soft)!important;color:var(--brand)!important}
+.date-picker-control .rmdp-day-picker{padding:2px!important}
+.date-picker-control .rmdp-week-day{font-weight:700!important}
+.date-picker-control .rmdp-day span{border-radius:8px!important;transition:background .15s ease,color .15s ease}
+.date-picker-control .rmdp-day:not(.rmdp-disabled) span:hover{background:var(--brand-soft)!important;color:var(--brand)!important}
+.date-picker-control .rmdp-day.rmdp-selected span,.date-picker-control .rmdp-day.rmdp-today span{border-radius:8px!important}
+.date-picker-control .rmdp-arrow-container{border-radius:8px!important}
+.date-picker-control .rmdp-arrow-container:hover{background:var(--brand-soft)!important;box-shadow:none!important}
