@@ -207,27 +207,31 @@ function RequestWizard({ user, request, onBack, onError }) {
     };
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly]);
 
-  const refreshWorkflow = async (nextStepOverride) => {
-    const [requestData, resumeData, stepsData, personalData] = await Promise.all([
+  const refreshWorkflow = async () => {
+    // Resume is the authoritative workflow state. Do not let ancillary API
+    // calls or a client-side next_step override put the UI on a step that the
+    // backend has not actually activated.
+    const resumeData = await api.resume(appRequest.id);
+    const serverIndex = workflowSteps.indexOf(resumeData.current_step);
+
+    setResume(resumeData);
+    if (serverIndex >= 0) setIndex(serverIndex);
+
+    if (resumeData.status === "SUBMITTED") {
+      onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
+    }
+
+    // These are display/data refreshes only; they must never block workflow navigation.
+    const [requestResult, stepsResult, personalResult] = await Promise.allSettled([
       api.request(appRequest.id),
-      api.resume(appRequest.id),
       api.steps(appRequest.id),
       api.stepData(appRequest.id, "personal"),
     ]);
-    const femaleApplicant = personalData?.person?.gender === "زن";
-    const refreshedWorkflowSteps = buildWorkflowSteps(femaleApplicant);
-    setAppRequest(requestData);
-    setResume(resumeData);
-    setSteps(normalizeList(stepsData));
-    setApplicantGender(personalData?.person?.gender || "");
-    const preferredIndex = nextStepOverride
-      ? refreshedWorkflowSteps.indexOf(nextStepOverride)
-      : -1;
-    const serverIndex = refreshedWorkflowSteps.indexOf(resumeData.current_step);
-    const target = preferredIndex >= 0 ? preferredIndex : serverIndex;
-    setIndex(Math.max(0, target));
-    if (resumeData.status === "SUBMITTED") {
-      onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
+
+    if (requestResult.status === "fulfilled") setAppRequest(requestResult.value);
+    if (stepsResult.status === "fulfilled") setSteps(normalizeList(stepsResult.value));
+    if (personalResult.status === "fulfilled") {
+      setApplicantGender(personalResult.value?.person?.gender || "");
     }
   };
 
@@ -258,7 +262,7 @@ function RequestWizard({ user, request, onBack, onError }) {
         const immediateIndex = workflowSteps.indexOf(result.next_step);
         if (immediateIndex >= 0) setIndex(immediateIndex);
       }
-      await refreshWorkflow(result?.next_step || null);
+      await refreshWorkflow();
     } catch (error) {
       if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
