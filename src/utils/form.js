@@ -17,6 +17,12 @@ export function cleanPayload(value) {
   return value === "" ? null : value;
 }
 
+export function cleanMilitaryPayload(value) {
+  const cleaned = cleanPayload(value || {});
+  delete cleaned.service_province_id;
+  return cleaned;
+}
+
 export function mergeDraft(base, draft) {
   if (!draft || typeof draft !== "object") return base;
   if (Array.isArray(base)) return Array.isArray(draft) ? draft : base;
@@ -47,6 +53,30 @@ export function validateStep(stepKey, form) {
   }
 
   if (stepKey === "declaration" && !form?.accepted) add("accepted", "برای ثبت نهایی باید تعهدنامه را تأیید کنید.");
+
+  if (stepKey === "military") {
+    const status = form?.status;
+    if (empty(status)) {
+      add("status", "وضعیت نظام‌وظیفه را انتخاب کنید.");
+    } else if (status === "completed_service") {
+      if (empty(form?.organization_name)) add("organization_name", "سازمان خدمتی را وارد کنید.");
+      if (empty(form?.unit_name)) add("unit_name", "یگان خدمتی را وارد کنید.");
+      if (empty(form?.start_date)) add("start_date", "تاریخ شروع خدمت را وارد کنید.");
+      if (empty(form?.end_date)) add("end_date", "تاریخ پایان خدمت را وارد کنید.");
+      if (empty(form?.service_city_id)) add("service_city_id", "شهر محل خدمت را انتخاب کنید.");
+      if (form?.start_date && form?.end_date && form.end_date < form.start_date) {
+        add("end_date", "تاریخ پایان خدمت نمی‌تواند قبل از تاریخ شروع خدمت باشد.");
+      }
+    } else if (status === "exempt") {
+      if (empty(form?.exemption_type)) add("exemption_type", "نوع معافیت را انتخاب کنید.");
+    } else if (status === "subject") {
+      if (empty(form?.booklet_status)) add("booklet_status", "وضعیت دفترچه را انتخاب کنید.");
+      if (empty(form?.absence_status)) add("absence_status", "وضعیت غیبت را انتخاب کنید.");
+      if (form?.booklet_status === "no_booklet" && !empty(form?.conscription_date)) {
+        add("conscription_date", "تاریخ اعزام بدون داشتن دفترچه معتبر نیست.");
+      }
+    }
+  }
 
   if (stepKey === "family" || stepKey === "social_relations") {
     for (let i = 0; i < (form?.people || []).length; i += 1) {
@@ -118,6 +148,22 @@ export function makeForm(stepKey, data, user) {
   if (stepKey === "residence") return { addresses: normalizeList(data?.addresses) };
   if (stepKey === "additional") return { details: data?.record?.details || "" };
   if (stepKey === "declaration") return { accepted: Boolean(data?.record?.accepted), declaration_version: data?.record?.declaration_version || "1" };
+  if (stepKey === "military") {
+    const record = data?.record || {};
+    return {
+      status: record.status || "",
+      organization_name: record.organization_name || "",
+      unit_name: record.unit_name || "",
+      start_date: record.start_date || "",
+      end_date: record.end_date || "",
+      service_city_id: record.service_city_id || "",
+      service_province_id: record.service_province_id || "",
+      exemption_type: record.exemption_type || "",
+      booklet_status: record.booklet_status || "",
+      absence_status: record.absence_status || "",
+      conscription_date: record.conscription_date || "",
+    };
+  }
   if (RECORDS[stepKey]) return { records: normalizeList(data?.records) };
   return {};
 }
