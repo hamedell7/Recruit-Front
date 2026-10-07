@@ -32,6 +32,20 @@ const emptyMarriage = () => ({
 });
 
 function ChoiceGroup({ label, required, value, options, name, onChange, readOnly, error }) {
+  const updateSpousePhysicalStatus = (index, value) => {
+    clearValidationError("marriages." + index + ".spouse.physical_status");
+    clearValidationError("marriages." + index + ".spouse.disease_description");
+    const marriage = marriages[index];
+    updateMarriage(index, {
+      ...marriage,
+      spouse: {
+        ...(marriage?.spouse || {}),
+        physical_status: value,
+        ...(value === "سالم" ? { disease_description: "" } : {}),
+      },
+    });
+  };
+
   return (
     <div className={"choice-field " + (error ? "has-error" : "")}>
       <div className="choice-label">{label}{required && <em>*</em>}</div>
@@ -170,8 +184,38 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
                 <TextField label="کد ملی" value={spouse.national_id} onChange={(value) => updateSpouse(index, "national_id", value)} error={getFieldError(errors, `${prefix}.spouse.national_id`)} readOnly={readOnly} inputMode="numeric" />
                 <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(value) => updateSpouse(index, "birth_date", value)} error={getFieldError(errors, `${prefix}.spouse.birth_date`)} readOnly={readOnly} />
                 <TextField label="شغل" value={spouse.occupation} onChange={(value) => updateSpouse(index, "occupation", value)} error={getFieldError(errors, `${prefix}.spouse.occupation`)} readOnly={readOnly} />
-                <TextField label="تحصیلات" value={spouse.education} onChange={(value) => updateSpouse(index, "education", value)} error={getFieldError(errors, `${prefix}.spouse.education`)} readOnly={readOnly} />
-                <TextArea label="ملاحظات این ازدواج" value={marriage?.notes} onChange={(value) => { clearValidationError(`${prefix}.notes`); updateMarriage(index, { ...marriage, notes: value }); }} error={getFieldError(errors, `${prefix}.notes`)} readOnly={readOnly} full />
+                <TextField label="تحصیلات" value={spouse.education} onChange={(value) => updateSpouse(index, "education", value)} error={getFieldError(errors, prefix + ".spouse.education")} readOnly={readOnly} />
+                <SelectField
+                  label="وضعیت جسمانی"
+                  value={spouse.physical_status || ""}
+                  onChange={(value) => updateSpousePhysicalStatus(index, value)}
+                  error={getFieldError(errors, prefix + ".spouse.physical_status")}
+                  options={["سالم", "بیمار"]}
+                  readOnly={readOnly}
+                  required
+                />
+                {spouse.physical_status === "بیمار" && (
+                  <TextArea
+                    label="توضیحات بیماری"
+                    value={spouse.disease_description || ""}
+                    onChange={(value) => updateSpouse(index, "disease_description", value)}
+                    error={getFieldError(errors, prefix + ".spouse.disease_description")}
+                    readOnly={readOnly}
+                    required
+                    full
+                  />
+                )}
+                <TextArea
+                  label="نشانی محل سکونت خانواده همسر"
+                  value={marriage?.spouse_family_residence_address || ""}
+                  onChange={(value) => {
+                    clearValidationError(prefix + ".spouse_family_residence_address");
+                    updateMarriage(index, { ...marriage, spouse_family_residence_address: value });
+                  }}
+                  error={getFieldError(errors, prefix + ".spouse_family_residence_address")}
+                  readOnly={readOnly}
+                  full
+                />
               </div>
             </div>
           );
