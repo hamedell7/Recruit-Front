@@ -206,6 +206,10 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const complete = async () => {
     if (readOnly) return;
+    // Invalidate any pending debounced autosave before advancing the workflow.
+    // Otherwise the old step can be autosaved after the backend has already moved
+    // current_step_key to the next step, causing STEP_NOT_CURRENT.
+    ++autosaveSequence.current;
     const localErrors = validateStep(currentKey, form || {});
     if (Object.keys(localErrors).length > 0) {
       setValidationErrors(localErrors);
@@ -249,9 +253,15 @@ function RequestWizard({ user, request, onBack, onError }) {
     }
   };
 
-  const movePrevious = () => setIndex((value) => Math.max(0, value - 1));
+  const movePrevious = () => {
+    ++autosaveSequence.current;
+    setIndex((value) => Math.max(0, value - 1));
+  };
   const moveTo = (target) => {
-    if (target <= backendCurrentIndex) setIndex(target);
+    if (target <= backendCurrentIndex) {
+      ++autosaveSequence.current;
+      setIndex(target);
+    }
   };
 
   if (loading) return <div className="page"><div className="wizard-loading"><div className="loading-spinner" /><strong>در حال بارگذاری پرونده…</strong></div></div>;
