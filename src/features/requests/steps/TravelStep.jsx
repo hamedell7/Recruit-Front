@@ -38,24 +38,6 @@ const STAY_OPTIONS = [
   { value: "temporary", label: "موقت" },
 ];
 
-const EXIT_BORDER_OPTIONS = [
-  "فرودگاه بین‌المللی امام خمینی",
-  "فرودگاه شهید هاشمی‌نژاد مشهد",
-  "فرودگاه شهید دستغیب شیراز",
-  "فرودگاه شهید مدنی تبریز",
-  "مرز بازرگان",
-  "مرز رازی",
-  "مرز سرو",
-  "مرز تمرچین",
-  "مرز باشماق",
-  "مرز آستارا",
-  "مرز بیله‌سوار",
-  "مرز شلمچه",
-  "مرز چذابه",
-  "مرز دریایی بندرعباس",
-  "سایر",
-];
-
 const emptyTravel = () => ({
   beneficiary_type: "APPLICANT",
   relative_relation: "",
@@ -66,7 +48,6 @@ const emptyTravel = () => ({
   start_date: "",
   end_date: "",
   duration: "",
-  exit_border: "",
   passport_number: "",
   reason: "",
   transport_type: "",
@@ -85,7 +66,7 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError }) {
       >
         <ListEditor
           title="سفر / اقامت"
-          hint="اطلاعات شخص، کشور، تاریخ، مدت، مرز خروجی و جزئیات سفر یا اقامت را ثبت کنید."
+          hint="اطلاعات شخص، کشور، تاریخ، مدت و جزئیات سفر یا اقامت را ثبت کنید."
           items={records}
           setItems={(items) => setForm({ records: items })}
           empty={emptyTravel}
@@ -210,14 +191,6 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError }) {
                     value={record?.duration || ""}
                     onChange={(value) => update("duration", value)}
                     error={getFieldError(errors, prefix + ".duration")}
-                    readOnly={readOnly}
-                  />
-                  <SelectField
-                    label="مرز خروجی"
-                    value={record?.exit_border || ""}
-                    onChange={(value) => update("exit_border", value)}
-                    options={EXIT_BORDER_OPTIONS}
-                    error={getFieldError(errors, prefix + ".exit_border")}
                     readOnly={readOnly}
                   />
                   <TextField
