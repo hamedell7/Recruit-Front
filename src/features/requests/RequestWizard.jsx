@@ -28,6 +28,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [stepData, setStepData] = useState(null);
   const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bootstrapped, setBootstrapped] = useState(false);
   const [saving, setSaving] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [form, setForm] = useState(null);
@@ -96,6 +97,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       } catch (error) {
         onError({ type: "error", text: error.message, requestId: error.requestId });
       } finally {
+        setBootstrapped(true);
         setLoading(false);
       }
     };
@@ -103,7 +105,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   }, [request.id]);
 
   useEffect(() => {
-    if (!appRequest || !currentKey) return;
+    if (!bootstrapped || !resume?.current_step || !appRequest || !currentKey) return;
     let cancelled = false;
     const load = async () => {
       setStepData(null);
@@ -150,13 +152,15 @@ function RequestWizard({ user, request, onBack, onError }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [appRequest, currentKey, user]);
+  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user]);
 
   useEffect(() => {
     if (
       !appRequest ||
       !form ||
       !draftHydrated ||
+      !resume?.current_step ||
+      resume.current_step !== currentKey ||
       readOnly ||
       currentKey === "documents" ||
       currentKey === "review"
@@ -178,7 +182,7 @@ function RequestWizard({ user, request, onBack, onError }) {
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [appRequest?.id, currentKey, form, draftHydrated, readOnly]);
+  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly]);
 
   const refreshWorkflow = async (nextIndexOverride) => {
     const [requestData, resumeData, stepsData, personalData] = await Promise.all([
