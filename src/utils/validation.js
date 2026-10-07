@@ -55,6 +55,9 @@ function formatErrorPath(path) {
     booklet_status: "وضعیت دفترچه",
     absence_status: "وضعیت غیبت",
     conscription_date: "تاریخ اعزام",
+    marriages: "ازدواج‌ها",
+    marriage_date: "تاریخ ازدواج",
+    end_reason: "علت پایان ازدواج",
   };
 
   const parts = String(path).split(".");
