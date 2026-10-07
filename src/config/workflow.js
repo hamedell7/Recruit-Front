@@ -5,7 +5,7 @@ const STEP_META = {
   education: { title: "سوابق تحصیلی", kicker: "مدارک دانشگاهی و حوزوی" },
   employment: { title: "سوابق شغلی", kicker: "تجربه و محل‌های کار" },
   accommodation: { title: "اقامت و اسکان", kicker: "خوابگاه و پانسیون" },
-  passport: { title: "گذرنامه", kicker: "سوابق گذرنامه" },
+  passport: { title: "سوابق گذرنامه", kicker: "ارتباطات و سوابق" },
   foreign_contacts: { title: "ارتباطات خارج از کشور", kicker: "مکاتبه، تماس و ارتباطات مجازی" },
   screening_history: { title: "سوابق گزینش", kicker: "پرونده‌های قبلی" },
   veteran: { title: "سوابق ایثارگری", kicker: "رزمندگی، جانبازی و شهادت" },
