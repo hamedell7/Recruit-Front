@@ -6,6 +6,7 @@ import ListEditor from "../../../components/form/ListEditor";
 
 const BENEFICIARY_OPTIONS = [
   { value: "APPLICANT", label: "خود متقاضی" },
+  { value: "SPOUSE", label: "همسر" },
   { value: "RELATIVE", label: "یکی از بستگان" },
 ];
 
@@ -67,7 +68,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
             };
 
             const isRelative = record?.beneficiary_type === "RELATIVE";
-            const beneficiaryLabel = isRelative ? "یکی از بستگان" : "خود متقاضی";
+            const beneficiaryLabel = {\n              APPLICANT: "خود متقاضی",\n              SPOUSE: "همسر",\n              RELATIVE: "یکی از بستگان",\n            }[record?.beneficiary_type] || "سابقه ایثارگری";
             const personName =
               isRelative && (record?.relative_first_name || record?.relative_last_name)
                 ? [record.relative_first_name, record.relative_last_name].filter(Boolean).join(" ")
@@ -86,7 +87,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
                     value={record?.beneficiary_type || "APPLICANT"}
                     onChange={(value) => {
                       clearValidationError(prefix + ".beneficiary_type");
-                      if (value === "APPLICANT") {
+                      if (value !== "RELATIVE") {
                         setRecord({
                           ...record,
                           beneficiary_type: value,
