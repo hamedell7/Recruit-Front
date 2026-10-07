@@ -1,114 +1,208 @@
 import { getFieldError } from "../../../utils/validation";
-import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
+import TextField, { TextArea } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
+import ListEditor from "../../../components/form/ListEditor";
 
-const MARRIED_STATUSES = ["متأهل", "ازدواج مجدد"];
-const ENDED_STATUSES = ["متارکه", "فوت همسر"];
+const END_REASONS = [
+  { value: "divorce", label: "طلاق" },
+  { value: "death", label: "فوت همسر" },
+  { value: "annulment", label: "فسخ / بطلان" },
+  { value: "other", label: "سایر" },
+];
+
+const emptyMarriage = () => ({
+  id: "",
+  status: "current",
+  marriage_date: "",
+  end_date: "",
+  end_reason: "",
+  spouse: {
+    first_name: "",
+    last_name: "",
+    father_name: "",
+    national_id: "",
+    birth_date: "",
+    gender: "",
+    occupation: "",
+    education: "",
+  },
+  notes: "",
+});
+
+function ChoiceGroup({ label, required, value, options, name, onChange, readOnly, error }) {
+  return (
+    <div className={"choice-field " + (error ? "has-error" : "")}>
+      <div className="choice-label">{label}{required && <em>*</em>}</div>
+      <div className="choice-grid">
+        {options.map((option) => (
+          <label className={"choice-card " + (value === option.value ? "selected" : "")} key={option.value}>
+            <input
+              type="radio"
+              name={name}
+              value={option.value}
+              checked={value === option.value}
+              onChange={(e) => onChange(e.target.value)}
+              disabled={readOnly}
+            />
+            <span className="choice-dot" />
+            <span className="choice-copy">{option.label}</span>
+          </label>
+        ))}
+      </div>
+      {error && <div className="choice-error">{error}</div>}
+    </div>
+  );
+}
 
 function MarriageStep({ form, setForm, readOnly, errors, clearValidationError }) {
-  const spouse = form.spouse || {};
-  const status = form.status || "";
-  const isMarried = MARRIED_STATUSES.includes(status);
-  const isEnded = ENDED_STATUSES.includes(status);
-  const showMarriageDate = isMarried || isEnded;
-  const showEndDetails = isEnded;
-  const showSpouse = isMarried || isEnded;
+  const marriages = Array.isArray(form?.marriages) ? form.marriages : [];
+  const currentCount = marriages.filter((item) => item?.status === "current").length;
+  const endedCount = marriages.filter((item) => item?.status === "ended").length;
 
-  const update = (key, value) => {
-    clearValidationError(key);
-    setForm({ ...form, [key]: value });
+  const summaryTitle = currentCount > 1
+    ? `متأهل با ${currentCount} همسر فعلی`
+    : currentCount === 1
+      ? "متأهل با یک همسر فعلی"
+      : endedCount > 0
+        ? "مجرد با سابقه ازدواج"
+        : "مجرد و بدون سابقه ازدواج";
+
+  const updateMarriage = (index, next) => {
+    const nextItems = marriages.map((item, i) => (i === index ? next : item));
+    setForm({ marriages: nextItems });
   };
 
-  const updateStatus = (value) => {
-    clearValidationError("status");
-    const next = { ...form, status: value };
-
-    if (!MARRIED_STATUSES.includes(value) && !ENDED_STATUSES.includes(value)) {
-      next.marriage_date = "";
+  const updateMarriageStatus = (index, status) => {
+    clearValidationError(`marriages.${index}.status`);
+    const next = { ...marriages[index], status };
+    if (status === "current") {
       next.end_date = "";
       next.end_reason = "";
-      next.spouse = null;
-    } else if (!ENDED_STATUSES.includes(value)) {
-      next.end_date = "";
-      next.end_reason = "";
+      clearValidationError(`marriages.${index}.end_date`);
+      clearValidationError(`marriages.${index}.end_reason`);
     }
-
-    setForm(next);
+    updateMarriage(index, next);
   };
 
-  const updateSpouse = (key, value) => {
-    clearValidationError(`spouse.${key}`);
-    setForm({ ...form, spouse: { ...spouse, [key]: value } });
+  const updateSpouse = (index, key, value) => {
+    clearValidationError(`marriages.${index}.spouse.${key}`);
+    const marriage = marriages[index];
+    updateMarriage(index, {
+      ...marriage,
+      spouse: { ...(marriage?.spouse || {}), [key]: value },
+    });
   };
 
   return (
     <div className="form-stack">
-      <FormSection title="وضعیت تأهل" hint="مطابق اطلاعات واقعی و آخرین وضعیت ثبتی ثبت کنید.">
-        <div className="field-grid">
-          <SelectField
-            label="وضعیت"
-            value={status}
-            onChange={updateStatus}
-            error={getFieldError(errors, "status")}
-            options={["مجرد", "در شرف ازدواج", "متأهل", "متارکه", "فوت همسر", "ازدواج مجدد"]}
-            readOnly={readOnly}
-          />
-
-          {showMarriageDate && (
-            <TextField
-              label="تاریخ ازدواج"
-              type="date"
-              value={form.marriage_date}
-              onChange={(v) => update("marriage_date", v)}
-              error={getFieldError(errors, "marriage_date")}
-              readOnly={readOnly}
-            />
-          )}
-
-          {showEndDetails && (
-            <>
-              <TextField
-                label="تاریخ پایان"
-                type="date"
-                value={form.end_date}
-                onChange={(v) => update("end_date", v)}
-                error={getFieldError(errors, "end_date")}
-                readOnly={readOnly}
-              />
-              <TextField
-                label="علت پایان"
-                value={form.end_reason}
-                onChange={(v) => update("end_reason", v)}
-                error={getFieldError(errors, "end_reason")}
-                readOnly={readOnly}
-              />
-            </>
-          )}
+      <div className="marriage-summary">
+        <div className="marriage-summary-main">
+          <span className="eyebrow">وضعیت فعلی تأهل</span>
+          <strong>{summaryTitle}</strong>
+          <p>
+            {currentCount > 0
+              ? "هر همسر فعلی به‌صورت مستقل نگهداری می‌شود و داشتن بیش از یک همسر فعلی مجاز است."
+              : endedCount > 0
+                ? "سوابق ازدواج قبلی حفظ می‌شوند و می‌توانید ازدواج جدید را جداگانه اضافه کنید."
+                : "برای فرد مجرد نیازی به افزودن رکورد نیست؛ در صورت داشتن سابقه، همان سوابق را اضافه کنید."}
+          </p>
         </div>
-      </FormSection>
-
-      {showSpouse ? (
-        <FormSection
-          title="مشخصات همسر"
-          hint={isEnded ? "اطلاعات همسر مربوط به آخرین ازدواج را ثبت کنید." : "اطلاعات همسر را مطابق آخرین وضعیت ثبت کنید."}
-        >
-          <div className="field-grid">
-            <TextField label="نام" value={spouse.first_name} onChange={(v) => updateSpouse("first_name", v)} error={getFieldError(errors, "spouse.first_name")} readOnly={readOnly} />
-            <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(v) => updateSpouse("last_name", v)} error={getFieldError(errors, "spouse.last_name")} readOnly={readOnly} />
-            <TextField label="نام پدر" value={spouse.father_name} onChange={(v) => updateSpouse("father_name", v)} error={getFieldError(errors, "spouse.father_name")} readOnly={readOnly} />
-            <TextField label="کد ملی" value={spouse.national_id} onChange={(v) => updateSpouse("national_id", v)} error={getFieldError(errors, "spouse.national_id")} readOnly={readOnly} />
-            <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(v) => updateSpouse("birth_date", v)} error={getFieldError(errors, "spouse.birth_date")} readOnly={readOnly} />
-            <TextField label="شغل" value={spouse.occupation} onChange={(v) => updateSpouse("occupation", v)} error={getFieldError(errors, "spouse.occupation")} readOnly={readOnly} />
-            <TextField label="تحصیلات" value={spouse.education} onChange={(v) => updateSpouse("education", v)} error={getFieldError(errors, "spouse.education")} readOnly={readOnly} />
-            <TextArea label="ملاحظات" value={form.notes} onChange={(v) => update("notes", v)} error={getFieldError(errors, "notes")} full readOnly={readOnly} />
-          </div>
-        </FormSection>
-      ) : (
-        <div className="inline-info">
-          <strong>در این وضعیت، اطلاعات همسر لازم نیست.</strong>
-          <span>در صورت تغییر وضعیت تأهل، فیلدهای مرتبط با ازدواج نمایش داده می‌شوند.</span>
+        <div className="marriage-summary-count">
+          <span>همسر فعلی</span>
+          <b>{currentCount}</b>
         </div>
-      )}
+        <div className="marriage-summary-count">
+          <span>سابقه پایان‌یافته</span>
+          <b>{endedCount}</b>
+        </div>
+      </div>
+
+      <ListEditor
+        title="همسران و سوابق ازدواج"
+        hint="هر ازدواج یک رکورد مستقل است. برای ازدواج جاری فقط وضعیت جاری و تاریخ ازدواج را ثبت کنید؛ برای ازدواج پایان‌یافته علت و تاریخ پایان را هم وارد کنید."
+        items={marriages}
+        setItems={(items) => setForm({ marriages: items })}
+        empty={emptyMarriage}
+        addLabel="افزودن همسر / سابقه ازدواج"
+        readOnly={readOnly}
+        clearValidationError={clearValidationError}
+        errorPrefix="marriages"
+        render={(marriage, _, index) => {
+          const prefix = `marriages.${index}`;
+          const spouse = marriage?.spouse || {};
+          const isCurrent = marriage?.status === "current";
+
+          return (
+            <div className="record-card marriage-card">
+              <div className="record-head">
+                <span>{isCurrent ? `همسر فعلی ${currentCount > 1 ? "" : ""}` : "سابقه ازدواج"} · ردیف {index + 1}</span>
+                <strong>{isCurrent ? "جاری" : "پایان‌یافته"}</strong>
+              </div>
+
+              <div className="field-grid">
+                <ChoiceGroup
+                  label="وضعیت این ازدواج"
+                  required
+                  name={`marriage-status-${index}`}
+                  value={marriage?.status || ""}
+                  onChange={(value) => updateMarriageStatus(index, value)}
+                  readOnly={readOnly}
+                  error={getFieldError(errors, `${prefix}.status`)}
+                  options={[
+                    { value: "current", label: "ازدواج جاری" },
+                    { value: "ended", label: "ازدواج پایان‌یافته" },
+                  ]}
+                />
+
+                <TextField
+                  label="تاریخ ازدواج"
+                  type="date"
+                  value={marriage?.marriage_date}
+                  onChange={(value) => { clearValidationError(`${prefix}.marriage_date`); updateMarriage(index, { ...marriage, marriage_date: value }); }}
+                  error={getFieldError(errors, `${prefix}.marriage_date`)}
+                  readOnly={readOnly}
+                  required
+                />
+
+                {marriage?.status === "ended" && (
+                  <>
+                    <TextField
+                      label="تاریخ پایان"
+                      type="date"
+                      value={marriage?.end_date}
+                      onChange={(value) => { clearValidationError(`${prefix}.end_date`); updateMarriage(index, { ...marriage, end_date: value }); }}
+                      error={getFieldError(errors, `${prefix}.end_date`)}
+                      readOnly={readOnly}
+                      required
+                    />
+                    <div className="field-grid nested-field-grid">
+                      <ChoiceGroup
+                        label="علت پایان"
+                        required
+                        name={`marriage-end-reason-${index}`}
+                        value={marriage?.end_reason || ""}
+                        onChange={(value) => { clearValidationError(`${prefix}.end_reason`); updateMarriage(index, { ...marriage, end_reason: value }); }}
+                        readOnly={readOnly}
+                        error={getFieldError(errors, `${prefix}.end_reason`)}
+                        options={END_REASONS}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <TextField label="نام" value={spouse.first_name} onChange={(value) => updateSpouse(index, "first_name", value)} error={getFieldError(errors, `${prefix}.spouse.first_name`)} readOnly={readOnly} required />
+                <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(value) => updateSpouse(index, "last_name", value)} error={getFieldError(errors, `${prefix}.spouse.last_name`)} readOnly={readOnly} required />
+                <TextField label="نام پدر" value={spouse.father_name} onChange={(value) => updateSpouse(index, "father_name", value)} error={getFieldError(errors, `${prefix}.spouse.father_name`)} readOnly={readOnly} />
+                <TextField label="کد ملی" value={spouse.national_id} onChange={(value) => updateSpouse(index, "national_id", value)} error={getFieldError(errors, `${prefix}.spouse.national_id`)} readOnly={readOnly} inputMode="numeric" />
+                <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(value) => updateSpouse(index, "birth_date", value)} error={getFieldError(errors, `${prefix}.spouse.birth_date`)} readOnly={readOnly} />
+                <TextField label="شغل" value={spouse.occupation} onChange={(value) => updateSpouse(index, "occupation", value)} error={getFieldError(errors, `${prefix}.spouse.occupation`)} readOnly={readOnly} />
+                <TextField label="تحصیلات" value={spouse.education} onChange={(value) => updateSpouse(index, "education", value)} error={getFieldError(errors, `${prefix}.spouse.education`)} readOnly={readOnly} />
+                <TextArea label="ملاحظات این ازدواج" value={marriage?.notes} onChange={(value) => { clearValidationError(`${prefix}.notes`); updateMarriage(index, { ...marriage, notes: value }); }} error={getFieldError(errors, `${prefix}.notes`)} readOnly={readOnly} full />
+              </div>
+            </div>
+          );
+        }}
+      />
     </div>
   );
 }
