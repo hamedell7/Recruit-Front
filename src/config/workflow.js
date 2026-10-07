@@ -167,7 +167,14 @@ const RECORDS = {
     { key: "result", label: "نتیجه رسیدگی", type: "textarea", full: true },
   ],
   migration: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
+    { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [
+      { value: "APPLICANT", label: "خود متقاضی" },
+      { value: "SPOUSE", label: "همسر" },
+      { value: "RELATIVE", label: "یکی از بستگان" },
+    ] },
+    { key: "relative_relation", label: "نسبت با متقاضی", type: "select", options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_first_name", label: "نام شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "status", label: "وضعیت", type: "text", required: true },
     { key: "reason", label: "علت مهاجرت / پناهندگی", type: "textarea", full: true },
     { key: "current_status", label: "وضعیت فعلی", type: "textarea", full: true },
