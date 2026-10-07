@@ -150,6 +150,17 @@ export function validateStep(stepKey, form) {
     }
   }
 
+  if (stepKey === "veteran") {
+    return {
+      records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
+        ...record,
+        beneficiary_type: record.beneficiary_type || "APPLICANT",
+        relative_relation: record.relative_relation || "",
+        relative_first_name: record.relative_first_name || "",
+        relative_last_name: record.relative_last_name || "",
+      })),
+    };
+  }
   if (stepKey === "marriage") {
     const marriages = Array.isArray(form?.marriages) ? form.marriages : [];
     for (let i = 0; i < marriages.length; i += 1) {
@@ -203,6 +214,25 @@ export function validateStep(stepKey, form) {
       if (empty(form?.absence_status)) add("absence_status", "وضعیت غیبت را انتخاب کنید.");
       if (form?.booklet_status === "no_booklet" && !empty(form?.conscription_date)) {
         add("conscription_date", "تاریخ اعزام بدون داشتن دفترچه معتبر نیست.");
+      }
+    }
+  }
+
+  if (stepKey === "veteran") {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      const record = records[i];
+      const prefix = "records." + i;
+      if (empty(record?.beneficiary_type)) {
+        add(prefix + ".beneficiary_type", "مشخص کنید این سابقه ایثارگری مربوط به چه کسی است.");
+      }
+      if (empty(record?.veteran_type)) {
+        add(prefix + ".veteran_type", "نوع ایثارگری را وارد کنید.");
+      }
+      if (record?.beneficiary_type === "RELATIVE") {
+        if (empty(record?.relative_relation)) add(prefix + ".relative_relation", "نسبت با متقاضی را انتخاب کنید.");
+        if (empty(record?.relative_first_name)) add(prefix + ".relative_first_name", "نام شخص ایثارگر را وارد کنید.");
+        if (empty(record?.relative_last_name)) add(prefix + ".relative_last_name", "نام خانوادگی شخص ایثارگر را وارد کنید.");
       }
     }
   }
