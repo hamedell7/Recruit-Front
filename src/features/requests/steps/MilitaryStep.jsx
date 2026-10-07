@@ -218,12 +218,7 @@ function MilitaryStep({ form, setForm, countries, readOnly, errors, clearValidat
               readOnly={readOnly}
             />
           </div>
-          {form.exemption_type === "medical" && (
-            <div className="inline-info">
-              <strong>معافیت پزشکی</strong>
-              <span>در این مرحله فعلاً فقط نوع معافیت ثبت می‌شود؛ فیلد اختصاصی پزشکی در صورت نیاز به همین وضعیت اضافه خواهد شد.</span>
-            </div>
-          )}
+
         </FormSection>
       )}
 
