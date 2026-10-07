@@ -50,7 +50,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const workflowSteps = useMemo(
     () => buildWorkflowSteps(form?.gender === "زن" || applicantGender === "زن"),
-    [appRequest, form?.gender, applicantGender],
+    [form?.gender, applicantGender],
   );
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
@@ -202,7 +202,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       api.stepData(appRequest.id, "personal"),
     ]);
     const femaleApplicant = personalData?.person?.gender === "زن";
-    const refreshedWorkflowSteps = buildWorkflowSteps(requestData, femaleApplicant);
+    const refreshedWorkflowSteps = buildWorkflowSteps(femaleApplicant);
     setAppRequest(requestData);
     setResume(resumeData);
     setSteps(normalizeList(stepsData));
