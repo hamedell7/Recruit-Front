@@ -48,6 +48,13 @@ function formatErrorPath(path) {
     position: "سمت و شغل",
     start_date: "تاریخ شروع",
     end_date: "تاریخ پایان",
+    organization_name: "سازمان خدمتی",
+    unit_name: "یگان خدمتی",
+    service_city_id: "شهر محل خدمت",
+    exemption_type: "نوع معافیت",
+    booklet_status: "وضعیت دفترچه",
+    absence_status: "وضعیت غیبت",
+    conscription_date: "تاریخ اعزام",
   };
 
   const parts = String(path).split(".");
