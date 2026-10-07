@@ -138,7 +138,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
                     label="نوع ایثارگری"
                     value={record?.veteran_type || ""}
                     onChange={(value) => update("veteran_type", value)}
-                    options={["رزمندگی", "جانبازي", "آزادگی", "شهادت"]}
+                    options={["رزمندگی", "جانبازی", "آزادگی", "شهادت"]}
                     error={getFieldError(errors, prefix + ".veteran_type")}
                     required
                     readOnly={readOnly}
