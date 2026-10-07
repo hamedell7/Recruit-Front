@@ -68,7 +68,11 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
             };
 
             const isRelative = record?.beneficiary_type === "RELATIVE";
-            const beneficiaryLabel = {\n              APPLICANT: "خود متقاضی",\n              SPOUSE: "همسر",\n              RELATIVE: "یکی از بستگان",\n            }[record?.beneficiary_type] || "سابقه ایثارگری";
+            const beneficiaryLabel = {
+              APPLICANT: "خود متقاضی",
+              SPOUSE: "همسر",
+              RELATIVE: "یکی از بستگان",
+            }[record?.beneficiary_type] || "سابقه ایثارگری";
             const personName =
               isRelative && (record?.relative_first_name || record?.relative_last_name)
                 ? [record.relative_first_name, record.relative_last_name].filter(Boolean).join(" ")
