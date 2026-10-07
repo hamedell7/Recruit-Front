@@ -133,6 +133,21 @@ export function validateStep(stepKey, form) {
     const nid = normalizeDigits(String(form?.national_id || "")).replace(/[-\s]/g, "");
     if (!/^\d{10}$/.test(nid)) add("national_id", "کد ملی باید ۱۰ رقم باشد.");
     if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) add("email", "ایمیل واردشده معتبر نیست.");
+
+    if (!form?.current_address || empty(form.current_address.address_line)) {
+      add("current_address.address_line", "آدرس محل سکونت را وارد کنید.");
+    }
+
+    for (let i = 0; i < (form?.contacts || []).length; i += 1) {
+      const contact = form.contacts[i];
+      const prefix = "contacts." + i;
+      if (empty(contact?.contact_type)) add(prefix + ".contact_type", "نوع تماس را وارد کنید.");
+      if (empty(contact?.value)) add(prefix + ".value", "شماره تماس را وارد کنید.");
+      if (empty(contact?.owner_type)) add(prefix + ".owner_type", "نوع مالکیت را انتخاب کنید.");
+      if (contact?.owner_type === "OPERATOR" && empty(contact?.owner_name)) {
+        add(prefix + ".owner_name", "نام مالک را وارد کنید.");
+      }
+    }
   }
 
   if (stepKey === "marriage") {
@@ -242,7 +257,11 @@ export function makeForm(stepKey, data, user) {
       distinguishing_marks: profile.distinguishing_marks || "",
       email: profile.email || "",
       contacts: normalizeList(data?.contacts),
-      addresses: normalizeList(data?.addresses),
+      current_address: {
+        address_line: profile.current_address_line || data?.current_address?.address_line || "",
+        postal_code: profile.current_postal_code || data?.current_address?.postal_code || "",
+        phone: profile.current_address_phone || data?.current_address?.phone || "",
+      },
     };
   }
   if (stepKey === "marriage") {
