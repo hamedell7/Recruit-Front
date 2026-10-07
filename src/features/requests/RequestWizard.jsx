@@ -39,12 +39,17 @@ function RequestWizard({ user, request, onBack, onError }) {
   const validationSummaryRef = useRef(null);
   const autosaveSequence = useRef(0);
   const autosaveTimer = useRef(null);
+  const autosaveController = useRef(null);
 
   const cancelPendingAutosave = () => {
     ++autosaveSequence.current;
     if (autosaveTimer.current !== null) {
       clearTimeout(autosaveTimer.current);
       autosaveTimer.current = null;
+    }
+    if (autosaveController.current !== null) {
+      autosaveController.current.abort();
+      autosaveController.current = null;
     }
   };
 
@@ -176,14 +181,18 @@ function RequestWizard({ user, request, onBack, onError }) {
     if (autosaveTimer.current !== null) clearTimeout(autosaveTimer.current);
     const timer = setTimeout(async () => {
       setDraftStatus("saving");
+      const controller = new AbortController();
+      autosaveController.current = controller;
       try {
         const payload = currentKey === "military" ? cleanMilitaryPayload(form) : currentKey === "marriage" ? cleanMarriagePayload(form) : currentKey === "legal_incidents" ? cleanLegalIncidentPayload(form) : cleanPayload(form);
-        const result = await api.saveDraft(appRequest.id, currentKey, payload);
+        const result = await api.saveDraft(appRequest.id, currentKey, payload, controller.signal);
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
         setDraftStatus("saved");
       } catch {
         if (sequence === autosaveSequence.current) setDraftStatus("error");
+      } finally {
+        if (autosaveController.current === controller) autosaveController.current = null;
       }
     }, 1200);
     autosaveTimer.current = timer;
@@ -191,6 +200,10 @@ function RequestWizard({ user, request, onBack, onError }) {
     return () => {
       clearTimeout(timer);
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
+      if (autosaveController.current !== null) {
+        autosaveController.current.abort();
+        autosaveController.current = null;
+      }
     };
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly]);
 
