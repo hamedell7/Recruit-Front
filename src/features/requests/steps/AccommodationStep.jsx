@@ -11,13 +11,6 @@ function AccommodationStep({ form, setForm, countries, readOnly, errors, clearVa
 
   return (
     <section className="record-section">
-      <div className="section-heading">
-        <div>
-          <span className="eyebrow">تحصیل و اشتغال</span>
-          <h2>اقامت و اسکان</h2>
-          <p>سوابق خوابگاه، پانسیون یا مراکز اقامتی مورد استفاده را ثبت کنید.</p>
-        </div>
-      </div>
       <ListEditor
         title="خوابگاه و پانسیون"
         hint="در صورت نداشتن سابقه خوابگاه یا پانسیون، این قسمت را خالی بگذارید."
