@@ -1,53 +1,27 @@
-import { useMemo } from "react";
-import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import { getJalaliDateParts } from "../../utils/date";
+import DatePicker from "@jalali-js/react/DatePicker";
+import "@jalali-js/react/date-picker.css";
 import FieldError from "./FieldError";
 
 function PersianDateField({ label, value, onChange, required, readOnly, error }) {
-  const pickerValue = useMemo(() => {
-    if (!value) return "";
-    const parts = getJalaliDateParts(value);
-    return parts
-      ? `${parts.year}/${String(parts.month).padStart(2, "0")}/${String(parts.day).padStart(2, "0")}`
-      : "";
-  }, [value]);
-
-  const handleChange = (date) => {
-    if (!date) {
-      onChange("");
-      return;
-    }
-
-    const normalized = date.format("YYYY/MM/DD");
-    onChange(normalized);
+  const handleChange = (nextValue) => {
+    onChange(nextValue || "");
   };
 
   return (
     <div className={"field date-field " + (error ? "has-error" : "")}>
       <span>{label}{required && <em>*</em>}</span>
-      <div className="date-picker-control" dir="rtl">
-        <DatePicker
-          value={pickerValue}
-          onChange={handleChange}
-          calendar={persian}
-          locale={persian_fa}
-          format="YYYY/MM/DD"
-          calendarPosition="bottom-right"
-          placeholder="۱۴۰۵/۰۷/۱۵"
-          inputClass="recruit-date-input"
-          containerClassName="recruit-date-picker"
-          monthYearSeparator=" "
-          headerOrder={["RIGHT_BUTTON", "MONTH_YEAR", "LEFT_BUTTON"]}
-          highlightToday
-          editable={!readOnly}
-          readOnly={readOnly}
-          disabled={readOnly}
-          buttons
-          shadow
-        />
-      </div>
+      <DatePicker
+        system="jalali"
+        locale="fa"
+        valueFormat="gregorian-iso"
+        value={value || ""}
+        onChange={handleChange}
+        placeholder="انتخاب تاریخ"
+        quickNav
+        defaultDate={null}
+        readOnly={readOnly}
+        className="recruit-jalali-picker"
+      />
       <FieldError error={error} />
     </div>
   );
