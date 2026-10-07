@@ -20,12 +20,14 @@ function jalaliToGregorian(jy, jm, jd) {
   jm = Number(jm) - 1;
   jd = Number(jd) - 1;
 
-  const jDayNo =
+  let jDayNo =
     365 * jy +
     Math.floor(jy / 33) * 8 +
     Math.floor(((jy % 33) + 3) / 4) +
-    jd +
-    (jm < 6 ? jm * 31 : jm * 31 - Math.floor(jm / 6));
+    jd;
+  for (let month = 0; month < jm; month += 1) {
+    jDayNo += month < 6 ? 31 : 30;
+  }
 
   let gDayNo = jDayNo + 79;
   let gy = 1600 + 400 * Math.floor(gDayNo / 146097);
@@ -162,10 +164,14 @@ export function todayJalali() {
 }
 
 export function getJalaliDateParts(value) {
-  const parsed = parseJalali(value);
-  if (parsed) return parsed;
-  const fallback = parseJalali(todayJalali());
-  return fallback;
+  const jalali = parseJalali(value);
+  if (jalali) return jalali;
+  const gregorian = parseGregorian(value);
+  if (gregorian) {
+    const [year, month, day] = gregorianToJalali(gregorian.year, gregorian.month, gregorian.day);
+    return { year, month, day };
+  }
+  return parseJalali(todayJalali());
 }
 
 export function formatDate(value) {
