@@ -56,24 +56,11 @@ const RECORDS = {
   ],
   passport: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "متقاضی" }, { value: "SPOUSE", label: "همسر" }] },
-    {
-      key: "passport_type",
-      label: "نوع گذرنامه",
-      type: "select",
-      options: [
-        { value: "ordinary", label: "عادی" },
-        { value: "service", label: "خدمت" },
-        { value: "diplomatic", label: "سیاسی" },
-        { value: "other", label: "سایر" },
-      ],
-      required: true,
-    },
+    { key: "passport_type", label: "نوع گذرنامه", type: "text", required: true },
     { key: "passport_number", label: "شماره گذرنامه", type: "text", required: true },
     { key: "issue_date", label: "تاریخ صدور", type: "date" },
-    { key: "expiry_date", label: "مدت اعتبار", type: "date" },
-    { key: "issue_country_id", label: "کشور محل دریافت", type: "country" },
-    { key: "issue_province_id", label: "استان محل دریافت", type: "number" },
-    { key: "issue_city_id", label: "شهر محل دریافت", type: "number" },
+    { key: "expiry_date", label: "تاریخ انقضا", type: "date" },
+    { key: "issue_location", label: "محل دریافت", type: "text" },
     { key: "notes", label: "ملاحظات", type: "textarea", full: true },
   ],
   foreign_contacts: [
