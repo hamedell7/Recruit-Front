@@ -3,7 +3,7 @@ import { api } from "../../services/api";
 import { STEP_META, STEP_DESCRIPTIONS, FLOW_SECTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
-import { cleanPayload, makeForm, mergeDraft, validateStep } from "../../utils/form";
+import { cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, validateStep } from "../../utils/form";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
@@ -152,7 +152,8 @@ function RequestWizard({ user, request, onBack, onError }) {
     const timer = setTimeout(async () => {
       setDraftStatus("saving");
       try {
-        const result = await api.saveDraft(appRequest.id, currentKey, cleanPayload(form));
+        const payload = currentKey === "military" ? cleanMilitaryPayload(form) : cleanPayload(form);
+        const result = await api.saveDraft(appRequest.id, currentKey, payload);
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
         setDraftStatus("saved");
@@ -196,7 +197,8 @@ function RequestWizard({ user, request, onBack, onError }) {
       if (currentKey === "documents" || currentKey === "review") {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
-        result = await api.completeStep(appRequest.id, currentKey, cleanPayload(form || {}));
+        const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : cleanPayload(form || {});
+        result = await api.completeStep(appRequest.id, currentKey, payload);
       }
       if (currentKey !== "documents" && currentKey !== "review") {
         try { await api.deleteDraft(appRequest.id, currentKey); } catch {}
