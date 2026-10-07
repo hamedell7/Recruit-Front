@@ -84,28 +84,6 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
 
   return (
     <div className="form-stack">
-      <div className="marriage-summary">
-        <div className="marriage-summary-main">
-          <span className="eyebrow">وضعیت فعلی تأهل</span>
-          <strong>{summaryTitle}</strong>
-          <p>
-            {currentCount > 0
-              ? "هر همسر فعلی به‌صورت مستقل نگهداری می‌شود و داشتن بیش از یک همسر فعلی مجاز است."
-              : endedCount > 0
-                ? "سوابق ازدواج قبلی حفظ می‌شوند و می‌توانید ازدواج جدید را جداگانه اضافه کنید."
-                : "برای فرد مجرد نیازی به افزودن رکورد نیست؛ در صورت داشتن سابقه، همان سوابق را اضافه کنید."}
-          </p>
-        </div>
-        <div className="marriage-summary-count">
-          <span>همسر فعلی</span>
-          <b>{currentCount}</b>
-        </div>
-        <div className="marriage-summary-count">
-          <span>سابقه پایان‌یافته</span>
-          <b>{endedCount}</b>
-        </div>
-      </div>
-
       <ListEditor
         title="سوابق ازدواج"
         hint="هر ازدواج یک رکورد مستقل است. برای ازدواج جاری فقط وضعیت جاری و تاریخ ازدواج را ثبت کنید؛ برای ازدواج پایان‌یافته علت و تاریخ پایان را هم وارد کنید."
