@@ -9,6 +9,7 @@ import TravelStep from "./steps/TravelStep";
 import DeclarationStep from "./steps/DeclarationStep";
 import RecordStep from "./steps/RecordStep";
 import EducationEmploymentStep from "./steps/EducationEmploymentStep";
+import AccommodationStep from "./steps/AccommodationStep";
 import PassportStep from "./steps/PassportStep";
 import TextareaStep from "./steps/TextareaStep";
 
@@ -24,6 +25,7 @@ function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, error
   if (stepKey === "residence") return <ResidenceStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "passport") return <PassportStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "education" || stepKey === "employment") return <EducationEmploymentStep stepKey={stepKey} form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "accommodation") return <AccommodationStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "additional") return <TextareaStep value={form?.details || ""} onChange={(value) => { clearValidationError("details"); setForm({ details: value }); }} readOnly={readOnly} error={errors.details} />;
   if (stepKey === "declaration") return <DeclarationStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   return <RecordStep fields={RECORDS[stepKey] || []} form={form || { records: [] }} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
