@@ -3,6 +3,7 @@ import PersonalStep from "./steps/PersonalStep";
 import MarriageStep from "./steps/MarriageStep";
 import PeopleStep from "./steps/PeopleStep";
 import ResidenceStep from "./steps/ResidenceStep";
+import MilitaryStep from "./steps/MilitaryStep";
 import DeclarationStep from "./steps/DeclarationStep";
 import RecordStep from "./steps/RecordStep";
 import TextareaStep from "./steps/TextareaStep";
@@ -10,6 +11,7 @@ import TextareaStep from "./steps/TextareaStep";
 function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, errors, clearValidationError }) {
   if (!form && stepKey !== "additional") return <div className="loading-inline">در حال آماده‌سازی فرم…</div>;
   if (stepKey === "personal") return <PersonalStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+  if (stepKey === "military") return <MilitaryStep form={form} setForm={setForm} data={data} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "marriage") return <MarriageStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "family") return <PeopleStep kind="family" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
   if (stepKey === "social_relations") return <PeopleStep kind="social" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
