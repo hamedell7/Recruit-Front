@@ -3,7 +3,7 @@ import { api } from "../../services/api";
 import { STEP_META, STEP_DESCRIPTIONS, FLOW_SECTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
-import { cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMilitaryForm, validateStep } from "../../utils/form";
+import { cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
@@ -120,7 +120,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
         const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
         const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data);
-        const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : merged;
+        const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : currentKey === "marriage" ? sanitizeMarriageForm(merged) : merged;
         setStepData(data);
         setForm(normalizedForm);
         setLastDraftSaved(draft?.updated_at || null);
@@ -153,7 +153,7 @@ function RequestWizard({ user, request, onBack, onError }) {
     const timer = setTimeout(async () => {
       setDraftStatus("saving");
       try {
-        const payload = currentKey === "military" ? cleanMilitaryPayload(form) : cleanPayload(form);
+        const payload = currentKey === "military" ? cleanMilitaryPayload(form) : currentKey === "marriage" ? cleanMarriagePayload(form) : cleanPayload(form);
         const result = await api.saveDraft(appRequest.id, currentKey, payload);
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
@@ -198,7 +198,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       if (currentKey === "documents" || currentKey === "review") {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
-        const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : cleanPayload(form || {});
+        const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : currentKey === "marriage" ? cleanMarriagePayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
       if (currentKey !== "documents" && currentKey !== "review") {
