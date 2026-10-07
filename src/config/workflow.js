@@ -97,7 +97,7 @@ const RECORDS = {
     { key: "relative_relation", label: "نسبت با متقاضی", type: "text" },
     { key: "relative_first_name", label: "نام شخص ایثارگر", type: "text" },
     { key: "relative_last_name", label: "نام خانوادگی شخص ایثارگر", type: "text" },
-    { key: "veteran_type", label: "نوع ایثارگری", type: "text", required: true },
+    { key: "veteran_type", label: "نوع ایثارگری", type: "select", required: true, options: ["رزمندگی", "جانبازي", "آزادگی", "شهادت"] },
     { key: "percentage", label: "درصد ایثارگری", type: "number" },
     { key: "occurrence_date", label: "تاریخ وقوع / اعزام", type: "date" },
     { key: "location", label: "محل وقوع / اعزام", type: "text" },
