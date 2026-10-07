@@ -72,3 +72,23 @@
 .marriage-card{background:#fcfdff}.marriage-card .record-head{margin-bottom:16px}.marriage-card .field-grid{align-items:start}.nested-field-grid{display:block}
 @media (max-width:900px){.marriage-summary{grid-template-columns:1fr 1fr}.marriage-summary-main{grid-column:1 / -1}}
 @media (max-width:560px){.marriage-summary{grid-template-columns:1fr}.marriage-summary-main{grid-column:auto}}
+.date-field{position:relative}
+.date-input-wrap{position:relative;display:flex;align-items:center}
+.date-input-wrap input{padding-left:42px}
+.date-trigger{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--brand);display:grid;place-items:center;cursor:pointer}
+.date-trigger:hover{background:var(--brand-soft)}
+.persian-calendar{position:absolute;z-index:40;top:calc(100% + 7px);right:0;width:310px;padding:13px;background:#fff;border:1px solid #dbe3ed;border-radius:15px;box-shadow:0 16px 40px rgba(16,24,40,.14)}
+.calendar-head{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:7px;margin-bottom:10px}
+.calendar-head strong{text-align:center;font-size:11px}
+.calendar-nav{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;font-size:17px}
+.calendar-nav:hover{background:#f7f9fc}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-weekdays{margin-bottom:4px;color:#98a2b3;font-size:9px;text-align:center}
+.calendar-weekdays span{padding:5px 0}
+.calendar-day{height:34px;border:1px solid transparent;border-radius:9px;background:#fff;color:#344054;font-family:inherit;font-size:10px;cursor:pointer}
+.calendar-day:hover{background:var(--brand-soft);color:var(--brand)}
+.calendar-day.selected{background:var(--brand);color:#fff}
+.calendar-footer{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
+.calendar-footer span{margin-right:auto;color:#98a2b3;font-size:8px}
+.danger-text{color:var(--danger)}
+@media (max-width:560px){.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
