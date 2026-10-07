@@ -170,12 +170,9 @@ export function validateStep(stepKey, form) {
       const contact = form.contacts[i];
       const prefix = "contacts." + i;
       if (empty(contact?.contact_type)) add(prefix + ".contact_type", "نوع تماس را وارد کنید.");
-      if (empty(contact?.value)) {
-        const socialLabel = socialNetworkLabels[contact?.contact_type];
-        add(
-          prefix + ".value",
-          socialLabel ? ("اطلاعات تماس " + socialLabel + " را وارد کنید.") : "شماره تماس را وارد کنید."
-        );
+      const isSocialNetwork = Boolean(socialNetworkLabels[contact?.contact_type]);
+      if (!isSocialNetwork && empty(contact?.value)) {
+        add(prefix + ".value", "شماره تماس را وارد کنید.");
       }
       if (empty(contact?.owner_type)) add(prefix + ".owner_type", "نوع مالکیت را انتخاب کنید.");
       if (contact?.owner_type === "OPERATOR" && empty(contact?.owner_name)) {
