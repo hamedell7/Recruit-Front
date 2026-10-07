@@ -4,15 +4,51 @@ import TextField, { TextArea, SelectField } from "../../../components/form/Field
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
 import GeoFields from "../../../components/form/GeoFields";
-import AddressFields from "./AddressFields";
+
+const OWNERSHIP_OPTIONS = [
+  { value: "OWNER", label: "مالک" },
+  { value: "OPERATOR", label: "بهره‌بردار" },
+];
 
 function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
   const update = (key, value) => {
     clearValidationError(key);
     setForm((current) => ({ ...current, [key]: value }));
   };
+
+  const updateContact = (index, key, value) => {
+    const path = `contacts.${index}.${key}`;
+    clearValidationError(path);
+    setForm((current) => ({
+      ...current,
+      contacts: normalizeList(current.contacts).map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [key]: value } : item
+      ),
+    }));
+  };
+
+  const updateCurrentAddress = (key, value) => {
+    clearValidationError(`current_address.${key}`);
+    setForm((current) => ({
+      ...current,
+      current_address: {
+        ...(current.current_address || { address_line: "", postal_code: "", phone: "" }),
+        [key]: value,
+      },
+    }));
+  };
+
+  const clearCurrentAddress = () => {
+    clearValidationError("current_address");
+    setForm((current) => ({
+      ...current,
+      current_address: { address_line: "", postal_code: "", phone: "" },
+    }));
+  };
+
   const contacts = normalizeList(form?.contacts);
-  const addresses = normalizeList(form?.addresses);
+  const currentAddress = form?.current_address || { address_line: "", postal_code: "", phone: "" };
+
   return (
     <div className="form-stack">
       <FormSection title="اطلاعات هویتی" hint="اطلاعات پایه داوطلب را با دقت وارد کنید.">
@@ -40,27 +76,100 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         </div>
       </FormSection>
 
-      <ListEditor title="راه‌های تماس" hint="می‌توانید چند شماره تلفن یا شناسه فضای مجازی ثبت کنید." readOnly={readOnly}
-        items={contacts} setItems={(items) => setForm((current) => ({ ...current, contacts: items }))}
-        clearValidationError={clearValidationError} errorPrefix="contacts"
-        empty={() => ({ contact_type: "موبایل", value: "", owner_type: "APPLICANT", owner_name: "", is_primary: false })}
+      <ListEditor
+        title="راه‌های تماس"
+        hint="می‌توانید چند شماره تماس ثبت کنید."
+        readOnly={readOnly}
+        items={contacts}
+        setItems={(items) => setForm((current) => ({ ...current, contacts: items }))}
+        clearValidationError={clearValidationError}
+        errorPrefix="contacts"
+        empty={() => ({ contact_type: "موبایل", value: "", owner_type: "OWNER", owner_name: "", is_primary: false })}
         render={(item, setItem, index) => (
           <div className="mini-grid">
-            <TextField label="نوع تماس" value={item.contact_type} onChange={(v) => { const p=`contacts.${index}.contact_type`; clearValidationError(p); setItem({ ...item, contact_type: v }); }} error={getFieldError(errors, `contacts.${index}.contact_type`)} readOnly={readOnly} />
-            <TextField label="شماره / شناسه" value={item.value} onChange={(v) => { const p=`contacts.${index}.value`; clearValidationError(p); setItem({ ...item, value: v }); }} error={getFieldError(errors, `contacts.${index}.value`)} readOnly={readOnly} />
-            <TextField label="نوع مالکیت" value={item.owner_type} onChange={(v) => { const p=`contacts.${index}.owner_type`; clearValidationError(p); setItem({ ...item, owner_type: v }); }} error={getFieldError(errors, `contacts.${index}.owner_type`)} readOnly={readOnly} />
-            <TextField label="نام مالک" value={item.owner_name} onChange={(v) => { const p=`contacts.${index}.owner_name`; clearValidationError(p); setItem({ ...item, owner_name: v }); }} error={getFieldError(errors, `contacts.${index}.owner_name`)} readOnly={readOnly} />
-            <label className="checkbox-line"><input type="checkbox" checked={Boolean(item.is_primary)} onChange={(e) => { clearValidationError(`contacts.${index}.is_primary`); setItem({ ...item, is_primary: e.target.checked }); }} disabled={readOnly} /> تماس اصلی</label>
+            <TextField
+              label="نوع تماس"
+              value={item.contact_type}
+              onChange={(v) => updateContact(index, "contact_type", v)}
+              error={getFieldError(errors, `contacts.${index}.contact_type`)}
+              readOnly={readOnly}
+            />
+            <TextField
+              label="شماره تماس"
+              value={item.value}
+              onChange={(v) => updateContact(index, "value", v)}
+              error={getFieldError(errors, `contacts.${index}.value`)}
+              readOnly={readOnly}
+            />
+            <SelectField
+              label="نوع مالکیت"
+              value={item.owner_type || "OWNER"}
+              onChange={(v) => {
+                updateContact(index, "owner_type", v);
+                if (v === "OWNER") updateContact(index, "owner_name", "");
+              }}
+              error={getFieldError(errors, `contacts.${index}.owner_type`)}
+              options={OWNERSHIP_OPTIONS}
+              readOnly={readOnly}
+            />
+            {item.owner_type === "OPERATOR" && (
+              <TextField
+                label="نام مالک"
+                value={item.owner_name}
+                onChange={(v) => updateContact(index, "owner_name", v)}
+                error={getFieldError(errors, `contacts.${index}.owner_name`)}
+                required
+                readOnly={readOnly}
+              />
+            )}
+            <label className="checkbox-line">
+              <input
+                type="checkbox"
+                checked={Boolean(item.is_primary)}
+                onChange={(e) => {
+                  clearValidationError(`contacts.${index}.is_primary`);
+                  setItem({ ...item, is_primary: e.target.checked });
+                }}
+                disabled={readOnly}
+              />
+              تماس اصلی
+            </label>
           </div>
         )}
       />
 
-      <ListEditor title="نشانی محل سکونت و آدرس‌ها" hint="برای آدرس فعلی یا سوابق آدرس می‌توانید چند مورد ثبت کنید." readOnly={readOnly}
-        items={addresses} setItems={(items) => setForm((current) => ({ ...current, addresses: items }))}
-        clearValidationError={clearValidationError} errorPrefix="addresses"
-        empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
-        render={(item, setItem, index) => <AddressFields item={item} setItem={setItem} countries={countries} readOnly={readOnly} errors={errors} errorPrefix={`addresses.${index}`} clearValidationError={clearValidationError} />}
-      />
+      <FormSection title="نشانی محل سکونت" hint="آدرس محل سکونت فعلی خود را وارد کنید. فقط یک نشانی در این مرحله ثبت می‌شود.">
+        <div className="field-grid">
+          <TextArea
+            label="آدرس دقیق"
+            value={currentAddress.address_line}
+            onChange={(v) => updateCurrentAddress("address_line", v)}
+            error={getFieldError(errors, "current_address.address_line")}
+            full
+            required
+            readOnly={readOnly}
+          />
+          <TextField
+            label="کد پستی"
+            value={currentAddress.postal_code}
+            onChange={(v) => updateCurrentAddress("postal_code", v)}
+            error={getFieldError(errors, "current_address.postal_code")}
+            readOnly={readOnly}
+          />
+          <TextField
+            label="تلفن"
+            value={currentAddress.phone}
+            onChange={(v) => updateCurrentAddress("phone", v)}
+            error={getFieldError(errors, "current_address.phone")}
+            readOnly={readOnly}
+          />
+          {!readOnly && (
+            <button className="text-button" type="button" onClick={clearCurrentAddress}>
+              پاک کردن نشانی
+            </button>
+          )}
+        </div>
+      </FormSection>
     </div>
   );
 }
