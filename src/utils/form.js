@@ -17,6 +17,28 @@ export function cleanPayload(value) {
   return value === "" ? null : value;
 }
 
+export function sanitizeMarriageForm(value) {
+  const marriages = Array.isArray(value?.marriages) ? value.marriages : [];
+  return {
+    marriages: marriages.map((entry) => {
+      const next = {
+        ...entry,
+        spouse: { ...(entry?.spouse || {}) },
+      };
+      if (next.status === "current") {
+        next.end_date = "";
+        next.end_reason = "";
+      }
+      return next;
+    }),
+  };
+}
+
+export function cleanMarriagePayload(value) {
+  const sanitized = sanitizeMarriageForm(value || {});
+  return cleanPayload(sanitized);
+}
+
 export function sanitizeMilitaryForm(value) {
   const next = { ...(value || {}) };
 
@@ -88,10 +110,22 @@ export function validateStep(stepKey, form) {
   }
 
   if (stepKey === "marriage") {
-    if (empty(form?.status)) add("status", "وضعیت تأهل را انتخاب کنید.");
-    if (["متأهل", "ازدواج مجدد"].includes(form?.status)) {
-      if (empty(form?.spouse?.first_name)) add("spouse.first_name", "نام همسر را وارد کنید.");
-      if (empty(form?.spouse?.last_name)) add("spouse.last_name", "نام خانوادگی همسر را وارد کنید.");
+    const marriages = Array.isArray(form?.marriages) ? form.marriages : [];
+    for (let i = 0; i < marriages.length; i += 1) {
+      const marriage = marriages[i];
+      const prefix = "marriages." + i;
+      if (empty(marriage?.status)) add(prefix + ".status", "وضعیت این ازدواج را انتخاب کنید.");
+      if (empty(marriage?.spouse?.first_name)) add(prefix + ".spouse.first_name", "نام همسر را وارد کنید.");
+      if (empty(marriage?.spouse?.last_name)) add(prefix + ".spouse.last_name", "نام خانوادگی همسر را وارد کنید.");
+      if (empty(marriage?.marriage_date)) add(prefix + ".marriage_date", "تاریخ ازدواج را وارد کنید.");
+
+      if (marriage?.status === "ended") {
+        if (empty(marriage?.end_date)) add(prefix + ".end_date", "تاریخ پایان ازدواج را وارد کنید.");
+        if (empty(marriage?.end_reason)) add(prefix + ".end_reason", "علت پایان ازدواج را انتخاب کنید.");
+        if (marriage?.marriage_date && marriage?.end_date && marriage.end_date < marriage.marriage_date) {
+          add(prefix + ".end_date", "تاریخ پایان ازدواج نمی‌تواند قبل از تاریخ ازدواج باشد.");
+        }
+      }
     }
   }
 
@@ -186,7 +220,28 @@ export function makeForm(stepKey, data, user) {
       addresses: normalizeList(data?.addresses),
     };
   }
-  if (stepKey === "marriage") return { ...(data?.record || {}), spouse: data?.spouse || null };
+  if (stepKey === "marriage") {
+    return {
+      marriages: normalizeList(data?.marriages).map((item) => ({
+        id: item.id || "",
+        status: item.status || "current",
+        marriage_date: item.marriage_date || "",
+        end_date: item.end_date || "",
+        end_reason: item.end_reason || "",
+        spouse: {
+          first_name: item.spouse?.first_name || "",
+          last_name: item.spouse?.last_name || "",
+          father_name: item.spouse?.father_name || "",
+          national_id: item.spouse?.national_id || "",
+          birth_date: item.spouse?.birth_date || "",
+          gender: item.spouse?.gender || "",
+          occupation: item.spouse?.occupation || "",
+          education: item.spouse?.education || "",
+        },
+        notes: item.notes || "",
+      })),
+    };
+  }
   if (stepKey === "family" || stepKey === "social_relations") return { people: normalizeList(data?.people) };
   if (stepKey === "residence") return { addresses: normalizeList(data?.addresses) };
   if (stepKey === "additional") return { details: data?.record?.details || "" };
