@@ -14,7 +14,7 @@
   "dependencies": {
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-multi-date-picker": "4.5.2"
+    "@jalali-js/react": "0.4.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "6.1.2",
