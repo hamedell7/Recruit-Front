@@ -267,8 +267,8 @@ const RECORDS = {
 
 const FLOW_SECTIONS = [
   ["هویت و اطلاعات پایه", ["personal", "marriage", "military"]],
-  ["تحصیل و اشتغال", ["education", "employment", "accommodation", "passport"]],
-  ["ارتباطات و سوابق", ["foreign_contacts", "screening_history", "veteran", "travel", "legal_incidents", "migration"]],
+  ["تحصیل و اشتغال", ["education", "employment", "accommodation"]],
+  ["ارتباطات و سوابق", ["foreign_contacts", "screening_history", "veteran", "travel", "legal_incidents", "migration", "passport"]],
   ["ارتباطات تکمیلی", ["affiliations", "addiction", "foreign_company_relations", "embassy_relations", "exit_restrictions", "activities", "weapons"]],
   ["خانواده و منابع شناخت", ["family", "social_relations", "residence"]],
   ["جمع‌بندی", ["additional", "declaration"]],
