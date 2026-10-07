@@ -17,8 +17,51 @@ export function cleanPayload(value) {
   return value === "" ? null : value;
 }
 
+export function sanitizeMilitaryForm(value) {
+  const next = { ...(value || {}) };
+
+  if (next.status === "completed_service") {
+    next.exemption_type = "";
+    next.booklet_status = "";
+    next.absence_status = "";
+    next.conscription_date = "";
+  } else if (next.status === "exempt") {
+    next.organization_name = "";
+    next.unit_name = "";
+    next.start_date = "";
+    next.end_date = "";
+    next.service_city_id = "";
+    next.service_province_id = "";
+    next.booklet_status = "";
+    next.absence_status = "";
+    next.conscription_date = "";
+  } else if (next.status === "subject") {
+    next.organization_name = "";
+    next.unit_name = "";
+    next.start_date = "";
+    next.end_date = "";
+    next.service_city_id = "";
+    next.service_province_id = "";
+    next.exemption_type = "";
+    if (next.booklet_status !== "has_booklet") next.conscription_date = "";
+  } else {
+    next.organization_name = "";
+    next.unit_name = "";
+    next.start_date = "";
+    next.end_date = "";
+    next.service_city_id = "";
+    next.service_province_id = "";
+    next.exemption_type = "";
+    next.booklet_status = "";
+    next.absence_status = "";
+    next.conscription_date = "";
+  }
+
+  return next;
+}
+
 export function cleanMilitaryPayload(value) {
-  const cleaned = cleanPayload(value || {});
+  const cleaned = cleanPayload(sanitizeMilitaryForm(value || {}));
   delete cleaned.service_province_id;
   return cleaned;
 }
