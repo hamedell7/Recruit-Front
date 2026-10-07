@@ -70,6 +70,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         <div className="field-grid">
           <TextField label="نام" value={form.first_name} onChange={(v) => update("first_name", v)} error={getFieldError(errors, "first_name")} required readOnly={readOnly} />
           <TextField label="نام خانوادگی" value={form.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, "last_name")} required readOnly={readOnly} />
+          <TextField label="نام مستعار" value={form.alias_first_name} onChange={(v) => update("alias_first_name", v)} error={getFieldError(errors, "alias_first_name")} readOnly={readOnly} />
+          <TextField label="نام خانوادگی مستعار" value={form.alias_last_name} onChange={(v) => update("alias_last_name", v)} error={getFieldError(errors, "alias_last_name")} readOnly={readOnly} />
           <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, "father_name")} readOnly={readOnly} />
           <TextField label="کد ملی" value={form.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly={readOnly} />
           <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
