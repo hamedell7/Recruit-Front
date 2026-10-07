@@ -10,7 +10,7 @@ export function normalizeDigits(value) {
 
 const DATE_FIELD_PATTERN = /(^|_)(date)$/;
 
-function cleanPayload(value, key = "") {
+export function cleanPayload(value, key = "") {
   if (Array.isArray(value)) return value.map((entry) => cleanPayload(entry, key));
   if (value && typeof value === "object") {
     return Object.fromEntries(
