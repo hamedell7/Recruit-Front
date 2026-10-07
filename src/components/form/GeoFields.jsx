@@ -13,7 +13,9 @@ function GeoFields({
   errors,
   errorPrefix = "",
   clearValidationError,
-}) {
+  caption = "موقعیت جغرافیایی",
+  hint = "کشور، استان و شهر را انتخاب کنید.",
+) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
   const cityKey = prefix + "city_id";
@@ -77,8 +79,8 @@ function GeoFields({
   return (
     <div className="geo-block field full">
       <div className="geo-caption">
-        <strong>موقعیت جغرافیایی</strong>
-        <span>کشور، استان و شهر محل تولد را انتخاب کنید.</span>
+        <strong>{caption}</strong>
+        <span>{hint}</span>
       </div>
 
       <div className="field-grid geo-grid">
