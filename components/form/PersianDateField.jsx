@@ -1,4 +1,4 @@
-import DatePicker from "@jalali-js/react/DatePicker";
+import { DatePicker } from "@jalali-js/react";
 import "@jalali-js/react/date-picker.css";
 import FieldError from "./FieldError";
 
