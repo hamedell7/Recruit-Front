@@ -268,6 +268,14 @@ function RequestWizard({ user, request, onBack, onError }) {
       // complete_step already persists the submitted data and removes the draft
       // in the same transaction. Use its committed next_step as the immediate UI target,
       // then reconcile the persisted workflow state from the backend.
+      // Final declaration closes the request permanently. Show success and
+      // return to the dashboard instead of keeping the user inside the wizard.
+      if (currentKey === "declaration" && !result?.next_step) {
+        onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
+        onBack();
+        return;
+      }
+
       if (result?.next_step) {
         const immediateIndex = workflowSteps.indexOf(result.next_step);
         if (immediateIndex >= 0) setIndex(immediateIndex);
@@ -331,7 +339,7 @@ function RequestWizard({ user, request, onBack, onError }) {
                 <span className="step-section-title">{heading}</span>
                 {items.filter((key) => workflowSteps.includes(key)).map((key) => {
                   const target = workflowSteps.indexOf(key);
-                  return <StepRailItem key={key} keyName={key} active={currentKey === key} completed={target < backendCurrentIndex || resume?.status === "SUBMITTED"} onClick={() => moveTo(target)} order={target + 1} />;
+                  return <StepRailItem key={key} keyName={key} active={currentKey === key && resume?.status !== "SUBMITTED"} completed={target < backendCurrentIndex || resume?.status === "SUBMITTED"} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
               </div>
             ))}
@@ -379,12 +387,14 @@ function RequestWizard({ user, request, onBack, onError }) {
 
           <div className="wizard-footer">
             <div className="footer-left">
-              {index > 0 && <button className="ghost-button" onClick={movePrevious}>مرحله قبل</button>}
+              {readOnly ? (
+                <span className="readonly-note">این پرونده ثبت نهایی شده و فقط برای مشاهده در دسترس است.</span>
+              ) : index > 0 ? (
+                <button className="ghost-button" onClick={movePrevious}>مرحله قبل</button>
+              ) : null}
             </div>
             <div className="footer-right">
-              {readOnly ? (
-                <button className="outline-button" onClick={() => setIndex(backendCurrentIndex)}>برگشت به مرحله جاری</button>
-              ) : (
+              {!readOnly && (
                 <button className="primary-button" disabled={saving} onClick={complete}>
                   {saving ? <><span className="button-spinner" /> در حال ثبت…</> : (currentKey === "declaration" ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه")}
                   <span>←</span>
