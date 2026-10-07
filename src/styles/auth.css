@@ -47,9 +47,3 @@
 .auth-note>span{width:17px;height:17px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;font-size:9px;flex:0 0 auto}
 
 
-.contact-primary-field{display:flex;flex-direction:column;gap:7px;min-width:0;align-self:end}
-.contact-primary-field>span{font-size:var(--form-label-size);color:#344054;font-weight:600;line-height:1.7}
-.contact-primary-control{height:var(--form-control-height);display:flex;align-items:center;gap:9px;padding:0 13px;border:1px solid var(--line-strong);background:#fff;border-radius:11px;color:var(--ink);cursor:pointer}
-.contact-primary-control input{width:17px!important;height:17px!important;margin:0;padding:0;accent-color:var(--brand)}
-.contact-primary-control span{font-size:var(--form-control-size);color:var(--ink)}
-.contact-primary-control:has(input:disabled){background:#f8fafc;color:#667085;cursor:not-allowed}
