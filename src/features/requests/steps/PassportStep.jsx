@@ -1,7 +1,6 @@
-import TextField, { TextArea } from "../../../components/form/Fields";
+import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
-import GeoFields from "../../../components/form/GeoFields";
 import { getFieldError } from "../../../utils/validation";
 import { normalizeList } from "../../../utils/collections";
 
@@ -20,7 +19,7 @@ const emptyPassport = () => ({
   notes: "",
 });
 
-function PassportStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
+function PassportStep({ form, setForm, readOnly, errors, clearValidationError }) {
   const records = normalizeList(form?.records);
 
   return (
@@ -62,7 +61,7 @@ function PassportStep({ form, setForm, countries, readOnly, errors, clearValidat
                     readOnly={readOnly}
                   />
 
-                                    <TextField
+                  <TextField
                     label="نوع گذرنامه"
                     value={record?.passport_type || ""}
                     onChange={(value) => update("passport_type", value)}
