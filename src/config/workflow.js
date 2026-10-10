@@ -217,7 +217,14 @@ const RECORDS = {
     { key: "current_status", label: "وضعیت فعلی", type: "textarea", full: true },
   ],
   foreign_company_relations: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
+    { key: "beneficiary_type", label: "برای", type: "select", required: true, options: [
+      { value: "APPLICANT", label: "داوطلب" },
+      { value: "SPOUSE", label: "همسر" },
+      { value: "RELATIVE", label: "یکی از بستگان" },
+    ] },
+    { key: "relative_relation", label: "نسبت با متقاضی", type: "select", required: true, options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_first_name", label: "نام شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "company_name", label: "نام شرکت / مؤسسه", type: "text", required: true },
     { key: "activity_type", label: "نوع فعالیت", type: "text", required: true },
     { key: "country_id", label: "کشور", type: "country", required: true },
