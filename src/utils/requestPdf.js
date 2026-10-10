@@ -111,6 +111,12 @@ const FIELD_LABELS = {
   declaration_version: "نسخه تعهدنامه",
   statement_text: "متن تعهدنامه",
   accepted: "تأیید و پذیرش",
+  disability_description: "شرح معلولیت",
+  distinguishing_marks: "علائم مشخصه",
+  friend_first_name: "نام دوست / معرف",
+  friend_last_name: "نام خانوادگی دوست / معرف",
+  unit_name: "نام یگان",
+  original_filename: "نام فایل",
   accepted_at: "زمان تأیید تعهدنامه",
 };
 
@@ -168,8 +174,7 @@ function isInternalKey(key) {
 
 function labelFor(key) {
   if (FIELD_LABELS[key]) return FIELD_LABELS[key];
-  const words = key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/_/g, " ");
-  return words.charAt(0).toLocaleUpperCase("fa-IR") + words.slice(1);
+  return "سایر اطلاعات";
 }
 
 function formatDate(value) {
