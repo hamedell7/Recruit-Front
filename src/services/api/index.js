@@ -12,12 +12,14 @@ const api = {
   requestTypes: () => apiFetch("/requests/types"),
   requests: () => apiFetch("/requests"),
   request: (id) => apiFetch("/requests/" + path(id)),
+  requestReport: (id) => apiFetch("/requests/" + path(id) + "/report"),
   createRequest: (requestType) => apiFetch("/requests", {
     method: "POST",
     body: { request_type: requestType },
   }),
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
+  staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
