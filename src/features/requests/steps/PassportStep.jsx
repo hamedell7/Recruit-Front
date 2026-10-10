@@ -3,6 +3,7 @@ import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
 import { getFieldError } from "../../../utils/validation";
 import { normalizeList } from "../../../utils/collections";
+import { withSpouseAvailability } from "../../../utils/form";
 
 const PERSON_TYPES = [
   { value: "APPLICANT", label: "متقاضی" },
@@ -19,7 +20,7 @@ const emptyPassport = () => ({
   notes: "",
 });
 
-function PassportStep({ form, setForm, readOnly, errors, clearValidationError }) {
+function PassportStep({ form, setForm, readOnly, errors, clearValidationError, hasSpouse = false }) {
   const records = normalizeList(form?.records);
 
   return (
@@ -56,7 +57,7 @@ function PassportStep({ form, setForm, readOnly, errors, clearValidationError })
                     label="برای"
                     value={record?.person_role || "APPLICANT"}
                     onChange={(value) => update("person_role", value)}
-                    options={PERSON_TYPES}
+                    options={withSpouseAvailability(PERSON_TYPES, hasSpouse)}
                     error={getFieldError(errors, prefix + ".person_role")}
                     readOnly={readOnly}
                   />
