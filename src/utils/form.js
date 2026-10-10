@@ -2,6 +2,21 @@ import { RECORDS } from "../config/workflow";
 import { normalizeList } from "./collections";
 import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
 
+export function withSpouseAvailability(options = [], hasSpouse = false) {
+  return (Array.isArray(options) ? options : []).map((option) => {
+    const normalized = typeof option === "string"
+      ? { value: option, label: option }
+      : option;
+
+    if (!normalized || normalized.value !== "SPOUSE" || hasSpouse) return option;
+    return {
+      ...normalized,
+      label: "همسر (ابتدا اطلاعات همسر را در بخش سوابق ازدواج ثبت کنید)",
+      disabled: true,
+    };
+  });
+}
+
 export function normalizeDigits(value) {
   return String(value || "")
     .replace(/[۰-۹]/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit))
