@@ -158,6 +158,19 @@ export function mergeDraft(base, draft, stepKey) {
     return { ...(hydratedBase || {}), ...hydratedDraft, records };
   }
 
+  if (stepKey === "veteran" && Array.isArray(hydratedDraft.records)) {
+    const records = hydratedDraft.records.map((record) => {
+      const next = { ...(record || {}) };
+      // Older UI versions exposed SPOUSE, while the API models spouse as a relative.
+      if (next.beneficiary_type === "SPOUSE") {
+        next.beneficiary_type = "RELATIVE";
+        next.relative_relation = next.relative_relation || "همسر";
+      }
+      return next;
+    });
+    return { ...(hydratedBase || {}), ...hydratedDraft, records };
+  }
+
   if (["affiliations", "foreign_company_relations", "embassy_relations", "exit_restrictions"].includes(stepKey) && Array.isArray(hydratedDraft.records)) {
     const records = hydratedDraft.records.map((record) => {
       const next = { ...(record || {}) };
