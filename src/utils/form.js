@@ -151,6 +151,7 @@ export function mergeDraft(base, draft, stepKey) {
       delete nextPerson.gender;
       nextPerson.addresses = normalizeList(person?.addresses).map((address) => {
         const nextAddress = { ...(address || {}) };
+        delete nextAddress.country_id;
         delete nextAddress.postal_code;
         delete nextAddress.from_date;
         delete nextAddress.to_date;
