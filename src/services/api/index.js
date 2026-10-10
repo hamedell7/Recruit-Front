@@ -18,6 +18,16 @@ const api = {
   }),
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
+  staffDashboard: (filters = {}, signal) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        params.set(key, String(value));
+      }
+    });
+    const query = params.toString();
+    return apiFetch("/staff/requests/dashboard" + (query ? "?" + query : ""), { signal });
+  },
   stepData: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key)),
   stepDraft: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft"),
   saveDraft: (id, key, data, signal) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft", { method: "PUT", body: { data }, signal }),
@@ -38,6 +48,7 @@ const api = {
   downloadDocumentUrl: (fileId) => API_BASE_URL + "/requests/documents/" + path(fileId) + "/download",
   countries: () => apiFetch("/geo/countries"),
   provinces: (countryId) => apiFetch("/geo/provinces?country_id=" + path(countryId)),
+  allProvinces: () => apiFetch("/geo/provinces"),
   counties: (provinceId) => apiFetch("/geo/counties?province_id=" + path(provinceId)),
   cities: (countyId) => apiFetch("/geo/cities?county_id=" + path(countyId)),
   citiesByProvince: (provinceId) => apiFetch("/geo/cities?province_id=" + path(provinceId)),
