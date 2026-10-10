@@ -242,7 +242,7 @@ const RECORDS = {
     { key: "relative_relation", label: "نسبت با متقاضی", type: "select", required: true, options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "relative_first_name", label: "نام شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
-    { key: "country_id", label: "کشور", type: "country", required: true },
+    { key: "country_name", label: "کشور", type: "text", required: true },
     { key: "relation_type", label: "نوع اشتغال / ارتباط", type: "text", required: true },
     { key: "responsibility", label: "مسئولیت / نوع فعالیت", type: "textarea", full: true },
     { key: "start_date", label: "تاریخ شروع", type: "date" },
