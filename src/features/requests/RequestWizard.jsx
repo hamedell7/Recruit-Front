@@ -324,6 +324,10 @@ function RequestWizard({ user, request, onBack, onError }) {
     cancelPendingAutosave();
     setIndex((value) => Math.max(0, value - 1));
   };
+  const moveNext = () => {
+    cancelPendingAutosave();
+    setIndex((value) => Math.min(backendCurrentIndex, value + 1));
+  };
   const moveTo = (target) => {
     if (target <= backendCurrentIndex) {
       cancelPendingAutosave();
@@ -412,17 +416,21 @@ function RequestWizard({ user, request, onBack, onError }) {
 
           <div className="wizard-footer">
             <div className="footer-left">
-              {readOnly ? null : index > 0 ? (
+              {!isFinalized && index > 0 ? (
                 <button className="ghost-button" onClick={movePrevious}>مرحله قبل</button>
               ) : null}
             </div>
             <div className="footer-right">
-              {!readOnly && (
+              {!isFinalized && (index < backendCurrentIndex ? (
+                <button className="primary-button" onClick={moveNext}>
+                  مرحله بعد <span>←</span>
+                </button>
+              ) : (
                 <button className="primary-button" disabled={saving} onClick={complete}>
                   {saving ? <><span className="button-spinner" /> در حال ثبت…</> : (currentKey === "declaration" ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه")}
                   <span>←</span>
                 </button>
-              )}
+              ))}
             </div>
           </div>
         </section>
