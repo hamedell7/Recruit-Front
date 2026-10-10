@@ -54,7 +54,7 @@ function SelectField({ label, value, onChange, options = [], required, readOnly,
         <option value="">انتخاب کنید</option>
         {options.map((option) => {
           const normalized = typeof option === "string" ? { value: option, label: option } : option;
-          return <option key={String(normalized.value)} value={normalized.value}>{normalized.label}</option>;
+          return <option key={String(normalized.value)} value={normalized.value} disabled={Boolean(normalized.disabled)}>{normalized.label}</option>;
         })}
       </select>
       <FieldError error={error} />
