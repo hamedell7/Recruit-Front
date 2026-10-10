@@ -68,7 +68,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
               />}
               <ListEditor title="نشانی‌ها" items={normalizeList(item.addresses)} setItems={(items) => setItem({ ...item, addresses: items })}
                 clearValidationError={clearValidationError} errorPrefix={`${prefix}.addresses`}
-                empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
+                empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", address_line: "", phone: "", ...(isFamily ? {} : { postal_code: "", from_date: "", to_date: "" }) })}
                 readOnly={readOnly} compact
                 render={(address, setAddress, addressIndex) => <AddressFields item={address} setItem={setAddress} countries={countries} readOnly={readOnly} family={isFamily} errors={errors} errorPrefix={`${prefix}.addresses.${addressIndex}`} clearValidationError={clearValidationError} />}
               />
