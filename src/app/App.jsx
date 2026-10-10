@@ -5,6 +5,7 @@ import Toast from "../components/common/Toast";
 import Login from "../features/auth/Login";
 import Header from "../components/layout/Header";
 import Dashboard from "../features/dashboard/Dashboard";
+import StaffDashboard from "../features/dashboard/StaffDashboard";
 import RequestWizard from "../features/requests/RequestWizard";
 
 function App() {
@@ -13,6 +14,8 @@ function App() {
   const [view, setView] = useState("dashboard");
   const [activeRequest, setActiveRequest] = useState(null);
   const [toast, setToast] = useState(null);
+  const staffRoles = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"];
+  const isStaff = staffRoles.includes(user?.role);
 
   useEffect(() => {
     api.me()
@@ -62,12 +65,16 @@ function App() {
         <>
           <Header user={user} onLogout={logout} />
           {view === "dashboard" ? (
-            <Dashboard
-              user={user}
-              onOpenRequest={openRequest}
-              onCreated={openRequest}
-              onError={setToast}
-            />
+            isStaff ? (
+              <StaffDashboard />
+            ) : (
+              <Dashboard
+                user={user}
+                onOpenRequest={openRequest}
+                onCreated={openRequest}
+                onError={setToast}
+              />
+            )
           ) : (
             <RequestWizard
               user={user}
