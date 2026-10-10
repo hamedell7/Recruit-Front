@@ -53,6 +53,13 @@
 .outline-button{border:1px solid var(--line-strong);background:#fff;color:var(--ink);padding:11px 14px;border-radius:11px;font-size:12px;font-weight:600}
 .outline-button:hover{border-color:#aebdce;background:#f9fbfd}
 .outline-button.wide{width:100%}
+
+.outline-button.request-view-button{display:flex;align-items:center;justify-content:center;gap:10px;border-color:#8fd0a8;background:linear-gradient(135deg,#f0fbf4 0%,#e4f7eb 100%);color:#176b43;font-weight:800;box-shadow:0 4px 12px rgba(22,125,85,.09);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}
+.outline-button.request-view-button:hover{border-color:#4eae78;background:linear-gradient(135deg,#e6f8ed 0%,#d7f2e1 100%);color:#125b38;box-shadow:0 7px 17px rgba(22,125,85,.16);transform:translateY(-1px)}
+.request-view-icon{display:inline-grid;place-items:center;width:22px;height:22px;flex:0 0 auto;border-radius:50%;background:#218653;color:#fff;font-size:12px;font-weight:800;box-shadow:0 2px 5px rgba(22,125,85,.18)}
+.request-view-arrow{display:inline-grid;place-items:center;width:23px;height:23px;margin-right:auto;border-radius:7px;background:rgba(33,134,83,.09);color:#176b43;font-size:13px;transition:transform .18s ease}
+.outline-button.request-view-button:hover .request-view-arrow{transform:translateX(-2px)}
+
 .ghost-button{padding:9px 12px;color:var(--muted);font-size:12px}
 .ghost-button:hover{color:var(--brand)}
 .back-button{color:var(--muted);font-size:12px;padding:4px}
