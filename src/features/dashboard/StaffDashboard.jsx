@@ -5,6 +5,7 @@ import { statusLabel } from "../../utils/status";
 import { formatDate } from "../../utils/date";
 import { normalizeList } from "../../utils/collections";
 import Modal from "../../components/common/Modal";
+import { printRequestReport } from "../../utils/requestPdf";
 
 const PAGE_SIZE = 10;
 
@@ -34,7 +35,7 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
-function StaffDashboard() {
+function StaffDashboard({ onError }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -54,6 +55,7 @@ function StaffDashboard() {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,6 +156,21 @@ function StaffDashboard() {
 
   const retry = () => {
     setRefreshKey((value) => value + 1);
+  };
+
+  const exportSelectedRequest = async () => {
+    if (!selectedRequest?.id || reportLoading) return;
+    setReportLoading(true);
+    try {
+      await printRequestReport(selectedRequest.id, { staff: true });
+    } catch (reason) {
+      onError?.({
+        type: "error",
+        text: reason.message || "آماده‌سازی گزارش PDF با مشکل مواجه شد.",
+      });
+    } finally {
+      setReportLoading(false);
+    }
   };
 
   return (
@@ -366,8 +383,13 @@ function StaffDashboard() {
             <div><span>تاریخ ثبت نهایی</span><strong>{formatDate(selectedRequest.submitted_at)}</strong></div>
           </div>
           <div className="staff-detail-footer">
-            <span>اطلاعات هویتی در این نما به‌صورت محدودشده نمایش داده می‌شود.</span>
-            <button className="primary-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
+            <span>گزارش شامل اطلاعات فرم، وضعیت مراحل و فهرست مدارک است.</span>
+            <div className="staff-detail-actions">
+              <button className="ghost-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
+              <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
+                {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
+              </button>
+            </div>
           </div>
         </Modal>
       )}
