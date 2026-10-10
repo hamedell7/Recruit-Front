@@ -61,7 +61,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
-  const readOnly = resume?.status === "SUBMITTED" || resume?.status === "APPROVED" || resume?.status === "REJECTED" || index < backendCurrentIndex;
+  const readOnly = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"].includes(resume?.status) || index < backendCurrentIndex;
 
   const clearValidationError = (fieldPath) => {
     setValidationErrors((current) => {
