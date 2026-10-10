@@ -10,6 +10,7 @@ import DocumentsStep from "./steps/DocumentsStep";
 import ReviewStep from "./steps/ReviewStep";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
+import { printRequestReport } from "../../utils/requestPdf";
 
 function buildWorkflowSteps(applicantIsFemale) {
   // Keep the UI sequence aligned with the backend workflow registry.
@@ -29,6 +30,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [loading, setLoading] = useState(true);
   const [bootstrapped, setBootstrapped] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [form, setForm] = useState(null);
   const [draftStatus, setDraftStatus] = useState("idle");
@@ -252,6 +254,18 @@ function RequestWizard({ user, request, onBack, onError }) {
     }
   };
 
+  const exportRequestReport = async () => {
+    if (!appRequest?.id || reportLoading) return;
+    setReportLoading(true);
+    try {
+      await printRequestReport(appRequest.id);
+    } catch (error) {
+      onError({ type: "error", text: error.message || "آماده‌سازی گزارش PDF با مشکل مواجه شد.", requestId: error.requestId });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   const complete = async () => {
     if (readOnly) return;
     const localErrors = validateStep(currentKey, form || {});
@@ -345,7 +359,12 @@ function RequestWizard({ user, request, onBack, onError }) {
     <main className="page wizard-page">
       <div className="wizard-toolbar">
         <button className="back-button" onClick={onBack}>→ <span>بازگشت به پرونده‌ها</span></button>
-        <div className="wizard-identity"><span>کد رهگیری</span><b>{appRequest.tracking_code}</b><i className="divider" /><span>{status[0]}</span></div>
+        <div className="request-report-toolbar">
+          <div className="wizard-identity"><span>کد رهگیری</span><b>{appRequest.tracking_code}</b><i className="divider" /><span>{status[0]}</span></div>
+          <button className="request-export-button" type="button" onClick={exportRequestReport} disabled={reportLoading}>
+            <span aria-hidden="true">↓</span> {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF"}
+          </button>
+        </div>
       </div>
 
       <div className="wizard-layout">
