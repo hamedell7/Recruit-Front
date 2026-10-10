@@ -130,6 +130,19 @@ export function mergeDraft(base, draft, stepKey) {
   const hydratedDraft = hydrateDateFields(draft);
   if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
 
+  if (stepKey === "weapons" && Array.isArray(hydratedDraft.records)) {
+    const records = hydratedDraft.records.map((record) => {
+      const next = { ...(record || {}) };
+      // Upgrade drafts created before manufacturer country became free text.
+      if (!next.manufacturer_country_name && next.manufacturer_country_id !== undefined && next.manufacturer_country_id !== null) {
+        next.manufacturer_country_name = String(next.manufacturer_country_id);
+      }
+      delete next.manufacturer_country_id;
+      return next;
+    });
+    return { ...(hydratedBase || {}), ...hydratedDraft, records };
+  }
+
   if (["affiliations", "foreign_company_relations", "embassy_relations", "exit_restrictions"].includes(stepKey) && Array.isArray(hydratedDraft.records)) {
     const records = hydratedDraft.records.map((record) => {
       const next = { ...(record || {}) };
