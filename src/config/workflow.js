@@ -182,7 +182,14 @@ const RECORDS = {
     { key: "result", label: "نتیجه", type: "textarea", full: true },
   ],
   affiliations: [
-    { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
+    { key: "beneficiary_type", label: "برای", type: "select", required: true, options: [
+      { value: "APPLICANT", label: "داوطلب" },
+      { value: "SPOUSE", label: "همسر" },
+      { value: "RELATIVE", label: "یکی از بستگان" },
+    ] },
+    { key: "relative_relation", label: "نسبت با متقاضی", type: "select", required: true, options: ["پدر", "مادر", "همسر", "فرزند", "برادر", "خواهر", "پدربزرگ", "مادربزرگ", "نوه", "عمو", "عمه", "دایی", "خاله", "سایر"], visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_first_name", label: "نام شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
+    { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "entity_name", label: "نام فرد / شرکت", type: "text", required: true },
     { key: "country_name", label: "کشور", type: "text" },
     { key: "relation_type", label: "نوع اشتغال / ارتباط / همکاری", type: "text", required: true },
