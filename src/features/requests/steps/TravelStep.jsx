@@ -3,6 +3,7 @@ import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
+import { withSpouseAvailability } from "../../../utils/form";
 
 const BENEFICIARY_OPTIONS = [
   { value: "APPLICANT", label: "خود متقاضی" },
@@ -55,7 +56,7 @@ const emptyTravel = () => ({
   stay_place: "",
 });
 
-function TravelStep({ form, setForm, readOnly, errors, clearValidationError }) {
+function TravelStep({ form, setForm, readOnly, errors, clearValidationError, hasSpouse = false }) {
   const records = normalizeList(form?.records);
 
   return (
@@ -118,7 +119,7 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError }) {
                         });
                       }
                     }}
-                    options={BENEFICIARY_OPTIONS}
+                    options={withSpouseAvailability(BENEFICIARY_OPTIONS, hasSpouse)}
                     error={getFieldError(errors, prefix + ".beneficiary_type")}
                     required
                     readOnly={readOnly}
