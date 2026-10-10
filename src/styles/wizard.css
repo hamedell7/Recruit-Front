@@ -36,6 +36,9 @@
 .person-card{padding:14px}.card-badge{display:inline-flex;background:#edf3fb;color:var(--brand);padding:6px 8px;border-radius:8px;font-size:9px;font-weight:700;margin-bottom:13px}
 .subeditor{display:grid;grid-template-columns:1fr;gap:10px;margin-top:13px}
 .compact-section{padding:13px}
+.submitted-readonly-banner{display:flex;align-items:center;gap:12px;margin:0 0 19px;padding:15px 17px;border:1px solid color-mix(in srgb,var(--success) 28%,white);border-radius:14px;background:linear-gradient(115deg,var(--success-soft),#fff);color:var(--success);box-shadow:0 4px 14px rgba(22,125,85,.06);font-size:12px;line-height:1.9}
+.submitted-readonly-icon{width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:var(--success);color:#fff;font-size:15px;font-weight:800;box-shadow:0 3px 8px rgba(22,125,85,.18)}
+@media (max-width:560px){.submitted-readonly-banner{align-items:flex-start;padding:12px;font-size:11px}.submitted-readonly-icon{width:27px;height:27px}}
 .return-alert{display:flex;gap:12px;align-items:flex-start;background:var(--warning-soft);border:1px solid #f4e0a8;color:#7a5600;border-radius:13px;padding:12px 14px;margin-bottom:15px;font-size:11px;line-height:1.8}
 .return-alert strong{display:block}.return-alert span{color:#8a690e}
 .wizard-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:18px;margin-top:24px}.readonly-note{color:var(--success);font-size:11px;font-weight:700}
