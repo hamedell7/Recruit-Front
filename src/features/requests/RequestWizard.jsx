@@ -145,7 +145,7 @@ function RequestWizard({ user, request, onBack, onError }) {
         }
 
         const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
-        const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data);
+        const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data, currentKey);
         const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : currentKey === "marriage" ? sanitizeMarriageForm(merged) : merged;
         setStepData(data);
         setForm(normalizedForm);
