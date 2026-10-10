@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
 import { getFieldError } from "../../utils/validation";
-import { SelectField } from "./Fields";
+import TextField, { TextArea, SelectField } from "./Fields";
 
 function GeoFields({
   record,
@@ -15,7 +15,9 @@ function GeoFields({
   clearValidationError,
   caption = "موقعیت جغرافیایی",
   hint = "کشور، استان و شهر را انتخاب کنید.",
-  required = false
+  required = false,
+  addressTypeOptions,
+  includeAddressDetails = false
 }) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
@@ -85,6 +87,17 @@ function GeoFields({
       </div>
 
       <div className="field-grid geo-grid">
+        {addressTypeOptions && (
+          <SelectField
+            label="نوع نشانی"
+            value={record?.address_type || ""}
+            onChange={(value) => setValue("address_type", value)}
+            error={getFieldError(errors, pathFor("address_type"))}
+            options={addressTypeOptions}
+            required={required}
+            readOnly={readOnly}
+          />
+        )}
         <SelectField
           label="کشور"
           value={record?.[countryKey] || ""}
@@ -112,6 +125,33 @@ function GeoFields({
           required={required}
           readOnly={readOnly || !provinceId}
         />
+        {includeAddressDetails && (
+          <>
+            <TextArea
+              label="آدرس دقیق"
+              value={record?.address_line || ""}
+              onChange={(value) => setValue("address_line", value)}
+              error={getFieldError(errors, pathFor("address_line"))}
+              full
+              required={required}
+              readOnly={readOnly}
+            />
+            <TextField
+              label="کد پستی"
+              value={record?.postal_code || ""}
+              onChange={(value) => setValue("postal_code", value)}
+              error={getFieldError(errors, pathFor("postal_code"))}
+              readOnly={readOnly}
+            />
+            <TextField
+              label="تلفن"
+              value={record?.phone || ""}
+              onChange={(value) => setValue("phone", value)}
+              error={getFieldError(errors, pathFor("phone"))}
+              readOnly={readOnly}
+            />
+          </>
+        )}
       </div>
     </div>
   );
