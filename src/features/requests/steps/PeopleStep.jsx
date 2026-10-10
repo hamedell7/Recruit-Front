@@ -11,7 +11,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
   const empty = () => ({
     person_id: null, role_type: isFamily ? "FATHER" : "FRIEND", relation_to_applicant: "",
     first_name: "", last_name: "", father_name: "", birth_date: "",
-    alive_status: "", education: "", occupation: "", ...(isFamily ? {} : { contacts: [] }), addresses: [], notes: "",
+    alive_status: "", education: "", occupation: "", addresses: [], notes: "",
   });
 
   return (
@@ -55,21 +55,11 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
             </div>
 
             <div className="subeditor">
-              {!isFamily && <ListEditor title="تماس‌ها" items={normalizeList(item.contacts)} setItems={(items) => setItem({ ...item, contacts: items })}
-                clearValidationError={clearValidationError} errorPrefix={`${prefix}.contacts`}
-                empty={() => ({ contact_type: "موبایل", value: "", owner_type: "", owner_name: "", is_primary: false })} readOnly={readOnly} compact
-                render={(contact, setContact, contactIndex) => (
-                  <div className="mini-grid">
-                    <TextField label="نوع" value={contact.contact_type} onChange={(v) => { const p=`${prefix}.contacts.${contactIndex}.contact_type`; clearValidationError(p); setContact({ ...contact, contact_type: v }); }} error={getFieldError(errors, `${prefix}.contacts.${contactIndex}.contact_type`)} readOnly={readOnly} />
-                    <TextField label="شماره / شناسه" value={contact.value} onChange={(v) => { const p=`${prefix}.contacts.${contactIndex}.value`; clearValidationError(p); setContact({ ...contact, value: v }); }} error={getFieldError(errors, `${prefix}.contacts.${contactIndex}.value`)} readOnly={readOnly} />
-                  </div>
-                )}
-              />}
               <ListEditor title="نشانی‌ها" items={normalizeList(item.addresses)} setItems={(items) => setItem({ ...item, addresses: items })}
                 clearValidationError={clearValidationError} errorPrefix={`${prefix}.addresses`}
-                empty={() => ({ address_type: "CURRENT", address_line: "", phone: "", ...(!isFamily ? { country_id: countries[0]?.id || "", postal_code: "", from_date: "", to_date: "" } : {}) })}
+                empty={() => ({ address_type: "CURRENT", address_line: "", phone: "" })}
                 readOnly={readOnly} compact
-                render={(address, setAddress, addressIndex) => <AddressFields item={address} setItem={setAddress} countries={countries} readOnly={readOnly} family={isFamily} errors={errors} errorPrefix={`${prefix}.addresses.${addressIndex}`} clearValidationError={clearValidationError} />}
+                render={(address, setAddress, addressIndex) => <AddressFields item={address} setItem={setAddress} countries={countries} readOnly={readOnly} family={isFamily} simplified={!isFamily} errors={errors} errorPrefix={`${prefix}.addresses.${addressIndex}`} clearValidationError={clearValidationError} />}
               />
             </div>
           </div>
