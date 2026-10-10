@@ -111,6 +111,8 @@ const FIELD_LABELS = {
   declaration_version: "نسخه تعهدنامه",
   statement_text: "متن تعهدنامه",
   accepted: "تأیید و پذیرش",
+  accepted_ip: "نشانی اینترنتی هنگام تأیید",
+  accepted_by: "شناسه ثبت‌کننده تعهد",
   disability_description: "شرح معلولیت",
   distinguishing_marks: "علائم مشخصه",
   friend_first_name: "نام دوست / معرف",
@@ -206,7 +208,7 @@ function valueFor(key, value) {
 function renderField(key, value) {
   const label = escapeHtml(labelFor(key));
   const rendered = escapeHtml(valueFor(key, value));
-  const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number/.test(key)
+  const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ' class="field-value ltr-value"' : ' class="field-value"';
   return `<div class="field"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
