@@ -34,11 +34,6 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
-function statusClass(status) {
-  const [, tone] = statusLabel(status);
-  return tone || "muted";
-}
-
 function StaffDashboard() {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -260,7 +255,7 @@ function StaffDashboard() {
           {metadataError && <div className="staff-inline-warning">{metadataError}</div>}
           <div className="staff-filter-footnote">
             <span aria-hidden="true">ⓘ</span>
-            آمار بالا با فیلترهای نام، نوع درخواست، استان و شهر به‌روزرسانی می‌شود؛ فیلتر وضعیت فقط فهرست جدول را محدود می‌کند.
+            استان و شهر بر اساس نشانی فعلی و در صورت نبود آن، محل تولد متقاضی است. فیلتر وضعیت فقط فهرست جدول را محدود می‌کند.
           </div>
         </div>
 
