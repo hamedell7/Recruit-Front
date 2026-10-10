@@ -130,7 +130,7 @@ export function mergeDraft(base, draft, stepKey) {
   const hydratedDraft = hydrateDateFields(draft);
   if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
 
-  if (stepKey === "affiliations" && Array.isArray(hydratedDraft.records)) {
+  if (["affiliations", "foreign_company_relations"].includes(stepKey) && Array.isArray(hydratedDraft.records)) {
     const records = hydratedDraft.records.map((record) => {
       const next = { ...(record || {}) };
       // Upgrade drafts created by older frontend builds.
