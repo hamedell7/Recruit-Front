@@ -138,6 +138,15 @@ export function mergeDraft(base, draft, stepKey) {
         next.beneficiary_type = next.person_role;
       }
       delete next.person_role;
+
+      if (stepKey === "foreign_company_relations") {
+        // Keep a user's previous country selection visible when opening an old draft.
+        if (!next.country_name && next.country_id !== undefined && next.country_id !== null) {
+          next.country_name = String(next.country_id);
+        }
+        delete next.country_id;
+        delete next.dependent_country_id;
+      }
       return next;
     });
     return { ...(hydratedBase || {}), ...hydratedDraft, records };
