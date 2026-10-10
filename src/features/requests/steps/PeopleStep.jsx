@@ -26,7 +26,23 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
           <div className="person-card">
             <div className="card-badge">{isFamily ? "اعضای خانواده" : "منبع شناخت"}</div>
             <div className="field-grid">
-              <SelectField label="نقش" value={item.role_type} onChange={(v) => update("role_type", v)} error={getFieldError(errors, `${prefix}.role_type`)} options={isFamily ? ["FATHER", "MOTHER", "SIBLING", "CHILD", "SPOUSE_FATHER", "SPOUSE_MOTHER", "SPOUSE_SIBLING", "GRANDPARENT"] : ["FRIEND", "NEIGHBOR", "REFERENCE", "RELATIVE", "FAMILY_FRIEND", "MILITARY_RELATIVE"]} readOnly={readOnly} />
+              <SelectField label="نقش" value={item.role_type} onChange={(v) => update("role_type", v)} error={getFieldError(errors, `${prefix}.role_type`)} options={isFamily ? [
+                { value: "FATHER", label: "پدر" },
+                { value: "MOTHER", label: "مادر" },
+                { value: "SIBLING", label: "خواهر / برادر" },
+                { value: "CHILD", label: "فرزند" },
+                { value: "SPOUSE_FATHER", label: "پدر همسر" },
+                { value: "SPOUSE_MOTHER", label: "مادر همسر" },
+                { value: "SPOUSE_SIBLING", label: "خواهر / برادر همسر" },
+                { value: "GRANDPARENT", label: "پدربزرگ / مادربزرگ" },
+              ] : [
+                { value: "FRIEND", label: "دوست" },
+                { value: "NEIGHBOR", label: "همسایه" },
+                { value: "REFERENCE", label: "معرف" },
+                { value: "RELATIVE", label: "بستگان" },
+                { value: "FAMILY_FRIEND", label: "دوست خانوادگی" },
+                { value: "MILITARY_RELATIVE", label: "آشنای مرتبط با خدمت نظامی" },
+              ]} readOnly={readOnly} />
               <TextField label="نسبت" value={item.relation_to_applicant} onChange={(v) => update("relation_to_applicant", v)} error={getFieldError(errors, `${prefix}.relation_to_applicant`)} readOnly={readOnly} />
               <TextField label="نام" value={item.first_name} onChange={(v) => update("first_name", v)} error={getFieldError(errors, `${prefix}.first_name`)} readOnly={readOnly} />
               <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, `${prefix}.last_name`)} readOnly={readOnly} />
