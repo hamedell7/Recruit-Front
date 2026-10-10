@@ -426,6 +426,8 @@ export function validateStep(stepKey, form) {
     for (let i = 0; i < (form?.addresses || []).length; i += 1) {
       const address = form.addresses[i];
       if (empty(address.country_id)) add("addresses." + i + ".country_id", "کشور را انتخاب کنید.");
+      if (empty(address.province_id)) add("addresses." + i + ".province_id", "استان را انتخاب کنید.");
+      if (empty(address.city_id)) add("addresses." + i + ".city_id", "شهر را انتخاب کنید.");
       if (empty(address.address_line)) add("addresses." + i + ".address_line", "آدرس دقیق را وارد کنید.");
     }
   }
