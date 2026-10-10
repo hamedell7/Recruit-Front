@@ -11,7 +11,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
   const empty = () => ({
     person_id: null, role_type: isFamily ? "FATHER" : "FRIEND", relation_to_applicant: "",
     first_name: "", last_name: "", national_id: "", birth_date: "",
-    gender: "", alive_status: "", education: "", occupation: "", contacts: [], addresses: [], notes: "",
+    alive_status: "", education: "", occupation: "", contacts: [], addresses: [], notes: "",
   });
 
   return (
@@ -50,7 +50,6 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
               <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, `${prefix}.birth_date`)} readOnly={readOnly} />
               <TextField label="تحصیلات" value={item.education} onChange={(v) => update("education", v)} error={getFieldError(errors, `${prefix}.education`)} readOnly={readOnly} />
               <TextField label="شغل" value={item.occupation} onChange={(v) => update("occupation", v)} error={getFieldError(errors, `${prefix}.occupation`)} readOnly={readOnly} />
-              {isFamily && <SelectField label="جنسیت" value={item.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, `${prefix}.gender`)} options={["مرد", "زن"]} readOnly={readOnly} />}
               {isFamily && <SelectField label="وضعیت حیات" value={item.alive_status} onChange={(v) => update("alive_status", v)} error={getFieldError(errors, `${prefix}.alive_status`)} options={["زنده", "فوت شده"]} readOnly={readOnly} />}
               <TextArea label="توضیحات" value={item.notes} onChange={(v) => update("notes", v)} error={getFieldError(errors, `${prefix}.notes`)} full readOnly={readOnly} />
             </div>
