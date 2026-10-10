@@ -227,11 +227,10 @@ const RECORDS = {
     { key: "relative_last_name", label: "نام خانوادگی شخص", type: "text", required: true, visibleWhen: (record) => record?.beneficiary_type === "RELATIVE" },
     { key: "company_name", label: "نام شرکت / مؤسسه", type: "text", required: true },
     { key: "activity_type", label: "نوع فعالیت", type: "text", required: true },
-    { key: "country_id", label: "کشور", type: "country", required: true },
+    { key: "country_name", label: "وابسته به کشور", type: "text", required: true },
     { key: "income_amount", label: "میزان درآمد", type: "number" },
     { key: "start_date", label: "تاریخ شروع", type: "date" },
     { key: "end_date", label: "تاریخ پایان", type: "date" },
-    { key: "dependent_country_id", label: "کشور وابستگی", type: "country" },
     { key: "acquaintance_method", label: "نحوه آشنایی", type: "textarea", full: true },
   ],
   embassy_relations: [
