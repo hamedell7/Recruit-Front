@@ -11,7 +11,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
   const empty = () => ({
     person_id: null, role_type: isFamily ? "FATHER" : "FRIEND", relation_to_applicant: "",
     first_name: "", last_name: "", father_name: "", national_id: "", birth_date: "",
-    alive_status: "", education: "", occupation: "", contacts: [], addresses: [], notes: "",
+    alive_status: "", education: "", occupation: "", ...(isFamily ? {} : { contacts: [] }), addresses: [], notes: "",
   });
 
   return (
@@ -56,7 +56,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
             </div>
 
             <div className="subeditor">
-              <ListEditor title="تماس‌ها" items={normalizeList(item.contacts)} setItems={(items) => setItem({ ...item, contacts: items })}
+              {!isFamily && <ListEditor title="تماس‌ها" items={normalizeList(item.contacts)} setItems={(items) => setItem({ ...item, contacts: items })}
                 clearValidationError={clearValidationError} errorPrefix={`${prefix}.contacts`}
                 empty={() => ({ contact_type: "موبایل", value: "", owner_type: "", owner_name: "", is_primary: false })} readOnly={readOnly} compact
                 render={(contact, setContact, contactIndex) => (
@@ -65,7 +65,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
                     <TextField label="شماره / شناسه" value={contact.value} onChange={(v) => { const p=`${prefix}.contacts.${contactIndex}.value`; clearValidationError(p); setContact({ ...contact, value: v }); }} error={getFieldError(errors, `${prefix}.contacts.${contactIndex}.value`)} readOnly={readOnly} />
                   </div>
                 )}
-              />
+              />}
               <ListEditor title="نشانی‌ها" items={normalizeList(item.addresses)} setItems={(items) => setItem({ ...item, addresses: items })}
                 clearValidationError={clearValidationError} errorPrefix={`${prefix}.addresses`}
                 empty={() => ({ address_type: "CURRENT", country_id: countries[0]?.id || "", postal_code: "", address_line: "", phone: "", from_date: "", to_date: "" })}
