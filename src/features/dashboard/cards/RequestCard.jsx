@@ -5,7 +5,6 @@ import { formatDate } from "../../../utils/date";
 function RequestCard({ request, onOpen }) {
   const [label, tone] = statusLabel(request.status);
   const step = STEP_META[request.current_step_key];
-  const isReadOnly = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"].includes(request.status);
   const progressText = request.workflow_key === "screening" ? "فرآیند گزینش" : "فرآیند استخدام";
   return (
     <article className="request-card">
@@ -19,13 +18,8 @@ function RequestCard({ request, onOpen }) {
       </div>
       <div className="request-code"><span>کد رهگیری</span><b>{request.tracking_code}</b></div>
       <div className="request-meta"><span>ایجاد شده</span><span>{formatDate(request.created_at)}</span></div>
-      <button
-        className={`outline-button wide${isReadOnly ? " request-view-button" : ""}`}
-        onClick={() => onOpen(request)}
-      >
-        {isReadOnly && <span className="request-view-icon" aria-hidden="true">✓</span>}
-        {isReadOnly ? "مشاهده پرونده" : "ادامه تکمیل پرونده"}
-        <span className={isReadOnly ? "request-view-arrow" : undefined}>←</span>
+      <button className="outline-button wide" onClick={() => onOpen(request)}>
+        {["SUBMITTED", "APPROVED", "COMPLETED"].includes(request.status) ? "مشاهده پرونده" : "ادامه تکمیل پرونده"} <span>←</span>
       </button>
     </article>
   );
