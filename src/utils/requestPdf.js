@@ -126,7 +126,6 @@ const OMIT_KEYS = new Set([
   "id", "request_id", "person_id", "spouse_person_id", "applicant_user_id", "user_id",
   "profile_id", "created_by", "updated_by", "uploaded_by", "storage_key", "sha256",
   "mime_type", "is_active", "is_deleted", "workflow_key", "workflow_version",
-  "accepted_by", "accepted_ip",
 ]);
 
 const VALUE_LABELS = {
