@@ -35,7 +35,7 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
-function StaffDashboard({ onError }) {
+function StaffDashboard({ onError, user }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -56,6 +56,7 @@ function StaffDashboard({ onError }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const canExportReport = user?.role === "ADMIN";
 
   useEffect(() => {
     let cancelled = false;
@@ -159,7 +160,7 @@ function StaffDashboard({ onError }) {
   };
 
   const exportSelectedRequest = async () => {
-    if (!selectedRequest?.id || reportLoading) return;
+    if (!canExportReport || !selectedRequest?.id || reportLoading) return;
     setReportLoading(true);
     try {
       await printRequestReport(selectedRequest.id, { staff: true });
@@ -383,12 +384,14 @@ function StaffDashboard({ onError }) {
             <div><span>تاریخ ثبت نهایی</span><strong>{formatDate(selectedRequest.submitted_at)}</strong></div>
           </div>
           <div className="staff-detail-footer">
-            <span>گزارش شامل اطلاعات فرم، وضعیت مراحل و فهرست مدارک است.</span>
+            <span>{canExportReport ? "گزارش شامل اطلاعات فرم، وضعیت مراحل و فهرست مدارک است." : "جزئیات پرونده انتخاب‌شده."}</span>
             <div className="staff-detail-actions">
               <button className="ghost-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
-              <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
-                {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
-              </button>
+              {canExportReport && (
+                <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
+                  {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
+                </button>
+              )}
             </div>
           </div>
         </Modal>
