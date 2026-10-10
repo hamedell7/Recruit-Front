@@ -130,7 +130,7 @@ export function mergeDraft(base, draft, stepKey) {
   const hydratedDraft = hydrateDateFields(draft);
   if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
 
-  if (["affiliations", "foreign_company_relations"].includes(stepKey) && Array.isArray(hydratedDraft.records)) {
+  if (["affiliations", "foreign_company_relations", "embassy_relations", "exit_restrictions"].includes(stepKey) && Array.isArray(hydratedDraft.records)) {
     const records = hydratedDraft.records.map((record) => {
       const next = { ...(record || {}) };
       // Upgrade drafts created by older frontend builds.
@@ -482,6 +482,23 @@ export function makeForm(stepKey, data, user) {
       })),
     };
   }
+  if (["embassy_relations", "exit_restrictions"].includes(stepKey)) {
+    return {
+      records: normalizeList(data?.records).map((record) => {
+        const next = hydrateDateFields(record);
+        return {
+          ...next,
+          beneficiary_type: next.beneficiary_type || next.person_role || "APPLICANT",
+          relative_relation: next.relative_relation || "",
+          relative_first_name: next.relative_first_name || "",
+          relative_last_name: next.relative_last_name || "",
+          friend_first_name: next.friend_first_name || "",
+          friend_last_name: next.friend_last_name || "",
+        };
+      }),
+    };
+  }
+
   if (stepKey === "travel") {
     return {
       records: normalizeList(data?.records).map((record) => hydrateDateFields(record)).map((record) => ({
