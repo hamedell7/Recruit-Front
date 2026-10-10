@@ -29,10 +29,11 @@ function AddressFields({ item, setItem, countries, readOnly, residence, family =
             { value: "PREVIOUS_RESIDENCE", label: "محل سکونت قبلی" },
           ]}
           includeAddressDetails
-        />
-        <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
-        <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />
-        <TextArea label="علت جابه‌جایی" value={item.move_reason} onChange={(v) => update("move_reason", v)} error={getFieldError(errors, fieldPath("move_reason"))} full readOnly={readOnly} />
+        >
+          <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
+          <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />
+          <TextArea label="علت جابه‌جایی" value={item.move_reason} onChange={(v) => update("move_reason", v)} error={getFieldError(errors, fieldPath("move_reason"))} full readOnly={readOnly} />
+        </GeoFields>
       </div>
     );
   }
