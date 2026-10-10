@@ -134,7 +134,7 @@ function App() {
           <Header user={user} onLogout={logout} />
           {view === "dashboard" ? (
             STAFF_ROLES.includes(user.role) ? (
-              <StaffDashboard />
+              <StaffDashboard onError={setToast} />
             ) : (
               <Dashboard
                 user={user}
