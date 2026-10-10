@@ -163,6 +163,10 @@ function RequestWizard({ user, request, onBack, onError }) {
 
         const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
         const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data, currentKey);
+        // The applicant national ID is an immutable account attribute; never trust a draft value.
+        if (currentKey === "personal" && user?.national_id) {
+          merged.national_id = String(user.national_id);
+        }
         const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : currentKey === "marriage" ? sanitizeMarriageForm(merged) : merged;
         setStepData(data);
         setForm(normalizedForm);
@@ -172,7 +176,11 @@ function RequestWizard({ user, request, onBack, onError }) {
       } catch (error) {
         if (!cancelled) {
           onError({ type: "error", text: error.message, requestId: error.requestId });
-          setForm(makeForm(currentKey, null, user));
+          const fallbackForm = makeForm(currentKey, null, user);
+          if (currentKey === "personal" && user?.national_id) {
+            fallbackForm.national_id = String(user.national_id);
+          }
+          setForm(fallbackForm);
           setDraftHydrated(true);
         }
       }
