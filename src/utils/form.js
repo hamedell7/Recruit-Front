@@ -142,14 +142,17 @@ export function cleanMilitaryPayload(value) {
 export function mergeDraft(base, draft, stepKey) {
   const hydratedBase = hydrateDateFields(base);
   const hydratedDraft = draft && typeof draft === "object" ? hydrateDateFields(draft) : null;
-  if (stepKey === "family") {
+  if (stepKey === "family" || stepKey === "social_relations") {
+    const isFamily = stepKey === "family";
     const people = normalizeList(hydratedDraft?.people ?? hydratedBase?.people).map((person) => {
       const nextPerson = { ...(person || {}) };
       delete nextPerson.contacts;
-      delete nextPerson.relation_to_applicant;
-      delete nextPerson.father_name;
-      delete nextPerson.gender;
-      delete nextPerson.national_id;
+      if (isFamily) {
+        delete nextPerson.relation_to_applicant;
+        delete nextPerson.father_name;
+        delete nextPerson.gender;
+        delete nextPerson.national_id;
+      }
       nextPerson.addresses = normalizeList(person?.addresses).map((address) => {
         const nextAddress = { ...(address || {}) };
         delete nextAddress.country_id;
@@ -513,18 +516,31 @@ export function makeForm(stepKey, data, user) {
       })),
     };
   }
-  if (stepKey === "family") {
+  if (stepKey === "family" || stepKey === "social_relations") {
+    const isFamily = stepKey === "family";
     return {
-      people: normalizeList(data?.people).map((person) => ({
-        ...person,
-        addresses: normalizeList(person?.addresses).map((address) => ({
-          ...address,
-          address_type: address.address_type === "FAMILY" ? "CURRENT" : address.address_type,
-        })),
-      })),
+      people: normalizeList(data?.people).map((person) => {
+        const nextPerson = { ...(person || {}) };
+        delete nextPerson.contacts;
+        if (isFamily) {
+          delete nextPerson.relation_to_applicant;
+          delete nextPerson.father_name;
+          delete nextPerson.gender;
+          delete nextPerson.national_id;
+        }
+        nextPerson.addresses = normalizeList(person?.addresses).map((address) => {
+          const nextAddress = { ...(address || {}) };
+          delete nextAddress.country_id;
+          delete nextAddress.postal_code;
+          delete nextAddress.from_date;
+          delete nextAddress.to_date;
+          if (nextAddress.address_type === "FAMILY") nextAddress.address_type = "CURRENT";
+          return nextAddress;
+        });
+        return nextPerson;
+      }),
     };
   }
-  if (stepKey === "social_relations") return { people: normalizeList(data?.people) };
   if (stepKey === "residence") return { addresses: normalizeList(data?.addresses) };
   if (stepKey === "additional") return { details: data?.record?.details || "" };
   if (stepKey === "declaration") return { accepted: Boolean(data?.record?.accepted), declaration_version: data?.record?.declaration_version || "1" };
