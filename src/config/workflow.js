@@ -287,7 +287,7 @@ const RECORDS = {
     { key: "model", label: "مدل", type: "text" },
     { key: "caliber", label: "کالیبر", type: "text" },
     { key: "body_number", label: "شماره بدنه", type: "text" },
-    { key: "manufacturer_country_id", label: "کشور سازنده", type: "country" },
+    { key: "manufacturer_country_name", label: "کشور سازنده", type: "text" },
     { key: "license_authority", label: "مرجع صدور مجوز", type: "text" },
     { key: "license_number", label: "شماره مجوز", type: "text" },
     { key: "license_date", label: "تاریخ مجوز", type: "date" },
