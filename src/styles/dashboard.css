@@ -1,3 +1,5 @@
+.staff-header-context{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #d9e8f8;border-radius:9px;background:#f4f8fd;color:#456c9e;font-size:10px;font-weight:800}
+.staff-header-context-dot{width:6px;height:6px;border-radius:50%;background:#4282c8}
 .staff-dashboard-page{max-width:1540px;padding-top:34px}
 .staff-dashboard-hero{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:28px 30px;margin-bottom:22px;border:1px solid #dfe6ef;border-radius:22px;background:radial-gradient(ellipse at 88% 0%,rgba(219,232,250,.72),transparent 42%),linear-gradient(120deg,#fff 0%,#fbfcfe 100%);box-shadow:var(--shadow-sm)}
 .staff-dashboard-heading{min-width:0}
