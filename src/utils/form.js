@@ -145,6 +145,17 @@ export function mergeDraft(base, draft, stepKey) {
   const hydratedDraft = hydrateDateFields(draft);
   if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
 
+  if (stepKey === "family") {
+    const people = normalizeList(hydratedDraft?.people ?? hydratedBase?.people).map((person) => ({
+      ...person,
+      addresses: normalizeList(person?.addresses).map((address) => ({
+        ...address,
+        address_type: address.address_type === "FAMILY" ? "CURRENT" : address.address_type,
+      })),
+    }));
+    return { ...(hydratedBase || {}), ...(hydratedDraft || {}), people };
+  }
+
   if (stepKey === "weapons" && Array.isArray(hydratedDraft.records)) {
     const records = hydratedDraft.records.map((record) => {
       const next = { ...(record || {}) };
