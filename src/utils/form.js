@@ -11,7 +11,7 @@ export function withSpouseAvailability(options = [], hasSpouse = false) {
     if (!normalized || normalized.value !== "SPOUSE" || hasSpouse) return option;
     return {
       ...normalized,
-      label: "همسر (ابتدا اطلاعات همسر را در بخش سوابق ازدواج ثبت کنید)",
+      label: "همسر (ابتدا در سوابق ازدواج ثبت شود)",
       disabled: true,
     };
   });
