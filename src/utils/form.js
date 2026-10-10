@@ -492,7 +492,18 @@ export function makeForm(stepKey, data, user) {
       })),
     };
   }
-  if (stepKey === "family" || stepKey === "social_relations") return { people: normalizeList(data?.people) };
+  if (stepKey === "family") {
+    return {
+      people: normalizeList(data?.people).map((person) => ({
+        ...person,
+        addresses: normalizeList(person?.addresses).map((address) => ({
+          ...address,
+          address_type: address.address_type === "FAMILY" ? "CURRENT" : address.address_type,
+        })),
+      })),
+    };
+  }
+  if (stepKey === "social_relations") return { people: normalizeList(data?.people) };
   if (stepKey === "residence") return { addresses: normalizeList(data?.addresses) };
   if (stepKey === "additional") return { details: data?.record?.details || "" };
   if (stepKey === "declaration") return { accepted: Boolean(data?.record?.accepted), declaration_version: data?.record?.declaration_version || "1" };
