@@ -9,8 +9,8 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
   const people = normalizeList(form?.people);
   const isFamily = kind === "family";
   const empty = () => ({
-    person_id: null, role_type: isFamily ? "FATHER" : "FRIEND", relation_to_applicant: "",
-    first_name: "", last_name: "", father_name: "", national_id: "", birth_date: "",
+    person_id: null, role_type: isFamily ? "FATHER" : "FRIEND",
+    first_name: "", last_name: "", national_id: "", birth_date: "",
     gender: "", alive_status: "", education: "", occupation: "", contacts: [], addresses: [], notes: "",
   });
 
@@ -43,10 +43,8 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
                 { value: "FAMILY_FRIEND", label: "دوست خانوادگی" },
                 { value: "MILITARY_RELATIVE", label: "آشنای مرتبط با خدمت نظامی" },
               ]} readOnly={readOnly} />
-              <TextField label="نسبت" value={item.relation_to_applicant} onChange={(v) => update("relation_to_applicant", v)} error={getFieldError(errors, `${prefix}.relation_to_applicant`)} readOnly={readOnly} />
               <TextField label="نام" value={item.first_name} onChange={(v) => update("first_name", v)} error={getFieldError(errors, `${prefix}.first_name`)} readOnly={readOnly} />
               <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, `${prefix}.last_name`)} readOnly={readOnly} />
-              <TextField label="نام پدر" value={item.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, `${prefix}.father_name`)} readOnly={readOnly} />
               {isFamily && <TextField label="کد ملی" value={item.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, `${prefix}.national_id`)} readOnly={readOnly} />}
               <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, `${prefix}.birth_date`)} readOnly={readOnly} />
               <TextField label="تحصیلات" value={item.education} onChange={(v) => update("education", v)} error={getFieldError(errors, `${prefix}.education`)} readOnly={readOnly} />
