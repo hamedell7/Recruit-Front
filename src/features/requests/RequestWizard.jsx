@@ -61,7 +61,9 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
-  const readOnly = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"].includes(resume?.status) || index < backendCurrentIndex;
+  const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
+  const isFinalized = finalizedStatuses.includes(resume?.status);
+  const readOnly = isFinalized || index < backendCurrentIndex;
 
   const clearValidationError = (fieldPath) => {
     setValidationErrors((current) => {
@@ -104,7 +106,10 @@ function RequestWizard({ user, request, onBack, onError }) {
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
         setApplicantGender(personalData?.person?.gender || "");
-        const initialIndex = Math.max(0, initialWorkflowSteps.indexOf(resumeData.current_step));
+        const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
+        const initialIndex = finalizedStatuses.includes(resumeData.status)
+          ? 0
+          : Math.max(0, initialWorkflowSteps.indexOf(resumeData.current_step));
         setIndex(initialIndex);
       } catch (error) {
         onError({ type: "error", text: error.message, requestId: error.requestId });
@@ -343,7 +348,7 @@ function RequestWizard({ user, request, onBack, onError }) {
         <aside className="wizard-sidebar">
           <div className="wizard-progress-head">
             <div><span className="eyebrow">مسیر پرونده</span><strong>{backendCurrentIndex + 1} از {workflowSteps.length}</strong></div>
-            <div className="progress-track"><span style={{ width: ((resume?.status === "SUBMITTED" ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
+            <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
             {FLOW_SECTIONS.map(([heading, items]) => (
@@ -351,7 +356,7 @@ function RequestWizard({ user, request, onBack, onError }) {
                 <span className="step-section-title">{heading}</span>
                 {items.filter((key) => workflowSteps.includes(key)).map((key) => {
                   const target = workflowSteps.indexOf(key);
-                  return <StepRailItem key={key} keyName={key} active={currentKey === key && resume?.status !== "SUBMITTED"} completed={target < backendCurrentIndex || resume?.status === "SUBMITTED"} onClick={() => moveTo(target)} order={target + 1} />;
+                  return <StepRailItem key={key} keyName={key} active={currentKey === key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
               </div>
             ))}
@@ -371,6 +376,13 @@ function RequestWizard({ user, request, onBack, onError }) {
             </div>
             <div className="step-number">{String(index + 1).padStart(2, "0")}</div>
           </div>
+
+          {isFinalized && (
+            <div className="submitted-readonly-banner" role="status">
+              <span className="submitted-readonly-icon" aria-hidden="true">✓</span>
+              <strong>این پرونده ثبت نهایی شده و فقط برای مشاهده در دسترس است.</strong>
+            </div>
+          )}
 
           {Object.keys(validationErrors).length > 0 && (
             <ValidationSummary errors={validationErrors} summaryRef={validationSummaryRef} />
@@ -400,9 +412,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
           <div className="wizard-footer">
             <div className="footer-left">
-              {readOnly ? (
-                <span className="readonly-note">این پرونده ثبت نهایی شده و فقط برای مشاهده در دسترس است.</span>
-              ) : index > 0 ? (
+              {readOnly ? null : index > 0 ? (
                 <button className="ghost-button" onClick={movePrevious}>مرحله قبل</button>
               ) : null}
             </div>
