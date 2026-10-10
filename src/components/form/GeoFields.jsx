@@ -17,7 +17,8 @@ function GeoFields({
   hint = "کشور، استان و شهر را انتخاب کنید.",
   required = false,
   addressTypeOptions,
-  includeAddressDetails = false
+  includeAddressDetails = false,
+  children
 }) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
@@ -152,6 +153,7 @@ function GeoFields({
             />
           </>
         )}
+        {children}
       </div>
     </div>
   );
