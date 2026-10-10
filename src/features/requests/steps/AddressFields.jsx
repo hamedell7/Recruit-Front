@@ -13,9 +13,6 @@ function AddressFields({ item, setItem, countries, readOnly, residence, family =
   if (residence) {
     return (
       <div className="field-grid">
-        <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
-        <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />
-        <TextArea label="علت جابه‌جایی" value={item.move_reason} onChange={(v) => update("move_reason", v)} error={getFieldError(errors, fieldPath("move_reason"))} full readOnly={readOnly} />
         <GeoFields
           record={item}
           setRecord={setItem}
@@ -33,6 +30,9 @@ function AddressFields({ item, setItem, countries, readOnly, residence, family =
           ]}
           includeAddressDetails
         />
+        <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
+        <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />
+        <TextArea label="علت جابه‌جایی" value={item.move_reason} onChange={(v) => update("move_reason", v)} error={getFieldError(errors, fieldPath("move_reason"))} full readOnly={readOnly} />
       </div>
     );
   }
