@@ -34,6 +34,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [draftStatus, setDraftStatus] = useState("idle");
   const [lastDraftSaved, setLastDraftSaved] = useState(null);
   const [applicantGender, setApplicantGender] = useState("");
+  const [hasSpouse, setHasSpouse] = useState(false);
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const validationSummaryRef = useRef(null);
@@ -87,6 +88,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   useEffect(() => {
     const bootstrap = async () => {
       setLoading(true);
+      setHasSpouse(false);
       try {
         const [requestData, resumeData, stepsData, countriesData, personalData] = await Promise.all([
           api.request(request.id),
@@ -132,12 +134,22 @@ function RequestWizard({ user, request, onBack, onError }) {
         }
         if (currentKey === "review") return;
 
-        const [dataResult, draftResult] = await Promise.allSettled([
+        const needsSpouseCheck = !["personal", "marriage", "documents", "review"].includes(currentKey);
+        const loadResults = await Promise.allSettled([
           api.stepData(appRequest.id, currentKey),
           api.stepDraft(appRequest.id, currentKey),
+          ...(needsSpouseCheck ? [api.stepData(appRequest.id, "marriage")] : []),
         ]);
+        const [dataResult, draftResult, marriageResult] = loadResults;
 
         if (cancelled) return;
+
+        if (needsSpouseCheck && marriageResult?.status === "fulfilled") {
+          const marriages = Array.isArray(marriageResult.value?.marriages) ? marriageResult.value.marriages : [];
+          setHasSpouse(marriages.some((marriage) => Boolean(marriage?.spouse?.id) && marriage.spouse.is_active !== false));
+        } else {
+          setHasSpouse(false);
+        }
 
         const data = dataResult.status === "fulfilled" ? dataResult.value : null;
         if (dataResult.status === "rejected" && ![404, 409].includes(dataResult.reason?.status)) {
@@ -379,6 +391,7 @@ function RequestWizard({ user, request, onBack, onError }) {
               setForm={setForm}
               data={stepData}
               countries={countries}
+              hasSpouse={hasSpouse}
               readOnly={readOnly}
               errors={validationErrors}
               clearValidationError={clearValidationError}
