@@ -20,6 +20,7 @@ const SOCIAL_NETWORKS = [
 
 function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidationError }) {
   const update = (key, value) => {
+    if (key === "national_id") return;
     clearValidationError(key);
     setForm((current) => ({ ...current, [key]: value }));
   };
@@ -138,7 +139,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           <TextField label="نام مستعار" value={form.alias_first_name} onChange={(v) => update("alias_first_name", v)} error={getFieldError(errors, "alias_first_name")} readOnly={readOnly} />
           <TextField label="نام خانوادگی مستعار" value={form.alias_last_name} onChange={(v) => update("alias_last_name", v)} error={getFieldError(errors, "alias_last_name")} readOnly={readOnly} />
           <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, "father_name")} readOnly={readOnly} />
-          <TextField label="کد ملی" value={form.national_id} onChange={(v) => update("national_id", v)} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly={readOnly} />
+          <TextField label="کد ملی" value={form.national_id} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly />
           <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
           <TextField label="محل صدور شناسنامه" value={form.birth_certificate_issue_location} onChange={(v) => update("birth_certificate_issue_location", v)} error={getFieldError(errors, "birth_certificate_issue_location")} readOnly={readOnly} />
           <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} error={getFieldError(errors, "previous_last_name")} readOnly={readOnly} />
