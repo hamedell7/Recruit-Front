@@ -386,7 +386,7 @@ body{padding:0}
 <body>
 <div class="screen-toolbar">
  <p>گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید.</p>
- <div class="toolbar-actions"><button class="primary" onclick="window.print()">چاپ / ذخیره PDF</button><button onclick="window.close()">بستن پنجره</button></div>
+ <div class="toolbar-actions"><button id="report-print" class="primary" type="button">چاپ / ذخیره PDF</button><button id="report-close" type="button">بستن پنجره</button></div>
 </div>
 <main class="report">
  <header class="brand-head">
@@ -420,7 +420,7 @@ function loadingHtml() {
 function errorHtml(message) {
   return `<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>خطا در گزارش</title>
   <body style="font-family:Tahoma,sans-serif;background:#f8fafc;color:#9b2c2c;padding:42px;line-height:2;text-align:center">
-  <h2>تهیه گزارش انجام نشد</h2><p>${escapeHtml(message)}</p><button onclick="window.close()">بستن پنجره</button></body></html>`;
+  <h2>تهیه گزارش انجام نشد</h2><p>${escapeHtml(message)}</p><button id="report-close" type="button">بستن پنجره</button></body></html>`;
 }
 
 export async function printRequestReport(requestId, { staff = false } = {}) {
@@ -436,6 +436,8 @@ export async function printRequestReport(requestId, { staff = false } = {}) {
     popup.document.open();
     popup.document.write(renderHtml(report));
     popup.document.close();
+    popup.document.getElementById("report-print")?.addEventListener("click", () => popup.print());
+    popup.document.getElementById("report-close")?.addEventListener("click", () => popup.close());
     if (popup.document.fonts?.load) {
       await Promise.all([
         popup.document.fonts.load("400 10pt IranYekan"),
@@ -451,6 +453,7 @@ export async function printRequestReport(requestId, { staff = false } = {}) {
       popup.document.open();
       popup.document.write(errorHtml(error?.message || "خطای غیرمنتظره‌ای رخ داد."));
       popup.document.close();
+      popup.document.getElementById("report-close")?.addEventListener("click", () => popup.close());
     } catch {}
     throw error;
   }
