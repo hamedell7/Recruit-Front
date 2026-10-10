@@ -124,11 +124,25 @@ export function cleanMilitaryPayload(value) {
   return cleaned;
 }
 
-export function mergeDraft(base, draft) {
+export function mergeDraft(base, draft, stepKey) {
   const hydratedBase = hydrateDateFields(base);
   if (!draft || typeof draft !== "object") return hydratedBase;
   const hydratedDraft = hydrateDateFields(draft);
   if (Array.isArray(hydratedBase)) return Array.isArray(hydratedDraft) ? hydratedDraft : hydratedBase;
+
+  if (stepKey === "affiliations" && Array.isArray(hydratedDraft.records)) {
+    const records = hydratedDraft.records.map((record) => {
+      const next = { ...(record || {}) };
+      // Upgrade drafts created by older frontend builds.
+      if (!next.beneficiary_type && next.person_role) {
+        next.beneficiary_type = next.person_role;
+      }
+      delete next.person_role;
+      return next;
+    });
+    return { ...(hydratedBase || {}), ...hydratedDraft, records };
+  }
+
   return { ...(hydratedBase || {}), ...hydratedDraft };
 }
 
