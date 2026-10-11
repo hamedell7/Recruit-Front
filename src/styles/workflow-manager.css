@@ -1371,3 +1371,75 @@
 .workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-move-step-select select{font-size:12px}
 .workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-remove{font-size:12px}
 
+/* Consistent typography scale for the entire workflow management page */
+.workflow-manager .workflow-editor-heading h1{font-size:25px;line-height:1.6}
+.workflow-manager .workflow-editor-eyebrow{font-size:12px}
+.workflow-manager .workflow-editor-heading p{font-size:13px;line-height:2}
+
+.workflow-manager .workflow-version-card-top{font-size:12px}
+.workflow-manager .workflow-version-live{font-size:11px}
+.workflow-manager .workflow-version-number{font-size:32px}
+.workflow-manager .workflow-version-card-bottom{font-size:11px}
+
+.workflow-manager .workflow-summary-item strong{font-size:18px}
+.workflow-manager .workflow-summary-item small{font-size:12px}
+.workflow-manager .workflow-summary-hint{font-size:12px;line-height:1.9}
+
+.workflow-manager .workflow-sidebar-heading h2{font-size:17px}
+.workflow-manager .workflow-sidebar-heading p{font-size:13px;line-height:1.9}
+.workflow-manager .workflow-sidebar-kicker{font-size:12px}
+.workflow-manager .workflow-group-nav-number{font-size:12px}
+.workflow-manager .workflow-group-nav-copy strong{font-size:14px;line-height:1.8}
+.workflow-manager .workflow-group-nav-copy small{font-size:12px}
+.workflow-manager .workflow-substep-item{font-size:13px;line-height:1.8}
+.workflow-manager .workflow-substep-grip{font-size:16px}
+.workflow-manager .workflow-substep-lock{font-size:9px}
+.workflow-manager .workflow-substep-empty{font-size:12px;line-height:1.9}
+.workflow-manager .workflow-sidebar-empty strong{font-size:14px}
+.workflow-manager .workflow-sidebar-empty small{font-size:12px}
+.workflow-manager .workflow-sidebar-footer p{font-size:12px;line-height:2}
+
+.workflow-manager .workflow-selected-group-index{font-size:16px}
+.workflow-manager .workflow-selected-title-field input{font-size:20px;line-height:1.7}
+.workflow-manager .workflow-selected-group-title>div>small{font-size:12px}
+.workflow-manager .workflow-stages-heading h2{font-size:16px}
+.workflow-manager .workflow-stages-heading p{font-size:13px;line-height:1.9}
+.workflow-manager .workflow-stages-count{font-size:12px}
+
+.workflow-manager .workflow-stage-list .workflow-stage-order{font-size:12px}
+.workflow-manager .workflow-stage-title-field>span{font-size:12px}
+.workflow-manager .workflow-stage-title-field input{font-size:14px}
+.workflow-manager .workflow-stage-identifiers code{font-size:12px}
+.workflow-manager .workflow-stage-handler{font-size:12px}
+.workflow-manager .workflow-stage-required{font-size:11px}
+.workflow-manager .workflow-stage-order-buttons button{font-size:14px}
+.workflow-manager .workflow-move-step-select>span{font-size:12px}
+.workflow-manager .workflow-move-step-select select{font-size:13px}
+.workflow-manager .workflow-stage-remove{font-size:12px}
+.workflow-manager .workflow-stages-empty strong{font-size:14px}
+.workflow-manager .workflow-stages-empty p{font-size:13px;line-height:1.9}
+
+.workflow-manager .workflow-add-stage-icon{font-size:22px}
+.workflow-manager .workflow-add-stage-copy strong{font-size:13px}
+.workflow-manager .workflow-add-stage-copy small{font-size:12px;line-height:1.8}
+.workflow-manager .workflow-add-stage-controls select{font-size:13px}
+.workflow-manager .workflow-add-stage-button{font-size:13px}
+
+.workflow-manager .workflow-editor-empty h2{font-size:20px}
+.workflow-manager .workflow-editor-empty p{font-size:13px;line-height:2}
+.workflow-manager .workflow-editor-footer-note-icon{font-size:13px}
+.workflow-manager .workflow-editor-footer-note strong{font-size:13px}
+.workflow-manager .workflow-editor-footer-note p{font-size:12px;line-height:2}
+.workflow-manager .workflow-footer-button{font-size:13px}
+.workflow-manager .workflow-manager-state{font-size:13px}
+.workflow-manager .workflow-load-error h1{font-size:20px}
+.workflow-manager .workflow-load-error p{font-size:13px;line-height:2}
+
+@media(max-width:640px){
+  .workflow-manager .workflow-editor-heading h1{font-size:21px}
+  .workflow-manager .workflow-version-number{font-size:28px}
+  .workflow-manager .workflow-summary-item strong{font-size:16px}
+  .workflow-manager .workflow-selected-title-field input{font-size:18px}
+  .workflow-manager .workflow-editor-empty h2{font-size:18px}
+}
+
