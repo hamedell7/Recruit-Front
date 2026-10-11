@@ -14,7 +14,7 @@ function WorkflowManager({ onError }) {
   const workflowKey = "employment_screening";
   const [detail, setDetail] = useState(null);
   const [groups, setGroups] = useState([]);
-  const [expandedGroups, setExpandedGroups] = useState({});
+  const [selectedGroupKey, setSelectedGroupKey] = useState("");
   const [newStepByGroup, setNewStepByGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -30,7 +30,9 @@ function WorkflowManager({ onError }) {
         ...group,
         steps: [...(group.steps || [])].sort((a, b) => a.order - b.order).map((step) => ({ ...step })),
       })));
-      setExpandedGroups(Object.fromEntries(configured.map((group, index) => [group.key, index === 0])));
+      setSelectedGroupKey((current) => configured.some((group) => group.key === current)
+        ? current
+        : (configured[0]?.key || ""));
       setNewStepByGroup({});
     } catch (error) {
       onError?.({ type: "error", text: error.message || "دریافت تنظیمات گردش‌کار انجام نشد." });
@@ -47,6 +49,8 @@ function WorkflowManager({ onError }) {
   );
   const catalog = detail?.step_catalog || [];
   const returnableStepCount = groups.reduce((count, group) => count + group.steps.length, 0);
+  const selectedGroupIndex = groups.findIndex((group) => group.key === selectedGroupKey);
+  const selectedGroup = selectedGroupIndex >= 0 ? groups[selectedGroupIndex] : null;
 
   const updateGroupTitle = (groupIndex, title) => {
     setGroups((current) => current.map((group, index) => index === groupIndex ? { ...group, title } : group));
@@ -72,6 +76,7 @@ function WorkflowManager({ onError }) {
 
   const changeStepGroup = (fromGroupIndex, stepIndex, targetKey) => {
     if (!targetKey) return;
+    setSelectedGroupKey(targetKey);
     setGroups((current) => {
       const source = current[fromGroupIndex];
       const step = source?.steps[stepIndex];
@@ -120,12 +125,15 @@ function WorkflowManager({ onError }) {
       order: current.length + 1,
       steps: [],
     }]);
-    setExpandedGroups((current) => ({ ...current, [key]: true }));
+    setSelectedGroupKey(key);
   };
 
   const removeEmptyGroup = (groupIndex) => {
-    if (groups[groupIndex]?.steps.length) return;
-    setGroups((current) => current.filter((_, index) => index !== groupIndex));
+    const group = groups[groupIndex];
+    if (!group || group.steps.length) return;
+    const fallbackGroupKey = groups.find((item) => item.key !== group.key)?.key || "";
+    setSelectedGroupKey((current) => current === group.key ? fallbackGroupKey : current);
+    setGroups((current) => current.filter((item) => item.key !== group.key));
   };
 
   const buildDraftPayload = () => ({
@@ -172,104 +180,211 @@ function WorkflowManager({ onError }) {
 
   return (
     <section className="workflow-manager" dir="rtl">
-      <div className="workflow-manager-hero">
-        <div>
-          <span className="eyebrow">تنظیمات فرایند</span>
+      <header className="workflow-editor-header">
+        <div className="workflow-editor-heading">
+          <span className="workflow-editor-eyebrow"><span className="workflow-live-dot" /> تنظیمات فرایند سازمانی</span>
           <h1>مدیریت گردش‌کار استخدام و گزینش</h1>
-          <p>ترتیب و گروه‌بندی مراحل موجود را تنظیم کنید. این بخش فرم‌ساز عمومی نیست؛ هر مرحله از پردازشگر امن و از پیش پیاده‌سازی‌شده استفاده می‌کند.</p>
+          <p>گروه‌ها و مراحل فرایند را از یک نمای متمرکز مدیریت کنید. تغییرات پس از انتشار برای پرونده‌های جدید اعمال می‌شوند.</p>
         </div>
-        <div className="workflow-version-summary">
-          <span>نسخه‌ی فعال</span>
-          <strong>v{detail?.active_version ?? 1}</strong>
-          <small>{detail?.draft_version ? "پیش‌نویس v" + detail.draft_version + " آماده‌ی ویرایش" : "تغییرات جدید هنوز پیش‌نویس نشده‌اند"}</small>
+        <div className="workflow-version-card">
+          <div className="workflow-version-card-top">
+            <span>نسخه فعال</span>
+            <span className="workflow-version-live"><i /> فعال</span>
+          </div>
+          <div className="workflow-version-number">v{detail?.active_version ?? 1}</div>
+          <div className="workflow-version-card-bottom">
+            <span>{detail?.draft_version ? "پیش‌نویس v" + detail.draft_version : "بدون پیش‌نویس ذخیره‌شده"}</span>
+            <span className="workflow-version-separator">·</span>
+            <span>{returnableStepCount} مرحله</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="workflow-summary-strip">
+        <div className="workflow-summary-item">
+          <span className="workflow-summary-icon">☷</span>
+          <span><strong>{groups.length.toLocaleString("fa-IR")}</strong><small>گروه فرایند</small></span>
+        </div>
+        <span className="workflow-summary-divider" />
+        <div className="workflow-summary-item">
+          <span className="workflow-summary-icon workflow-summary-icon-blue">↳</span>
+          <span><strong>{returnableStepCount.toLocaleString("fa-IR")}</strong><small>مرحله تعریف‌شده</small></span>
+        </div>
+        <div className="workflow-summary-hint">
+          <span className="workflow-summary-hint-dot" />
+          ترتیب و عنوان‌ها قابل تنظیم‌اند؛ پردازشگرها از فهرست مجاز سامانه انتخاب می‌شوند.
         </div>
       </div>
 
-      <div className="workflow-manager-toolbar">
-        <div>
-          <strong>{returnableStepCount} مرحله در {groups.length} گروه</strong>
-          <span>کلید فنی مراحل ثابت است؛ عنوان نمایشی قابل ویرایش است.</span>
-        </div>
-        <button type="button" className="workflow-secondary-button" onClick={addGroup}>＋ افزودن گروه</button>
-      </div>
+      <div className="workflow-editor-layout">
+        <aside className="workflow-groups-sidebar" aria-label="گروه‌های گردش‌کار">
+          <div className="workflow-sidebar-heading">
+            <div>
+              <span className="workflow-sidebar-kicker">ساختار فرایند</span>
+              <h2>گروه‌ها</h2>
+              <p>برای مدیریت مراحل، یک گروه را انتخاب کنید.</p>
+            </div>
+            <button type="button" className="workflow-add-group-icon" onClick={addGroup} aria-label="افزودن گروه جدید" title="افزودن گروه">
+              <span aria-hidden="true">＋</span>
+            </button>
+          </div>
 
-      <div className="workflow-manager-groups">
-        {groups.map((group, groupIndex) => {
-          const available = catalog.filter((item) => !usedStepKeys.has(item.key));
-          return (
-            <section className="workflow-group-card" key={group.key}>
-              <header className="workflow-group-head">
-                <button
-                  type="button"
-                  className="workflow-group-toggle"
-                  aria-expanded={Boolean(expandedGroups[group.key])}
-                  aria-label={(expandedGroups[group.key] ? "بستن " : "نمایش ") + group.title}
-                  onClick={() => setExpandedGroups((current) => ({ ...current, [group.key]: !current[group.key] }))}
-                >
-                  <span className="workflow-group-toggle-mark" aria-hidden="true">{expandedGroups[group.key] ? "−" : "+"}</span>
-                  <strong>{group.steps.length}</strong>
-                  <small>مرحله</small>
-                </button>
-                <span className="workflow-group-grip" aria-hidden="true">⋮⋮</span>
-                <label className="workflow-group-title">
-                  <span>عنوان گروه</span>
-                  <input value={group.title} maxLength={150} onChange={(event) => updateGroupTitle(groupIndex, event.target.value)} />
-                </label>
-                <div className="workflow-order-actions">
-                  <button type="button" aria-label="انتقال گروه به بالا" disabled={groupIndex === 0} onClick={() => moveGroup(groupIndex, -1)}>↑</button>
-                  <button type="button" aria-label="انتقال گروه به پایین" disabled={groupIndex === groups.length - 1} onClick={() => moveGroup(groupIndex, 1)}>↓</button>
-                  <button type="button" aria-label="حذف گروه خالی" title="فقط گروه خالی قابل حذف است" disabled={group.steps.length > 0} onClick={() => removeEmptyGroup(groupIndex)}>×</button>
+          <nav className="workflow-group-navigation">
+            {groups.map((group, groupIndex) => (
+              <button
+                type="button"
+                className={"workflow-group-nav-item" + (selectedGroupKey === group.key ? " is-active" : "")}
+                key={group.key}
+                onClick={() => setSelectedGroupKey(group.key)}
+                aria-current={selectedGroupKey === group.key ? "page" : undefined}
+              >
+                <span className="workflow-group-nav-number">{String(groupIndex + 1).padStart(2, "0")}</span>
+                <span className="workflow-group-nav-copy">
+                  <strong>{group.title || "گروه بدون عنوان"}</strong>
+                  <small>{group.steps.length.toLocaleString("fa-IR")} مرحله</small>
+                </span>
+                <span className="workflow-group-nav-chevron" aria-hidden="true">‹</span>
+              </button>
+            ))}
+            {groups.length === 0 && (
+              <div className="workflow-sidebar-empty">
+                <span>＋</span>
+                <strong>هنوز گروهی وجود ندارد</strong>
+                <small>برای شروع، یک گروه جدید بسازید.</small>
+              </div>
+            )}
+          </nav>
+
+          <div className="workflow-sidebar-footer">
+            <span className="workflow-sidebar-footer-icon">i</span>
+            <p>مرحله‌های «مشخصات فردی» و «تعهد نهایی» برای حفظ اعتبار مسیر الزامی‌اند.</p>
+          </div>
+        </aside>
+
+        <main className="workflow-editor-main">
+          {selectedGroup ? (
+            <>
+              <div className="workflow-selected-group-head">
+                <div className="workflow-selected-group-title">
+                  <span className="workflow-selected-group-index">{String(selectedGroupIndex + 1).padStart(2, "0")}</span>
+                  <div>
+                    <span className="workflow-sidebar-kicker">گروه انتخاب‌شده</span>
+                    <label className="workflow-selected-title-field">
+                      <input
+                        aria-label="عنوان گروه انتخاب‌شده"
+                        value={selectedGroup.title}
+                        maxLength={150}
+                        onChange={(event) => updateGroupTitle(selectedGroupIndex, event.target.value)}
+                      />
+                    </label>
+                    <small>{selectedGroup.steps.length.toLocaleString("fa-IR")} مرحله در این گروه</small>
+                  </div>
                 </div>
-              </header>
+                <div className="workflow-group-management-actions">
+                  <button type="button" className="workflow-icon-button" aria-label="انتقال گروه به بالا" title="انتقال به بالا" disabled={selectedGroupIndex === 0} onClick={() => moveGroup(selectedGroupIndex, -1)}>↑</button>
+                  <button type="button" className="workflow-icon-button" aria-label="انتقال گروه به پایین" title="انتقال به پایین" disabled={selectedGroupIndex === groups.length - 1} onClick={() => moveGroup(selectedGroupIndex, 1)}>↓</button>
+                  <button
+                    type="button"
+                    className="workflow-icon-button workflow-delete-group-button"
+                    aria-label="حذف گروه خالی"
+                    title={selectedGroup.steps.length ? "برای حذف، ابتدا مراحل گروه را منتقل کنید" : "حذف گروه خالی"}
+                    disabled={selectedGroup.steps.length > 0}
+                    onClick={() => removeEmptyGroup(selectedGroupIndex)}
+                  >×</button>
+                </div>
+              </div>
 
-              <div className={"workflow-step-list" + (expandedGroups[group.key] ? "" : " is-collapsed")}>
-                {group.steps.map((step, stepIndex) => (
-                  <article className="workflow-step-row" key={step.key}>
-                    <span className="workflow-step-position">{stepIndex + 1}</span>
-                    <div className="workflow-step-main">
-                      <label className="workflow-step-title">
-                        <span>عنوان مرحله</span>
-                        <input value={step.title} maxLength={150} onChange={(event) => updateStepTitle(groupIndex, stepIndex, event.target.value)} />
+              <div className="workflow-stages-heading">
+                <div>
+                  <h2>مراحل این گروه</h2>
+                  <p>عنوان، ترتیب و محل قرارگیری مراحل را تنظیم کنید.</p>
+                </div>
+                <span className="workflow-stages-count">{selectedGroup.steps.length.toLocaleString("fa-IR")} مرحله</span>
+              </div>
+
+              <div className="workflow-stage-list">
+                {selectedGroup.steps.map((step, stepIndex) => (
+                  <article className="workflow-stage-card" key={step.key}>
+                    <span className="workflow-stage-order">{String(stepIndex + 1).padStart(2, "0")}</span>
+                    <div className="workflow-stage-content">
+                      <label className="workflow-stage-title-field">
+                        <span>عنوان نمایشی مرحله</span>
+                        <input value={step.title} maxLength={150} onChange={(event) => updateStepTitle(selectedGroupIndex, stepIndex, event.target.value)} />
                       </label>
-                      <div className="workflow-step-meta">
+                      <div className="workflow-stage-identifiers">
                         <code>{step.key}</code>
-                        <span>{catalog.find((entry) => entry.key === step.key)?.handler_key || step.handler_key}</span>
-                        {["personal", "declaration"].includes(step.key) && <b>الزامی</b>}
+                        <span className="workflow-stage-handler">
+                          <span className="workflow-stage-handler-dot" />
+                          {catalog.find((entry) => entry.key === step.key)?.handler_key || step.handler_key}
+                        </span>
+                        {["personal", "declaration"].includes(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
                       </div>
                     </div>
-                    <div className="workflow-step-actions">
-                      <button type="button" aria-label="انتقال مرحله به بالا" disabled={stepIndex === 0} onClick={() => moveStep(groupIndex, stepIndex, -1)}>↑</button>
-                      <button type="button" aria-label="انتقال مرحله به پایین" disabled={stepIndex === group.steps.length - 1} onClick={() => moveStep(groupIndex, stepIndex, 1)}>↓</button>
-                      <select aria-label="انتقال به گروه" value={group.key} onChange={(event) => changeStepGroup(groupIndex, stepIndex, event.target.value)}>
-                        {groups.map((target) => <option key={target.key} value={target.key}>{target.title || target.key}</option>)}
-                      </select>
-                      <button type="button" className="workflow-remove-step" disabled={["personal", "declaration"].includes(step.key)} aria-label="حذف مرحله از گردش‌کار" title="مرحله از نسخه‌ی جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود" onClick={() => removeStep(groupIndex, stepIndex)}>حذف</button>
+                    <div className="workflow-stage-actions">
+                      <div className="workflow-stage-order-buttons">
+                        <button type="button" aria-label="انتقال مرحله به بالا" title="انتقال به بالا" disabled={stepIndex === 0} onClick={() => moveStep(selectedGroupIndex, stepIndex, -1)}>↑</button>
+                        <button type="button" aria-label="انتقال مرحله به پایین" title="انتقال به پایین" disabled={stepIndex === selectedGroup.steps.length - 1} onClick={() => moveStep(selectedGroupIndex, stepIndex, 1)}>↓</button>
+                      </div>
+                      <label className="workflow-move-step-select">
+                        <span>انتقال به گروه</span>
+                        <select aria-label={"انتقال مرحله " + step.title + " به گروه دیگر"} value={selectedGroup.key} onChange={(event) => changeStepGroup(selectedGroupIndex, stepIndex, event.target.value)}>
+                          {groups.map((target) => <option key={target.key} value={target.key}>{target.title || target.key}</option>)}
+                        </select>
+                      </label>
+                      <button type="button" className="workflow-stage-remove" disabled={["personal", "declaration"].includes(step.key)} aria-label="حذف مرحله از گردش‌کار" title="این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود" onClick={() => removeStep(selectedGroupIndex, stepIndex)}>
+                        <span aria-hidden="true">×</span><span>حذف مرحله</span>
+                      </button>
                     </div>
                   </article>
                 ))}
-                {group.steps.length === 0 && <p className="workflow-empty-group">این گروه خالی است؛ مرحله‌ای به گروه دیگری منتقل کنید یا گروه را حذف نمایید.</p>}
+                {selectedGroup.steps.length === 0 && (
+                  <div className="workflow-stages-empty">
+                    <span className="workflow-stages-empty-icon">↳</span>
+                    <strong>این گروه هنوز مرحله‌ای ندارد</strong>
+                    <p>از بخش افزودن مرحله، یک مرحله آماده را به این گروه اضافه کنید.</p>
+                  </div>
+                )}
               </div>
 
-              <footer className={"workflow-add-step" + (expandedGroups[group.key] ? "" : " is-collapsed")}>
-                <select value={newStepByGroup[group.key] || ""} onChange={(event) => setNewStepByGroup((current) => ({ ...current, [group.key]: event.target.value }))}>
-                  <option value="">انتخاب مرحله‌ی آماده برای افزودن…</option>
-                  {available.map((item) => <option key={item.key} value={item.key}>{item.title} ({item.key})</option>)}
-                </select>
-                <button type="button" className="workflow-secondary-button" disabled={!newStepByGroup[group.key]} onClick={() => addStep(groupIndex)}>افزودن مرحله</button>
-              </footer>
-            </section>
-          );
-        })}
+              <div className="workflow-add-stage-panel">
+                <div className="workflow-add-stage-copy">
+                  <span className="workflow-add-stage-icon">＋</span>
+                  <div><strong>افزودن مرحله</strong><small>از میان پردازشگرهای مجاز سامانه انتخاب کنید.</small></div>
+                </div>
+                <div className="workflow-add-stage-controls">
+                  <select aria-label="انتخاب مرحله برای افزودن" value={newStepByGroup[selectedGroup.key] || ""} onChange={(event) => setNewStepByGroup((current) => ({ ...current, [selectedGroup.key]: event.target.value }))}>
+                    <option value="">انتخاب مرحله آماده…</option>
+                    {catalog.filter((item) => !usedStepKeys.has(item.key)).map((item) => <option key={item.key} value={item.key}>{item.title} ({item.key})</option>)}
+                  </select>
+                  <button type="button" className="workflow-add-stage-button" disabled={!newStepByGroup[selectedGroup.key]} onClick={() => addStep(selectedGroupIndex)}>＋ افزودن به گروه</button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="workflow-editor-empty">
+              <span className="workflow-editor-empty-icon">☷</span>
+              <h2>ساختار فرایند را شروع کنید</h2>
+              <p>ابتدا یک گروه بسازید. سپس می‌توانید مراحل مجاز را به آن اضافه و مرتب کنید.</p>
+              <button type="button" className="workflow-add-stage-button" onClick={addGroup}>＋ افزودن گروه اول</button>
+            </div>
+          )}
+        </main>
       </div>
 
-      <div className="workflow-manager-footer">
-        <p>انتشار نسخه‌ی جدید فقط روی درخواست‌های جدید اعمال می‌شود. پرونده‌های موجود با نسخه‌ی ثبت‌شده‌ی خودشان ادامه می‌یابند.</p>
-        <div>
-          <button type="button" className="workflow-secondary-button" onClick={load} disabled={saving || publishing}>بارگذاری مجدد</button>
-          <button type="button" className="workflow-primary-button" onClick={saveDraft} disabled={saving || publishing}>{saving ? "در حال ذخیره…" : "ذخیره‌ی پیش‌نویس"}</button>
-          <button type="button" className="workflow-publish-button" onClick={publish} disabled={!detail || saving || publishing}>{publishing ? "در حال انتشار…" : "انتشار نسخه"}</button>
+      <footer className="workflow-editor-footer">
+        <div className="workflow-editor-footer-note">
+          <span className="workflow-editor-footer-note-icon">✓</span>
+          <div>
+            <strong>نسخه‌بندی امن گردش‌کار</strong>
+            <p>انتشار نسخه جدید فقط روی درخواست‌های جدید اثر دارد؛ پرونده‌های موجود نسخه ثبت‌شده خود را حفظ می‌کنند.</p>
+          </div>
         </div>
-      </div>
+        <div className="workflow-editor-footer-actions">
+          <button type="button" className="workflow-footer-button workflow-footer-secondary" onClick={load} disabled={saving || publishing}>بارگذاری مجدد</button>
+          <button type="button" className="workflow-footer-button workflow-footer-save" onClick={saveDraft} disabled={!detail || groups.length === 0 || saving || publishing}>{saving ? "در حال ذخیره…" : "ذخیره پیش‌نویس"}</button>
+          <button type="button" className="workflow-footer-button workflow-footer-publish" onClick={publish} disabled={!detail || groups.length === 0 || saving || publishing}>{publishing ? "در حال انتشار…" : "انتشار نسخه"}</button>
+        </div>
+      </footer>
     </section>
   );
 }
