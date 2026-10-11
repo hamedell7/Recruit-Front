@@ -15,6 +15,10 @@ function WorkflowManager({ onError }) {
   const [detail, setDetail] = useState(null);
   const [groups, setGroups] = useState([]);
   const [selectedGroupKey, setSelectedGroupKey] = useState("");
+  const [expandedGroupKeys, setExpandedGroupKeys] = useState({});
+  const [draggedStepKey, setDraggedStepKey] = useState("");
+  const [dragOverGroupKey, setDragOverGroupKey] = useState("");
+  const [focusedStepKey, setFocusedStepKey] = useState("");
   const [newStepByGroup, setNewStepByGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,6 +37,15 @@ function WorkflowManager({ onError }) {
       setSelectedGroupKey((current) => configured.some((group) => group.key === current)
         ? current
         : (configured[0]?.key || ""));
+      setExpandedGroupKeys((current) => {
+        const validKeys = new Set(configured.map((group) => group.key));
+        const next = Object.fromEntries(Object.entries(current).filter(([key]) => validKeys.has(key)));
+        if (configured.length && !Object.values(next).some(Boolean)) next[configured[0].key] = true;
+        return next;
+      });
+      setDraggedStepKey("");
+      setDragOverGroupKey("");
+      setFocusedStepKey("");
       setNewStepByGroup({});
     } catch (error) {
       onError?.({ type: "error", text: error.message || "دریافت تنظیمات گردش‌کار انجام نشد." });
@@ -51,6 +64,16 @@ function WorkflowManager({ onError }) {
   const returnableStepCount = groups.reduce((count, group) => count + group.steps.length, 0);
   const selectedGroupIndex = groups.findIndex((group) => group.key === selectedGroupKey);
   const selectedGroup = selectedGroupIndex >= 0 ? groups[selectedGroupIndex] : null;
+
+  useEffect(() => {
+    if (!focusedStepKey || !selectedGroupKey) return;
+    const selectedGroup = groups.find((group) => group.key === selectedGroupKey);
+    if (!selectedGroup?.steps.some((step) => step.key === focusedStepKey)) return;
+    document.getElementById("workflow-stage-" + focusedStepKey)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [focusedStepKey, selectedGroupKey, groups]);
 
   const updateGroupTitle = (groupIndex, title) => {
     setGroups((current) => current.map((group, index) => index === groupIndex ? { ...group, title } : group));
@@ -74,20 +97,88 @@ function WorkflowManager({ onError }) {
     })));
   };
 
-  const changeStepGroup = (fromGroupIndex, stepIndex, targetKey) => {
-    if (!targetKey) return;
-    setSelectedGroupKey(targetKey);
+  const moveStepToGroup = (sourceGroupKey, stepKey, targetGroupKey) => {
+    if (!sourceGroupKey || !targetGroupKey || sourceGroupKey === targetGroupKey) return;
+    if (["personal", "declaration"].includes(stepKey)) return;
+
     setGroups((current) => {
-      const source = current[fromGroupIndex];
-      const step = source?.steps[stepIndex];
-      const targetIndex = current.findIndex((group) => group.key === targetKey);
-      if (!step || targetIndex < 0 || targetIndex === fromGroupIndex) return current;
-      return current.map((group, index) => {
-        if (index === fromGroupIndex) return { ...group, steps: group.steps.filter((_, itemIndex) => itemIndex !== stepIndex) };
-        if (index === targetIndex) return { ...group, steps: [...group.steps, step] };
+      const sourceGroup = current.find((group) => group.key === sourceGroupKey);
+      const step = sourceGroup?.steps.find((item) => item.key === stepKey);
+      const targetGroup = current.find((group) => group.key === targetGroupKey);
+      if (!step || !targetGroup || !sourceGroup) return current;
+
+      return current.map((group) => {
+        if (group.key === sourceGroupKey) {
+          return { ...group, steps: group.steps.filter((item) => item.key !== stepKey) };
+        }
+        if (group.key === targetGroupKey) {
+          const steps = [...group.steps];
+          // The final declaration must remain the last stage in the entire workflow.
+          const declarationIndex = steps.findIndex((item) => item.key === "declaration");
+          if (declarationIndex >= 0) steps.splice(declarationIndex, 0, step);
+          else steps.push(step);
+          return { ...group, steps };
+        }
         return group;
       });
     });
+    setSelectedGroupKey(targetGroupKey);
+    setExpandedGroupKeys((current) => ({ ...current, [targetGroupKey]: true }));
+    setFocusedStepKey(stepKey);
+  };
+
+  const changeStepGroup = (fromGroupIndex, stepIndex, targetKey) => {
+    const sourceGroup = groups[fromGroupIndex];
+    const step = sourceGroup?.steps[stepIndex];
+    if (!step || !targetKey) return;
+    if (["personal", "declaration"].includes(step.key)) return;
+    moveStepToGroup(sourceGroup.key, step.key, targetKey);
+  };
+
+  const handleStepDragStart = (event, groupKey, step) => {
+    if (["personal", "declaration"].includes(step.key)) {
+      event.preventDefault();
+      return;
+    }
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", JSON.stringify({
+      sourceGroupKey: groupKey,
+      stepKey: step.key,
+    }));
+    setDraggedStepKey(step.key);
+    setDragOverGroupKey("");
+  };
+
+  const handleStepDragEnd = () => {
+    setDraggedStepKey("");
+    setDragOverGroupKey("");
+  };
+
+  const handleGroupDragOver = (event, groupKey) => {
+    if (!draggedStepKey || draggedStepKey === "personal" || draggedStepKey === "declaration") return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    if (groupKey !== dragOverGroupKey) setDragOverGroupKey(groupKey);
+  };
+
+  const handleGroupDrop = (event, targetGroupKey) => {
+    event.preventDefault();
+    const payload = event.dataTransfer.getData("text/plain");
+    setDragOverGroupKey("");
+    setDraggedStepKey("");
+    if (!payload) return;
+    try {
+      const { sourceGroupKey, stepKey } = JSON.parse(payload);
+      if (!stepKey || ["personal", "declaration"].includes(stepKey)) return;
+      moveStepToGroup(sourceGroupKey, stepKey, targetGroupKey);
+    } catch {
+      onError?.({ type: "error", text: "انتقال مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
+    }
+  };
+
+  const jumpToStep = (groupKey, stepKey) => {
+    setSelectedGroupKey(groupKey);
+    setFocusedStepKey(stepKey);
   };
 
   const addStep = (groupIndex) => {
@@ -229,23 +320,74 @@ function WorkflowManager({ onError }) {
             </button>
           </div>
 
-          <nav className="workflow-group-navigation">
-            {groups.map((group, groupIndex) => (
-              <button
-                type="button"
-                className={"workflow-group-nav-item" + (selectedGroupKey === group.key ? " is-active" : "")}
-                key={group.key}
-                onClick={() => setSelectedGroupKey(group.key)}
-                aria-current={selectedGroupKey === group.key ? "page" : undefined}
-              >
-                <span className="workflow-group-nav-number">{String(groupIndex + 1).padStart(2, "0")}</span>
-                <span className="workflow-group-nav-copy">
-                  <strong>{group.title || "گروه بدون عنوان"}</strong>
-                  <small>{group.steps.length.toLocaleString("fa-IR")} مرحله</small>
-                </span>
-                <span className="workflow-group-nav-chevron" aria-hidden="true">‹</span>
-              </button>
-            ))}
+          <nav className="workflow-group-navigation" aria-label="فهرست گروه‌ها و مراحل">
+            {groups.map((group, groupIndex) => {
+              const groupIsExpanded = Boolean(expandedGroupKeys[group.key]);
+              const groupIsActive = selectedGroupKey === group.key;
+              const groupIsDropTarget = dragOverGroupKey === group.key && draggedStepKey && !["personal", "declaration"].includes(draggedStepKey);
+              return (
+                <div
+                  className={"workflow-group-nav-item" + (groupIsActive ? " is-active" : "") + (groupIsDropTarget ? " is-drop-target" : "")}
+                  key={group.key}
+                  onDragOver={(event) => handleGroupDragOver(event, group.key)}
+                  onDragLeave={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget)) setDragOverGroupKey("");
+                  }}
+                  onDrop={(event) => handleGroupDrop(event, group.key)}
+                >
+                  <div className="workflow-group-nav-row">
+                    <button
+                      type="button"
+                      className="workflow-group-nav-select"
+                      onClick={() => setSelectedGroupKey(group.key)}
+                      aria-current={groupIsActive ? "page" : undefined}
+                    >
+                      <span className="workflow-group-nav-number">{String(groupIndex + 1).padStart(2, "0")}</span>
+                      <span className="workflow-group-nav-copy">
+                        <strong>{group.title || "گروه بدون عنوان"}</strong>
+                        <small>{group.steps.length.toLocaleString("fa-IR")} مرحله</small>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className={"workflow-group-nav-expand" + (groupIsExpanded ? " is-expanded" : "")}
+                      aria-label={(groupIsExpanded ? "بستن فهرست مراحل " : "نمایش مراحل ") + group.title}
+                      aria-expanded={groupIsExpanded}
+                      aria-controls={"workflow-substeps-" + group.key}
+                      title={groupIsExpanded ? "بستن مراحل" : "نمایش مراحل"}
+                      onClick={() => setExpandedGroupKeys((current) => ({ ...current, [group.key]: !current[group.key] }))}
+                    >
+                      <span className="workflow-group-nav-chevron" aria-hidden="true">‹</span>
+                    </button>
+                  </div>
+                  {groupIsExpanded && (
+                    <div className="workflow-substep-list" id={"workflow-substeps-" + group.key}>
+                      {group.steps.map((step, stepIndex) => {
+                        const isFixedStep = ["personal", "declaration"].includes(step.key);
+                        const isDragging = draggedStepKey === step.key;
+                        return (
+                          <button
+                            key={step.key}
+                            type="button"
+                            className={"workflow-substep-item" + (isDragging ? " is-dragging" : "") + (groupIsActive && focusedStepKey === step.key ? " is-focused" : "")}
+                            draggable={!isFixedStep}
+                            title={isFixedStep ? "این مرحله برای حفظ ترتیب الزامی قابل کشیدن نیست" : "برای انتقال، این مرحله را بکشید و روی گروه مقصد رها کنید"}
+                            onClick={() => jumpToStep(group.key, step.key)}
+                            onDragStart={(event) => handleStepDragStart(event, group.key, step)}
+                            onDragEnd={handleStepDragEnd}
+                          >
+                            <span className="workflow-substep-grip" aria-hidden="true">{isFixedStep ? "•" : "⠿"}</span>
+                            <span className="workflow-substep-copy">{step.title || step.key}</span>
+                            {isFixedStep && <span className="workflow-substep-lock" title="مرحله الزامی">●</span>}
+                          </button>
+                        );
+                      })}
+                      {group.steps.length === 0 && <p className="workflow-substep-empty">این گروه هنوز مرحله‌ای ندارد.</p>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {groups.length === 0 && (
               <div className="workflow-sidebar-empty">
                 <span>＋</span>
@@ -304,7 +446,11 @@ function WorkflowManager({ onError }) {
 
               <div className="workflow-stage-list">
                 {selectedGroup.steps.map((step, stepIndex) => (
-                  <article className="workflow-stage-card" key={step.key}>
+                  <article
+                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "")}
+                    id={"workflow-stage-" + step.key}
+                    key={step.key}
+                  >
                     <span className="workflow-stage-order">{String(stepIndex + 1).padStart(2, "0")}</span>
                     <div className="workflow-stage-content">
                       <label className="workflow-stage-title-field">
