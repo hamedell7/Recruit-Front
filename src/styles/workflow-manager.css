@@ -968,3 +968,122 @@
   .workflow-manager .workflow-editor-header::after{right:auto;left:8%;bottom:-280px}
 }
 
+/* Controlled accent colors, strictly scoped to the workflow editor layout */
+.workflow-manager .workflow-editor-layout{
+  box-sizing:border-box;
+  padding:8px;
+  border:1px solid rgba(211,225,238,.72);
+  border-radius:21px;
+  background:
+    radial-gradient(circle at 8% 4%,rgba(48,148,163,.10),transparent 28%),
+    radial-gradient(circle at 94% 92%,rgba(83,141,213,.13),transparent 32%),
+    linear-gradient(145deg,#f2f7fc 0%,#f9fbfd 54%,#eef7f5 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-groups-sidebar{
+  border-color:#d5e2ef;
+  background:linear-gradient(180deg,rgba(238,245,253,.96),rgba(248,251,254,.98) 58%,#eff7f6);
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+1) .workflow-group-nav-number{
+  border-color:#d2e2f4;background:#e8f1ff;color:#376ba3;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+2) .workflow-group-nav-number{
+  border-color:#cfe8df;background:#e6f6ef;color:#2c816b;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+3) .workflow-group-nav-number{
+  border-color:#e0d9f4;background:#f0ebff;color:#7059ad;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+4) .workflow-group-nav-number{
+  border-color:#efdfc3;background:#fff4df;color:#9a702f;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n) .workflow-group-nav-number{
+  border-color:#dbe4ec;background:#edf2f7;color:#5c7289;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item.is-active{
+  border-color:#bfd9eb;
+  background:linear-gradient(120deg,rgba(83,141,213,.17),rgba(48,148,163,.14));
+  box-shadow:inset -3px 0 0 #2d8297;
+}
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item.is-active .workflow-group-nav-number{
+  border-color:#bdd8ea;background:#fff;color:#286b94;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+1){background:rgba(232,241,255,.52)}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+2){background:rgba(230,246,239,.56)}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+3){background:rgba(240,235,255,.56)}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n){background:rgba(255,244,223,.60)}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:hover{
+  border-color:#cbddea;
+  background:#fff;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item.is-focused{
+  border-color:#b7d5e8;
+  background:linear-gradient(110deg,#e6f0fd,#e2f5f0);
+  color:#1f5a87;
+}
+.workflow-manager .workflow-editor-layout .workflow-editor-main{
+  border-color:#d7e4ef;
+  background:linear-gradient(145deg,#fff 0%,#fbfdff 62%,#f3f9f7 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+1){
+  border-color:#d9e5f3;
+  border-right:3px solid #568bd0;
+  background:linear-gradient(110deg,#fff 0%,#f0f6ff 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+2){
+  border-color:#d8eae2;
+  border-right-color:#42aa91;
+  background:linear-gradient(110deg,#fff 0%,#ecf9f4 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+3){
+  border-color:#e3def4;
+  border-right-color:#9484d1;
+  background:linear-gradient(110deg,#fff 0%,#f4f1ff 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+4){
+  border-color:#eee3cf;
+  border-right-color:#d4a34f;
+  background:linear-gradient(110deg,#fff 0%,#fff7e9 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n){
+  border-color:#dce5ee;
+  border-right-color:#8ba0b6;
+  background:linear-gradient(110deg,#fff 0%,#eff3f7 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:hover{
+  box-shadow:0 5px 15px rgba(26,54,81,.06);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused{
+  border-color:#a7ccdd;
+  border-right-color:#2d8297;
+  background:linear-gradient(110deg,#e8f1fd 0%,#e4f5f0 100%);
+  box-shadow:0 0 0 3px rgba(45,130,151,.08);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+1) .workflow-stage-order{
+  border-color:#d2e2f4;background:#e4efff;color:#376ba3;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+2) .workflow-stage-order{
+  border-color:#cfe8df;background:#e0f4ec;color:#2c816b;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+3) .workflow-stage-order{
+  border-color:#e0d9f4;background:#eee9fc;color:#7059ad;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+4) .workflow-stage-order{
+  border-color:#efdfc3;background:#fff1d9;color:#9a702f;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n) .workflow-stage-order{
+  border-color:#dbe4ec;background:#e9eff5;color:#5c7289;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused .workflow-stage-order{
+  border-color:#b7d9e4;background:#dcefeb;color:#236c7a;
+}
+.workflow-manager .workflow-editor-layout .workflow-add-stage-panel{
+  border-color:#d2e2ed;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(48,148,163,.12),transparent 38%),
+    linear-gradient(115deg,#edf4fc 0%,#f7fafc 58%,#eaf7f3 100%);
+}
+@media(max-width:640px){
+  .workflow-manager .workflow-editor-layout{padding:5px;border-radius:17px}
+}
+
