@@ -1328,3 +1328,17 @@
   color:#927a4e;
 }
 
+/* Specifically fade the numbered badge at the start of each stage article */
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card > .workflow-stage-order{
+  border-color:#e7edf3;
+  background:#f5f7fa;
+  color:#91a0af;
+  box-shadow:none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card.is-focused > .workflow-stage-order{
+  border-color:#dfe7ef;
+  background:#edf2f7;
+  color:#70869b;
+  box-shadow:none;
+}
+
