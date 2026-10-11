@@ -123,18 +123,20 @@ function WorkflowManager({ onError }) {
     setGroups((current) => current.filter((_, index) => index !== groupIndex));
   };
 
+  const buildDraftPayload = () => ({
+    expected_active_version: detail.active_version,
+    groups: groups.map((group) => ({
+      key: group.key,
+      title: group.title.trim(),
+      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim() })),
+    })),
+  });
+
   const saveDraft = async () => {
     if (!detail || saving || publishing) return;
     setSaving(true);
     try {
-      await api.saveWorkflowDraft(workflowKey, {
-        expected_active_version: detail.active_version,
-        groups: groups.map((group) => ({
-          key: group.key,
-          title: group.title.trim(),
-          steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim() })),
-        })),
-      });
+      await api.saveWorkflowDraft(workflowKey, buildDraftPayload());
       await load();
       onError?.({ type: "success", text: "پیش‌نویس گردش‌کار ذخیره شد." });
     } catch (error) {
@@ -145,9 +147,10 @@ function WorkflowManager({ onError }) {
   };
 
   const publish = async () => {
-    if (!detail?.draft_version || saving || publishing) return;
+    if (!detail || saving || publishing) return;
     setPublishing(true);
     try {
+      await api.saveWorkflowDraft(workflowKey, buildDraftPayload());
       await api.publishWorkflow(workflowKey, { expected_active_version: detail.active_version });
       await load();
       onError?.({ type: "success", text: "نسخه‌ی جدید گردش‌کار منتشر شد. درخواست‌های جدید از این نسخه استفاده می‌کنند." });
@@ -248,7 +251,7 @@ function WorkflowManager({ onError }) {
         <div>
           <button type="button" className="workflow-secondary-button" onClick={load} disabled={saving || publishing}>بارگذاری مجدد</button>
           <button type="button" className="workflow-primary-button" onClick={saveDraft} disabled={saving || publishing}>{saving ? "در حال ذخیره…" : "ذخیره‌ی پیش‌نویس"}</button>
-          <button type="button" className="workflow-publish-button" onClick={publish} disabled={!detail?.draft_version || saving || publishing}>{publishing ? "در حال انتشار…" : "انتشار نسخه"}</button>
+          <button type="button" className="workflow-publish-button" onClick={publish} disabled={!detail || saving || publishing}>{publishing ? "در حال انتشار…" : "انتشار نسخه"}</button>
         </div>
       </div>
     </section>
