@@ -7,7 +7,7 @@ import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, 
 import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
-import ReviewStep from "./steps/ReviewStep";
+
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
@@ -159,9 +159,9 @@ function RequestWizard({ user, request, onBack, onError }) {
           if (!cancelled) setDocuments(normalizeList(docs));
           return;
         }
-        if (currentKey === "review") return;
 
-        const needsSpouseCheck = !["personal", "marriage", "documents", "review"].includes(currentKey);
+
+        const needsSpouseCheck = !["personal", "marriage", "documents"].includes(currentKey);
         const loadResults = await Promise.allSettled([
           api.stepData(appRequest.id, currentKey),
           api.stepDraft(appRequest.id, currentKey),
@@ -219,8 +219,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       !resume?.current_step ||
       resume.current_step !== currentKey ||
       readOnly ||
-      currentKey === "documents" ||
-      currentKey === "review"
+      currentKey === "documents"
     ) return undefined;
 
     const sequence = ++autosaveSequence.current;
@@ -306,7 +305,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       }
 
       let result;
-      if (currentKey === "documents" || currentKey === "review") {
+      if (currentKey === "documents") {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
         const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : currentKey === "marriage" ? cleanMarriagePayload(form || {}) : currentKey === "legal_incidents" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
@@ -410,7 +409,7 @@ function RequestWizard({ user, request, onBack, onError }) {
               <span className="eyebrow">{meta.kicker}</span>
               <h1>{meta.title}</h1>
               <p>{STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را با دقت تکمیل کنید."}</p>
-              {!readOnly && !["documents", "review"].includes(currentKey) && (
+              {!readOnly && currentKey !== "documents" && (
                 <DraftStatus state={draftStatus} updatedAt={lastDraftSaved} />
               )}
             </div>
@@ -434,8 +433,6 @@ function RequestWizard({ user, request, onBack, onError }) {
 
           {currentKey === "documents" ? (
             <DocumentsStep documents={documents} requestId={appRequest.id} onUploaded={(doc) => setDocuments((items) => [doc, ...items])} onError={onError} readOnly={readOnly} />
-          ) : currentKey === "review" ? (
-            <ReviewStep workflowSteps={workflowSteps} steps={steps} currentIndex={backendCurrentIndex} request={appRequest} />
           ) : (
             <StepRenderer
               stepKey={currentKey}
