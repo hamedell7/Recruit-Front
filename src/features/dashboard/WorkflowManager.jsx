@@ -14,6 +14,7 @@ function WorkflowManager({ onError }) {
   const workflowKey = "employment_screening";
   const [detail, setDetail] = useState(null);
   const [groups, setGroups] = useState([]);
+  const [expandedGroups, setExpandedGroups] = useState({});
   const [newStepByGroup, setNewStepByGroup] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -29,6 +30,7 @@ function WorkflowManager({ onError }) {
         ...group,
         steps: [...(group.steps || [])].sort((a, b) => a.order - b.order).map((step) => ({ ...step })),
       })));
+      setExpandedGroups(Object.fromEntries(configured.map((group, index) => [group.key, index === 0])));
       setNewStepByGroup({});
     } catch (error) {
       onError?.({ type: "error", text: error.message || "دریافت تنظیمات گردش‌کار انجام نشد." });
@@ -118,6 +120,7 @@ function WorkflowManager({ onError }) {
       order: current.length + 1,
       steps: [],
     }]);
+    setExpandedGroups((current) => ({ ...current, [key]: true }));
   };
 
   const removeEmptyGroup = (groupIndex) => {
@@ -196,6 +199,17 @@ function WorkflowManager({ onError }) {
           return (
             <section className="workflow-group-card" key={group.key}>
               <header className="workflow-group-head">
+                <button
+                  type="button"
+                  className="workflow-group-toggle"
+                  aria-expanded={Boolean(expandedGroups[group.key])}
+                  aria-label={(expandedGroups[group.key] ? "بستن " : "نمایش ") + group.title}
+                  onClick={() => setExpandedGroups((current) => ({ ...current, [group.key]: !current[group.key] }))}
+                >
+                  <span className="workflow-group-toggle-mark" aria-hidden="true">{expandedGroups[group.key] ? "−" : "+"}</span>
+                  <strong>{group.steps.length}</strong>
+                  <small>مرحله</small>
+                </button>
                 <span className="workflow-group-grip" aria-hidden="true">⋮⋮</span>
                 <label className="workflow-group-title">
                   <span>عنوان گروه</span>
@@ -208,7 +222,7 @@ function WorkflowManager({ onError }) {
                 </div>
               </header>
 
-              <div className="workflow-step-list">
+              <div className={"workflow-step-list" + (expandedGroups[group.key] ? "" : " is-collapsed")}>
                 {group.steps.map((step, stepIndex) => (
                   <article className="workflow-step-row" key={step.key}>
                     <span className="workflow-step-position">{stepIndex + 1}</span>
@@ -236,7 +250,7 @@ function WorkflowManager({ onError }) {
                 {group.steps.length === 0 && <p className="workflow-empty-group">این گروه خالی است؛ مرحله‌ای به گروه دیگری منتقل کنید یا گروه را حذف نمایید.</p>}
               </div>
 
-              <footer className="workflow-add-step">
+              <footer className={"workflow-add-step" + (expandedGroups[group.key] ? "" : " is-collapsed")}>
                 <select value={newStepByGroup[group.key] || ""} onChange={(event) => setNewStepByGroup((current) => ({ ...current, [group.key]: event.target.value }))}>
                   <option value="">انتخاب مرحله‌ی آماده برای افزودن…</option>
                   {available.map((item) => <option key={item.key} value={item.key}>{item.title} ({item.key})</option>)}
