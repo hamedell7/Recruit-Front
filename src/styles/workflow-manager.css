@@ -1198,3 +1198,75 @@
   box-shadow:0 3px 8px rgba(16,35,65,.16);
 }
 
+/* Badge hierarchy throughout workflow management: primary, status, attention, metadata */
+.workflow-manager .workflow-version-live{
+  border-color:rgba(85,190,165,.4);
+  background:rgba(71,188,166,.15);
+  color:#c4f4e8;
+}
+.workflow-manager .workflow-version-live i{background:#5cdec1}
+.workflow-manager .workflow-group-nav-number,
+.workflow-manager .workflow-group-nav-item:nth-child(5n+1) .workflow-group-nav-number,
+.workflow-manager .workflow-group-nav-item:nth-child(5n+2) .workflow-group-nav-number,
+.workflow-manager .workflow-group-nav-item:nth-child(5n+3) .workflow-group-nav-number,
+.workflow-manager .workflow-group-nav-item:nth-child(5n+4) .workflow-group-nav-number,
+.workflow-manager .workflow-group-nav-item:nth-child(5n) .workflow-group-nav-number{
+  border-color:#d0dfed;
+  background:#eaf2fa;
+  color:#365f86;
+}
+.workflow-manager .workflow-group-nav-item.is-active .workflow-group-nav-number{
+  border-color:#173b65;
+  background:#173b65;
+  color:#fff;
+}
+.workflow-manager .workflow-selected-group-index{
+  border-color:#244f7b;
+  background:linear-gradient(145deg,#102341 0%,#173b65 70%,#1c5277 100%);
+  color:#fff;
+  box-shadow:0 4px 10px rgba(16,35,65,.14);
+}
+.workflow-manager .workflow-stages-count{
+  border-color:#c8dce9;
+  background:#eaf3f8;
+  color:#315f81;
+}
+.workflow-manager .workflow-stage-card .workflow-stage-order,
+.workflow-manager .workflow-stage-card:nth-child(5n+1) .workflow-stage-order,
+.workflow-manager .workflow-stage-card:nth-child(5n+2) .workflow-stage-order,
+.workflow-manager .workflow-stage-card:nth-child(5n+3) .workflow-stage-order,
+.workflow-manager .workflow-stage-card:nth-child(5n+4) .workflow-stage-order,
+.workflow-manager .workflow-stage-card:nth-child(5n) .workflow-stage-order,
+.workflow-manager .workflow-stage-card.is-focused .workflow-stage-order{
+  border-color:#173b65;
+  background:linear-gradient(145deg,#102341 0%,#173b65 70%,#1c5277 100%);
+  color:#fff;
+  box-shadow:0 3px 8px rgba(16,35,65,.16);
+}
+.workflow-manager .workflow-stage-required{
+  border-color:#efd39b;
+  background:#fff3d8;
+  color:#875b0b;
+  font-size:10px;
+  font-weight:800;
+}
+.workflow-manager .workflow-stage-identifiers code{
+  border-color:#dce5ee;
+  background:#eef3f8;
+  color:#536b82;
+}
+.workflow-manager .workflow-stage-handler{
+  padding:3px 7px;
+  border:1px solid #e1e8ef;
+  border-radius:6px;
+  background:#f4f7fa;
+  color:#65798e;
+}
+.workflow-manager .workflow-stage-handler-dot{background:#7b96ad}
+.workflow-manager .workflow-substep-lock{color:#607f9d}
+.workflow-manager .workflow-stage-order-buttons button:disabled{
+  border-color:#e1e8ef;
+  background:#f4f6f9;
+  color:#acb8c5;
+}
+
