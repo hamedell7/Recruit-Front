@@ -769,3 +769,133 @@
   background: linear-gradient(145deg, #eef5ff, #e2edfc);
   color: #2e68a4;
 }
+
+
+/* Admin workspace palette refresh: richer surfaces without sacrificing legibility. */
+.staff-dashboard-page {
+  background:
+    radial-gradient(ellipse at 3% 14%, rgba(67, 128, 191, .075), transparent 28%),
+    radial-gradient(ellipse at 97% 48%, rgba(57, 183, 163, .065), transparent 25%),
+    linear-gradient(180deg, #f1f5fa 0%, #f6f8fb 48%, #eef3f8 100%);
+  border-radius: 28px;
+}
+.staff-dashboard-page .staff-workspace-tabs {
+  border-color: #dce6f1;
+  background: linear-gradient(110deg, #f4f8fd, #f0f8f7);
+  box-shadow: 0 4px 15px rgba(27, 57, 88, .035);
+}
+.staff-dashboard-page .staff-workspace-tabs button { transition: all .16s ease; }
+.staff-dashboard-page .staff-workspace-tabs button:hover { background: #e8f1fa; }
+.staff-dashboard-page .staff-workspace-tabs button.is-active {
+  border-color: #c6dcee;
+  background: linear-gradient(125deg, #e6f0fc, #e6f7f4);
+  color: #215681;
+  box-shadow: inset 0 -2px 0 #3d91ad;
+}
+.staff-dashboard-page .staff-metric-card {
+  border-top-width: 3px;
+  border-top-color: #75a3d7;
+  background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
+}
+.staff-dashboard-page .staff-metric-card::after {
+  border-color: rgba(107, 156, 208, .15);
+  background: radial-gradient(circle, rgba(107, 156, 208, .055), transparent 68%);
+}
+.staff-dashboard-page .staff-metric-card.tone-blue {
+  border-top-color: #568bd0;
+  background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
+}
+.staff-dashboard-page .staff-metric-card.tone-green {
+  border-top-color: #42aa91;
+  background: linear-gradient(145deg, #fff 0%, #ecf9f4 100%);
+}
+.staff-dashboard-page .staff-metric-card.tone-violet {
+  border-top-color: #9484d1;
+  background: linear-gradient(145deg, #fff 0%, #f4f1ff 100%);
+}
+.staff-dashboard-page .staff-metric-card.tone-amber {
+  border-top-color: #d4a34f;
+  background: linear-gradient(145deg, #fff 0%, #fff7e9 100%);
+}
+.staff-dashboard-page .staff-metric-card.tone-slate {
+  border-top-color: #8ba0b6;
+  background: linear-gradient(145deg, #fff 0%, #eff3f7 100%);
+}
+.staff-dashboard-page .staff-metric-card.tone-blue .staff-metric-icon {
+  border-color: #d2e3f7;
+  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
+}
+.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon {
+  background: linear-gradient(145deg, #e0f6ed, #d4efe7);
+}
+.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon {
+  background: linear-gradient(145deg, #eee9ff, #e7e0fb);
+}
+.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon {
+  background: linear-gradient(145deg, #fff0d1, #ffe9c2);
+}
+.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
+  background: linear-gradient(145deg, #e8eef5, #e0e8f0);
+}
+.staff-dashboard-page .staff-filter-panel {
+  border-color: #d8e5f1;
+  background: linear-gradient(135deg, #f4f8fd 0%, #f9fcff 52%, #f0f8f7 100%);
+}
+.staff-dashboard-page .staff-filter-panel-head {
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(202, 219, 235, .65);
+}
+.staff-dashboard-page .staff-filter-title > span {
+  background: linear-gradient(145deg, #e1f4ef, #e9f1fd);
+  color: #267e7a;
+}
+.staff-dashboard-page .staff-filter-grid select,
+.staff-dashboard-page .staff-search-control {
+  border-color: #d7e2ed;
+  background: rgba(255,255,255,.88);
+}
+.staff-dashboard-page .staff-filter-footnote {
+  border-top-color: #e1eaf2;
+  color: #74889b;
+}
+.staff-dashboard-page .staff-table-card {
+  border-color: #d9e4ef;
+  background: linear-gradient(145deg, #fff 0%, #fbfdff 100%);
+}
+.staff-dashboard-page .staff-table-topline {
+  border-bottom-color: #dfe9f3;
+  background: linear-gradient(105deg, #edf4fc 0%, #f2f8fb 58%, #edf8f5 100%);
+}
+.staff-dashboard-page .staff-requests-table thead th {
+  background: linear-gradient(90deg, #e9f1fa, #edf6f7);
+  color: #506d89;
+}
+.staff-dashboard-page .staff-requests-table tbody td {
+  border-bottom-color: #e8eef4;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:nth-child(even) {
+  background: #f4f8fc;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:nth-child(4n+3) {
+  background: #f4faf8;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:hover {
+  background: #eaf4fc;
+}
+.staff-dashboard-page .staff-applicant-avatar {
+  background: linear-gradient(140deg, #dfeeff, #dff5ef);
+}
+.staff-dashboard-page .staff-row-action {
+  background: linear-gradient(135deg, #fff, #f0f6fd);
+}
+.staff-dashboard-page .staff-row-action:hover {
+  background: linear-gradient(135deg, #eaf3fd, #e7f7f3);
+}
+.staff-dashboard-page .staff-pagination {
+  border-top-color: #dfe9f2;
+  background: linear-gradient(105deg, #edf4fc, #f1f8f8);
+}
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+1) { background: #f0f6ff; border-color: #dce8f7; }
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+2) { background: #eff9f5; border-color: #d9eee5; }
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+3) { background: #f5f2ff; border-color: #e5dff6; }
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n) { background: #fff8ec; border-color: #f0e4cf; }
