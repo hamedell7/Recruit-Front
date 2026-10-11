@@ -245,11 +245,13 @@ function StaffDashboard({ onError, user }) {
   if (workspace === "workflow" && user?.role === "ADMIN") {
     return (
       <main className="page staff-dashboard-page">
-        <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
-          <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("requests")}>مدیریت درخواست‌ها</button>
-          <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
+        <div className="staff-workflow-workspace">
+          <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
+            <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("requests")}>مدیریت درخواست‌ها</button>
+            <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
+          </div>
+          <WorkflowManager onError={onError} />
         </div>
-        <WorkflowManager onError={onError} />
       </main>
     );
   }
