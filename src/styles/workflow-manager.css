@@ -1291,3 +1291,40 @@
   box-shadow:none;
 }
 
+/* Quiet down every badge in the “مراحل این گروه” area */
+.workflow-manager .workflow-editor-layout .workflow-stages-heading .workflow-stages-count{
+  border-color:#e0e7ee;
+  background:#f3f6f9;
+  color:#718398;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-order{
+  border-color:#e1e8ef;
+  background:#f1f5f9;
+  color:#6d8296;
+  box-shadow:none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card.is-focused .workflow-stage-order{
+  border-color:#d5e1eb;
+  background:#e8eff6;
+  color:#456984;
+  box-shadow:none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-identifiers code{
+  border-color:#e6ebf1;
+  background:#f4f6f9;
+  color:#718196;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-handler{
+  border-color:#e7edf2;
+  background:#f7f9fb;
+  color:#788a9c;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-handler-dot{
+  background:#a1b1bf;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-required{
+  border-color:#ecdfc3;
+  background:#fbf5e8;
+  color:#927a4e;
+}
+
