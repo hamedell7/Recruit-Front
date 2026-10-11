@@ -1115,3 +1115,86 @@
   color:#418b83;
 }
 
+/* Restore a restrained, unified palette in the workflow editor layout */
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+1) .workflow-group-nav-number,
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+2) .workflow-group-nav-number,
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+3) .workflow-group-nav-number,
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n+4) .workflow-group-nav-number,
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:nth-child(5n) .workflow-group-nav-number{
+  border-color:#d2e0ed;
+  background:#eaf2f9;
+  color:#315f89;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item,
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+1),
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+2),
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n+3),
+.workflow-manager .workflow-editor-layout .workflow-substep-item:nth-child(4n){
+  border-color:transparent;
+  background:#f1f6fa;
+  color:#526d85;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item:hover{
+  border-color:#d5e3ef;
+  background:#e7f0f8;
+  color:#234f78;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item.is-focused{
+  border-color:#c2d8eb;
+  background:#e2edf8;
+  color:#214e78;
+  box-shadow:inset -2px 0 0 #315f89;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item,
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+1),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+2),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+3),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n){
+  border-color:transparent;
+  background:#f1f6fa;
+  color:#526d85;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:hover{
+  border-color:#d5e3ef;
+  background:#e7f0f8;
+  color:#234f78;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item.is-focused{
+  border-color:#c2d8eb;
+  background:#e2edf8;
+  color:#214e78;
+  box-shadow:inset -2px 0 0 #315f89;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+1),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+2),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+3),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+4),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n){
+  border-color:#dce5ee;
+  border-right:3px solid #9bb8d1;
+  background:linear-gradient(110deg,#fff 0%,#f4f8fc 100%);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card:hover{
+  border-color:#c7d8e7;
+  border-right-color:#6e97bb;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused{
+  border-color:#a9c4dc;
+  border-right-color:#244f7b;
+  background:linear-gradient(110deg,#edf4fb 0%,#e7f0f8 100%);
+  box-shadow:0 0 0 3px rgba(49,95,137,.08);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+1) .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+2) .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+3) .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n+4) .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-child(5n) .workflow-stage-order,
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused .workflow-stage-order{
+  border-color:#173b65;
+  background:linear-gradient(145deg,#102341 0%,#173b65 70%,#1c5277 100%);
+  color:#fff;
+  box-shadow:0 3px 8px rgba(16,35,65,.16);
+}
+
