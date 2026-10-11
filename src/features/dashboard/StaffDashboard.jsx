@@ -179,9 +179,10 @@ function StaffDashboard({ onError, user }) {
       .then((workflow) => {
         if (cancelled) return;
         setReviewWorkflow(workflow);
+        const returnableKeys = workflow.returnable_step_keys || [];
         const firstReturnable = (workflow.groups || [])
           .flatMap((group) => group.steps || [])
-          .find((step) => step.key !== "declaration");
+          .find((step) => returnableKeys.includes(step.key));
         setReturnStepKey(firstReturnable?.key || "");
       })
       .catch((reason) => {
@@ -484,7 +485,7 @@ function StaffDashboard({ onError, user }) {
                       <span>مرحله‌ای که متقاضی باید اصلاح کند</span>
                       <select value={returnStepKey} onChange={(event) => setReturnStepKey(event.target.value)} disabled={!reviewWorkflow || decisionBusy}>
                         <option value="">انتخاب مرحله…</option>
-                        {(reviewWorkflow?.groups || []).flatMap((group) => group.steps || []).filter((step) => step.key !== "declaration").map((step) => (
+                        {(reviewWorkflow?.groups || []).flatMap((group) => group.steps || []).filter((step) => (reviewWorkflow?.returnable_step_keys || []).includes(step.key)).map((step) => (
                           <option key={step.key} value={step.key}>{step.title}</option>
                         ))}
                       </select>
@@ -498,7 +499,7 @@ function StaffDashboard({ onError, user }) {
                   )}
                   <div className="staff-decision-form-actions">
                     <button type="button" className="ghost-button" disabled={decisionBusy} onClick={() => { setDecisionMode(""); setDecisionReason(""); }}>انصراف</button>
-                    <button type="button" className="primary-button" disabled={decisionBusy || (decisionMode === "RETURN" && !reviewWorkflow)} onClick={submitDecision}>
+                    <button type="button" className="primary-button" disabled={decisionBusy || (decisionMode === "RETURN" && (!reviewWorkflow || !returnStepKey))} onClick={submitDecision}>
                       {decisionBusy ? "در حال ثبت…" : "ثبت تصمیم"}
                     </button>
                   </div>
