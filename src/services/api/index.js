@@ -19,6 +19,12 @@ const api = {
   }),
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
+  staffRequestWorkflow: (id) => apiFetch("/staff/requests/" + path(id) + "/workflow"),
+  decideStaffRequest: (id, payload) => apiFetch("/staff/requests/" + path(id) + "/decision", { method: "POST", body: payload }),
+  requestWorkflow: (id) => apiFetch("/requests/" + path(id) + "/workflow"),
+  workflowDetail: (key) => apiFetch("/staff/workflows/" + path(key)),
+  saveWorkflowDraft: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/draft", { method: "PUT", body: payload }),
+  publishWorkflow: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/publish", { method: "POST", body: payload }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
