@@ -11,11 +11,10 @@ import ReviewStep from "./steps/ReviewStep";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
-function buildWorkflowSteps(applicantIsFemale) {
-  // Keep the UI sequence aligned with the backend workflow registry.
-  // Legacy/partial flows must not be used here because they skip workflow steps
-  // such as marriage and can reset the UI index to zero after a successful transition.
-  const baseSteps = FLOW_SECTIONS.flatMap(([, items]) => items);
+function buildWorkflowSteps(applicantIsFemale, groups = null) {
+  const baseSteps = groups?.length
+    ? groups.flatMap((group) => (group.steps || []).map((step) => typeof step === "string" ? step : step.key))
+    : FLOW_SECTIONS.flatMap(([, items]) => items);
   return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
 
@@ -23,6 +22,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
   const [resume, setResume] = useState(null);
+  const [workflowDefinition, setWorkflowDefinition] = useState(null);
   const [index, setIndex] = useState(0);
   const [stepData, setStepData] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -54,9 +54,25 @@ function RequestWizard({ user, request, onBack, onError }) {
     }
   };
 
+  const workflowGroups = useMemo(() => {
+    if (workflowDefinition?.groups?.length) {
+      return workflowDefinition.groups.map((group) => ({
+        ...group,
+        steps: (group.steps || []).map((step) => typeof step === "string"
+          ? { key: step, title: STEP_META[step]?.title || step }
+          : step),
+      }));
+    }
+    return FLOW_SECTIONS.map(([title, keys], index) => ({
+      key: "fallback_group_" + index,
+      title,
+      steps: keys.map((key) => ({ key, title: STEP_META[key]?.title || key })),
+    }));
+  }, [workflowDefinition]);
+
   const workflowSteps = useMemo(
-    () => buildWorkflowSteps(form?.gender === "زن" || applicantGender === "زن"),
-    [form?.gender, applicantGender],
+    () => buildWorkflowSteps(form?.gender === "زن" || applicantGender === "زن", workflowGroups),
+    [form?.gender, applicantGender, workflowGroups],
   );
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
