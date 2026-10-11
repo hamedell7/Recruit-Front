@@ -318,3 +318,45 @@
  .workflow-editor-footer-actions{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
  .workflow-editor-footer-actions button:first-child{grid-column:1/-1}
 }
+
+
+/* Expandable group navigator and native drag-and-drop */
+.workflow-group-navigation{gap:6px}
+.workflow-group-nav-item{display:block;min-height:0;padding:0;overflow:hidden;border:1px solid transparent;border-radius:12px;background:transparent;box-shadow:none;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease}
+.workflow-group-nav-item:hover{border-color:#e0e8f1;background:#f9fbfd}
+.workflow-group-nav-item.is-active{border-color:#cfe0f3;background:#f8fbff;box-shadow:inset -3px 0 0 #3477b7}
+.workflow-group-nav-item.is-drop-target{border-color:#4d9dce;background:#edf8ff;box-shadow:inset 0 0 0 1px rgba(61,145,197,.24),0 0 0 3px rgba(61,145,197,.09)}
+.workflow-group-nav-row{display:flex;align-items:stretch;gap:0;width:100%;min-width:0}
+.workflow-group-nav-select{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:9px;flex:1;min-width:0;min-height:59px;padding:9px 8px 9px 5px;border:0;border-radius:0;background:transparent;color:inherit;font-family:inherit;text-align:right;cursor:pointer}
+.workflow-group-nav-select:hover{background:transparent}
+.workflow-group-nav-select:focus-visible,.workflow-group-nav-expand:focus-visible,.workflow-substep-item:focus-visible{outline:2px solid #69a2d4;outline-offset:-2px}
+.workflow-group-nav-number{width:31px;height:31px}
+.workflow-group-nav-copy strong{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.workflow-group-nav-expand{display:grid;place-items:center;align-self:center;width:34px;height:34px;flex:0 0 34px;margin-inline:0 4px;border:1px solid transparent;border-radius:9px;background:transparent;color:#788da2;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.workflow-group-nav-expand:hover{border-color:#dae7f3;background:#fff;color:#2e6da5}
+.workflow-group-nav-expand.is-expanded{border-color:#dbe9f7;background:#fff;color:#326fa7}
+.workflow-group-nav-chevron{display:inline-block;transform:rotate(0deg);transition:transform .18s ease,color .18s ease;font-size:23px;line-height:1}
+.workflow-group-nav-expand.is-expanded .workflow-group-nav-chevron{transform:rotate(-90deg)}
+.workflow-substep-list{position:relative;display:flex;flex-direction:column;gap:3px;padding:3px 9px 10px 6px;margin:0 13px 8px 9px;border-right:1px solid #dce7f1;animation:workflow-substeps-enter .16s ease-out}
+@keyframes workflow-substeps-enter{from{opacity:.45;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.workflow-substep-item{display:grid;grid-template-columns:19px minmax(0,1fr) 8px;align-items:center;gap:7px;width:100%;min-height:34px;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:transparent;color:#657a90;font-family:inherit;font-size:10px;line-height:1.7;text-align:right;cursor:grab;transition:background .14s ease,border-color .14s ease,color .14s ease,opacity .14s ease}
+.workflow-substep-item:hover{border-color:#e5edf5;background:#fff;color:#325f89}
+.workflow-substep-item:active{cursor:grabbing}
+.workflow-substep-item.is-dragging{opacity:.4;border-style:dashed;border-color:#87b7d8;background:#edf7ff}
+.workflow-substep-item.is-focused{border-color:#cfe3f6;background:#eaf4ff;color:#245e92;font-weight:800}
+.workflow-substep-grip{color:#9aabbb;font-size:14px;line-height:1;text-align:center;cursor:grab}
+.workflow-substep-copy{min-width:0;overflow-wrap:anywhere}
+.workflow-substep-lock{color:#8cac9e;font-size:7px;text-align:center}
+.workflow-substep-empty{margin:0;padding:8px 5px;color:#91a0b0;font-size:9px;line-height:1.9}
+.workflow-stage-card.is-focused{scroll-margin-block:110px;border-color:#a5c8e7;background:linear-gradient(110deg,#f0f7ff,#fff);box-shadow:0 0 0 3px rgba(67,132,189,.08)}
+.workflow-stage-card.is-focused .workflow-stage-order{border-color:#c4ddf4;background:#e4f1fd;color:#276ba8}
+.workflow-stage-card[draggable="true"]{cursor:default}
+@media(max-width:950px){
+ .workflow-group-navigation{display:flex;flex-direction:column}
+ .workflow-substep-list{margin-right:15px}
+}
+@media(max-width:620px){
+ .workflow-group-nav-select{min-height:54px}
+ .workflow-substep-list{margin:0 12px 7px 8px;padding-right:7px}
+ .workflow-substep-item{min-height:36px;font-size:11px}
+}
