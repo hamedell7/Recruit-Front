@@ -84,14 +84,16 @@ function WorkflowManager({ onError }) {
   };
 
   const addStep = (groupIndex) => {
-    const key = newStepByGroup[groupIndex];
+    const group = groups[groupIndex];
+    if (!group) return;
+    const key = newStepByGroup[group.key];
     const item = catalog.find((entry) => entry.key === key);
     if (!item || usedStepKeys.has(key)) return;
-    setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
-      ...group,
-      steps: [...group.steps, { key: item.key, title: item.title, handler_key: item.handler_key }],
+    setGroups((current) => current.map((itemGroup, index) => index !== groupIndex ? itemGroup : ({
+      ...itemGroup,
+      steps: [...itemGroup.steps, { key: item.key, title: item.title, handler_key: item.handler_key }],
     })));
-    setNewStepByGroup((current) => ({ ...current, [groupIndex]: "" }));
+    setNewStepByGroup((current) => ({ ...current, [group.key]: "" }));
   };
 
   const removeStep = (groupIndex, stepIndex) => {
@@ -235,11 +237,11 @@ function WorkflowManager({ onError }) {
               </div>
 
               <footer className="workflow-add-step">
-                <select value={newStepByGroup[groupIndex] || ""} onChange={(event) => setNewStepByGroup((current) => ({ ...current, [groupIndex]: event.target.value }))}>
+                <select value={newStepByGroup[group.key] || ""} onChange={(event) => setNewStepByGroup((current) => ({ ...current, [group.key]: event.target.value }))}>
                   <option value="">انتخاب مرحله‌ی آماده برای افزودن…</option>
                   {available.map((item) => <option key={item.key} value={item.key}>{item.title} ({item.key})</option>)}
                 </select>
-                <button type="button" className="workflow-secondary-button" disabled={!newStepByGroup[groupIndex]} onClick={() => addStep(groupIndex)}>افزودن مرحله</button>
+                <button type="button" className="workflow-secondary-button" disabled={!newStepByGroup[group.key]} onClick={() => addStep(groupIndex)}>افزودن مرحله</button>
               </footer>
             </section>
           );
