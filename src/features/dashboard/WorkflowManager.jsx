@@ -67,13 +67,11 @@ function WorkflowManager({ onError }) {
 
   useEffect(() => {
     if (!focusedStepKey || !selectedGroupKey) return;
-    const selectedGroup = groups.find((group) => group.key === selectedGroupKey);
-    if (!selectedGroup?.steps.some((step) => step.key === focusedStepKey)) return;
     document.getElementById("workflow-stage-" + focusedStepKey)?.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
-  }, [focusedStepKey, selectedGroupKey, groups]);
+  }, [focusedStepKey, selectedGroupKey]);
 
   const updateGroupTitle = (groupIndex, title) => {
     setGroups((current) => current.map((group, index) => index === groupIndex ? { ...group, title } : group));
