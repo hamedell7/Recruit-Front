@@ -108,17 +108,19 @@ function RequestWizard({ user, request, onBack, onError }) {
       setLoading(true);
       setHasSpouse(false);
       try {
-        const [requestData, resumeData, stepsData, countriesData, personalData] = await Promise.all([
+        const [requestData, resumeData, stepsData, countriesData, personalData, workflowData] = await Promise.all([
           api.request(request.id),
           api.resume(request.id),
           api.steps(request.id),
           api.countries(),
           api.stepData(request.id, "personal"),
+          api.requestWorkflow(request.id),
         ]);
         const femaleApplicant = personalData?.person?.gender === "زن";
-        const initialWorkflowSteps = buildWorkflowSteps(femaleApplicant);
+        const initialWorkflowSteps = buildWorkflowSteps(femaleApplicant, workflowData?.groups);
         setAppRequest(requestData);
         setResume(resumeData);
+        setWorkflowDefinition(workflowData);
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
         setApplicantGender(personalData?.person?.gender || "");
