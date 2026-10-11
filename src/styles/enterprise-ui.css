@@ -899,3 +899,62 @@
 .staff-dashboard-page .staff-detail-grid > div:nth-child(4n+2) { background: #eff9f5; border-color: #d9eee5; }
 .staff-dashboard-page .staff-detail-grid > div:nth-child(4n+3) { background: #f5f2ff; border-color: #e5dff6; }
 .staff-dashboard-page .staff-detail-grid > div:nth-child(4n) { background: #fff8ec; border-color: #f0e4cf; }
+
+
+/* Larger and more comfortable type for staff/admin workspaces. */
+.staff-dashboard-page .staff-workspace-tabs button {
+  font-size: 13px;
+  min-height: 42px;
+}
+.staff-dashboard-page .staff-live-indicator { font-size: 12px; }
+.staff-dashboard-page .staff-dashboard-meta-note { font-size: 13px; }
+.staff-dashboard-page .staff-metric-caption { font-size: 13px; line-height: 1.8; }
+.staff-dashboard-page .staff-metric-value { font-size: 29px; }
+.staff-dashboard-page .staff-metric-foot {
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.75;
+}
+.staff-dashboard-page .staff-list-heading p { font-size: 13px; }
+.staff-dashboard-page .staff-data-chip { font-size: 13px; }
+.staff-dashboard-page .staff-refresh-button { font-size: 13px; }
+.staff-dashboard-page .staff-filter-title strong { font-size: 15px; }
+.staff-dashboard-page .staff-search-field>span,
+.staff-dashboard-page .staff-filter-field>span { font-size: 13px; }
+.staff-dashboard-page .staff-search-control input,
+.staff-dashboard-page .staff-filter-field select { font-size: 13px; }
+.staff-dashboard-page .staff-filter-footnote { font-size: 12px; line-height: 2; }
+.staff-dashboard-page .staff-inline-warning { font-size: 13px; }
+.staff-dashboard-page .staff-table-topline strong { font-size: 15px; }
+.staff-dashboard-page .staff-table-topline>div>span,
+.staff-dashboard-page .staff-table-page-size { font-size: 12px; }
+.staff-dashboard-page .staff-requests-table thead th { font-size: 12px; padding-top: 14px; padding-bottom: 14px; }
+.staff-dashboard-page .staff-requests-table tbody td { font-size: 13px; line-height: 1.8; }
+.staff-dashboard-page .staff-applicant-copy small,
+.staff-dashboard-page .staff-cell-subline { font-size: 12px; }
+.staff-dashboard-page .staff-tracking-code,
+.staff-dashboard-page .staff-type-name,
+.staff-dashboard-page .staff-location-main,
+.staff-dashboard-page .staff-updated-date { font-size: 13px; }
+.staff-dashboard-page .staff-step-name { font-size: 12px; line-height: 1.9; }
+.staff-dashboard-page .staff-row-action { font-size: 12px; padding: 9px 10px; }
+.staff-dashboard-page .staff-pagination { font-size: 13px; }
+.staff-dashboard-page .staff-page-button { font-size: 13px; }
+.staff-dashboard-page .staff-state-panel strong { font-size: 15px; }
+.staff-dashboard-page .staff-state-panel p { font-size: 13px; line-height: 2; }
+.staff-dashboard-page .staff-detail-grid span { font-size: 12px; }
+.staff-dashboard-page .staff-detail-grid strong { font-size: 13px; }
+.staff-dashboard-page .staff-detail-footer>span { font-size: 12px; }
+.staff-dashboard-page .staff-detail-actions .primary-button,
+.staff-dashboard-page .staff-detail-actions .ghost-button { font-size: 12px; }
+.staff-decision-heading>span { font-size: 12px; }
+.staff-decision-choices button { font-size: 12px; min-height: 40px; }
+.staff-decision-form label>span { font-size: 12px; }
+.staff-decision-form select,
+.staff-decision-form textarea { font-size: 13px; }
+@media(max-width:620px) {
+  .staff-dashboard-page .staff-dashboard-heading p { font-size: 12px; }
+  .staff-dashboard-page .staff-metric-foot { font-size: 11px; }
+  .staff-dashboard-page .staff-requests-table tbody td { font-size: 12px; }
+  .staff-dashboard-page .staff-filter-footnote { font-size: 11px; }
+}
