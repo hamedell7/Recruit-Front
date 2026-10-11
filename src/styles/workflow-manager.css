@@ -1356,3 +1356,18 @@
   box-shadow:none;
 }
 
+/* Slightly enlarge the small labels and controls in the selected group's stage list */
+.workflow-manager .workflow-editor-layout .workflow-stages-heading h2{font-size:16px}
+.workflow-manager .workflow-editor-layout .workflow-stages-heading p{font-size:13px}
+.workflow-manager .workflow-editor-layout .workflow-stages-heading .workflow-stages-count{font-size:12px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-title-field>span{font-size:12px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-title-field input{font-size:14px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-order{font-size:11px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-identifiers code{font-size:12px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-handler{font-size:12px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-required{font-size:11px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-order-buttons button{font-size:14px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-move-step-select>span{font-size:11px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-move-step-select select{font-size:12px}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-remove{font-size:12px}
+
