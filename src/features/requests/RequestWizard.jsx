@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
-import { STEP_META, STEP_DESCRIPTIONS, FLOW_SECTIONS } from "../../config/workflow";
+import { STEP_META, STEP_DESCRIPTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
@@ -11,10 +11,10 @@ import DocumentsStep from "./steps/DocumentsStep";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
-function buildWorkflowSteps(applicantIsFemale, groups = null) {
-  const baseSteps = groups?.length
+function buildWorkflowSteps(applicantIsFemale, groups = []) {
+  const baseSteps = Array.isArray(groups)
     ? groups.flatMap((group) => (group.steps || []).map((step) => typeof step === "string" ? step : step.key))
-    : FLOW_SECTIONS.flatMap(([, items]) => items);
+    : [];
   return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
 
@@ -23,6 +23,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [steps, setSteps] = useState([]);
   const [resume, setResume] = useState(null);
   const [workflowDefinition, setWorkflowDefinition] = useState(null);
+  const [workflowLoadError, setWorkflowLoadError] = useState("");
   const [index, setIndex] = useState(0);
   const [stepData, setStepData] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -63,11 +64,7 @@ function RequestWizard({ user, request, onBack, onError }) {
           : step),
       }));
     }
-    return FLOW_SECTIONS.map(([title, keys], index) => ({
-      key: "fallback_group_" + index,
-      title,
-      steps: keys.map((key) => ({ key, title: STEP_META[key]?.title || key })),
-    }));
+    return [];
   }, [workflowDefinition]);
 
   const workflowSteps = useMemo(
@@ -110,6 +107,7 @@ function RequestWizard({ user, request, onBack, onError }) {
   useEffect(() => {
     const bootstrap = async () => {
       setLoading(true);
+      setWorkflowLoadError("");
       setHasSpouse(false);
       try {
         const [requestData, resumeData, stepsData, countriesData, personalData, workflowData] = await Promise.all([
@@ -120,6 +118,9 @@ function RequestWizard({ user, request, onBack, onError }) {
           api.stepData(request.id, "personal"),
           api.requestWorkflow(request.id),
         ]);
+        if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
+          throw new Error("تعریف فرایند استخدام و گزینش از سرور دریافت نشد؛ تنظیمات گردش‌کار را در پنل مدیریت بررسی کنید.");
+        }
         const femaleApplicant = personalData?.person?.gender === "زن";
         const initialWorkflowSteps = buildWorkflowSteps(femaleApplicant, workflowData?.groups);
         setAppRequest(requestData);
@@ -134,7 +135,8 @@ function RequestWizard({ user, request, onBack, onError }) {
           : Math.max(0, initialWorkflowSteps.indexOf(resumeData.current_step));
         setIndex(initialIndex);
       } catch (error) {
-        onError({ type: "error", text: error.message, requestId: error.requestId });
+        setWorkflowLoadError(error.message || "دریافت فرایند استخدام و گزینش از سرور انجام نشد.");
+        onError({ type: "error", text: error.message || "دریافت فرایند استخدام و گزینش از سرور انجام نشد.", requestId: error.requestId });
       } finally {
         setBootstrapped(true);
         setLoading(false);
@@ -363,6 +365,19 @@ function RequestWizard({ user, request, onBack, onError }) {
       setIndex(target);
     }
   };
+
+  if (workflowLoadError) {
+    return (
+      <main className="page wizard-page">
+        <section className="workflow-load-error" dir="rtl" role="alert">
+          <span className="workflow-load-error-icon" aria-hidden="true">!</span>
+          <h1>تعریف فرایند در دسترس نیست</h1>
+          <p>{workflowLoadError}</p>
+          <button type="button" className="primary-button" onClick={onBack}>بازگشت به پرونده‌ها</button>
+        </section>
+      </main>
+    );
+  }
 
   if (loading) return <div className="page"><div className="wizard-loading"><div className="loading-spinner" /><strong>در حال بارگذاری پرونده…</strong></div></div>;
 
