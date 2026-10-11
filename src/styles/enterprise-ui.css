@@ -220,7 +220,7 @@
 .form-section-head .add-button:hover { border-color: #bdd2e9; background: #eaf3fd; }
 .field-grid { gap: 17px 16px; align-items: start; }
 .field { min-width: 0; gap: 7px; }
-.field > span { color: #40546b; font-size: 10px; font-weight: 700; line-height: 1.9; }
+.field > span { color: #40546b; font-size: 12px; font-weight: 700; line-height: 1.9; }
 .field em { color: #c24848; }
 .field input, .field select, .field textarea {
   min-width: 0;
