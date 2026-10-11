@@ -1087,3 +1087,31 @@
   .workflow-manager .workflow-editor-layout{padding:5px;border-radius:17px}
 }
 
+/* Identity group's substeps share one consistent teal surface */
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item,
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+1),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+2),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n+3),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:nth-child(4n){
+  border-color:transparent;
+  background:#eaf5f4;
+  color:#315e68;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:hover{
+  border-color:#bfdfdd;
+  background:#dff0ee;
+  color:#245963;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item.is-focused{
+  border-color:#9dcfca;
+  background:#d5ece8;
+  color:#1e5961;
+  box-shadow:inset -2px 0 0 #398b8f;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-grip{
+  color:#6a9ca0;
+}
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-lock{
+  color:#418b83;
+}
+
