@@ -6,6 +6,7 @@ import { formatDate } from "../../utils/date";
 import { normalizeList } from "../../utils/collections";
 import Modal from "../../components/common/Modal";
 import { printRequestReport } from "../../utils/requestPdf";
+import WorkflowManager from "./WorkflowManager";
 
 const PAGE_SIZE = 10;
 
@@ -56,6 +57,12 @@ function StaffDashboard({ onError, user }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [workspace, setWorkspace] = useState("requests");
+  const [reviewWorkflow, setReviewWorkflow] = useState(null);
+  const [decisionMode, setDecisionMode] = useState("");
+  const [decisionReason, setDecisionReason] = useState("");
+  const [returnStepKey, setReturnStepKey] = useState("");
+  const [decisionBusy, setDecisionBusy] = useState(false);
   const canExportReport = user?.role === "ADMIN";
 
   useEffect(() => {
@@ -159,6 +166,65 @@ function StaffDashboard({ onError, user }) {
     setRefreshKey((value) => value + 1);
   };
 
+  useEffect(() => {
+    let cancelled = false;
+    setReviewWorkflow(null);
+    setDecisionMode("");
+    setDecisionReason("");
+    setReturnStepKey("");
+    if (!selectedRequest || !["SUBMITTED", "UNDER_REVIEW"].includes(selectedRequest.status)) {
+      return () => { cancelled = true; };
+    }
+    api.staffRequestWorkflow(selectedRequest.id)
+      .then((workflow) => {
+        if (cancelled) return;
+        setReviewWorkflow(workflow);
+        const firstReturnable = (workflow.groups || [])
+          .flatMap((group) => group.steps || [])
+          .find((step) => step.key !== "declaration");
+        setReturnStepKey(firstReturnable?.key || "");
+      })
+      .catch((reason) => {
+        if (!cancelled) onError?.({ type: "error", text: reason.message || "دریافت مراحل پرونده برای اصلاح انجام نشد." });
+      });
+    return () => { cancelled = true; };
+  }, [selectedRequest?.id, selectedRequest?.status]);
+
+  const submitDecision = async () => {
+    if (!selectedRequest || !decisionMode || decisionBusy) return;
+    const reason = decisionReason.trim();
+    if (decisionMode !== "APPROVE" && reason.length < 3) {
+      onError?.({ type: "error", text: decisionMode === "RETURN" ? "علت درخواست اصلاح را وارد کنید." : "علت رد درخواست را وارد کنید." });
+      return;
+    }
+    if (decisionMode === "RETURN" && !returnStepKey) {
+      onError?.({ type: "error", text: "مرحله‌ی موردنیاز برای اصلاح را انتخاب کنید." });
+      return;
+    }
+    setDecisionBusy(true);
+    try {
+      await api.decideStaffRequest(selectedRequest.id, {
+        decision: decisionMode,
+        reason: reason || null,
+        return_step_key: decisionMode === "RETURN" ? returnStepKey : null,
+      });
+      const successMessage = decisionMode === "APPROVE"
+        ? "درخواست با موفقیت تأیید شد."
+        : decisionMode === "REJECT"
+          ? "درخواست رد شد."
+          : "پرونده برای اصلاح برگشت داده شد.";
+      setSelectedRequest(null);
+      setDecisionMode("");
+      setDecisionReason("");
+      retry();
+      onError?.({ type: "success", text: successMessage });
+    } catch (reasonError) {
+      onError?.({ type: "error", text: reasonError.message || "ثبت تصمیم انجام نشد." });
+    } finally {
+      setDecisionBusy(false);
+    }
+  };
+
   const exportSelectedRequest = async () => {
     if (!canExportReport || !selectedRequest?.id || reportLoading) return;
     setReportLoading(true);
@@ -174,8 +240,24 @@ function StaffDashboard({ onError, user }) {
     }
   };
 
+  if (workspace === "workflow" && user?.role === "ADMIN") {
+    return (
+      <main className="page staff-dashboard-page">
+        <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
+          <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("requests")}>مدیریت درخواست‌ها</button>
+          <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
+        </div>
+        <WorkflowManager onError={onError} />
+      </main>
+    );
+  }
+
   return (
     <main className="page staff-dashboard-page">
+      <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
+        <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت درخواست‌ها</button>
+        {user?.role === "ADMIN" && <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("workflow")}>مدیریت گردش‌کار</button>}
+      </div>
       <section className="staff-dashboard-hero">
         <div className="staff-dashboard-heading">
           <span className="eyebrow"><span className="eyebrow-dot" /> مرکز عملیات و پایش</span>
@@ -383,6 +465,47 @@ function StaffDashboard({ onError, user }) {
             <div><span>آخرین به‌روزرسانی</span><strong>{formatDate(selectedRequest.updated_at)}</strong></div>
             <div><span>تاریخ ثبت نهایی</span><strong>{formatDate(selectedRequest.submitted_at)}</strong></div>
           </div>
+          {["SUBMITTED", "UNDER_REVIEW"].includes(selectedRequest.status) && (
+            <section className="staff-decision-panel">
+              <div className="staff-decision-heading">
+                <strong>تصمیم درباره‌ی درخواست</strong>
+                <span>تأیید، رد یا بازگرداندن پرونده برای اصلاح</span>
+              </div>
+              <div className="staff-decision-choices">
+                <button type="button" className="staff-decision-approve" onClick={() => { setDecisionMode("APPROVE"); setDecisionReason(""); }} disabled={decisionBusy}>✓ موافقت با درخواست</button>
+                <button type="button" className="staff-decision-return" onClick={() => { setDecisionMode("RETURN"); setDecisionReason(""); }} disabled={decisionBusy}>↶ نیاز به اصلاح</button>
+                <button type="button" className="staff-decision-reject" onClick={() => { setDecisionMode("REJECT"); setDecisionReason(""); }} disabled={decisionBusy}>× رد درخواست</button>
+              </div>
+              {decisionMode && (
+                <div className="staff-decision-form">
+                  <strong>{decisionMode === "APPROVE" ? "تأیید درخواست" : decisionMode === "REJECT" ? "رد درخواست" : "بازگشت برای اصلاح"}</strong>
+                  {decisionMode === "RETURN" && (
+                    <label>
+                      <span>مرحله‌ای که متقاضی باید اصلاح کند</span>
+                      <select value={returnStepKey} onChange={(event) => setReturnStepKey(event.target.value)} disabled={!reviewWorkflow || decisionBusy}>
+                        <option value="">انتخاب مرحله…</option>
+                        {(reviewWorkflow?.groups || []).flatMap((group) => group.steps || []).filter((step) => step.key !== "declaration").map((step) => (
+                          <option key={step.key} value={step.key}>{step.title}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  {decisionMode !== "APPROVE" && (
+                    <label>
+                      <span>علت تصمیم (الزامی)</span>
+                      <textarea rows={3} maxLength={2000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} placeholder={decisionMode === "RETURN" ? "مورد یا اطلاعاتی که باید اصلاح شود را شرح دهید…" : "علت رد درخواست را شرح دهید…"} />
+                    </label>
+                  )}
+                  <div className="staff-decision-form-actions">
+                    <button type="button" className="ghost-button" disabled={decisionBusy} onClick={() => { setDecisionMode(""); setDecisionReason(""); }}>انصراف</button>
+                    <button type="button" className="primary-button" disabled={decisionBusy || (decisionMode === "RETURN" && !reviewWorkflow)} onClick={submitDecision}>
+                      {decisionBusy ? "در حال ثبت…" : "ثبت تصمیم"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
           <div className="staff-detail-footer">
             <span>{canExportReport ? "گزارش شامل اطلاعات فرم، وضعیت مراحل و فهرست مدارک است." : "جزئیات پرونده انتخاب‌شده."}</span>
             <div className="staff-detail-actions">
