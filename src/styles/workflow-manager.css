@@ -1277,3 +1277,17 @@
   box-shadow:inset -3px 0 0 #2d8297;
 }
 
+/* Lower visual priority for step-number badges inside the stage list */
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-order{
+  border-color:#d4e1ed;
+  background:linear-gradient(145deg,#edf4fa 0%,#e5eef7 100%);
+  color:#456987;
+  box-shadow:none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card.is-focused .workflow-stage-order{
+  border-color:#c6d9e9;
+  background:#dce9f5;
+  color:#315f85;
+  box-shadow:none;
+}
+
