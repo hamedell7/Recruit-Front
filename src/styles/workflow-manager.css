@@ -1270,3 +1270,10 @@
   color:#acb8c5;
 }
 
+/* Softer active group: keep its border, reduce the fill intensity */
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item.is-active{
+  border-color:#bfd8e9;
+  background:linear-gradient(120deg,rgba(83,141,213,.055),rgba(48,148,163,.035));
+  box-shadow:inset -3px 0 0 #2d8297;
+}
+
