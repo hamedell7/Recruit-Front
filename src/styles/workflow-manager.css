@@ -53,3 +53,31 @@
 .workflow-manager-state{padding:32px;border:1px solid #e1e8f0;border-radius:15px;background:#fff;color:#7b8ba0;text-align:center;font-size:12px}
 @media(max-width:1000px){.workflow-step-row{grid-template-columns:30px minmax(0,1fr)}.workflow-step-actions{grid-column:2;justify-content:flex-start}.workflow-manager-hero{align-items:flex-start;flex-direction:column}.workflow-version-summary{align-items:flex-start;min-width:0}.workflow-version-summary small{text-align:right}}
 @media(max-width:640px){.workflow-manager-hero{padding:20px;border-radius:17px}.workflow-manager-hero h1{font-size:20px}.workflow-manager-toolbar,.workflow-manager-footer{align-items:stretch;flex-direction:column}.workflow-manager-toolbar{padding:13px}.workflow-group-head{align-items:flex-start;gap:8px;padding:12px}.workflow-group-grip{display:none}.workflow-order-actions{gap:3px}.workflow-order-actions button{min-width:27px;height:28px}.workflow-step-row{grid-template-columns:27px minmax(0,1fr);gap:9px;padding:12px}.workflow-step-position{width:27px;height:27px}.workflow-step-actions{grid-column:1/-1;justify-content:flex-start}.workflow-step-actions select{flex:1;min-width:100px;max-width:none}.workflow-add-step{align-items:stretch;flex-direction:column;padding:12px}.workflow-add-step select{width:100%;max-width:none;height:38px}.workflow-manager-footer>div{align-items:stretch;flex-direction:column}.workflow-manager-footer>div button{width:100%}}
+
+.staff-workspace-tabs{display:flex;align-items:center;gap:7px;margin-bottom:20px;padding:6px;border:1px solid #e1e8f0;border-radius:13px;background:#fff;width:fit-content;max-width:100%}
+.staff-workspace-tabs button{min-height:38px;padding:8px 14px;border:1px solid transparent;border-radius:9px;background:transparent;color:#718197;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.staff-workspace-tabs button:hover{background:#f5f8fc;color:#315e91}
+.staff-workspace-tabs button.is-active{border-color:#d6e5f8;background:#edf5ff;color:#285d98}
+.staff-decision-panel{margin-top:18px;padding:16px;border:1px solid #dce7f2;border-radius:13px;background:linear-gradient(135deg,#fbfdff,#f6f9fd)}
+.staff-decision-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.staff-decision-heading strong{color:#233e5d;font-size:13px}
+.staff-decision-heading>span{color:#8292a6;font-size:10px}
+.staff-decision-choices{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.staff-decision-choices button{min-height:36px;padding:8px 11px;border:1px solid;border-radius:9px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.staff-decision-choices button:disabled{opacity:.55;cursor:wait}
+.staff-decision-approve{border-color:#cbe8d6!important;background:#effaf3;color:#20764a}
+.staff-decision-approve:hover{background:#e3f6eb}
+.staff-decision-return{border-color:#f1dfb6!important;background:#fff8e9;color:#936718}
+.staff-decision-return:hover{background:#fff1d4}
+.staff-decision-reject{border-color:#f0d0d0!important;background:#fff5f5;color:#ad3434}
+.staff-decision-reject:hover{background:#ffebeb}
+.staff-decision-form{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #e6edf4}
+.staff-decision-form>strong{color:#2c4562;font-size:12px}
+.staff-decision-form label{display:flex;flex-direction:column;gap:6px}
+.staff-decision-form label>span{color:#657991;font-size:10px;font-weight:700}
+.staff-decision-form select,.staff-decision-form textarea{width:100%;padding:10px 11px;border:1px solid #d8e2ed;border-radius:9px;background:#fff;color:#294662;font-family:inherit;font-size:11px;line-height:1.9}
+.staff-decision-form select{min-height:39px}
+.staff-decision-form textarea{resize:vertical}
+.staff-decision-form select:focus,.staff-decision-form textarea:focus{border-color:#94b4da;outline:none;box-shadow:0 0 0 3px rgba(66,117,178,.1)}
+.staff-decision-form-actions{display:flex;justify-content:flex-start;gap:8px}
+@media(max-width:620px){.staff-workspace-tabs{width:100%;margin-bottom:14px}.staff-workspace-tabs button{flex:1;padding-inline:8px}.staff-decision-heading{align-items:flex-start;flex-direction:column}.staff-decision-choices{display:grid;grid-template-columns:1fr;width:100%}.staff-decision-choices button{width:100%}.staff-decision-form-actions{flex-direction:column}.staff-decision-form-actions button{width:100%}}
