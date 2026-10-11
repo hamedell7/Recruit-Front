@@ -360,3 +360,249 @@
  .workflow-substep-list{margin:0 12px 7px 8px;padding-right:7px}
  .workflow-substep-item{min-height:36px;font-size:11px}
 }
+
+
+/* Admin workflow palette: calm navy, blue, teal, violet and amber accents. */
+.workflow-manager {
+  padding: 2px 2px 30px;
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 5% 16%, rgba(66, 129, 190, .07), transparent 30%),
+    radial-gradient(ellipse at 98% 55%, rgba(57, 183, 163, .065), transparent 26%);
+}
+.workflow-editor-header {
+  border-color: #d5e3f1;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(71, 151, 181, .13), transparent 34%),
+    linear-gradient(115deg, #edf4fd 0%, #f9fbfe 52%, #eaf7f3 100%);
+}
+.workflow-editor-heading h1 { color: #173b5b; }
+.workflow-version-card {
+  border-color: #d6e6ee;
+  background: linear-gradient(155deg, #fff 0%, #eff8f7 100%);
+}
+.workflow-version-number { color: #237d82; }
+.workflow-summary-strip {
+  border-color: #dae6f0;
+  background: linear-gradient(105deg, #f0f6fd 0%, #fff 40%, #eff9f6 100%);
+}
+.workflow-summary-icon {
+  border-color: #d0e2f5;
+  background: linear-gradient(145deg, #e1efff, #eff6ff);
+  color: #2c6fa9;
+}
+.workflow-summary-icon-blue {
+  border-color: #d0eae3;
+  background: linear-gradient(145deg, #dcf4eb, #eefaf6);
+  color: #25877c;
+}
+.workflow-groups-sidebar {
+  border-color: #d5e2f0;
+  background:
+    linear-gradient(180deg, rgba(238, 245, 253, .96) 0%, rgba(248, 251, 254, .98) 42%, #f1f8f7 100%);
+}
+.workflow-sidebar-heading {
+  border-bottom-color: #dce7f1;
+  background: linear-gradient(120deg, #e5eefb, #eff8f7);
+}
+.workflow-sidebar-heading h2 { color: #1e4263; }
+.workflow-add-group-icon {
+  border-color: #bfd9ee;
+  background: linear-gradient(145deg, #fff, #e8f3fe);
+  color: #286da8;
+  box-shadow: 0 3px 9px rgba(47, 106, 160, .06);
+}
+.workflow-group-navigation { padding-top: 12px; padding-bottom: 12px; }
+.workflow-group-nav-item:nth-child(5n+1) .workflow-group-nav-number {
+  border-color: #d3e3f5; background: #e8f1ff; color: #376ba3;
+}
+.workflow-group-nav-item:nth-child(5n+2) .workflow-group-nav-number {
+  border-color: #d3ebe2; background: #e6f6ef; color: #2c816b;
+}
+.workflow-group-nav-item:nth-child(5n+3) .workflow-group-nav-number {
+  border-color: #e3dcf6; background: #f0ebff; color: #7059ad;
+}
+.workflow-group-nav-item:nth-child(5n+4) .workflow-group-nav-number {
+  border-color: #f0e2c9; background: #fff4df; color: #9a702f;
+}
+.workflow-group-nav-item:nth-child(5n) .workflow-group-nav-number {
+  border-color: #dce4ec; background: #edf2f7; color: #5c7289;
+}
+.workflow-group-nav-item.is-active {
+  border-color: #bed8ee;
+  background: linear-gradient(105deg, #e5f0fd, #e6f6f2);
+  box-shadow: inset -3px 0 0 #2d7f9e;
+}
+.workflow-group-nav-item.is-active .workflow-group-nav-number {
+  border-color: #c6dfef;
+  background: #fff;
+  color: #22689b;
+}
+.workflow-substep-list {
+  border-right-color: #c5dce9;
+}
+.workflow-substep-item:nth-child(4n+1) { background: rgba(232, 241, 255, .55); }
+.workflow-substep-item:nth-child(4n+2) { background: rgba(232, 247, 241, .55); }
+.workflow-substep-item:nth-child(4n+3) { background: rgba(243, 239, 255, .55); }
+.workflow-substep-item:nth-child(4n) { background: rgba(255, 247, 231, .55); }
+.workflow-substep-item:hover {
+  border-color: #cbddea;
+  background: #fff;
+}
+.workflow-substep-item.is-focused {
+  border-color: #b7d5ee;
+  background: linear-gradient(100deg, #e0efff, #e3f6f0);
+  color: #1f5a87;
+}
+.workflow-group-nav-item.is-drop-target .workflow-group-nav-select { color: #145b7d; }
+.workflow-group-nav-item.is-drop-target .workflow-group-nav-number {
+  border-color: #a7d8d0;
+  background: #dcf5ef;
+  color: #1d8175;
+}
+.workflow-sidebar-footer {
+  border-color: #d5e8e5;
+  background: linear-gradient(110deg, #edf7f5, #f3f8fd);
+}
+.workflow-sidebar-footer-icon {
+  background: #d9efe9;
+  color: #247b76;
+}
+.workflow-editor-main {
+  border-color: #d8e4ef;
+  background: linear-gradient(145deg, #fff 0%, #f9fbfe 62%, #f2f8f7 100%);
+}
+.workflow-selected-group-head {
+  border-bottom-color: #dfe9f1;
+  background: linear-gradient(110deg, rgba(237, 245, 253, .8), rgba(238, 249, 245, .55));
+  margin: -4px -4px 0;
+  padding: 12px 12px 16px;
+  border-radius: 12px 12px 0 0;
+}
+.workflow-selected-group-index {
+  border-color: #c9def0;
+  background: linear-gradient(145deg, #dfeeff, #e4f5f1);
+  color: #296da1;
+}
+.workflow-selected-title-field input { color: #1b4568; }
+.workflow-stages-heading h2 { color: #214361; }
+.workflow-stages-count {
+  border-color: #d0e5ef;
+  background: linear-gradient(120deg, #eaf3fd, #eaf8f4);
+  color: #3b718f;
+}
+.workflow-stage-card {
+  border-color: #e0e9f2;
+  background: linear-gradient(115deg, #fff 0%, #f7faff 100%);
+}
+.workflow-stage-card:nth-child(5n+1) {
+  border-right: 3px solid #77a5d5;
+  background: linear-gradient(105deg, #fff 0%, #f0f6ff 100%);
+}
+.workflow-stage-card:nth-child(5n+2) {
+  border-right: 3px solid #65b8a4;
+  background: linear-gradient(105deg, #fff 0%, #eef9f5 100%);
+}
+.workflow-stage-card:nth-child(5n+3) {
+  border-right: 3px solid #a69bdb;
+  background: linear-gradient(105deg, #fff 0%, #f5f2ff 100%);
+}
+.workflow-stage-card:nth-child(5n+4) {
+  border-right: 3px solid #d9b36b;
+  background: linear-gradient(105deg, #fff 0%, #fff8eb 100%);
+}
+.workflow-stage-card:nth-child(5n) {
+  border-right: 3px solid #8ba6bd;
+  background: linear-gradient(105deg, #fff 0%, #f1f5f9 100%);
+}
+.workflow-stage-card:hover {
+  box-shadow: 0 5px 15px rgba(26, 54, 81, .06);
+}
+.workflow-stage-card.is-focused {
+  border-color: #8cbde0;
+  border-right-color: #2d7fa5;
+  background: linear-gradient(105deg, #edf5ff, #e7f8f2);
+}
+.workflow-stage-order {
+  border-color: #d6e4f2;
+  background: #e8f2fc;
+  color: #3c709f;
+}
+.workflow-stage-card:nth-child(4n+2) .workflow-stage-order {
+  border-color: #cce9df;
+  background: #e0f4ec;
+  color: #2f816c;
+}
+.workflow-stage-card:nth-child(4n+3) .workflow-stage-order {
+  border-color: #dfd8f5;
+  background: #eee9fc;
+  color: #705ca8;
+}
+.workflow-stage-card:nth-child(4n) .workflow-stage-order {
+  border-color: #efdfc2;
+  background: #fff1d9;
+  color: #99713b;
+}
+.workflow-stage-title-field input {
+  border-color: #dce6ef;
+  background: rgba(255,255,255,.92);
+}
+.workflow-stage-identifiers code {
+  border-color: #dae5ef;
+  background: #edf3f9;
+  color: #486783;
+}
+.workflow-stage-required {
+  border-color: #c6e7d8;
+  background: #e7f6ee;
+  color: #267a58;
+}
+.workflow-stage-order-buttons button:hover:not(:disabled) {
+  background: linear-gradient(120deg, #e8f2fd, #e5f7f1);
+}
+.workflow-stage-remove:hover:not(:disabled) {
+  background: #fff0ed;
+}
+.workflow-add-stage-panel {
+  border-color: #cfe4ef;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(57, 183, 163, .12), transparent 43%),
+    linear-gradient(115deg, #eaf3fc, #f1f9f7);
+}
+.workflow-add-stage-icon {
+  border-color: #d0e4f4;
+  background: linear-gradient(145deg, #fff, #eef7fd);
+  color: #2b71a7;
+  box-shadow: 0 3px 8px rgba(36, 91, 142, .05);
+}
+.workflow-add-stage-button {
+  border-color: #bad7e9;
+  background: linear-gradient(120deg, #fff, #f0f7fc);
+  color: #28699a;
+}
+.workflow-add-stage-button:hover:not(:disabled) {
+  border-color: #8bb9d9;
+  background: linear-gradient(120deg, #e5f1fd, #e4f7f1);
+}
+.workflow-editor-footer {
+  border-color: #d6e5ec;
+  background: linear-gradient(105deg, #eaf2fc 0%, #f7fafc 56%, #eaf7f3 100%);
+}
+.workflow-editor-footer-note-icon {
+  border-color: #bfe4d6;
+  background: #ddf4eb;
+  color: #207c69;
+}
+.workflow-footer-secondary { background: rgba(255,255,255,.75); }
+.workflow-footer-save {
+  border-color: #285f95;
+  background: linear-gradient(130deg, #24588c, #3479ae);
+  box-shadow: 0 4px 10px rgba(43, 99, 151, .14);
+}
+.workflow-footer-save:hover:not(:disabled) { background: linear-gradient(130deg, #1d4a76, #286899); }
+.workflow-footer-publish {
+  border-color: #16826d;
+  background: linear-gradient(130deg, #197e70, #39a894);
+  box-shadow: 0 4px 10px rgba(23, 124, 106, .15);
+}
+.workflow-footer-publish:hover:not(:disabled) { background: linear-gradient(130deg, #116656, #238a77); }
