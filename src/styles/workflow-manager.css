@@ -81,3 +81,55 @@
 .staff-decision-form select:focus,.staff-decision-form textarea:focus{border-color:#94b4da;outline:none;box-shadow:0 0 0 3px rgba(66,117,178,.1)}
 .staff-decision-form-actions{display:flex;justify-content:flex-start;gap:8px}
 @media(max-width:620px){.staff-workspace-tabs{width:100%;margin-bottom:14px}.staff-workspace-tabs button{flex:1;padding-inline:8px}.staff-decision-heading{align-items:flex-start;flex-direction:column}.staff-decision-choices{display:grid;grid-template-columns:1fr;width:100%}.staff-decision-choices button{width:100%}.staff-decision-form-actions{flex-direction:column}.staff-decision-form-actions button{width:100%}}
+
+
+/* Compact workflow editor layout */
+.staff-workflow-workspace{width:100%;max-width:1060px;margin-inline:auto}
+.staff-workflow-workspace .staff-workspace-tabs{margin-bottom:14px;box-shadow:0 3px 12px rgba(24,48,78,.035)}
+.workflow-manager{gap:12px;padding-bottom:28px}
+.workflow-manager-hero{position:relative;align-items:flex-start;gap:18px;padding:20px 23px;border:1px solid #dce5ef;border-radius:16px;background:linear-gradient(135deg,#fff 0%,#f7fafc 100%);box-shadow:0 6px 20px rgba(25,47,74,.055);color:#23394f}
+.workflow-manager-hero:before{position:absolute;content:"";right:0;top:17px;bottom:17px;width:3px;border-radius:3px;background:linear-gradient(180deg,#2c8796,#3671ae)}
+.workflow-manager-hero>div:first-child{min-width:0;padding-right:2px}
+.workflow-manager-hero .eyebrow{color:#648098;font-size:10px;letter-spacing:.02em}
+.workflow-manager-hero h1{margin:5px 0 4px;color:#20364e;font-size:20px;line-height:1.65}
+.workflow-manager-hero p{max-width:680px;color:#687c91;font-size:11px;line-height:1.9}
+.workflow-version-summary{min-width:125px;padding:11px 14px;border-color:#dce6ee;border-radius:12px;background:#fff;box-shadow:0 3px 10px rgba(28,55,83,.035)}
+.workflow-version-summary span{color:#71869a;font-size:10px}
+.workflow-version-summary strong{color:#197e71;font-size:25px}
+.workflow-version-summary small{max-width:145px;color:#788a9e;font-size:9px;line-height:1.7}
+.workflow-manager-toolbar{padding:11px 14px;border-radius:12px;box-shadow:none}
+.workflow-manager-toolbar strong{font-size:12px}
+.workflow-manager-toolbar span{font-size:10px}
+.workflow-manager-groups{gap:9px}
+.workflow-group-card{border-radius:13px;box-shadow:0 3px 12px rgba(20,46,78,.028)}
+.workflow-group-head{gap:10px;padding:10px 13px;background:#f8fafc}
+.workflow-group-title{gap:3px}
+.workflow-group-title>span,.workflow-step-title>span{font-size:9px}
+.workflow-group-title input,.workflow-step-title input{min-height:33px;padding:6px 9px;border-radius:8px;font-size:11px}
+.workflow-order-actions{gap:4px}
+.workflow-order-actions button,.workflow-step-actions>button{min-width:28px;height:28px;border-radius:7px;font-size:11px}
+.workflow-step-row{grid-template-columns:28px minmax(150px,1fr) minmax(190px,auto);gap:10px;padding:10px 13px}
+.workflow-step-position{width:27px;height:27px;border-radius:8px;font-size:10px}
+.workflow-step-main{gap:5px}
+.workflow-step-meta{gap:5px}
+.workflow-step-meta code{padding:3px 6px;font-size:9px}
+.workflow-step-meta>span{font-size:9px}
+.workflow-step-actions{gap:4px}
+.workflow-step-actions select,.workflow-add-step select{height:30px;min-width:115px;font-size:10px}
+.workflow-add-step{gap:7px;padding:9px 13px}
+.workflow-secondary-button,.workflow-primary-button,.workflow-publish-button{min-height:34px;padding:7px 11px;border-radius:8px;font-size:10px}
+.workflow-manager-footer{padding:13px 14px;border-radius:12px;background:#f8fafc}
+.workflow-manager-footer p{font-size:10px}
+.workflow-manager-state{padding:24px;border-radius:12px;font-size:11px}
+.workflow-group-toggle{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;min-height:29px;padding:4px 7px;border:1px solid #e0e8f0;border-radius:8px;background:#fff;color:#60778d;font-family:inherit;font-size:10px;cursor:pointer;white-space:nowrap}
+.workflow-group-toggle:hover{border-color:#bfd1e2;background:#f5f9fc;color:#315f8c}
+.workflow-group-toggle-mark{display:grid;place-items:center;width:17px;height:17px;border-radius:5px;background:#edf3f8;color:#315f8c;font-size:14px;line-height:1}
+.workflow-group-toggle strong{color:#2b5b83;font-size:10px;font-variant-numeric:tabular-nums}
+.workflow-group-toggle small{color:#7b8da0;font-size:9px}
+.workflow-step-list.is-collapsed,.workflow-add-step.is-collapsed{display:none}
+.workflow-load-error{width:min(100%,700px);margin:52px auto;padding:28px;border:1px solid #eadfce;border-radius:16px;background:#fffdf9;color:#31465b;text-align:center;box-shadow:0 8px 24px rgba(34,48,63,.05)}
+.workflow-load-error h1{margin:7px 0 8px;font-size:18px}
+.workflow-load-error p{margin:0 auto 18px;color:#6c7d8f;font-size:12px;line-height:2}
+.workflow-load-error-icon{display:grid;place-items:center;width:38px;height:38px;margin:0 auto 9px;border-radius:12px;background:#fff1d9;color:#a56b14;font-size:20px;font-weight:800}
+@media(max-width:1000px){.workflow-step-row{grid-template-columns:28px minmax(0,1fr)}.workflow-step-actions{grid-column:2;justify-content:flex-start}.workflow-manager-hero{align-items:flex-start;flex-direction:row}.workflow-version-summary{align-items:center;min-width:115px}.workflow-version-summary small{text-align:center}}
+@media(max-width:640px){.staff-workflow-workspace{width:100%}.workflow-manager-hero{align-items:stretch;flex-direction:column;padding:18px 18px 18px 20px}.workflow-manager-hero h1{font-size:18px}.workflow-version-summary{align-items:flex-start;width:100%;min-width:0;padding:9px 12px}.workflow-version-summary small{text-align:right;max-width:none}.workflow-manager-toolbar,.workflow-manager-footer{align-items:stretch;flex-direction:column}.workflow-manager-toolbar{padding:11px}.workflow-group-head{align-items:center;flex-wrap:wrap;padding:10px}.workflow-group-title{flex:1 1 180px}.workflow-group-toggle{order:0}.workflow-order-actions{margin-right:auto}.workflow-step-row{grid-template-columns:27px minmax(0,1fr);gap:8px;padding:10px}.workflow-step-actions{grid-column:1/-1;justify-content:flex-start}.workflow-manager-footer>div{align-items:stretch;flex-direction:column}.workflow-manager-footer>div button{width:100%}}
