@@ -363,7 +363,11 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   if (loading) return <div className="page"><div className="wizard-loading"><div className="loading-spinner" /><strong>در حال بارگذاری پرونده…</strong></div></div>;
 
-  const meta = STEP_META[currentKey] || { title: currentKey, kicker: "" };
+  const configuredStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
+  const meta = {
+    ...(STEP_META[currentKey] || { title: currentKey, kicker: "" }),
+    ...(configuredStep?.title ? { title: configuredStep.title } : {}),
+  };
   const completionCount = Math.min(workflowSteps.length, backendCurrentIndex + (resume?.status === "SUBMITTED" ? 0 : 0));
   const status = statusLabel(appRequest?.status);
 
@@ -383,12 +387,12 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
-            {FLOW_SECTIONS.map(([heading, items]) => (
-              <div className="step-section" key={heading}>
-                <span className="step-section-title">{heading}</span>
-                {items.filter((key) => workflowSteps.includes(key)).map((key) => {
-                  const target = workflowSteps.indexOf(key);
-                  return <StepRailItem key={key} keyName={key} active={currentKey === key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
+            {workflowGroups.map((group) => (
+              <div className="step-section" key={group.key}>
+                <span className="step-section-title">{group.title}</span>
+                {group.steps.filter((step) => workflowSteps.includes(step.key)).map((step) => {
+                  const target = workflowSteps.indexOf(step.key);
+                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={STEP_META[step.key]?.kicker || group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
               </div>
             ))}
