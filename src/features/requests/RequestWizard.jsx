@@ -77,6 +77,10 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
+  const currentReturnReason = steps
+    .filter((step) => step.step_key === resume?.current_step && step.status === "RETURNED")
+    .sort((left, right) => right.attempt_no - left.attempt_no)[0]?.return_reason;
+
   const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
   const isFinalized = finalizedStatuses.includes(resume?.status);
   const readOnly = isFinalized || index < backendCurrentIndex;
@@ -425,7 +429,7 @@ function RequestWizard({ user, request, onBack, onError }) {
           )}
 
           {resume?.status === "RETURNED" && backendCurrentIndex === index && (
-            <div className="return-alert"><strong>این مرحله برای اصلاح برگشت داده شده است.</strong><span>پس از اصلاح اطلاعات، دکمه ثبت و ادامه را بزنید تا دوباره وارد فرآیند بررسی شود.</span></div>
+            <div className="return-alert"><strong>این مرحله برای اصلاح برگشت داده شده است.</strong>{currentReturnReason && <span>علت بازگشت: {currentReturnReason}</span>}<span>پس از اصلاح اطلاعات، دکمه ثبت و ادامه را بزنید تا دوباره وارد فرآیند بررسی شود.</span></div>
           )}
 
           {currentKey === "documents" ? (
