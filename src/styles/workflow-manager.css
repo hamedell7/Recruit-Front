@@ -1342,3 +1342,17 @@
   box-shadow:none;
 }
 
+/* Keep the stage number badge blue, but lighter and less prominent */
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card > .workflow-stage-order{
+  border-color:#d1e0ef;
+  background:linear-gradient(145deg,#e8f1fb 0%,#dce9f7 100%);
+  color:#52799f;
+  box-shadow:none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-list .workflow-stage-card.is-focused > .workflow-stage-order{
+  border-color:#c5d9ec;
+  background:#dce9f7;
+  color:#3f6e98;
+  box-shadow:none;
+}
+
