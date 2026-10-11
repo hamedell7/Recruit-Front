@@ -172,14 +172,15 @@ function StaffDashboard({ onError, user }) {
     setDecisionMode("");
     setDecisionReason("");
     setReturnStepKey("");
-    if (!selectedRequest || !["SUBMITTED", "UNDER_REVIEW"].includes(selectedRequest.status)) {
+    if (!selectedRequest) {
       return () => { cancelled = true; };
     }
     api.staffRequestWorkflow(selectedRequest.id)
       .then((workflow) => {
         if (cancelled) return;
         setReviewWorkflow(workflow);
-        const returnableKeys = workflow.returnable_step_keys || [];
+        const canReturn = ["SUBMITTED", "UNDER_REVIEW"].includes(selectedRequest.status);
+        const returnableKeys = canReturn ? workflow.returnable_step_keys || [] : [];
         const firstReturnable = (workflow.groups || [])
           .flatMap((group) => group.steps || [])
           .find((step) => returnableKeys.includes(step.key));
@@ -403,7 +404,7 @@ function StaffDashboard({ onError, user }) {
                   {items.map((item) => {
                     const applicant = item.applicant || {};
                     const [label, tone] = statusLabel(item.status);
-                    const step = STEP_META[item.current_step_key];
+                    const step = { ...(STEP_META[item.current_step_key] || {}), title: item.current_step_title || STEP_META[item.current_step_key]?.title || item.current_step_key };
                     const initials = [applicant.first_name, applicant.last_name].filter(Boolean).map((part) => part.trim()[0]).join("").slice(0, 2);
                     return (
                       <tr key={item.id}>
@@ -461,7 +462,7 @@ function StaffDashboard({ onError, user }) {
             <div><span>کد ملی</span><strong>{selectedRequest.applicant?.national_id_masked || "—"}</strong></div>
             <div><span>شماره تماس</span><strong>{selectedRequest.applicant?.mobile_masked || "—"}</strong></div>
             <div><span>استان و شهر</span><strong>{[selectedRequest.applicant?.province_name, selectedRequest.applicant?.city_name].filter(Boolean).join("، ") || "—"}</strong></div>
-            <div><span>مرحله فعلی</span><strong>{STEP_META[selectedRequest.current_step_key]?.title || selectedRequest.current_step_key || "—"}</strong></div>
+            <div><span>مرحله فعلی</span><strong>{reviewWorkflow?.steps?.find((step) => step.key === selectedRequest.current_step_key)?.title || selectedRequest.current_step_title || STEP_META[selectedRequest.current_step_key]?.title || selectedRequest.current_step_key || "—"}</strong></div>
             <div><span>تاریخ ثبت درخواست</span><strong>{formatDate(selectedRequest.created_at)}</strong></div>
             <div><span>آخرین به‌روزرسانی</span><strong>{formatDate(selectedRequest.updated_at)}</strong></div>
             <div><span>تاریخ ثبت نهایی</span><strong>{formatDate(selectedRequest.submitted_at)}</strong></div>
