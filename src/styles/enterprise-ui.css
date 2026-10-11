@@ -43,8 +43,8 @@
 
 /* Multi-step application flow */
 .wizard-page {
-  max-width: 1540px;
-  padding: 27px clamp(16px, 2.6vw, 36px) 66px;
+  max-width: 1450px;
+  padding: 24px 32px 70px;
 }
 .wizard-toolbar { gap: 16px; margin-bottom: 17px; }
 .wizard-toolbar .back-button {
