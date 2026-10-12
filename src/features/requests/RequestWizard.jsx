@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
+import { STEP_DESCRIPTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
@@ -369,6 +370,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const currentGroup = workflowGroups.find((group) => group.steps.some((step) => step.key === currentKey));
   const stepTitle = currentStep?.title || currentKey || "";
+  const stepDescription = currentStep?.description || STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را تکمیل کنید و پس از بررسی، ثبت نمایید.";
   const groupTitle = currentGroup?.title || "";
   const completionCount = Math.min(workflowSteps.length, backendCurrentIndex + (resume?.status === "SUBMITTED" ? 0 : 0));
   const status = statusLabel(appRequest?.status);
@@ -407,7 +409,7 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div>
               <span className="eyebrow">{groupTitle}</span>
               <h1>{stepTitle}</h1>
-              <p>اطلاعات این مرحله را تکمیل کنید و پس از بررسی، ثبت نمایید.</p>
+              <p className="step-description">{stepDescription}</p>
               {!readOnly && !isDocumentsStep && (
                 <DraftStatus state={draftStatus} updatedAt={lastDraftSaved} />
               )}

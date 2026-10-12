@@ -125,3 +125,12 @@
 .date-picker-control .rmdp-day.rmdp-selected span,.date-picker-control .rmdp-day.rmdp-today span{border-radius:8px!important}
 .date-picker-control .rmdp-arrow-container{border-radius:8px!important}
 .date-picker-control .rmdp-arrow-container:hover{background:var(--brand-soft)!important;box-shadow:none!important}
+
+
+.step-header .step-description {
+  max-width: 780px;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.95;
+}

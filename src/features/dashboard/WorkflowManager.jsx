@@ -182,6 +182,13 @@ function WorkflowManager({ onError }) {
     })));
   };
 
+  const updateStepDescription = (groupIndex, stepIndex, description) => {
+    setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
+      ...group,
+      steps: group.steps.map((step, index2) => index2 === stepIndex ? { ...step, description } : step),
+    })));
+  };
+
   const moveGroup = (index, delta) => {
     setGroups((current) => moveItem(current, index, index + delta));
   };
@@ -508,6 +515,7 @@ function WorkflowManager({ onError }) {
       steps: [...itemGroup.steps, {
         key: item.key,
         title: item.title,
+        description: item.description || "",
         handler_key: item.handler_key,
         required: item.is_required,
         position_constraint: item.position_constraint,
@@ -555,7 +563,12 @@ function WorkflowManager({ onError }) {
     groups: groups.map((group) => ({
       key: group.key,
       title: group.title.trim(),
-      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim(), active: step.active })),
+      steps: group.steps.map((step) => ({
+        key: step.key,
+        title: step.title.trim(),
+        description: (step.description || "").trim(),
+        active: step.active,
+      })),
     })),
   });
 
@@ -923,6 +936,16 @@ function WorkflowManager({ onError }) {
                               value={step.title}
                               maxLength={150}
                               onChange={(event) => updateStepTitle(selectedGroupIndex, stepIndex, event.target.value)}
+                            />
+                          </label>
+                          <label className="workflow-stage-description-field">
+                            <span>توضیحات مرحله</span>
+                            <textarea
+                              value={step.description || ""}
+                              maxLength={1000}
+                              rows={3}
+                              aria-label={"توضیحات مرحله " + (step.title || step.key)}
+                              onChange={(event) => updateStepDescription(selectedGroupIndex, stepIndex, event.target.value)}
                             />
                           </label>
                           <div className="workflow-stage-identifiers">

@@ -1940,3 +1940,47 @@
     transition: none;
   }
 }
+
+
+/* Stage-specific guidance text in the workflow designer. */
+.workflow-manager .workflow-stage-description-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.workflow-manager .workflow-stage-description-field > span {
+  color: #6f8398;
+  font-size: 12px;
+  font-weight: 700;
+}
+.workflow-manager .workflow-stage-description-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 74px;
+  padding: 8px 10px;
+  border: 1px solid #dfe7ef;
+  border-radius: 8px;
+  outline: 0;
+  resize: vertical;
+  background: #fff;
+  color: #2c455f;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.9;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.workflow-manager .workflow-stage-description-field textarea:hover {
+  border-color: #c9d9e8;
+}
+.workflow-manager .workflow-stage-description-field textarea:focus {
+  border-color: #7aabd4;
+  box-shadow: 0 0 0 3px rgba(57, 126, 184, .09);
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-manager .workflow-stage-description-field textarea {
+    transition: none;
+  }
+}
