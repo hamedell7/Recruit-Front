@@ -1920,3 +1920,11 @@
     transition: none;
   }
 }
+
+/* Keep hidden drop slots from adding idle space between cards */
+.workflow-manager .workflow-editor-layout .workflow-stage-list {
+  row-gap: 0;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card {
+  margin-block: 4px;
+}
