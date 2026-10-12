@@ -2440,3 +2440,107 @@
 .workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-after {
   border-bottom-color: #568bd0;
 }
+
+
+/* Keep stage status and management controls together in a compact footer row. */
+.workflow-manager .workflow-editor-layout .workflow-stage-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 12px;
+  direction: ltr;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-active-toggle {
+  flex: 0 0 auto;
+  align-self: center;
+  min-height: 35px;
+  margin: 0;
+  direction: rtl;
+  white-space: nowrap;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-move-step-select {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  direction: rtl;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-move-step-select > span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-move-step-select select {
+  width: 178px;
+  min-width: 135px;
+  max-width: 230px;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-remove {
+  flex: 0 0 auto;
+  align-self: center;
+  min-height: 35px;
+  direction: rtl;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-actions {
+    display: flex;
+    grid-template-columns: none;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-move-step-select {
+    flex: 1 1 220px;
+    max-width: none;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-move-step-select select {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-stage-remove {
+    grid-column: auto;
+    justify-self: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-actions {
+    gap: 6px;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-move-step-select {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-move-step-select select {
+    min-width: 0;
+    max-width: 210px;
+  }
+}
