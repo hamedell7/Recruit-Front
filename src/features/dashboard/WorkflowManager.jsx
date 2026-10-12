@@ -315,6 +315,96 @@ function WorkflowManager({ onError }) {
     }
   };
 
+  const resolveSidebarStepDropTarget = (event, groupKey) => {
+    const targetElement = event.target instanceof Element ? event.target : null;
+    const dropSlot = targetElement?.closest(".workflow-substep-drop-slot");
+
+    if (dropSlot) {
+      return {
+        stepKey: dropSlot.dataset.dropStepKey || "",
+        position: dropSlot.dataset.dropPosition || "before",
+      };
+    }
+
+    const item = targetElement?.closest(".workflow-substep-item");
+    const targetStepKey = item?.dataset.stepKey;
+    if (!item || !targetStepKey) return null;
+
+    const group = groups.find((candidate) => candidate.key === groupKey);
+    const targetStep = group?.steps.find((step) => step.key === targetStepKey);
+    const bounds = item.getBoundingClientRect();
+    const position = targetStep?.position_constraint === "FIRST"
+      ? "after"
+      : targetStep?.position_constraint === "LAST"
+        ? "before"
+        : event.clientY >= bounds.top + bounds.height / 2 ? "after" : "before";
+
+    return { stepKey: targetStepKey, position };
+  };
+
+  const handleSidebarStepListDragOver = (event, groupKey) => {
+    // Reorder within this expanded group; let the parent group handle cross-group drops.
+    if (
+      draggedStepSource !== "sidebar"
+      || !draggedStepKey
+      || draggedStepGroupKey !== groupKey
+      || isPositionLockedStep(draggedStepKey)
+    ) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const target = resolveSidebarStepDropTarget(event, groupKey);
+    if (!target || target.stepKey === draggedStepKey) {
+      setDragOverStepKey("");
+      setDragOverPosition("before");
+      setDragOverGroupKey("");
+      return;
+    }
+
+    if (dragOverStepKey !== target.stepKey) setDragOverStepKey(target.stepKey);
+    if (dragOverPosition !== target.position) setDragOverPosition(target.position);
+    if (dragOverGroupKey) setDragOverGroupKey("");
+  };
+
+  const handleSidebarStepListDrop = (event, groupKey) => {
+    const payload = event.dataTransfer.getData("text/plain");
+    if (!payload || draggedStepSource !== "sidebar" || draggedStepGroupKey !== groupKey) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const target = resolveSidebarStepDropTarget(event, groupKey);
+    setDragOverStepKey("");
+    setDragOverGroupKey("");
+    setDragOverPosition("before");
+    setDraggedStepKey("");
+    setDraggedStepGroupKey("");
+    setDraggedStepSource("");
+
+    if (!target?.stepKey) return;
+
+    try {
+      const { sourceArea = "sidebar", sourceGroupKey, stepKey } = JSON.parse(payload);
+      if (
+        sourceArea !== "sidebar"
+        || sourceGroupKey !== groupKey
+        || !stepKey
+        || isPositionLockedStep(stepKey)
+      ) return;
+
+      moveStepWithinGroup(sourceGroupKey, stepKey, target.stepKey, target.position);
+    } catch {
+      onError?.({ type: "error", text: "جابه‌جایی مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
+    }
+  };
+
+  const handleSidebarStepListDragLeave = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setDragOverStepKey("");
+    setDragOverPosition("before");
+  };
+
   const resolveStageDropTarget = (event) => {
     const targetElement = event.target instanceof Element ? event.target : null;
     const dropSlot = targetElement?.closest(".workflow-stage-drop-slot");
@@ -588,7 +678,7 @@ function WorkflowManager({ onError }) {
             <div>
               <span className="workflow-sidebar-kicker">ساختار فرایند</span>
               <h2>گروه‌ها</h2>
-              <p>برای ویرایش، گروه را انتخاب کنید؛ برای انتقال مرحله، دستگیرهٔ کنار شماره را روی گروه یا جایگاه مقصد رها کنید.</p>
+              <p>گروه را باز کنید و مراحل را بکشید.</p>
             </div>
             <button type="button" className="workflow-add-group-icon" onClick={addGroup} aria-label="افزودن گروه جدید" title="افزودن گروه">
               <span aria-hidden="true">＋</span>
@@ -636,25 +726,60 @@ function WorkflowManager({ onError }) {
                     </button>
                   </div>
                   {groupIsExpanded && (
-                    <div className="workflow-substep-list" id={"workflow-substeps-" + group.key}>
+                    <div
+                      className="workflow-substep-list"
+                      id={"workflow-substeps-" + group.key}
+                      onDragOver={(event) => handleSidebarStepListDragOver(event, group.key)}
+                      onDrop={(event) => handleSidebarStepListDrop(event, group.key)}
+                      onDragLeave={handleSidebarStepListDragLeave}
+                    >
                       {group.steps.map((step, stepIndex) => {
                         const isFixedStep = isPositionLockedStep(step.key);
-                        const isDragging = draggedStepKey === step.key;
-                        return (
-                          <button
-                            key={step.key}
-                            type="button"
-                            className={"workflow-substep-item" + (isDragging ? " is-dragging" : "") + (groupIsActive && focusedStepKey === step.key ? " is-focused" : "")}
-                            draggable={!isFixedStep}
-                            title={isFixedStep ? "این مرحله برای حفظ ترتیب الزامی قابل کشیدن نیست" : "برای انتقال، این مرحله را بکشید و روی گروه مقصد رها کنید"}
-                            onClick={() => jumpToStep(group.key, step.key)}
-                            onDragStart={(event) => handleStepDragStart(event, group.key, step)}
-                            onDragEnd={handleStepDragEnd}
+                        const isDragging = draggedStepKey === step.key && draggedStepSource === "sidebar";
+                        const isDropTarget = Boolean(
+                          draggedStepSource === "sidebar"
+                          && draggedStepGroupKey === group.key
+                          && draggedStepKey !== step.key
+                          && dragOverStepKey === step.key,
+                        );
+                        const dropSlot = (position) => (
+                          <div
+                            className={
+                              "workflow-substep-drop-slot"
+                              + (position === "after" ? " is-after" : " is-before")
+                              + (isDropTarget && dragOverPosition === position ? " is-visible" : "")
+                            }
+                            data-drop-step-key={step.key}
+                            data-drop-position={position}
+                            aria-hidden="true"
                           >
-                            <span className="workflow-substep-grip" aria-hidden="true">{isFixedStep ? "•" : "⠿"}</span>
-                            <span className="workflow-substep-copy">{step.title || step.key}</span>
-                            {isFixedStep && <span className="workflow-substep-lock" title="مرحله الزامی">●</span>}
-                          </button>
+                            <span className="workflow-substep-drop-slot-line" />
+                          </div>
+                        );
+
+                        return (
+                          <Fragment key={step.key}>
+                            {dropSlot("before")}
+                            <button
+                              type="button"
+                              className={"workflow-substep-item" + (isDragging ? " is-dragging" : "") + (isDropTarget ? " is-drop-target" : "") + (groupIsActive && focusedStepKey === step.key ? " is-focused" : "")}
+                              data-step-key={step.key}
+                              draggable={!isFixedStep}
+                              title={
+                                isFixedStep
+                                  ? "این مرحله جایگاه ثابتی دارد"
+                                  : "برای تغییر ترتیب، داخل همین گروه بکشید؛ برای انتقال، روی گروه مقصد رها کنید"
+                              }
+                              onClick={() => jumpToStep(group.key, step.key)}
+                              onDragStart={(event) => handleStepDragStart(event, group.key, step)}
+                              onDragEnd={handleStepDragEnd}
+                            >
+                              <span className="workflow-substep-grip" aria-hidden="true">{isFixedStep ? "•" : "⠿"}</span>
+                              <span className="workflow-substep-copy">{step.title || step.key}</span>
+                              {isFixedStep && <span className="workflow-substep-lock" title="مرحله الزامی">●</span>}
+                            </button>
+                            {dropSlot("after")}
+                          </Fragment>
                         );
                       })}
                       {group.steps.length === 0 && <p className="workflow-substep-empty">این گروه هنوز مرحله‌ای ندارد.</p>}
