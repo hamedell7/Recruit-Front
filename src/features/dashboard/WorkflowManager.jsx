@@ -315,7 +315,24 @@ function WorkflowManager({ onError }) {
     }
   };
 
-  const resolveSidebarStepDropTarget = (event, groupKey) => {
+  const getStableDropPosition = (event, element, targetStep) => {
+    if (targetStep?.position_constraint === "FIRST") return "after";
+    if (targetStep?.position_constraint === "LAST") return "before";
+
+    const bounds = element.getBoundingClientRect();
+    const ratio = bounds.height > 0 ? (event.clientY - bounds.top) / bounds.height : 0.5;
+
+    // A dead zone around the midpoint prevents tiny pointer movements from
+    // flipping the insertion gap between the top and bottom of the same item.
+    if (dragOverStepKey === targetStep?.key) {
+      if (dragOverPosition === "before" && ratio < 0.62) return "before";
+      if (dragOverPosition === "after" && ratio > 0.38) return "after";
+    }
+
+    return ratio >= 0.5 ? "after" : "before";
+  };
+
+  const resolveSidebarStepDropTarget = (event, groupKey) {
     const targetElement = event.target instanceof Element ? event.target : null;
     const dropSlot = targetElement?.closest(".workflow-substep-drop-slot");
 
@@ -332,12 +349,7 @@ function WorkflowManager({ onError }) {
 
     const group = groups.find((candidate) => candidate.key === groupKey);
     const targetStep = group?.steps.find((step) => step.key === targetStepKey);
-    const bounds = item.getBoundingClientRect();
-    const position = targetStep?.position_constraint === "FIRST"
-      ? "after"
-      : targetStep?.position_constraint === "LAST"
-        ? "before"
-        : event.clientY >= bounds.top + bounds.height / 2 ? "after" : "before";
+    const position = getStableDropPosition(event, item, targetStep);
 
     return { stepKey: targetStepKey, position };
   };
@@ -355,12 +367,10 @@ function WorkflowManager({ onError }) {
     event.stopPropagation();
 
     const target = resolveSidebarStepDropTarget(event, groupKey);
-    if (!target || target.stepKey === draggedStepKey) {
-      setDragOverStepKey("");
-      setDragOverPosition("before");
-      setDragOverGroupKey("");
-      return;
-    }
+    // Keep the last valid target while the pointer briefly crosses the dragged
+    // source row or the tiny gaps between rows. This avoids the placeholder
+    // repeatedly collapsing and reopening during a slow drag.
+    if (!target || target.stepKey === draggedStepKey) return;
 
     if (dragOverStepKey !== target.stepKey) setDragOverStepKey(target.stepKey);
     if (dragOverPosition !== target.position) setDragOverPosition(target.position);
@@ -421,12 +431,7 @@ function WorkflowManager({ onError }) {
     if (!card || !targetStepKey) return null;
 
     const targetStep = selectedGroup?.steps.find((step) => step.key === targetStepKey);
-    const bounds = card.getBoundingClientRect();
-    const position = targetStep?.position_constraint === "FIRST"
-      ? "after"
-      : targetStep?.position_constraint === "LAST"
-        ? "before"
-        : event.clientY >= bounds.top + bounds.height / 2 ? "after" : "before";
+    const position = getStableDropPosition(event, card, targetStep);
 
     return { stepKey: targetStepKey, position };
   };
@@ -440,10 +445,9 @@ function WorkflowManager({ onError }) {
     ) return;
 
     const target = resolveStageDropTarget(event);
-    if (!target || target.stepKey === draggedStepKey) {
-      if (dragOverStepKey) setDragOverStepKey("");
-      return;
-    }
+    // Do not collapse the gap when the pointer passes over the source card or
+    // a narrow space between rows; wait until another valid destination wins.
+    if (!target || target.stepKey === draggedStepKey) return;
 
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
