@@ -761,13 +761,13 @@
   color: #537ba7;
 }
 .staff-dashboard-page .staff-detail-header {
-  border-color: #dbe6f1;
-  background: linear-gradient(135deg, #fbfdff, #f6f9fd);
+  border-color: #e1e8f0;
+  background: #fafcff;
 }
 .staff-dashboard-page .staff-detail-avatar {
-  border: 1px solid #dce9fb;
-  background: linear-gradient(145deg, #eef5ff, #e2edfc);
-  color: #2e68a4;
+  border: 0;
+  background: #eaf2fc;
+  color: #315f9e;
 }
 
 
@@ -895,10 +895,15 @@
   border-top-color: #dfe9f2;
   background: linear-gradient(105deg, #edf4fc, #f1f8f8);
 }
-.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+1) { background: #f0f6ff; border-color: #dce8f7; }
-.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+2) { background: #eff9f5; border-color: #d9eee5; }
-.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+3) { background: #f5f2ff; border-color: #e5dff6; }
-.staff-dashboard-page .staff-detail-grid > div:nth-child(4n) { background: #fff8ec; border-color: #f0e4cf; }
+/* Restore the neutral case-summary cards. */
+.staff-dashboard-page .staff-detail-grid > div,
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+1),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+2),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+3),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n) {
+  background: #fff;
+  border-color: #e9edf2;
+}
 
 
 /* Larger and more comfortable type for staff/admin workspaces. */
@@ -968,4 +973,16 @@
   border-color: #d2e3f7;
   background: linear-gradient(145deg, #e4f0ff, #d9eafb);
   color: #316eae;
+}
+
+
+/* Neutral action for moving a submitted request into the review queue. */
+.staff-decision-choices .staff-decision-review {
+  border-color: #dce5ed;
+  background: #f8fafc;
+  color: #45647f;
+}
+.staff-decision-choices .staff-decision-review:hover:not(:disabled) {
+  border-color: #bfd0df;
+  background: #edf3f8;
 }
