@@ -38,6 +38,7 @@ function WorkflowManager({ onError }) {
   const [dragOverStepKey, setDragOverStepKey] = useState("");
   const [dragOverPosition, setDragOverPosition] = useState("before");
   const [draggedStepGroupKey, setDraggedStepGroupKey] = useState("");
+  const [draggedStepSource, setDraggedStepSource] = useState("");
   const [focusedStepKey, setFocusedStepKey] = useState("");
   const [newStepByGroup, setNewStepByGroup] = useState({});
   const [loading, setLoading] = useState(true);
@@ -253,7 +254,7 @@ function WorkflowManager({ onError }) {
     moveStepToGroup(sourceGroup.key, step.key, targetKey);
   };
 
-  const handleStepDragStart = (event, groupKey, step) => {
+  const handleStepDragStart = (event, groupKey, step, sourceArea = "sidebar") => {
     if (isPositionLockedStep(step.key)) {
       event.preventDefault();
       return;
@@ -262,9 +263,11 @@ function WorkflowManager({ onError }) {
     event.dataTransfer.setData("text/plain", JSON.stringify({
       sourceGroupKey: groupKey,
       stepKey: step.key,
+      sourceArea,
     }));
     setDraggedStepKey(step.key);
     setDraggedStepGroupKey(groupKey);
+    setDraggedStepSource(sourceArea);
     setDragOverGroupKey("");
     setDragOverStepKey("");
   };
@@ -272,13 +275,14 @@ function WorkflowManager({ onError }) {
   const handleStepDragEnd = () => {
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
+    setDraggedStepSource("");
     setDragOverGroupKey("");
     setDragOverStepKey("");
     setDragOverPosition("before");
   };
 
   const handleGroupDragOver = (event, groupKey) => {
-    if (!draggedStepKey || isPositionLockedStep(draggedStepKey)) return;
+    if (draggedStepSource !== "sidebar" || !draggedStepKey || isPositionLockedStep(draggedStepKey)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
     if (groupKey !== dragOverGroupKey) setDragOverGroupKey(groupKey);
@@ -294,10 +298,11 @@ function WorkflowManager({ onError }) {
     setDragOverPosition("before");
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
+    setDraggedStepSource("");
     if (!payload) return;
     try {
-      const { sourceGroupKey, stepKey } = JSON.parse(payload);
-      if (!stepKey || isPositionLockedStep(stepKey)) return;
+      const { sourceArea = "sidebar", sourceGroupKey, stepKey } = JSON.parse(payload);
+      if (sourceArea !== "sidebar" || !stepKey || isPositionLockedStep(stepKey)) return;
       moveStepToGroup(sourceGroupKey, stepKey, targetGroupKey);
     } catch {
       onError?.({ type: "error", text: "انتقال مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
@@ -307,7 +312,8 @@ function WorkflowManager({ onError }) {
   const handleStageDragOver = (event, targetStepKey) => {
     // Stage cards only reorder items from the currently selected group.
     if (
-      !draggedStepKey
+      draggedStepSource !== "editor"
+      || !draggedStepKey
       || draggedStepKey === targetStepKey
       || draggedStepGroupKey !== selectedGroupKey
       || isPositionLockedStep(draggedStepKey)
@@ -338,12 +344,14 @@ function WorkflowManager({ onError }) {
     setDragOverPosition("before");
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
+    setDraggedStepSource("");
     if (!payload) return;
 
     try {
-      const { sourceGroupKey, stepKey } = JSON.parse(payload);
+      const { sourceArea, sourceGroupKey, stepKey } = JSON.parse(payload);
       if (
-        !sourceGroupKey
+        sourceArea !== "editor"
+        || !sourceGroupKey
         || sourceGroupKey !== selectedGroupKey
         || isPositionLockedStep(stepKey)
       ) return;
@@ -675,7 +683,7 @@ function WorkflowManager({ onError }) {
               <div className="workflow-stages-heading">
                 <div>
                   <h2>مراحل این گروه</h2>
-                  <p>عنوان و ترتیب مراحل را تنظیم کنید؛ برای جابه‌جایی، دستگیرهٔ کنار شماره را روی مرحله یا گروه مقصد رها کنید.</p>
+                  <p>دستگیرهٔ کنار شماره را بکشید؛ جای خالی باز می‌شود و می‌توانید مرحله را بالاتر یا پایین‌تر همین گروه رها کنید.</p>
                 </div>
                 <span className="workflow-stages-count">{selectedGroup.steps.length.toLocaleString("fa-IR")} مرحله</span>
               </div>
@@ -732,7 +740,7 @@ function WorkflowManager({ onError }) {
                               : "برای تغییر ترتیب داخل همین گروه بکشید و روی جایگاه مقصد رها کنید"
                           }
                           aria-label={"دستگیره جابه‌جایی مرحله " + (step.title || step.key)}
-                          onDragStart={(event) => handleStepDragStart(event, selectedGroup.key, step)}
+                          onDragStart={(event) => handleStepDragStart(event, selectedGroup.key, step, "editor")}
                           onDragEnd={handleStepDragEnd}
                         >
                           {!isFixedStep && (
