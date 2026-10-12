@@ -18,6 +18,17 @@ function App() {
   const [toast, setToast] = useState(null);
 
   const restoreRoute = async (currentUser) => {
+    const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+    const staffRouteMatch = pathname === "/staff/requests" || pathname === "/staff/workflows";
+    if (staffRouteMatch && STAFF_ROLES.includes(currentUser?.role)) {
+      if (pathname === "/staff/workflows" && currentUser?.role !== "ADMIN") {
+        window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", "/staff/requests");
+      }
+      setActiveRequest(null);
+      setView("dashboard");
+      return;
+    }
+
     const match = window.location.pathname.match(/^\/requests\/([^/]+)\/?$/);
     if (match && !STAFF_ROLES.includes(currentUser?.role)) {
       try {
@@ -73,6 +84,17 @@ function App() {
     if (!user) return undefined;
     let cancelled = false;
     const onPopState = async () => {
+      const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+      const staffRouteMatch = pathname === "/staff/requests" || pathname === "/staff/workflows";
+      if (staffRouteMatch && STAFF_ROLES.includes(user.role)) {
+        if (pathname === "/staff/workflows" && user.role !== "ADMIN") {
+          window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", "/staff/requests");
+        }
+        setActiveRequest(null);
+        setView("dashboard");
+        return;
+      }
+
       const match = window.location.pathname.match(/^\/requests\/([^/]+)\/?$/);
       if (match && !STAFF_ROLES.includes(user.role)) {
         try {
