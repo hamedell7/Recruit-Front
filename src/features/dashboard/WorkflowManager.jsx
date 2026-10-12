@@ -948,6 +948,7 @@ function WorkflowManager({ onError }) {
                               onChange={(event) => updateStepDescription(selectedGroupIndex, stepIndex, event.target.value)}
                             />
                           </label>
+                          {/* شناسه‌ها و handler فعلاً نمایش داده نمی‌شوند.
                           <div className="workflow-stage-identifiers">
                             <code>{step.key}</code>
                             <span className="workflow-stage-handler">
@@ -956,6 +957,7 @@ function WorkflowManager({ onError }) {
                             </span>
                             {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
                           </div>
+                          */}
 
                         </div>
                         <div className="workflow-stage-actions">
@@ -968,6 +970,11 @@ function WorkflowManager({ onError }) {
                             />
                             <span>مرحله فعال</span>
                           </label>
+                          {isRequiredStep(step.key) && (
+                            <b className="workflow-stage-required workflow-stage-required-inline">
+                              مرحله الزامی
+                            </b>
+                          )}
                           <div className="workflow-stage-order-buttons">
                             <button
                               type="button"
