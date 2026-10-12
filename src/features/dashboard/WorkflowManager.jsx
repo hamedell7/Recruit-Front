@@ -11,7 +11,16 @@ function moveItem(items, fromIndex, toIndex) {
 }
 
 function WorkflowManager({ onError }) {
-  const workflowKey = "employment_screening";
+  const [workflowKey, setWorkflowKey] = useState("");
+  const [availableWorkflows, setAvailableWorkflows] = useState([]);
+  const [requestTypes, setRequestTypes] = useState([]);
+  const [newWorkflowKey, setNewWorkflowKey] = useState("");
+  const [newWorkflowTitle, setNewWorkflowTitle] = useState("");
+  const [newRequestTypeCode, setNewRequestTypeCode] = useState("");
+  const [newRequestTypeTitle, setNewRequestTypeTitle] = useState("");
+  const [newRequestTypeWorkflow, setNewRequestTypeWorkflow] = useState("");
+  const [creatingWorkflow, setCreatingWorkflow] = useState(false);
+  const [creatingRequestType, setCreatingRequestType] = useState(false);
   const [detail, setDetail] = useState(null);
   const [groups, setGroups] = useState([]);
   const [selectedGroupKey, setSelectedGroupKey] = useState("");
@@ -25,6 +34,10 @@ function WorkflowManager({ onError }) {
   const [publishing, setPublishing] = useState(false);
 
   const load = useCallback(async () => {
+    if (!workflowKey) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const result = await api.workflowDetail(workflowKey);
@@ -32,7 +45,12 @@ function WorkflowManager({ onError }) {
       const configured = result.draft_definition?.groups || result.active_definition?.groups || [];
       setGroups(configured.map((group) => ({
         ...group,
-        steps: [...(group.steps || [])].sort((a, b) => a.order - b.order).map((step) => ({ ...step })),
+        steps: [...(group.steps || [])].sort((a, b) => a.order - b.order).map((step) => ({
+          ...step,
+          active: step.active !== false,
+          required: Boolean(step.required ?? result.step_catalog?.find((item) => item.key === step.key)?.is_required),
+          position_constraint: step.position_constraint || result.step_catalog?.find((item) => item.key === step.key)?.position_constraint || "ANY",
+        })),
       })));
       setSelectedGroupKey((current) => configured.some((group) => group.key === current)
         ? current
@@ -56,13 +74,45 @@ function WorkflowManager({ onError }) {
 
   useEffect(() => { load(); }, [load]);
 
+  const loadAdminCatalogs = useCallback(async () => {
+    try {
+      const [workflowsResult, requestTypesResult] = await Promise.all([
+        api.workflows(),
+        api.staffRequestTypes(),
+      ]);
+      setAvailableWorkflows(workflowsResult);
+      setRequestTypes(requestTypesResult);
+      setWorkflowKey((current) => current || workflowsResult[0]?.workflow_key || "");
+      setNewRequestTypeWorkflow((current) => current || workflowsResult[0]?.workflow_key || "");
+    } catch (error) {
+      onError?.({ type: "error", text: error.message || "دریافت فهرست گردش‌کارها و انواع درخواست انجام نشد." });
+    }
+  }, [onError]);
+
+  useEffect(() => { loadAdminCatalogs(); }, [loadAdminCatalogs]);
+
   const usedStepKeys = useMemo(
     () => new Set(groups.flatMap((group) => group.steps.map((step) => step.key))),
     [groups],
   );
   const catalog = detail?.step_catalog || [];
   const returnableStepCount = groups.reduce((count, group) => count + group.steps.length, 0);
+  const selectedWorkflow = availableWorkflows.find((workflow) => workflow.workflow_key === workflowKey);
   const selectedGroupIndex = groups.findIndex((group) => group.key === selectedGroupKey);
+  const findConfiguredStep = (stepKey) => groups.flatMap((group) => group.steps).find((step) => step.key === stepKey);
+  const catalogItem = (stepKey) => catalog.find((item) => item.key === stepKey);
+  const isPositionLockedStep = (stepKey) => {
+    const step = findConfiguredStep(stepKey);
+    return (step?.position_constraint || catalogItem(stepKey)?.position_constraint || "ANY") !== "ANY";
+  };
+  const isRequiredStep = (stepKey) => Boolean(findConfiguredStep(stepKey)?.required || catalogItem(stepKey)?.is_required);
+  const updateStepActive = (groupIndex, stepIndex, active) => {
+    if (isRequiredStep(groups[groupIndex]?.steps[stepIndex]?.key) && !active) return;
+    setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
+      ...group,
+      steps: group.steps.map((step, index2) => index2 === stepIndex ? { ...step, active } : step),
+    })));
+  };
   const selectedGroup = selectedGroupIndex >= 0 ? groups[selectedGroupIndex] : null;
 
   useEffect(() => {
@@ -89,15 +139,20 @@ function WorkflowManager({ onError }) {
   };
 
   const moveStep = (groupIndex, stepIndex, delta) => {
-    setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
-      ...group,
-      steps: moveItem(group.steps, stepIndex, stepIndex + delta),
+    const group = groups[groupIndex];
+    const targetIndex = stepIndex + delta;
+    const step = group?.steps[stepIndex];
+    const neighbor = group?.steps[targetIndex];
+    if (!step || !neighbor || isPositionLockedStep(step.key) || isPositionLockedStep(neighbor.key)) return;
+    setGroups((current) => current.map((item, index) => index !== groupIndex ? item : ({
+      ...item,
+      steps: moveItem(item.steps, stepIndex, targetIndex),
     })));
   };
 
   const moveStepToGroup = (sourceGroupKey, stepKey, targetGroupKey) => {
     if (!sourceGroupKey || !targetGroupKey || sourceGroupKey === targetGroupKey) return;
-    if (["personal", "declaration"].includes(stepKey)) return;
+    if (isPositionLockedStep(stepKey)) return;
 
     setGroups((current) => {
       const sourceGroup = current.find((group) => group.key === sourceGroupKey);
@@ -111,9 +166,10 @@ function WorkflowManager({ onError }) {
         }
         if (group.key === targetGroupKey) {
           const steps = [...group.steps];
-          // The final declaration must remain the last stage in the entire workflow.
-          const declarationIndex = steps.findIndex((item) => item.key === "declaration");
-          if (declarationIndex >= 0) steps.splice(declarationIndex, 0, step);
+          const lastPositionIndex = steps.findIndex((item) => (
+            item.position_constraint || catalogItem(item.key)?.position_constraint || "ANY"
+          ) === "LAST");
+          if (lastPositionIndex >= 0) steps.splice(lastPositionIndex, 0, step);
           else steps.push(step);
           return { ...group, steps };
         }
@@ -129,12 +185,12 @@ function WorkflowManager({ onError }) {
     const sourceGroup = groups[fromGroupIndex];
     const step = sourceGroup?.steps[stepIndex];
     if (!step || !targetKey) return;
-    if (["personal", "declaration"].includes(step.key)) return;
+    if (isPositionLockedStep(step.key)) return;
     moveStepToGroup(sourceGroup.key, step.key, targetKey);
   };
 
   const handleStepDragStart = (event, groupKey, step) => {
-    if (["personal", "declaration"].includes(step.key)) {
+    if (isPositionLockedStep(step.key)) {
       event.preventDefault();
       return;
     }
@@ -153,7 +209,7 @@ function WorkflowManager({ onError }) {
   };
 
   const handleGroupDragOver = (event, groupKey) => {
-    if (!draggedStepKey || draggedStepKey === "personal" || draggedStepKey === "declaration") return;
+    if (!draggedStepKey || isPositionLockedStep(draggedStepKey)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
     if (groupKey !== dragOverGroupKey) setDragOverGroupKey(groupKey);
@@ -167,7 +223,7 @@ function WorkflowManager({ onError }) {
     if (!payload) return;
     try {
       const { sourceGroupKey, stepKey } = JSON.parse(payload);
-      if (!stepKey || ["personal", "declaration"].includes(stepKey)) return;
+      if (!stepKey || isPositionLockedStep(stepKey)) return;
       moveStepToGroup(sourceGroupKey, stepKey, targetGroupKey);
     } catch {
       onError?.({ type: "error", text: "انتقال مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
@@ -187,14 +243,21 @@ function WorkflowManager({ onError }) {
     if (!item || usedStepKeys.has(key)) return;
     setGroups((current) => current.map((itemGroup, index) => index !== groupIndex ? itemGroup : ({
       ...itemGroup,
-      steps: [...itemGroup.steps, { key: item.key, title: item.title, handler_key: item.handler_key }],
+      steps: [...itemGroup.steps, {
+        key: item.key,
+        title: item.title,
+        handler_key: item.handler_key,
+        required: Boolean(item.is_required),
+        position_constraint: item.position_constraint || "ANY",
+        active: true,
+      }],
     })));
     setNewStepByGroup((current) => ({ ...current, [group.key]: "" }));
   };
 
   const removeStep = (groupIndex, stepIndex) => {
     const step = groups[groupIndex]?.steps[stepIndex];
-    if (!step || ["personal", "declaration"].includes(step.key)) return;
+    if (!step || isRequiredStep(step.key)) return;
     setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
       ...group,
       steps: group.steps.filter((_, itemIndex) => itemIndex !== stepIndex),
@@ -225,12 +288,57 @@ function WorkflowManager({ onError }) {
     setGroups((current) => current.filter((item) => item.key !== group.key));
   };
 
+  const createWorkflow = async () => {
+    if (!workflowKey || creatingWorkflow) return;
+    const key = newWorkflowKey.trim();
+    const title = newWorkflowTitle.trim();
+    if (!key || !title) {
+      onError?.({ type: "error", text: "کلید و عنوان گردش‌کار الزامی هستند." });
+      return;
+    }
+    setCreatingWorkflow(true);
+    try {
+      const created = await api.createWorkflow({ workflow_key: key, title, template_workflow_key: workflowKey });
+      setAvailableWorkflows(await api.workflows());
+      setWorkflowKey(created.workflow_key);
+      setNewWorkflowKey("");
+      setNewWorkflowTitle("");
+      onError?.({ type: "success", text: "گردش‌کار جدید از نسخه‌ی منتشرشده‌ی الگو ساخته شد." });
+    } catch (error) {
+      onError?.({ type: "error", text: error.message || "ساخت گردش‌کار جدید انجام نشد." });
+    } finally {
+      setCreatingWorkflow(false);
+    }
+  };
+
+  const createRequestType = async () => {
+    if (creatingRequestType) return;
+    const code = newRequestTypeCode.trim().toUpperCase();
+    const title = newRequestTypeTitle.trim();
+    if (!code || !title || !newRequestTypeWorkflow) {
+      onError?.({ type: "error", text: "کد، عنوان و گردش‌کار نوع درخواست را مشخص کنید." });
+      return;
+    }
+    setCreatingRequestType(true);
+    try {
+      await api.createRequestType({ code, title, workflow_key: newRequestTypeWorkflow });
+      setRequestTypes(await api.staffRequestTypes());
+      setNewRequestTypeCode("");
+      setNewRequestTypeTitle("");
+      onError?.({ type: "success", text: "نوع درخواست جدید ثبت شد." });
+    } catch (error) {
+      onError?.({ type: "error", text: error.message || "ساخت نوع درخواست انجام نشد." });
+    } finally {
+      setCreatingRequestType(false);
+    }
+  };
+
   const buildDraftPayload = () => ({
     expected_active_version: detail.active_version,
     groups: groups.map((group) => ({
       key: group.key,
       title: group.title.trim(),
-      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim() })),
+      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim(), active: step.active !== false })),
     })),
   });
 
@@ -272,8 +380,8 @@ function WorkflowManager({ onError }) {
       <header className="workflow-editor-header">
         <div className="workflow-editor-heading">
           <span className="workflow-editor-eyebrow"><span className="workflow-live-dot" /> تنظیمات فرایند سازمانی</span>
-          <h1>مدیریت گردش‌کار استخدام و گزینش</h1>
-          <p>گروه‌ها و مراحل فرایند را از یک نمای متمرکز مدیریت کنید. تغییرات پس از انتشار برای پرونده‌های جدید اعمال می‌شوند.</p>
+          <h1>مدیریت گردش‌کار {selectedWorkflow?.title || detail?.title || ""}</h1>
+          <p>تعریف، ترتیب و گروه‌بندی مراحل را مدیریت کنید. تغییرات پس از انتشار برای درخواست‌های جدید اعمال می‌شوند.</p>
         </div>
         <div className="workflow-version-card">
           <div className="workflow-version-card-top">
@@ -288,6 +396,45 @@ function WorkflowManager({ onError }) {
           </div>
         </div>
       </header>
+
+      <section className="workflow-admin-controls" aria-label="مدیریت تعاریف گردش‌کار">
+        <div className="workflow-admin-control">
+          <label htmlFor="workflow-definition-select">گردش‌کار برای ویرایش</label>
+          <select id="workflow-definition-select" value={workflowKey} onChange={(event) => setWorkflowKey(event.target.value)} disabled={!availableWorkflows.length}>
+            {availableWorkflows.map((workflow) => <option key={workflow.workflow_key} value={workflow.workflow_key}>{workflow.title} ({workflow.workflow_key})</option>)}
+          </select>
+        </div>
+        <div className="workflow-admin-create-form">
+          <strong>ساخت گردش‌کار از نسخه‌ی فعال انتخاب‌شده</strong>
+          <input aria-label="کلید گردش‌کار جدید" placeholder="مثلاً contract_employment" value={newWorkflowKey} maxLength={100} onChange={(event) => setNewWorkflowKey(event.target.value)} />
+          <input aria-label="عنوان گردش‌کار جدید" placeholder="عنوان گردش‌کار" value={newWorkflowTitle} maxLength={150} onChange={(event) => setNewWorkflowTitle(event.target.value)} />
+          <button type="button" className="workflow-action-secondary" onClick={createWorkflow} disabled={creatingWorkflow || !workflowKey}>{creatingWorkflow ? "در حال ساخت…" : "ایجاد گردش‌کار"}</button>
+        </div>
+      </section>
+
+      <section className="workflow-request-type-panel" aria-label="مدیریت انواع درخواست">
+        <div className="workflow-request-type-heading">
+          <div><strong>انواع درخواست</strong><p>هر نوع درخواست به یک گردش‌کار فعال متصل می‌شود؛ نسخه‌ی فعال هنگام ایجاد پرونده از سرور تعیین می‌شود.</p></div>
+        </div>
+        <div className="workflow-request-type-create">
+          <input aria-label="کد نوع درخواست جدید" placeholder="کد انگلیسی، مانند CONTRACT_EMPLOYMENT" value={newRequestTypeCode} maxLength={50} onChange={(event) => setNewRequestTypeCode(event.target.value.toUpperCase())} />
+          <input aria-label="عنوان نوع درخواست جدید" placeholder="عنوان نوع درخواست" value={newRequestTypeTitle} maxLength={150} onChange={(event) => setNewRequestTypeTitle(event.target.value)} />
+          <select aria-label="گردش‌کار نوع درخواست" value={newRequestTypeWorkflow} onChange={(event) => setNewRequestTypeWorkflow(event.target.value)} disabled={!availableWorkflows.length}>
+            {availableWorkflows.map((workflow) => <option key={workflow.workflow_key} value={workflow.workflow_key}>{workflow.title}</option>)}
+          </select>
+          <button type="button" className="workflow-action-secondary" onClick={createRequestType} disabled={creatingRequestType || !availableWorkflows.length}>{creatingRequestType ? "در حال ثبت…" : "افزودن نوع درخواست"}</button>
+        </div>
+        <div className="workflow-request-type-list">
+          {requestTypes.map((type) => (
+            <article className="workflow-request-type-item" key={type.id}>
+              <div><strong>{type.title}</strong><code>{type.code}</code></div>
+              <span>{availableWorkflows.find((workflow) => workflow.workflow_key === type.workflow_key)?.title || type.workflow_key}</span>
+              <small>{type.is_active ? "فعال" : "غیرفعال"}{type.workflow_active_version ? " · v" + type.workflow_active_version : ""}</small>
+            </article>
+          ))}
+          {!requestTypes.length && <p>هنوز نوع درخواستی تعریف نشده است.</p>}
+        </div>
+      </section>
 
       <div className="workflow-summary-strip">
         <div className="workflow-summary-item">
@@ -322,7 +469,7 @@ function WorkflowManager({ onError }) {
             {groups.map((group, groupIndex) => {
               const groupIsExpanded = Boolean(expandedGroupKeys[group.key]);
               const groupIsActive = selectedGroupKey === group.key;
-              const groupIsDropTarget = dragOverGroupKey === group.key && draggedStepKey && !["personal", "declaration"].includes(draggedStepKey);
+              const groupIsDropTarget = dragOverGroupKey === group.key && draggedStepKey && !isPositionLockedStep(draggedStepKey);
               return (
                 <div
                   className={"workflow-group-nav-item" + (groupIsActive ? " is-active" : "") + (groupIsDropTarget ? " is-drop-target" : "")}
@@ -361,7 +508,7 @@ function WorkflowManager({ onError }) {
                   {groupIsExpanded && (
                     <div className="workflow-substep-list" id={"workflow-substeps-" + group.key}>
                       {group.steps.map((step, stepIndex) => {
-                        const isFixedStep = ["personal", "declaration"].includes(step.key);
+                        const isFixedStep = isPositionLockedStep(step.key);
                         const isDragging = draggedStepKey === step.key;
                         return (
                           <button
@@ -445,7 +592,7 @@ function WorkflowManager({ onError }) {
               <div className="workflow-stage-list">
                 {selectedGroup.steps.map((step, stepIndex) => (
                   <article
-                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "")}
+                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (step.active === false ? " is-inactive" : "")}
                     id={"workflow-stage-" + step.key}
                     key={step.key}
                   >
@@ -461,13 +608,17 @@ function WorkflowManager({ onError }) {
                           <span className="workflow-stage-handler-dot" />
                           {catalog.find((entry) => entry.key === step.key)?.handler_key || step.handler_key}
                         </span>
-                        {["personal", "declaration"].includes(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
+                        {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
                       </div>
+                      <label className="workflow-stage-active-toggle">
+                        <input type="checkbox" checked={step.active !== false} disabled={isRequiredStep(step.key)} onChange={(event) => updateStepActive(selectedGroupIndex, stepIndex, event.target.checked)} />
+                        <span>مرحله فعال</span>
+                      </label>
                     </div>
                     <div className="workflow-stage-actions">
                       <div className="workflow-stage-order-buttons">
-                        <button type="button" aria-label="انتقال مرحله به بالا" title="انتقال به بالا" disabled={stepIndex === 0} onClick={() => moveStep(selectedGroupIndex, stepIndex, -1)}>↑</button>
-                        <button type="button" aria-label="انتقال مرحله به پایین" title="انتقال به پایین" disabled={stepIndex === selectedGroup.steps.length - 1} onClick={() => moveStep(selectedGroupIndex, stepIndex, 1)}>↓</button>
+                        <button type="button" aria-label="انتقال مرحله به بالا" title="انتقال به بالا" disabled={stepIndex === 0 || isPositionLockedStep(step.key) || isPositionLockedStep(selectedGroup.steps[stepIndex - 1]?.key)} onClick={() => moveStep(selectedGroupIndex, stepIndex, -1)}>↑</button>
+                        <button type="button" aria-label="انتقال مرحله به پایین" title="انتقال به پایین" disabled={stepIndex === selectedGroup.steps.length - 1 || isPositionLockedStep(step.key) || isPositionLockedStep(selectedGroup.steps[stepIndex + 1]?.key)} onClick={() => moveStep(selectedGroupIndex, stepIndex, 1)}>↓</button>
                       </div>
                       <label className="workflow-move-step-select">
                         <span>انتقال به گروه</span>
@@ -475,7 +626,7 @@ function WorkflowManager({ onError }) {
                           {groups.map((target) => <option key={target.key} value={target.key}>{target.title || target.key}</option>)}
                         </select>
                       </label>
-                      <button type="button" className="workflow-stage-remove" disabled={["personal", "declaration"].includes(step.key)} aria-label="حذف مرحله از گردش‌کار" title="این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود" onClick={() => removeStep(selectedGroupIndex, stepIndex)}>
+                      <button type="button" className="workflow-stage-remove" disabled={isRequiredStep(step.key)} aria-label="حذف مرحله از گردش‌کار" title={isRequiredStep(step.key) ? "مرحله الزامی قابل حذف نیست" : "این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود"} onClick={() => removeStep(selectedGroupIndex, stepIndex)}>
                         <span aria-hidden="true">×</span><span>حذف مرحله</span>
                       </button>
                     </div>

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
-import { STEP_META, STEP_DESCRIPTIONS } from "../../config/workflow";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
@@ -11,11 +10,10 @@ import DocumentsStep from "./steps/DocumentsStep";
 import StepRailItem from "./StepRailItem";
 import StepRenderer from "./StepRenderer";
 
-function buildWorkflowSteps(applicantIsFemale, groups = []) {
-  const baseSteps = Array.isArray(groups)
+function buildWorkflowSteps(groups = []) {
+  return Array.isArray(groups)
     ? groups.flatMap((group) => (group.steps || []).map((step) => typeof step === "string" ? step : step.key))
     : [];
-  return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
 
 function RequestWizard({ user, request, onBack, onError }) {
@@ -34,7 +32,6 @@ function RequestWizard({ user, request, onBack, onError }) {
   const [form, setForm] = useState(null);
   const [draftStatus, setDraftStatus] = useState("idle");
   const [lastDraftSaved, setLastDraftSaved] = useState(null);
-  const [applicantGender, setApplicantGender] = useState("");
   const [hasSpouse, setHasSpouse] = useState(false);
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
@@ -60,19 +57,20 @@ function RequestWizard({ user, request, onBack, onError }) {
       return workflowDefinition.groups.map((group) => ({
         ...group,
         steps: (group.steps || []).map((step) => typeof step === "string"
-          ? { key: step, title: STEP_META[step]?.title || step }
+          ? { key: step, title: step }
           : step),
       }));
     }
     return [];
   }, [workflowDefinition]);
 
-  const workflowSteps = useMemo(
-    () => buildWorkflowSteps(form?.gender === "زن" || applicantGender === "زن", workflowGroups),
-    [form?.gender, applicantGender, workflowGroups],
-  );
+  const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
+  const currentStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
+  const handlerKey = currentStep?.handler_key;
+  const isDocumentsStep = handlerKey === "documents_v1";
+  const isDeclarationStep = handlerKey === "declaration_v1";
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
   const currentReturnReason = steps
     .filter((step) => step.step_key === resume?.current_step && step.status === "RETURNED")
@@ -110,25 +108,22 @@ function RequestWizard({ user, request, onBack, onError }) {
       setWorkflowLoadError("");
       setHasSpouse(false);
       try {
-        const [requestData, resumeData, stepsData, countriesData, personalData, workflowData] = await Promise.all([
+        const [requestData, resumeData, stepsData, countriesData, workflowData] = await Promise.all([
           api.request(request.id),
           api.resume(request.id),
           api.steps(request.id),
           api.countries(),
-          api.stepData(request.id, "personal"),
           api.requestWorkflow(request.id),
         ]);
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
-          throw new Error("تعریف فرایند استخدام و گزینش از سرور دریافت نشد؛ تنظیمات گردش‌کار را در پنل مدیریت بررسی کنید.");
+          throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
         }
-        const femaleApplicant = personalData?.person?.gender === "زن";
-        const initialWorkflowSteps = buildWorkflowSteps(femaleApplicant, workflowData?.groups);
+        const initialWorkflowSteps = buildWorkflowSteps(workflowData?.groups);
         setAppRequest(requestData);
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
-        setApplicantGender(personalData?.person?.gender || "");
         const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
         const initialIndex = finalizedStatuses.includes(resumeData.status)
           ? 0
@@ -156,14 +151,14 @@ function RequestWizard({ user, request, onBack, onError }) {
       setLastDraftSaved(null);
       setValidationErrors({});
       try {
-        if (currentKey === "documents") {
+        if (isDocumentsStep) {
           const docs = await api.documents(appRequest.id);
           if (!cancelled) setDocuments(normalizeList(docs));
           return;
         }
 
 
-        const needsSpouseCheck = !["personal", "marriage", "documents"].includes(currentKey);
+        const needsSpouseCheck = !["personal_v1", "marriage_v1"].includes(handlerKey) && !isDocumentsStep;
         const loadResults = await Promise.allSettled([
           api.stepData(appRequest.id, currentKey),
           api.stepDraft(appRequest.id, currentKey),
@@ -188,10 +183,10 @@ function RequestWizard({ user, request, onBack, onError }) {
         const draft = draftResult.status === "fulfilled" ? draftResult.value : null;
         const merged = mergeDraft(makeForm(currentKey, data, user), draft?.data, currentKey);
         // The applicant national ID is an immutable account attribute; never trust a draft value.
-        if (currentKey === "personal" && user?.national_id) {
+        if (handlerKey === "personal_v1" && user?.national_id) {
           merged.national_id = String(user.national_id);
         }
-        const normalizedForm = currentKey === "military" ? sanitizeMilitaryForm(merged) : currentKey === "marriage" ? sanitizeMarriageForm(merged) : merged;
+        const normalizedForm = handlerKey === "military_v1" ? sanitizeMilitaryForm(merged) : handlerKey === "marriage_v1" ? sanitizeMarriageForm(merged) : merged;
         setStepData(data);
         setForm(normalizedForm);
         setLastDraftSaved(draft?.updated_at || null);
@@ -201,7 +196,7 @@ function RequestWizard({ user, request, onBack, onError }) {
         if (!cancelled) {
           onError({ type: "error", text: error.message, requestId: error.requestId });
           const fallbackForm = makeForm(currentKey, null, user);
-          if (currentKey === "personal" && user?.national_id) {
+          if (handlerKey === "personal_v1" && user?.national_id) {
             fallbackForm.national_id = String(user.national_id);
           }
           setForm(fallbackForm);
@@ -211,7 +206,7 @@ function RequestWizard({ user, request, onBack, onError }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user]);
+  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user, isDocumentsStep]);
 
   useEffect(() => {
     if (
@@ -221,7 +216,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       !resume?.current_step ||
       resume.current_step !== currentKey ||
       readOnly ||
-      currentKey === "documents"
+      isDocumentsStep
     ) return undefined;
 
     const sequence = ++autosaveSequence.current;
@@ -232,7 +227,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       const controller = new AbortController();
       autosaveController.current = controller;
       try {
-        const payload = currentKey === "military" ? cleanMilitaryPayload(form) : currentKey === "marriage" ? cleanMarriagePayload(form) : currentKey === "legal_incidents" ? cleanLegalIncidentPayload(form) : cleanPayload(form);
+        const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form) : cleanPayload(form);
         const result = await api.saveDraft(appRequest.id, currentKey, payload, controller.signal);
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
@@ -253,7 +248,7 @@ function RequestWizard({ user, request, onBack, onError }) {
         autosaveController.current = null;
       }
     };
-  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly]);
+  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
 
   const refreshWorkflow = async () => {
     // Resume is the authoritative workflow state. Do not let ancillary API
@@ -270,17 +265,13 @@ function RequestWizard({ user, request, onBack, onError }) {
     }
 
     // These are display/data refreshes only; they must never block workflow navigation.
-    const [requestResult, stepsResult, personalResult] = await Promise.allSettled([
+    const [requestResult, stepsResult] = await Promise.allSettled([
       api.request(appRequest.id),
       api.steps(appRequest.id),
-      api.stepData(appRequest.id, "personal"),
     ]);
 
     if (requestResult.status === "fulfilled") setAppRequest(requestResult.value);
     if (stepsResult.status === "fulfilled") setSteps(normalizeList(stepsResult.value));
-    if (personalResult.status === "fulfilled") {
-      setApplicantGender(personalResult.value?.person?.gender || "");
-    }
   };
 
   const complete = async () => {
@@ -307,10 +298,10 @@ function RequestWizard({ user, request, onBack, onError }) {
       }
 
       let result;
-      if (currentKey === "documents") {
+      if (isDocumentsStep) {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
-        const payload = currentKey === "military" ? cleanMilitaryPayload(form || {}) : currentKey === "marriage" ? cleanMarriagePayload(form || {}) : currentKey === "legal_incidents" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
+        const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
       // complete_step already persists the submitted data and removes the draft
@@ -318,7 +309,7 @@ function RequestWizard({ user, request, onBack, onError }) {
       // then reconcile the persisted workflow state from the backend.
       // Final declaration closes the request permanently. Show success and
       // return to the dashboard instead of keeping the user inside the wizard.
-      if (currentKey === "declaration" && !result?.next_step) {
+      if (isDeclarationStep && !result?.next_step) {
         onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
         onBack();
         return;
@@ -381,11 +372,9 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   if (loading) return <div className="page"><div className="wizard-loading"><div className="loading-spinner" /><strong>در حال بارگذاری پرونده…</strong></div></div>;
 
-  const configuredStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
-  const meta = {
-    ...(STEP_META[currentKey] || { title: currentKey, kicker: "" }),
-    ...(configuredStep?.title ? { title: configuredStep.title } : {}),
-  };
+  const currentGroup = workflowGroups.find((group) => group.steps.some((step) => step.key === currentKey));
+  const stepTitle = currentStep?.title || currentKey || "";
+  const groupTitle = currentGroup?.title || "";
   const completionCount = Math.min(workflowSteps.length, backendCurrentIndex + (resume?.status === "SUBMITTED" ? 0 : 0));
   const status = statusLabel(appRequest?.status);
 
@@ -410,7 +399,7 @@ function RequestWizard({ user, request, onBack, onError }) {
                 <span className="step-section-title">{group.title}</span>
                 {group.steps.filter((step) => workflowSteps.includes(step.key)).map((step) => {
                   const target = workflowSteps.indexOf(step.key);
-                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={STEP_META[step.key]?.kicker || group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
+                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
               </div>
             ))}
@@ -421,10 +410,10 @@ function RequestWizard({ user, request, onBack, onError }) {
         <section className="wizard-content">
           <div className="step-header">
             <div>
-              <span className="eyebrow">{meta.kicker}</span>
-              <h1>{meta.title}</h1>
-              <p>{STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را با دقت تکمیل کنید."}</p>
-              {!readOnly && currentKey !== "documents" && (
+              <span className="eyebrow">{groupTitle}</span>
+              <h1>{stepTitle}</h1>
+              <p>اطلاعات این مرحله را تکمیل کنید و پس از بررسی، ثبت نمایید.</p>
+              {!readOnly && !isDocumentsStep && (
                 <DraftStatus state={draftStatus} updatedAt={lastDraftSaved} />
               )}
             </div>
@@ -446,11 +435,12 @@ function RequestWizard({ user, request, onBack, onError }) {
             <div className="return-alert"><strong>این مرحله برای اصلاح برگشت داده شده است.</strong>{currentReturnReason && <span>علت بازگشت: {currentReturnReason}</span>}<span>پس از اصلاح اطلاعات، دکمه ثبت و ادامه را بزنید تا دوباره وارد فرآیند بررسی شود.</span></div>
           )}
 
-          {currentKey === "documents" ? (
+          {isDocumentsStep ? (
             <DocumentsStep documents={documents} requestId={appRequest.id} onUploaded={(doc) => setDocuments((items) => [doc, ...items])} onError={onError} readOnly={readOnly} />
           ) : (
             <StepRenderer
               stepKey={currentKey}
+              handlerKey={handlerKey}
               form={form}
               setForm={setForm}
               data={stepData}
@@ -475,7 +465,7 @@ function RequestWizard({ user, request, onBack, onError }) {
                 </button>
               ) : (
                 <button className="primary-button" disabled={saving} onClick={complete}>
-                  {saving ? <><span className="button-spinner" /> در حال ثبت…</> : (currentKey === "declaration" ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه")}
+                  {saving ? <><span className="button-spinner" /> در حال ثبت…</> : (isDeclarationStep ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه")}
                   <span>←</span>
                 </button>
               ))}

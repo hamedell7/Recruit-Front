@@ -25,6 +25,10 @@ const api = {
   workflowDetail: (key) => apiFetch("/staff/workflows/" + path(key)),
   saveWorkflowDraft: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/draft", { method: "PUT", body: payload }),
   publishWorkflow: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/publish", { method: "POST", body: payload }),
+  workflows: () => apiFetch("/staff/workflows"),
+  createWorkflow: (payload) => apiFetch("/staff/workflows", { method: "POST", body: payload }),
+  staffRequestTypes: () => apiFetch("/staff/request-types"),
+  createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
