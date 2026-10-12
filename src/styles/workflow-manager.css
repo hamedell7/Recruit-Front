@@ -1855,6 +1855,7 @@
   line-height: 1.5;
   opacity: 0;
   transform: scale(.985);
+  animation: none;
   transition:
     height 180ms cubic-bezier(.2,.7,.25,1),
     min-height 180ms cubic-bezier(.2,.7,.25,1),
