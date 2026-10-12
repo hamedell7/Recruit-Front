@@ -860,12 +860,12 @@ function WorkflowManager({ onError }) {
               >
                 {selectedGroup.steps.map((step, stepIndex) => {
                   const isFixedStep = isPositionLockedStep(step.key);
-                  const isDragging = draggedStepKey === step.key;
+                  const isDragging = draggedStepKey === step.key && draggedStepSource === "editor";
                   const isDropTarget = Boolean(
-                     draggedStepKey
-                     && draggedStepKey !== step.key
-                     && dragOverStepKey === step.key,
-                   );
+                    draggedStepKey
+                    && draggedStepKey !== step.key
+                    && dragOverStepKey === step.key,
+                  );
                   const dropSlot = (position) => (
                     <div
                       className={
