@@ -2544,3 +2544,29 @@
     max-width: 210px;
   }
 }
+
+
+/* Position remove at the far left and reorder controls at the far right. */
+.workflow-manager .workflow-editor-layout .workflow-stage-actions {
+  direction: ltr;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-remove {
+  order: -1;
+  margin-right: auto;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
+  order: 1;
+  margin-left: auto;
+}
+
+@media (max-width: 720px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-remove {
+    margin-right: 0;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
+    margin-left: auto;
+  }
+}
