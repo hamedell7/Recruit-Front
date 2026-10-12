@@ -659,63 +659,126 @@ function WorkflowManager({ onError }) {
                 {selectedGroup.steps.map((step, stepIndex) => {
                   const isFixedStep = isPositionLockedStep(step.key);
                   const isDragging = draggedStepKey === step.key;
-                  const isDropTarget = Boolean(draggedStepKey && draggedStepKey !== step.key && dragOverStepKey === step.key);
+                  const isDropTarget = Boolean(
+                    draggedStepKey && draggedStepKey !== step.key && dragOverStepKey === step.key,
+                  );
+
                   return (
-                  <article
-                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "") + (isDragging ? " is-dragging" : "") + (isDropTarget ? (step.position_constraint === "FIRST" ? " is-drop-after" : " is-drop-before") : "")}
-                    id={"workflow-stage-" + step.key}
-                    key={step.key}
-                    onDragOver={(event) => handleStageDragOver(event, step.key)}
-                    onDragLeave={(event) => {
-                      if (!event.currentTarget.contains(event.relatedTarget)) setDragOverStepKey("");
-                    }}
-                    onDrop={(event) => handleStageDrop(event, selectedGroup.key, step.key)}
-                  >
-                    <span
-                      className="workflow-stage-order workflow-stage-drag-handle"
-                      draggable={!isFixedStep}
-                      title={isFixedStep ? "این مرحله جایگاه ثابتی دارد" : "بکشید و روی گروه مقصد یا مرحلهٔ دیگر رها کنید"}
-                      aria-label={"دستگیره جابه‌جایی مرحله " + (step.title || step.key)}
-                      onDragStart={(event) => handleStepDragStart(event, selectedGroup.key, step)}
-                      onDragEnd={handleStepDragEnd}
+                    <article
+                      className={
+                        "workflow-stage-card"
+                        + (focusedStepKey === step.key ? " is-focused" : "")
+                        + (!step.active ? " is-inactive" : "")
+                        + (isDragging ? " is-dragging" : "")
+                        + (isDropTarget
+                          ? (step.position_constraint === "FIRST" ? " is-drop-after" : " is-drop-before")
+                          : "")
+                      }
+                      id={"workflow-stage-" + step.key}
+                      key={step.key}
+                      onDragOver={(event) => handleStageDragOver(event, step.key)}
+                      onDragLeave={(event) => {
+                        if (!event.currentTarget.contains(event.relatedTarget)) setDragOverStepKey("");
+                      }}
+                      onDrop={(event) => handleStageDrop(event, selectedGroup.key, step.key)}
                     >
-                      {!isFixedStep && <span className="workflow-stage-drag-grip" aria-hidden="true">⠿</span>}
-                      <span>{String(stepIndex + 1).padStart(2, "0")}</span>
-                    </span>
-                    <div className="workflow-stage-content">
-                      <label className="workflow-stage-title-field">
-                        <span>عنوان نمایشی مرحله</span>
-                        <input value={step.title} maxLength={150} onChange={(event) => updateStepTitle(selectedGroupIndex, stepIndex, event.target.value)} />
-                      </label>
-                      <div className="workflow-stage-identifiers">
-                        <code>{step.key}</code>
-                        <span className="workflow-stage-handler">
-                          <span className="workflow-stage-handler-dot" />
-                          {catalog.find((entry) => entry.key === step.key)?.handler_key || step.handler_key}
-                        </span>
-                        {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
+                      <span
+                        className="workflow-stage-order workflow-stage-drag-handle"
+                        draggable={!isFixedStep}
+                        title={
+                          isFixedStep
+                            ? "این مرحله جایگاه ثابتی دارد"
+                            : "بکشید و روی گروه مقصد یا مرحلهٔ دیگر رها کنید"
+                        }
+                        aria-label={"دستگیره جابه‌جایی مرحله " + (step.title || step.key)}
+                        onDragStart={(event) => handleStepDragStart(event, selectedGroup.key, step)}
+                        onDragEnd={handleStepDragEnd}
+                      >
+                        {!isFixedStep && (
+                          <span className="workflow-stage-drag-grip" aria-hidden="true">⠿</span>
+                        )}
+                        <span>{String(stepIndex + 1).padStart(2, "0")}</span>
+                      </span>
+                      <div className="workflow-stage-content">
+                        <label className="workflow-stage-title-field">
+                          <span>عنوان نمایشی مرحله</span>
+                          <input
+                            value={step.title}
+                            maxLength={150}
+                            onChange={(event) => updateStepTitle(selectedGroupIndex, stepIndex, event.target.value)}
+                          />
+                        </label>
+                        <div className="workflow-stage-identifiers">
+                          <code>{step.key}</code>
+                          <span className="workflow-stage-handler">
+                            <span className="workflow-stage-handler-dot" />
+                            {catalog.find((entry) => entry.key === step.key)?.handler_key || step.handler_key}
+                          </span>
+                          {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
+                        </div>
+                        <label className="workflow-stage-active-toggle">
+                          <input
+                            type="checkbox"
+                            checked={step.active}
+                            disabled={isRequiredStep(step.key)}
+                            onChange={(event) => updateStepActive(selectedGroupIndex, stepIndex, event.target.checked)}
+                          />
+                          <span>مرحله فعال</span>
+                        </label>
                       </div>
-                      <label className="workflow-stage-active-toggle">
-                        <input type="checkbox" checked={step.active} disabled={isRequiredStep(step.key)} onChange={(event) => updateStepActive(selectedGroupIndex, stepIndex, event.target.checked)} />
-                        <span>مرحله فعال</span>
-                      </label>
-                    </div>
-                    <div className="workflow-stage-actions">
-                      <div className="workflow-stage-order-buttons">
-                        <button type="button" aria-label="انتقال مرحله به بالا" title="انتقال به بالا" disabled={stepIndex === 0 || isPositionLockedStep(step.key) || isPositionLockedStep(selectedGroup.steps[stepIndex - 1]?.key)} onClick={() => moveStep(selectedGroupIndex, stepIndex, -1)}>↑</button>
-                        <button type="button" aria-label="انتقال مرحله به پایین" title="انتقال به پایین" disabled={stepIndex === selectedGroup.steps.length - 1 || isPositionLockedStep(step.key) || isPositionLockedStep(selectedGroup.steps[stepIndex + 1]?.key)} onClick={() => moveStep(selectedGroupIndex, stepIndex, 1)}>↓</button>
+                      <div className="workflow-stage-actions">
+                        <div className="workflow-stage-order-buttons">
+                          <button
+                            type="button"
+                            aria-label="انتقال مرحله به بالا"
+                            title="انتقال به بالا"
+                            disabled={
+                              stepIndex === 0
+                              || isPositionLockedStep(step.key)
+                              || isPositionLockedStep(selectedGroup.steps[stepIndex - 1]?.key)
+                            }
+                            onClick={() => moveStep(selectedGroupIndex, stepIndex, -1)}
+                          >↑</button>
+                          <button
+                            type="button"
+                            aria-label="انتقال مرحله به پایین"
+                            title="انتقال به پایین"
+                            disabled={
+                              stepIndex === selectedGroup.steps.length - 1
+                              || isPositionLockedStep(step.key)
+                              || isPositionLockedStep(selectedGroup.steps[stepIndex + 1]?.key)
+                            }
+                            onClick={() => moveStep(selectedGroupIndex, stepIndex, 1)}
+                          >↓</button>
+                        </div>
+                        <label className="workflow-move-step-select">
+                          <span>انتقال به گروه</span>
+                          <select
+                            aria-label={"انتقال مرحله " + step.title + " به گروه دیگر"}
+                            value={selectedGroup.key}
+                            onChange={(event) => changeStepGroup(selectedGroupIndex, stepIndex, event.target.value)}
+                          >
+                            {groups.map((target) => (
+                              <option key={target.key} value={target.key}>{target.title || target.key}</option>
+                            ))}
+                          </select>
+                        </label>
+                        <button
+                          type="button"
+                          className="workflow-stage-remove"
+                          disabled={isRequiredStep(step.key)}
+                          aria-label="حذف مرحله از گردش‌کار"
+                          title={
+                            isRequiredStep(step.key)
+                              ? "مرحله الزامی قابل حذف نیست"
+                              : "این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود"
+                          }
+                          onClick={() => removeStep(selectedGroupIndex, stepIndex)}
+                        >
+                          <span aria-hidden="true">×</span><span>حذف مرحله</span>
+                        </button>
                       </div>
-                      <label className="workflow-move-step-select">
-                        <span>انتقال به گروه</span>
-                        <select aria-label={"انتقال مرحله " + step.title + " به گروه دیگر"} value={selectedGroup.key} onChange={(event) => changeStepGroup(selectedGroupIndex, stepIndex, event.target.value)}>
-                          {groups.map((target) => <option key={target.key} value={target.key}>{target.title || target.key}</option>)}
-                        </select>
-                      </label>
-                      <button type="button" className="workflow-stage-remove" disabled={isRequiredStep(step.key)} aria-label="حذف مرحله از گردش‌کار" title={isRequiredStep(step.key) ? "مرحله الزامی قابل حذف نیست" : "این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود"} onClick={() => removeStep(selectedGroupIndex, stepIndex)}>
-                        <span aria-hidden="true">×</span><span>حذف مرحله</span>
-                      </button>
-                    </div>
-                  </article>
+                    </article>
                   );
                 })}
                 {selectedGroup.steps.length === 0 && (
