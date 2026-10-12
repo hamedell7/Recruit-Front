@@ -193,7 +193,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const submitDecision = async () => {
     if (!selectedRequest || !decisionMode || decisionBusy) return;
     const reason = decisionReason.trim();
-    if (decisionMode !== "APPROVE" && reason.length < 3) {
+    if (["RETURN", "REJECT"].includes(decisionMode) && reason.length < 3) {
       onError?.({ type: "error", text: decisionMode === "RETURN" ? "علت درخواست اصلاح را وارد کنید." : "علت رد درخواست را وارد کنید." });
       return;
     }
@@ -208,11 +208,13 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
         reason: reason || null,
         return_step_key: decisionMode === "RETURN" ? returnStepKey : null,
       });
-      const successMessage = decisionMode === "APPROVE"
-        ? "درخواست با موفقیت تأیید شد."
-        : decisionMode === "REJECT"
-          ? "درخواست رد شد."
-          : "پرونده برای اصلاح برگشت داده شد.";
+      const successMessage = decisionMode === "START_REVIEW"
+        ? "پرونده به وضعیت «در حال بررسی» منتقل شد."
+        : decisionMode === "APPROVE"
+          ? "درخواست با موفقیت تأیید شد."
+          : decisionMode === "REJECT"
+            ? "درخواست رد شد."
+            : "پرونده برای اصلاح برگشت داده شد.";
       setSelectedRequest(null);
       setDecisionMode("");
       setDecisionReason("");
@@ -457,16 +459,19 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
             <section className="staff-decision-panel">
               <div className="staff-decision-heading">
                 <strong>تصمیم درباره‌ی درخواست</strong>
-                <span>تأیید، رد یا بازگرداندن پرونده برای اصلاح</span>
+                <span>شروع بررسی، تأیید، رد یا بازگرداندن پرونده برای اصلاح</span>
               </div>
               <div className="staff-decision-choices">
+                {selectedRequest.status === "SUBMITTED" && (
+                  <button type="button" className="staff-decision-review" onClick={() => { setDecisionMode("START_REVIEW"); setDecisionReason(""); }} disabled={decisionBusy}>⌕ شروع بررسی</button>
+                )}
                 <button type="button" className="staff-decision-approve" onClick={() => { setDecisionMode("APPROVE"); setDecisionReason(""); }} disabled={decisionBusy}>✓ موافقت با درخواست</button>
                 <button type="button" className="staff-decision-return" onClick={() => { setDecisionMode("RETURN"); setDecisionReason(""); }} disabled={decisionBusy}>↶ نیاز به اصلاح</button>
                 <button type="button" className="staff-decision-reject" onClick={() => { setDecisionMode("REJECT"); setDecisionReason(""); }} disabled={decisionBusy}>× رد درخواست</button>
               </div>
               {decisionMode && (
                 <div className="staff-decision-form">
-                  <strong>{decisionMode === "APPROVE" ? "تأیید درخواست" : decisionMode === "REJECT" ? "رد درخواست" : "بازگشت برای اصلاح"}</strong>
+                  <strong>{decisionMode === "START_REVIEW" ? "شروع بررسی پرونده" : decisionMode === "APPROVE" ? "تأیید درخواست" : decisionMode === "REJECT" ? "رد درخواست" : "بازگشت برای اصلاح"}</strong>
                   {decisionMode === "RETURN" && (
                     <label>
                       <span>مرحله‌ای که متقاضی باید اصلاح کند</span>
@@ -478,7 +483,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                       </select>
                     </label>
                   )}
-                  {decisionMode !== "APPROVE" && (
+                  {["RETURN", "REJECT"].includes(decisionMode) && (
                     <label>
                       <span>علت تصمیم (الزامی)</span>
                       <textarea rows={3} maxLength={2000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} placeholder={decisionMode === "RETURN" ? "مورد یا اطلاعاتی که باید اصلاح شود را شرح دهید…" : "علت رد درخواست را شرح دهید…"} />
@@ -487,7 +492,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                   <div className="staff-decision-form-actions">
                     <button type="button" className="ghost-button" disabled={decisionBusy} onClick={() => { setDecisionMode(""); setDecisionReason(""); }}>انصراف</button>
                     <button type="button" className="primary-button" disabled={decisionBusy || (decisionMode === "RETURN" && (!reviewWorkflow || !returnStepKey))} onClick={submitDecision}>
-                      {decisionBusy ? "در حال ثبت…" : "ثبت تصمیم"}
+                      {decisionBusy ? "در حال ثبت…" : decisionMode === "START_REVIEW" ? "انتقال به وضعیت در حال بررسی" : "ثبت تصمیم"}
                     </button>
                   </div>
                 </div>
