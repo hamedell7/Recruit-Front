@@ -753,7 +753,7 @@ function WorkflowManager({ onError }) {
                             data-drop-position={position}
                             aria-hidden="true"
                           >
-                            <span className="workflow-substep-drop-slot-line" />
+                            <span className="workflow-substep-drop-slot-icon">↳</span><span>جایگاه جدید</span>
                           </div>
                         );
 
