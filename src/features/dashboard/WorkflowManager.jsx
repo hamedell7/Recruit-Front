@@ -315,60 +315,67 @@ function WorkflowManager({ onError }) {
     }
   };
 
-  const handleStageDragOver = (event, targetStepKey) => {
-    // Stage cards only reorder items from the currently selected group.
-    if (
-      draggedStepSource !== "editor"
-      || !draggedStepKey
-      || draggedStepKey === targetStepKey
-      || draggedStepGroupKey !== selectedGroupKey
-      || isPositionLockedStep(draggedStepKey)
-    ) return;
+  const resolveStageDropTarget = (event) => {
+    const targetElement = event.target instanceof Element ? event.target : null;
+    const dropSlot = targetElement?.closest(".workflow-stage-drop-slot");
 
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
+    if (dropSlot) {
+      return {
+        stepKey: dropSlot.dataset.dropStepKey || "",
+        position: dropSlot.dataset.dropPosition || "before",
+      };
+    }
+
+    const card = targetElement?.closest(".workflow-stage-card");
+    const targetStepKey = card?.dataset.stepKey;
+    if (!card || !targetStepKey) return null;
 
     const targetStep = selectedGroup?.steps.find((step) => step.key === targetStepKey);
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const bounds = card.getBoundingClientRect();
     const position = targetStep?.position_constraint === "FIRST"
       ? "after"
       : targetStep?.position_constraint === "LAST"
         ? "before"
         : event.clientY >= bounds.top + bounds.height / 2 ? "after" : "before";
 
-    if (dragOverStepKey !== targetStepKey) setDragOverStepKey(targetStepKey);
-    if (dragOverPosition !== position) setDragOverPosition(position);
-    if (dragOverGroupKey) setDragOverGroupKey("");
+    return { stepKey: targetStepKey, position };
   };
 
-  const handleStageSlotDragOver = (event, targetStepKey, position) => {
+  const handleStageListDragOver = (event) => {
     if (
       draggedStepSource !== "editor"
       || !draggedStepKey
-      || draggedStepKey === targetStepKey
       || draggedStepGroupKey !== selectedGroupKey
       || isPositionLockedStep(draggedStepKey)
     ) return;
 
+    const target = resolveStageDropTarget(event);
+    if (!target || target.stepKey === draggedStepKey) {
+      if (dragOverStepKey) setDragOverStepKey("");
+      return;
+    }
+
     event.preventDefault();
-    event.stopPropagation();
     event.dataTransfer.dropEffect = "move";
-    if (dragOverStepKey !== targetStepKey) setDragOverStepKey(targetStepKey);
-    if (dragOverPosition !== position) setDragOverPosition(position);
+    if (dragOverStepKey !== target.stepKey) setDragOverStepKey(target.stepKey);
+    if (dragOverPosition !== target.position) setDragOverPosition(target.position);
     if (dragOverGroupKey) setDragOverGroupKey("");
   };
 
-  const handleStageDrop = (event, targetStepKey, positionOverride) => {
-    event.preventDefault();
+  const handleStageListDrop = (event) => {
     const payload = event.dataTransfer.getData("text/plain");
-    const position = positionOverride || dragOverPosition;
+    if (!payload) return;
+
+    event.preventDefault();
+    const target = resolveStageDropTarget(event);
     setDragOverStepKey("");
     setDragOverGroupKey("");
     setDragOverPosition("before");
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
     setDraggedStepSource("");
-    if (!payload) return;
+
+    if (!target?.stepKey) return;
 
     try {
       const { sourceArea, sourceGroupKey, stepKey } = JSON.parse(payload);
@@ -376,13 +383,20 @@ function WorkflowManager({ onError }) {
         sourceArea !== "editor"
         || !sourceGroupKey
         || sourceGroupKey !== selectedGroupKey
+        || !stepKey
         || isPositionLockedStep(stepKey)
       ) return;
 
-      moveStepWithinGroup(sourceGroupKey, stepKey, targetStepKey, position);
+      moveStepWithinGroup(sourceGroupKey, stepKey, target.stepKey, target.position);
     } catch {
       onError?.({ type: "error", text: "جابه‌جایی مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
     }
+  };
+
+  const handleStageListDragLeave = (event) => {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    setDragOverStepKey("");
+    setDragOverPosition("before");
   };
 
   const jumpToStep = (groupKey, stepKey) => {
@@ -711,7 +725,12 @@ function WorkflowManager({ onError }) {
                 <span className="workflow-stages-count">{selectedGroup.steps.length.toLocaleString("fa-IR")} مرحله</span>
               </div>
 
-              <div className="workflow-stage-list">
+              <div
+                className="workflow-stage-list"
+                onDragOver={handleStageListDragOver}
+                onDrop={handleStageListDrop}
+                onDragLeave={handleStageListDragLeave}
+              >
                 {selectedGroup.steps.map((step, stepIndex) => {
                   const isFixedStep = isPositionLockedStep(step.key);
                   const isDragging = draggedStepKey === step.key;
@@ -729,8 +748,8 @@ function WorkflowManager({ onError }) {
                         + (isDropTarget && dragOverPosition === position ? " is-visible" : "")
                       }
                       aria-hidden="true"
-                      onDragOver={(event) => handleStageSlotDragOver(event, step.key, position)}
-                      onDrop={(event) => handleStageDrop(event, step.key, position)}
+                      data-drop-step-key={step.key}
+                      data-drop-position={position}
                     >
                       <span className="workflow-stage-drop-slot-icon">↳</span>
                       <span>جایگاه جدید مرحله</span>
@@ -752,17 +771,7 @@ function WorkflowManager({ onError }) {
                             : "")
                         }
                         id={"workflow-stage-" + step.key}
-                        onDragOver={(event) => handleStageDragOver(event, step.key)}
-                        onDragLeave={(event) => {
-                          if (
-                            !event.currentTarget.contains(event.relatedTarget)
-                            && !event.relatedTarget?.closest?.(".workflow-stage-drop-slot")
-                          ) {
-                            setDragOverStepKey("");
-                            setDragOverPosition("before");
-                          }
-                        }}
-                        onDrop={(event) => handleStageDrop(event, step.key)}
+                        data-step-key={step.key}
                       >
                         <span
                           className="workflow-stage-order workflow-stage-drag-handle"
