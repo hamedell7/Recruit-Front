@@ -662,7 +662,7 @@ function WorkflowManager({ onError }) {
                   const isDropTarget = Boolean(draggedStepKey && draggedStepKey !== step.key && dragOverStepKey === step.key);
                   return (
                   <article
-                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "") + (isDragging ? " is-dragging" : "") + (isDropTarget ? " is-drop-before" : "")}
+                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "") + (isDragging ? " is-dragging" : "") + (isDropTarget ? (step.position_constraint === "FIRST" ? " is-drop-after" : " is-drop-before") : "")}
                     id={"workflow-stage-" + step.key}
                     key={step.key}
                     onDragOver={(event) => handleStageDragOver(event, selectedGroup.key, step.key)}
