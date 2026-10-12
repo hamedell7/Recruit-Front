@@ -378,10 +378,30 @@ function WorkflowManager({ onError }) {
     </div>
   );
 
+  const workflowSummaryStrip = (
+    <div className="workflow-summary-strip" aria-label="خلاصه گردش‌کار">
+      {requestTypeSelector}
+      <span className="workflow-summary-divider workflow-summary-primary-divider" aria-hidden="true" />
+      <div className="workflow-summary-item">
+        <span className="workflow-summary-icon">☷</span>
+        <span><strong>{groups.length.toLocaleString("fa-IR")}</strong><small>گروه فرایند</small></span>
+      </div>
+      <span className="workflow-summary-divider" aria-hidden="true" />
+      <div className="workflow-summary-item">
+        <span className="workflow-summary-icon workflow-summary-icon-blue">↳</span>
+        <span><strong>{returnableStepCount.toLocaleString("fa-IR")}</strong><small>مرحله تعریف‌شده</small></span>
+      </div>
+      <div className="workflow-summary-hint">
+        <span className="workflow-summary-hint-dot" />
+        ترتیب و عنوان‌ها قابل تنظیم‌اند؛ پردازشگرها از فهرست مجاز سامانه انتخاب می‌شوند.
+      </div>
+    </div>
+  );
+
   if (catalogLoading || (!detail && workflowKey)) {
     return (
       <section className="workflow-manager" dir="rtl">
-        {requestTypeSelector}
+        {workflowSummaryStrip}
         <div className="workflow-manager-state">در حال بارگذاری تنظیمات گردش‌کار…</div>
       </section>
     );
@@ -390,7 +410,7 @@ function WorkflowManager({ onError }) {
   if (!selectedRequestType || !workflowKey) {
     return (
       <section className="workflow-manager" dir="rtl">
-        {requestTypeSelector}
+        {workflowSummaryStrip}
         <div className="workflow-manager-state">نوع درخواست فعالی که به گردش‌کار متصل باشد پیدا نشد.</div>
       </section>
     );
@@ -398,7 +418,6 @@ function WorkflowManager({ onError }) {
 
   return (
     <section className="workflow-manager" dir="rtl">
-      {requestTypeSelector}
       <header className="workflow-editor-header">
         <div className="workflow-editor-heading">
           <span className="workflow-editor-eyebrow"><span className="workflow-live-dot" /> تنظیمات فرایند سازمانی</span>
@@ -419,21 +438,7 @@ function WorkflowManager({ onError }) {
         </div>
       </header>
 
-      <div className="workflow-summary-strip">
-        <div className="workflow-summary-item">
-          <span className="workflow-summary-icon">☷</span>
-          <span><strong>{groups.length.toLocaleString("fa-IR")}</strong><small>گروه فرایند</small></span>
-        </div>
-        <span className="workflow-summary-divider" />
-        <div className="workflow-summary-item">
-          <span className="workflow-summary-icon workflow-summary-icon-blue">↳</span>
-          <span><strong>{returnableStepCount.toLocaleString("fa-IR")}</strong><small>مرحله تعریف‌شده</small></span>
-        </div>
-        <div className="workflow-summary-hint">
-          <span className="workflow-summary-hint-dot" />
-          ترتیب و عنوان‌ها قابل تنظیم‌اند؛ پردازشگرها از فهرست مجاز سامانه انتخاب می‌شوند.
-        </div>
-      </div>
+      {workflowSummaryStrip}
 
       <div className="workflow-editor-layout">
         <aside className="workflow-groups-sidebar" aria-label="گروه‌های گردش‌کار">
