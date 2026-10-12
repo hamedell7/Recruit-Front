@@ -35,7 +35,7 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
-function StaffDashboard({ onError, user }) {
+function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -56,7 +56,6 @@ function StaffDashboard({ onError, user }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
-  const [workspace, setWorkspace] = useState("requests");
   const [reviewWorkflow, setReviewWorkflow] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
   const [decisionReason, setDecisionReason] = useState("");
@@ -241,25 +240,11 @@ function StaffDashboard({ onError, user }) {
     }
   };
 
-  if (workspace === "workflow" && user?.role === "ADMIN") {
-    return (
-      <main className="page staff-dashboard-page">
-        <div className="staff-workflow-workspace">
-          <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
-            <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("requests")}>مدیریت درخواست‌ها</button>
-            <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
-          </div>
-          <WorkflowManager onError={onError} />
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="page staff-dashboard-page">
       <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
         <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت درخواست‌ها</button>
-        {user?.role === "ADMIN" && <button type="button" role="tab" aria-selected={false} onClick={() => setWorkspace("workflow")}>مدیریت گردش‌کار</button>}
+        {user?.role === "ADMIN" && <button type="button" role="tab" aria-selected={false} onClick={onNavigateWorkflow}>مدیریت گردش‌کار</button>}
       </div>
       <section className="staff-dashboard-hero">
         <div className="staff-dashboard-heading">
@@ -523,6 +508,65 @@ function StaffDashboard({ onError, user }) {
         </Modal>
       )}
     </main>
+  );
+}
+
+const STAFF_REQUESTS_PATH = "/staff/requests";
+const STAFF_WORKFLOW_PATH = "/staff/workflows";
+
+function getStaffWorkspace(pathname, role) {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+  return role === "ADMIN" && normalizedPath === STAFF_WORKFLOW_PATH ? "workflow" : "requests";
+}
+
+function StaffDashboard({ onError, user }) {
+  const [workspace, setWorkspace] = useState(() => getStaffWorkspace(window.location.pathname, user?.role));
+
+  useEffect(() => {
+    const syncWorkspaceWithRoute = () => {
+      const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
+      const nextWorkspace = getStaffWorkspace(normalizedPath, user?.role);
+      const canonicalPath = nextWorkspace === "workflow" ? STAFF_WORKFLOW_PATH : STAFF_REQUESTS_PATH;
+
+      if (normalizedPath !== canonicalPath) {
+        window.history.replaceState({ view: "dashboard", workspace: nextWorkspace }, "", canonicalPath);
+      }
+      setWorkspace(nextWorkspace);
+    };
+
+    syncWorkspaceWithRoute();
+    window.addEventListener("popstate", syncWorkspaceWithRoute);
+    return () => window.removeEventListener("popstate", syncWorkspaceWithRoute);
+  }, [user?.role]);
+
+  const navigateWorkspace = (nextWorkspace) => {
+    const path = nextWorkspace === "workflow" ? STAFF_WORKFLOW_PATH : STAFF_REQUESTS_PATH;
+    if (window.location.pathname !== path) {
+      window.history.pushState({ view: "dashboard", workspace: nextWorkspace }, "", path);
+    }
+    setWorkspace(nextWorkspace);
+  };
+
+  if (workspace === "workflow" && user?.role === "ADMIN") {
+    return (
+      <main className="page staff-dashboard-page">
+        <div className="staff-workflow-workspace">
+          <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
+            <button type="button" role="tab" aria-selected={false} onClick={() => navigateWorkspace("requests")}>مدیریت درخواست‌ها</button>
+            <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
+          </div>
+          <WorkflowManager onError={onError} />
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <StaffRequestsDashboard
+      user={user}
+      onError={onError}
+      onNavigateWorkflow={() => navigateWorkspace("workflow")}
+    />
   );
 }
 
