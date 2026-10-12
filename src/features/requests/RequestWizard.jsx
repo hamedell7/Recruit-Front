@@ -12,7 +12,7 @@ import StepRenderer from "./StepRenderer";
 
 function buildWorkflowSteps(groups = []) {
   return Array.isArray(groups)
-    ? groups.flatMap((group) => (group.steps || []).map((step) => typeof step === "string" ? step : step.key))
+    ? groups.flatMap((group) => group.steps.map((step) => step.key))
     : [];
 }
 
@@ -54,12 +54,7 @@ function RequestWizard({ user, request, onBack, onError }) {
 
   const workflowGroups = useMemo(() => {
     if (workflowDefinition?.groups?.length) {
-      return workflowDefinition.groups.map((group) => ({
-        ...group,
-        steps: (group.steps || []).map((step) => typeof step === "string"
-          ? { key: step, title: step }
-          : step),
-      }));
+      return workflowDefinition.groups;
     }
     return [];
   }, [workflowDefinition]);

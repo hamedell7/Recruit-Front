@@ -45,12 +45,7 @@ function WorkflowManager({ onError }) {
       const configured = result.draft_definition?.groups || result.active_definition?.groups || [];
       setGroups(configured.map((group) => ({
         ...group,
-        steps: [...(group.steps || [])].sort((a, b) => a.order - b.order).map((step) => ({
-          ...step,
-          active: step.active !== false,
-          required: Boolean(step.required ?? result.step_catalog?.find((item) => item.key === step.key)?.is_required),
-          position_constraint: step.position_constraint || result.step_catalog?.find((item) => item.key === step.key)?.position_constraint || "ANY",
-        })),
+        steps: [...group.steps].sort((a, b) => a.order - b.order).map((step) => ({ ...step })),
       })));
       setSelectedGroupKey((current) => configured.some((group) => group.key === current)
         ? current
@@ -100,12 +95,11 @@ function WorkflowManager({ onError }) {
   const selectedWorkflow = availableWorkflows.find((workflow) => workflow.workflow_key === workflowKey);
   const selectedGroupIndex = groups.findIndex((group) => group.key === selectedGroupKey);
   const findConfiguredStep = (stepKey) => groups.flatMap((group) => group.steps).find((step) => step.key === stepKey);
-  const catalogItem = (stepKey) => catalog.find((item) => item.key === stepKey);
   const isPositionLockedStep = (stepKey) => {
     const step = findConfiguredStep(stepKey);
-    return (step?.position_constraint || catalogItem(stepKey)?.position_constraint || "ANY") !== "ANY";
+    return Boolean(step && step.position_constraint !== "ANY");
   };
-  const isRequiredStep = (stepKey) => Boolean(findConfiguredStep(stepKey)?.required || catalogItem(stepKey)?.is_required);
+  const isRequiredStep = (stepKey) => Boolean(findConfiguredStep(stepKey)?.required);
   const updateStepActive = (groupIndex, stepIndex, active) => {
     if (isRequiredStep(groups[groupIndex]?.steps[stepIndex]?.key) && !active) return;
     setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
@@ -167,7 +161,7 @@ function WorkflowManager({ onError }) {
         if (group.key === targetGroupKey) {
           const steps = [...group.steps];
           const lastPositionIndex = steps.findIndex((item) => (
-            item.position_constraint || catalogItem(item.key)?.position_constraint || "ANY"
+            item.position_constraint
           ) === "LAST");
           if (lastPositionIndex >= 0) steps.splice(lastPositionIndex, 0, step);
           else steps.push(step);
@@ -247,8 +241,8 @@ function WorkflowManager({ onError }) {
         key: item.key,
         title: item.title,
         handler_key: item.handler_key,
-        required: Boolean(item.is_required),
-        position_constraint: item.position_constraint || "ANY",
+        required: item.is_required,
+        position_constraint: item.position_constraint,
         active: true,
       }],
     })));
@@ -338,7 +332,7 @@ function WorkflowManager({ onError }) {
     groups: groups.map((group) => ({
       key: group.key,
       title: group.title.trim(),
-      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim(), active: step.active !== false })),
+      steps: group.steps.map((step) => ({ key: step.key, title: step.title.trim(), active: step.active })),
     })),
   });
 
@@ -592,7 +586,7 @@ function WorkflowManager({ onError }) {
               <div className="workflow-stage-list">
                 {selectedGroup.steps.map((step, stepIndex) => (
                   <article
-                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (step.active === false ? " is-inactive" : "")}
+                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "")}
                     id={"workflow-stage-" + step.key}
                     key={step.key}
                   >
@@ -611,7 +605,7 @@ function WorkflowManager({ onError }) {
                         {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
                       </div>
                       <label className="workflow-stage-active-toggle">
-                        <input type="checkbox" checked={step.active !== false} disabled={isRequiredStep(step.key)} onChange={(event) => updateStepActive(selectedGroupIndex, stepIndex, event.target.checked)} />
+                        <input type="checkbox" checked={step.active} disabled={isRequiredStep(step.key)} onChange={(event) => updateStepActive(selectedGroupIndex, stepIndex, event.target.checked)} />
                         <span>مرحله فعال</span>
                       </label>
                     </div>
