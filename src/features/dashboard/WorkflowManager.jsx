@@ -1,6 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
 import "../../styles/workflow-manager.css";
+
+const inFlightRequests = new Map();
+
+function requestOnce(key, request) {
+  const inFlight = inFlightRequests.get(key);
+  if (inFlight) return inFlight;
+
+  const pending = Promise.resolve()
+    .then(request)
+    .finally(() => {
+      if (inFlightRequests.get(key) === pending) inFlightRequests.delete(key);
+    });
+  inFlightRequests.set(key, pending);
+  return pending;
+}
 
 function moveItem(items, fromIndex, toIndex) {
   if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) return items;
@@ -11,16 +26,9 @@ function moveItem(items, fromIndex, toIndex) {
 }
 
 function WorkflowManager({ onError }) {
-  const [workflowKey, setWorkflowKey] = useState("");
-  const [availableWorkflows, setAvailableWorkflows] = useState([]);
+  const [selectedRequestTypeCode, setSelectedRequestTypeCode] = useState("");
   const [requestTypes, setRequestTypes] = useState([]);
-  const [newWorkflowKey, setNewWorkflowKey] = useState("");
-  const [newWorkflowTitle, setNewWorkflowTitle] = useState("");
-  const [newRequestTypeCode, setNewRequestTypeCode] = useState("");
-  const [newRequestTypeTitle, setNewRequestTypeTitle] = useState("");
-  const [newRequestTypeWorkflow, setNewRequestTypeWorkflow] = useState("");
-  const [creatingWorkflow, setCreatingWorkflow] = useState(false);
-  const [creatingRequestType, setCreatingRequestType] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [detail, setDetail] = useState(null);
   const [groups, setGroups] = useState([]);
   const [selectedGroupKey, setSelectedGroupKey] = useState("");
@@ -32,15 +40,33 @@ function WorkflowManager({ onError }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const selectedRequestType = requestTypes.find(
+    (type) => type.code === selectedRequestTypeCode && type.is_active !== false,
+  ) || null;
+  const workflowKey = selectedRequestType?.workflow_key || "";
+  const workflowKeyRef = useRef(workflowKey);
+  workflowKeyRef.current = workflowKey;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ clearCurrent = false } = {}) => {
     if (!workflowKey) {
+      if (clearCurrent) {
+        setDetail(null);
+        setGroups([]);
+      }
       setLoading(false);
       return;
     }
+    if (clearCurrent) {
+      setDetail(null);
+      setGroups([]);
+    }
     setLoading(true);
     try {
-      const result = await api.workflowDetail(workflowKey);
+      const result = await requestOnce(
+        "workflow-detail:" + workflowKey,
+        () => api.workflowDetail(workflowKey),
+      );
+      if (workflowKeyRef.current !== workflowKey) return;
       setDetail(result);
       const configured = result.draft_definition?.groups || result.active_definition?.groups || [];
       setGroups(configured.map((group) => ({
@@ -61,26 +87,34 @@ function WorkflowManager({ onError }) {
       setFocusedStepKey("");
       setNewStepByGroup({});
     } catch (error) {
-      onError?.({ type: "error", text: error.message || "دریافت تنظیمات گردش‌کار انجام نشد." });
+      if (workflowKeyRef.current === workflowKey) {
+        onError?.({ type: "error", text: error.message || "دریافت تنظیمات گردش‌کار انجام نشد." });
+      }
     } finally {
-      setLoading(false);
+      if (workflowKeyRef.current === workflowKey) setLoading(false);
     }
   }, [workflowKey, onError]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load({ clearCurrent: true });
+  }, [load]);
 
   const loadAdminCatalogs = useCallback(async () => {
+    setCatalogLoading(true);
     try {
-      const [workflowsResult, requestTypesResult] = await Promise.all([
-        api.workflows(),
-        api.staffRequestTypes(),
-      ]);
-      setAvailableWorkflows(workflowsResult);
-      setRequestTypes(requestTypesResult);
-      setWorkflowKey((current) => current || workflowsResult[0]?.workflow_key || "");
-      setNewRequestTypeWorkflow((current) => current || workflowsResult[0]?.workflow_key || "");
+      const result = await requestOnce("workflow-manager:request-types", () => api.staffRequestTypes());
+      const items = Array.isArray(result) ? result : [];
+      const activeItems = items.filter((type) => type.is_active !== false);
+      setRequestTypes(items);
+      setSelectedRequestTypeCode((current) => (
+        activeItems.some((type) => type.code === current)
+          ? current
+          : activeItems[0]?.code || ""
+      ));
     } catch (error) {
-      onError?.({ type: "error", text: error.message || "دریافت فهرست گردش‌کارها و انواع درخواست انجام نشد." });
+      onError?.({ type: "error", text: error.message || "دریافت فهرست انواع درخواست انجام نشد." });
+    } finally {
+      setCatalogLoading(false);
     }
   }, [onError]);
 
@@ -92,7 +126,6 @@ function WorkflowManager({ onError }) {
   );
   const catalog = detail?.step_catalog || [];
   const returnableStepCount = groups.reduce((count, group) => count + group.steps.length, 0);
-  const selectedWorkflow = availableWorkflows.find((workflow) => workflow.workflow_key === workflowKey);
   const selectedGroupIndex = groups.findIndex((group) => group.key === selectedGroupKey);
   const findConfiguredStep = (stepKey) => groups.flatMap((group) => group.steps).find((step) => step.key === stepKey);
   const isPositionLockedStep = (stepKey) => {
@@ -282,51 +315,6 @@ function WorkflowManager({ onError }) {
     setGroups((current) => current.filter((item) => item.key !== group.key));
   };
 
-  const createWorkflow = async () => {
-    if (!workflowKey || creatingWorkflow) return;
-    const key = newWorkflowKey.trim();
-    const title = newWorkflowTitle.trim();
-    if (!key || !title) {
-      onError?.({ type: "error", text: "کلید و عنوان گردش‌کار الزامی هستند." });
-      return;
-    }
-    setCreatingWorkflow(true);
-    try {
-      const created = await api.createWorkflow({ workflow_key: key, title, template_workflow_key: workflowKey });
-      setAvailableWorkflows(await api.workflows());
-      setWorkflowKey(created.workflow_key);
-      setNewWorkflowKey("");
-      setNewWorkflowTitle("");
-      onError?.({ type: "success", text: "گردش‌کار جدید از نسخه‌ی منتشرشده‌ی الگو ساخته شد." });
-    } catch (error) {
-      onError?.({ type: "error", text: error.message || "ساخت گردش‌کار جدید انجام نشد." });
-    } finally {
-      setCreatingWorkflow(false);
-    }
-  };
-
-  const createRequestType = async () => {
-    if (creatingRequestType) return;
-    const code = newRequestTypeCode.trim().toUpperCase();
-    const title = newRequestTypeTitle.trim();
-    if (!code || !title || !newRequestTypeWorkflow) {
-      onError?.({ type: "error", text: "کد، عنوان و گردش‌کار نوع درخواست را مشخص کنید." });
-      return;
-    }
-    setCreatingRequestType(true);
-    try {
-      await api.createRequestType({ code, title, workflow_key: newRequestTypeWorkflow });
-      setRequestTypes(await api.staffRequestTypes());
-      setNewRequestTypeCode("");
-      setNewRequestTypeTitle("");
-      onError?.({ type: "success", text: "نوع درخواست جدید ثبت شد." });
-    } catch (error) {
-      onError?.({ type: "error", text: error.message || "ساخت نوع درخواست انجام نشد." });
-    } finally {
-      setCreatingRequestType(false);
-    }
-  };
-
   const buildDraftPayload = () => ({
     expected_active_version: detail.active_version,
     groups: groups.map((group) => ({
@@ -365,16 +353,47 @@ function WorkflowManager({ onError }) {
     }
   };
 
-  if (loading && !detail) {
-    return <section className="workflow-manager"><div className="workflow-manager-state">در حال بارگذاری تنظیمات گردش‌کار…</div></section>;
+  const requestTypeSelector = (
+    <div className="workflow-request-type-selector">
+      <label htmlFor="workflow-request-type-select">نوع درخواست</label>
+      <select
+        id="workflow-request-type-select"
+        value={selectedRequestTypeCode}
+        onChange={(event) => setSelectedRequestTypeCode(event.target.value)}
+        disabled={catalogLoading || !requestTypes.some((type) => type.is_active !== false)}
+      >
+        {requestTypes.filter((type) => type.is_active !== false).map((type) => (
+          <option key={type.code} value={type.code}>{type.title}</option>
+        ))}
+      </select>
+    </div>
+  );
+
+  if (catalogLoading || (loading && !detail)) {
+    return (
+      <section className="workflow-manager" dir="rtl">
+        {requestTypeSelector}
+        <div className="workflow-manager-state">در حال بارگذاری تنظیمات گردش‌کار…</div>
+      </section>
+    );
+  }
+
+  if (!selectedRequestType || !workflowKey) {
+    return (
+      <section className="workflow-manager" dir="rtl">
+        {requestTypeSelector}
+        <div className="workflow-manager-state">نوع درخواست فعالی که به گردش‌کار متصل باشد پیدا نشد.</div>
+      </section>
+    );
   }
 
   return (
     <section className="workflow-manager" dir="rtl">
+      {requestTypeSelector}
       <header className="workflow-editor-header">
         <div className="workflow-editor-heading">
           <span className="workflow-editor-eyebrow"><span className="workflow-live-dot" /> تنظیمات فرایند سازمانی</span>
-          <h1>مدیریت گردش‌کار {selectedWorkflow?.title || detail?.title || ""}</h1>
+          <h1>مدیریت گردش‌کار {selectedRequestType.title}</h1>
           <p>تعریف، ترتیب و گروه‌بندی مراحل را مدیریت کنید. تغییرات پس از انتشار برای درخواست‌های جدید اعمال می‌شوند.</p>
         </div>
         <div className="workflow-version-card">
@@ -390,45 +409,6 @@ function WorkflowManager({ onError }) {
           </div>
         </div>
       </header>
-
-      <section className="workflow-admin-controls" aria-label="مدیریت تعاریف گردش‌کار">
-        <div className="workflow-admin-control">
-          <label htmlFor="workflow-definition-select">گردش‌کار برای ویرایش</label>
-          <select id="workflow-definition-select" value={workflowKey} onChange={(event) => setWorkflowKey(event.target.value)} disabled={!availableWorkflows.length}>
-            {availableWorkflows.map((workflow) => <option key={workflow.workflow_key} value={workflow.workflow_key}>{workflow.title} ({workflow.workflow_key})</option>)}
-          </select>
-        </div>
-        <div className="workflow-admin-create-form">
-          <strong>ساخت گردش‌کار از نسخه‌ی فعال انتخاب‌شده</strong>
-          <input aria-label="کلید گردش‌کار جدید" placeholder="مثلاً contract_employment" value={newWorkflowKey} maxLength={100} onChange={(event) => setNewWorkflowKey(event.target.value)} />
-          <input aria-label="عنوان گردش‌کار جدید" placeholder="عنوان گردش‌کار" value={newWorkflowTitle} maxLength={150} onChange={(event) => setNewWorkflowTitle(event.target.value)} />
-          <button type="button" className="workflow-action-secondary" onClick={createWorkflow} disabled={creatingWorkflow || !workflowKey}>{creatingWorkflow ? "در حال ساخت…" : "ایجاد گردش‌کار"}</button>
-        </div>
-      </section>
-
-      <section className="workflow-request-type-panel" aria-label="مدیریت انواع درخواست">
-        <div className="workflow-request-type-heading">
-          <div><strong>انواع درخواست</strong><p>هر نوع درخواست به یک گردش‌کار فعال متصل می‌شود؛ نسخه‌ی فعال هنگام ایجاد پرونده از سرور تعیین می‌شود.</p></div>
-        </div>
-        <div className="workflow-request-type-create">
-          <input aria-label="کد نوع درخواست جدید" placeholder="کد انگلیسی، مانند CONTRACT_EMPLOYMENT" value={newRequestTypeCode} maxLength={50} onChange={(event) => setNewRequestTypeCode(event.target.value.toUpperCase())} />
-          <input aria-label="عنوان نوع درخواست جدید" placeholder="عنوان نوع درخواست" value={newRequestTypeTitle} maxLength={150} onChange={(event) => setNewRequestTypeTitle(event.target.value)} />
-          <select aria-label="گردش‌کار نوع درخواست" value={newRequestTypeWorkflow} onChange={(event) => setNewRequestTypeWorkflow(event.target.value)} disabled={!availableWorkflows.length}>
-            {availableWorkflows.map((workflow) => <option key={workflow.workflow_key} value={workflow.workflow_key}>{workflow.title}</option>)}
-          </select>
-          <button type="button" className="workflow-action-secondary" onClick={createRequestType} disabled={creatingRequestType || !availableWorkflows.length}>{creatingRequestType ? "در حال ثبت…" : "افزودن نوع درخواست"}</button>
-        </div>
-        <div className="workflow-request-type-list">
-          {requestTypes.map((type) => (
-            <article className="workflow-request-type-item" key={type.id}>
-              <div><strong>{type.title}</strong><code>{type.code}</code></div>
-              <span>{availableWorkflows.find((workflow) => workflow.workflow_key === type.workflow_key)?.title || type.workflow_key}</span>
-              <small>{type.is_active ? "فعال" : "غیرفعال"}{type.workflow_active_version ? " · v" + type.workflow_active_version : ""}</small>
-            </article>
-          ))}
-          {!requestTypes.length && <p>هنوز نوع درخواستی تعریف نشده است.</p>}
-        </div>
-      </section>
 
       <div className="workflow-summary-strip">
         <div className="workflow-summary-item">
