@@ -1445,118 +1445,52 @@
 
 
 
-/* Database-backed workflow and request-type administration */
-.workflow-admin-controls,
-.workflow-request-type-panel {
-  display: grid;
-  gap: 1rem;
-  margin: 1.25rem 0;
-  padding: 1.1rem;
-  border: 1px solid var(--border-color, #d8dee8);
-  border-radius: 14px;
-  background: var(--surface-color, #fff);
-}
-
-.workflow-admin-controls {
-  grid-template-columns: minmax(220px, 0.75fr) minmax(300px, 1.25fr);
-  align-items: end;
-}
-
-.workflow-admin-control,
-.workflow-admin-create-form,
-.workflow-request-type-create {
+.workflow-request-type-selector {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem;
+  gap: 12px;
+  align-self: flex-start;
+  width: min(100%, 390px);
+  padding: 9px 12px;
+  border: 1px solid #dfe7f0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff, #f8fbfe);
+  box-shadow: 0 3px 12px rgba(28, 51, 75, 0.035);
 }
 
-.workflow-admin-control {
-  flex-direction: column;
-  align-items: stretch;
+.workflow-request-type-selector label {
+  flex: 0 0 auto;
+  color: #61758b;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
-.workflow-admin-control label,
-.workflow-admin-create-form > strong,
-.workflow-request-type-heading strong {
-  font-weight: 700;
-  color: var(--text-color, #1e293b);
-}
-
-.workflow-admin-control select,
-.workflow-admin-create-form input,
-.workflow-request-type-create input,
-.workflow-request-type-create select {
-  min-width: 150px;
-  flex: 1 1 150px;
-  min-height: 42px;
-  border: 1px solid var(--border-color, #d8dee8);
-  border-radius: 9px;
-  padding: 0.5rem 0.7rem;
-  background: var(--surface-color, #fff);
-  color: inherit;
-  font: inherit;
-}
-
-.workflow-admin-create-form > strong {
-  width: 100%;
-}
-
-.workflow-action-secondary {
-  min-height: 40px;
-  border: 1px solid var(--border-color, #cbd5e1);
-  border-radius: 9px;
-  padding: 0.5rem 0.85rem;
-  background: var(--surface-muted, #f8fafc);
-  color: inherit;
-  font: inherit;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.workflow-action-secondary:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.workflow-request-type-heading p {
-  margin: 0.25rem 0 0;
-  color: var(--muted-color, #64748b);
-  line-height: 1.6;
-}
-
-.workflow-request-type-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.65rem;
-}
-
-.workflow-request-type-item {
-  display: grid;
-  gap: 0.45rem;
+.workflow-request-type-selector select {
+  flex: 1;
   min-width: 0;
-  padding: 0.8rem;
-  border: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 10px;
-  background: var(--surface-subtle, #fbfdff);
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #dbe5ef;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  color: #203954;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.workflow-request-type-item > div {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
+.workflow-request-type-selector select:focus-visible {
+  border-color: #80a8d0;
+  box-shadow: 0 0 0 3px rgba(62, 119, 177, 0.12);
 }
 
-.workflow-request-type-item code {
-  font-size: 0.75rem;
-  overflow-wrap: anywhere;
-}
-
-.workflow-request-type-item > span,
-.workflow-request-type-item > small {
-  color: var(--muted-color, #64748b);
+.workflow-request-type-selector select:disabled {
+  color: #8b98a8;
+  cursor: not-allowed;
 }
 
 .workflow-stage-active-toggle {
@@ -1576,12 +1510,8 @@
   opacity: 0.62;
 }
 
-@media (max-width: 850px) {
-  .workflow-admin-controls {
-    grid-template-columns: 1fr;
-  }
-
-  .workflow-admin-create-form {
-    align-items: stretch;
+@media (max-width: 640px) {
+  .workflow-request-type-selector {
+    width: 100%;
   }
 }
