@@ -2553,7 +2553,7 @@
 
 .workflow-manager .workflow-editor-layout .workflow-stage-remove {
   order: -1;
-  margin-right: auto;
+  margin-right: 0;
 }
 
 .workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
