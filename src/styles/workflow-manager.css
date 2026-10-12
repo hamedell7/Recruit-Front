@@ -2392,3 +2392,51 @@
     transition: none;
   }
 }
+
+
+/* Preserve interaction states above the neutral card palette. */
+.workflow-manager .workflow-editor-layout .workflow-stage-card:hover:not(.is-focused):not(.is-drop-before):not(.is-drop-after):not(.is-dragging) {
+  border-color: #c5d8e8;
+  background: #fcfdff;
+  box-shadow: 0 5px 16px rgba(32, 59, 85, .065);
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused {
+  border-color: #9cbfda;
+  background: #f7fbff;
+  box-shadow: 0 0 0 3px rgba(53, 111, 157, .09);
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-inactive {
+  border-color: #dce5ee;
+  border-style: dashed;
+  background: #f8fafc;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-inactive .workflow-stage-content {
+  opacity: .72;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-dragging {
+  opacity: .4;
+  transform: scale(.99);
+  border-color: #9fc4e4;
+  border-style: dashed;
+  background: #f7fbff;
+  box-shadow: none;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before,
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-after {
+  border-color: #82b0d9;
+  background: #f7fbff;
+  box-shadow: 0 0 0 3px rgba(86, 139, 208, .11);
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before {
+  border-top-color: #568bd0;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-after {
+  border-bottom-color: #568bd0;
+}
