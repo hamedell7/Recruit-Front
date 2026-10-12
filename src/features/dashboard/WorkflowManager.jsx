@@ -36,6 +36,7 @@ function WorkflowManager({ onError }) {
   const [draggedStepKey, setDraggedStepKey] = useState("");
   const [dragOverGroupKey, setDragOverGroupKey] = useState("");
   const [dragOverStepKey, setDragOverStepKey] = useState("");
+  const [dragOverPosition, setDragOverPosition] = useState("before");
   const [draggedStepGroupKey, setDraggedStepGroupKey] = useState("");
   const [focusedStepKey, setFocusedStepKey] = useState("");
   const [newStepByGroup, setNewStepByGroup] = useState({});
@@ -210,7 +211,7 @@ function WorkflowManager({ onError }) {
     setFocusedStepKey(stepKey);
   };
 
-  const moveStepWithinGroup = (groupKey, stepKey, targetStepKey) => {
+  const moveStepWithinGroup = (groupKey, stepKey, targetStepKey, position) => {
     if (!groupKey || !targetStepKey || stepKey === targetStepKey || isPositionLockedStep(stepKey)) return;
 
     setGroups((current) => {
@@ -223,11 +224,14 @@ function WorkflowManager({ onError }) {
       const targetIndex = steps.findIndex((item) => item.key === targetStepKey);
       if (targetIndex < 0) return current;
 
-      // Keep fixed FIRST/LAST stages in place. Drop before the hovered stage,
-      // except when it is the fixed first stage, where insertion must be after it.
+      // Locked FIRST/LAST stages stay pinned; other stages can be dropped before or after.
       const insertIndex = targetStep.position_constraint === "FIRST"
         ? targetIndex + 1
-        : targetIndex;
+        : targetStep.position_constraint === "LAST"
+          ? targetIndex
+          : position === "after"
+            ? targetIndex + 1
+            : targetIndex;
       steps.splice(insertIndex, 0, step);
 
       const previousOrder = group.steps.map((item) => item.key).join("\u001f");
@@ -270,6 +274,7 @@ function WorkflowManager({ onError }) {
     setDraggedStepGroupKey("");
     setDragOverGroupKey("");
     setDragOverStepKey("");
+    setDragOverPosition("before");
   };
 
   const handleGroupDragOver = (event, groupKey) => {
@@ -278,6 +283,7 @@ function WorkflowManager({ onError }) {
     event.dataTransfer.dropEffect = "move";
     if (groupKey !== dragOverGroupKey) setDragOverGroupKey(groupKey);
     if (dragOverStepKey) setDragOverStepKey("");
+    setDragOverPosition("before");
   };
 
   const handleGroupDrop = (event, targetGroupKey) => {
@@ -285,6 +291,7 @@ function WorkflowManager({ onError }) {
     const payload = event.dataTransfer.getData("text/plain");
     setDragOverGroupKey("");
     setDragOverStepKey("");
+    setDragOverPosition("before");
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
     if (!payload) return;
@@ -308,15 +315,27 @@ function WorkflowManager({ onError }) {
 
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
+
+    const targetStep = selectedGroup?.steps.find((step) => step.key === targetStepKey);
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const position = targetStep?.position_constraint === "FIRST"
+      ? "after"
+      : targetStep?.position_constraint === "LAST"
+        ? "before"
+        : event.clientY >= bounds.top + bounds.height / 2 ? "after" : "before";
+
     if (dragOverStepKey !== targetStepKey) setDragOverStepKey(targetStepKey);
+    if (dragOverPosition !== position) setDragOverPosition(position);
     if (dragOverGroupKey) setDragOverGroupKey("");
   };
 
   const handleStageDrop = (event, targetStepKey) => {
     event.preventDefault();
     const payload = event.dataTransfer.getData("text/plain");
+    const position = dragOverPosition;
     setDragOverStepKey("");
     setDragOverGroupKey("");
+    setDragOverPosition("before");
     setDraggedStepKey("");
     setDraggedStepGroupKey("");
     if (!payload) return;
@@ -329,7 +348,7 @@ function WorkflowManager({ onError }) {
         || isPositionLockedStep(stepKey)
       ) return;
 
-      moveStepWithinGroup(sourceGroupKey, stepKey, targetStepKey);
+      moveStepWithinGroup(sourceGroupKey, stepKey, targetStepKey, position);
     } catch {
       onError?.({ type: "error", text: "جابه‌جایی مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
     }
@@ -673,7 +692,7 @@ function WorkflowManager({ onError }) {
                   );
                   const dropSlot = isDropTarget && (
                     <div
-                      className={"workflow-stage-drop-slot" + (step.position_constraint === "FIRST" ? " is-after" : "")}
+                      className={"workflow-stage-drop-slot" + (dragOverPosition === "after" ? " is-after" : " is-before")}
                       aria-hidden="true"
                     >
                       <span className="workflow-stage-drop-slot-icon">↳</span>
@@ -683,7 +702,7 @@ function WorkflowManager({ onError }) {
 
                   return (
                     <div className="workflow-stage-row" key={step.key}>
-                      {isDropTarget && step.position_constraint !== "FIRST" && dropSlot}
+                      {isDropTarget && dragOverPosition !== "after" && dropSlot}
                       <article
                         className={
                           "workflow-stage-card"
@@ -691,13 +710,16 @@ function WorkflowManager({ onError }) {
                           + (!step.active ? " is-inactive" : "")
                           + (isDragging ? " is-dragging" : "")
                           + (isDropTarget
-                            ? (step.position_constraint === "FIRST" ? " is-drop-after" : " is-drop-before")
+                            ? (dragOverPosition === "after" ? " is-drop-after" : " is-drop-before")
                             : "")
                         }
                         id={"workflow-stage-" + step.key}
                         onDragOver={(event) => handleStageDragOver(event, step.key)}
                         onDragLeave={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) setDragOverStepKey("");
+                          if (!event.currentTarget.contains(event.relatedTarget)) {
+                            setDragOverStepKey("");
+                            setDragOverPosition("before");
+                          }
                         }}
                         onDrop={(event) => handleStageDrop(event, step.key)}
                       >
@@ -798,7 +820,7 @@ function WorkflowManager({ onError }) {
                           </button>
                         </div>
                       </article>
-                      {isDropTarget && step.position_constraint === "FIRST" && dropSlot}
+                      {isDropTarget && dragOverPosition === "after" && dropSlot}
                     </div>
                   );
                 })}
