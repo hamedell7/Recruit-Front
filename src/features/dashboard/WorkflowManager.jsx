@@ -306,7 +306,7 @@ function WorkflowManager({ onError }) {
     }
   };
 
-  const handleStageDragOver = (event, targetGroupKey, targetStepKey) => {
+  const handleStageDragOver = (event, targetStepKey) => {
     if (!draggedStepKey || draggedStepKey === targetStepKey || isPositionLockedStep(draggedStepKey)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -665,7 +665,7 @@ function WorkflowManager({ onError }) {
                     className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "") + (isDragging ? " is-dragging" : "") + (isDropTarget ? (step.position_constraint === "FIRST" ? " is-drop-after" : " is-drop-before") : "")}
                     id={"workflow-stage-" + step.key}
                     key={step.key}
-                    onDragOver={(event) => handleStageDragOver(event, selectedGroup.key, step.key)}
+                    onDragOver={(event) => handleStageDragOver(event, step.key)}
                     onDragLeave={(event) => {
                       if (!event.currentTarget.contains(event.relatedTarget)) setDragOverStepKey("");
                     }}
