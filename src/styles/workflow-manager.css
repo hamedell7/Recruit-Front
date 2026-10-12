@@ -2597,3 +2597,61 @@
     margin-left: 0;
   }
 }
+
+
+/* White surfaces below the workflow summary; keep all numeric badges unchanged. */
+/* Keep the summary strip itself and the numbered badges untouched. */
+.workflow-manager .workflow-editor-layout {
+  border-color: #e3e8ee;
+  background: #fff;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-groups-sidebar,
+.workflow-manager .workflow-editor-layout .workflow-sidebar-heading,
+.workflow-manager .workflow-editor-layout .workflow-editor-main,
+.workflow-manager .workflow-editor-layout .workflow-selected-group-head,
+.workflow-manager .workflow-editor-layout .workflow-add-stage-panel,
+.workflow-manager .workflow-editor-footer,
+.workflow-manager .workflow-editor-layout .workflow-stages-empty {
+  background: #fff;
+}
+
+/* Navigation surfaces stay white; the active marker and drag target border remain. */
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:not(.is-drop-target),
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item:hover:not(.is-drop-target),
+.workflow-manager .workflow-editor-layout .workflow-group-nav-item.is-active:not(.is-drop-target) {
+  background: #fff;
+}
+
+/* Substep pills become white, while drag and drop feedback keeps its distinct tint. */
+.workflow-manager .workflow-editor-layout .workflow-substep-item:not(.is-dragging):not(.is-drop-target),
+.workflow-manager .workflow-editor-layout .workflow-substep-item:hover:not(.is-dragging):not(.is-drop-target),
+.workflow-manager .workflow-editor-layout .workflow-substep-item.is-focused:not(.is-dragging):not(.is-drop-target),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:not(.is-dragging):not(.is-drop-target),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item:hover:not(.is-dragging):not(.is-drop-target),
+.workflow-manager .workflow-editor-layout #workflow-substeps-identity .workflow-substep-item.is-focused:not(.is-dragging):not(.is-drop-target) {
+  background: #fff;
+}
+
+/* White stage cards retain focus borders, move animations and drop indicators. */
+.workflow-manager .workflow-editor-layout .workflow-stage-card:not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-of-type(5n+1):not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-of-type(5n+2):not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-of-type(5n+3):not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-of-type(5n+4):not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card:nth-of-type(5n):not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved),
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-focused:not(.is-drop-before):not(.is-drop-after):not(.is-dragging):not(.is-just-moved) {
+  background: #fff;
+}
+
+/* Neutralize pale-blue control/panel fills without touching status or number badges. */
+.workflow-manager .workflow-editor-layout .workflow-stage-active-toggle:has(input:checked) {
+  background: #fff;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-sidebar-footer,
+.workflow-manager .workflow-editor-layout .workflow-editor-empty-icon,
+.workflow-manager .workflow-editor-layout .workflow-stages-empty,
+.workflow-manager .workflow-editor-footer {
+  background-color: #fff;
+}
