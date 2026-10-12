@@ -794,7 +794,7 @@
 }
 .staff-dashboard-page .staff-metric-card {
   border-top-width: 3px;
-  border-top-color: #75a3d7;
+  border-top-color: #568bd0;
   background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
 }
 .staff-dashboard-page .staff-metric-card::after {
@@ -806,19 +806,19 @@
   background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
 }
 .staff-dashboard-page .staff-metric-card.tone-green {
-  border-top-color: #42aa91;
+  border-top-color: #568bd0;
   background: linear-gradient(145deg, #fff 0%, #ecf9f4 100%);
 }
 .staff-dashboard-page .staff-metric-card.tone-violet {
-  border-top-color: #9484d1;
+  border-top-color: #568bd0;
   background: linear-gradient(145deg, #fff 0%, #f4f1ff 100%);
 }
 .staff-dashboard-page .staff-metric-card.tone-amber {
-  border-top-color: #d4a34f;
+  border-top-color: #568bd0;
   background: linear-gradient(145deg, #fff 0%, #fff7e9 100%);
 }
 .staff-dashboard-page .staff-metric-card.tone-slate {
-  border-top-color: #8ba0b6;
+  border-top-color: #568bd0;
   background: linear-gradient(145deg, #fff 0%, #eff3f7 100%);
 }
 .staff-dashboard-page .staff-metric-card.tone-blue .staff-metric-icon {
