@@ -956,6 +956,9 @@ function WorkflowManager({ onError }) {
                             </span>
                             {isRequiredStep(step.key) && <b className="workflow-stage-required">مرحله الزامی</b>}
                           </div>
+
+                        </div>
+                        <div className="workflow-stage-actions">
                           <label className="workflow-stage-active-toggle">
                             <input
                               type="checkbox"
@@ -965,8 +968,6 @@ function WorkflowManager({ onError }) {
                             />
                             <span>مرحله فعال</span>
                           </label>
-                        </div>
-                        <div className="workflow-stage-actions">
                           <div className="workflow-stage-order-buttons">
                             <button
                               type="button"
