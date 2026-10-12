@@ -341,10 +341,27 @@ function WorkflowManager({ onError }) {
     if (dragOverGroupKey) setDragOverGroupKey("");
   };
 
-  const handleStageDrop = (event, targetStepKey) => {
+  const handleStageSlotDragOver = (event, targetStepKey, position) => {
+    if (
+      draggedStepSource !== "editor"
+      || !draggedStepKey
+      || draggedStepKey === targetStepKey
+      || draggedStepGroupKey !== selectedGroupKey
+      || isPositionLockedStep(draggedStepKey)
+    ) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+    if (dragOverStepKey !== targetStepKey) setDragOverStepKey(targetStepKey);
+    if (dragOverPosition !== position) setDragOverPosition(position);
+    if (dragOverGroupKey) setDragOverGroupKey("");
+  };
+
+  const handleStageDrop = (event, targetStepKey, positionOverride) => {
     event.preventDefault();
     const payload = event.dataTransfer.getData("text/plain");
-    const position = dragOverPosition;
+    const position = positionOverride || dragOverPosition;
     setDragOverStepKey("");
     setDragOverGroupKey("");
     setDragOverPosition("before");
@@ -712,6 +729,8 @@ function WorkflowManager({ onError }) {
                         + (isDropTarget && dragOverPosition === position ? " is-visible" : "")
                       }
                       aria-hidden="true"
+                      onDragOver={(event) => handleStageSlotDragOver(event, step.key, position)}
+                      onDrop={(event) => handleStageDrop(event, step.key, position)}
                     >
                       <span className="workflow-stage-drop-slot-icon">↳</span>
                       <span>جایگاه جدید مرحله</span>
@@ -735,7 +754,10 @@ function WorkflowManager({ onError }) {
                         id={"workflow-stage-" + step.key}
                         onDragOver={(event) => handleStageDragOver(event, step.key)}
                         onDragLeave={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) {
+                          if (
+                            !event.currentTarget.contains(event.relatedTarget)
+                            && !event.relatedTarget?.closest?.(".workflow-stage-drop-slot")
+                          ) {
                             setDragOverStepKey("");
                             setDragOverPosition("before");
                           }
