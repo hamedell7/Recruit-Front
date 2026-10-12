@@ -35,6 +35,7 @@ function WorkflowManager({ onError }) {
   const [expandedGroupKeys, setExpandedGroupKeys] = useState({});
   const [draggedStepKey, setDraggedStepKey] = useState("");
   const [dragOverGroupKey, setDragOverGroupKey] = useState("");
+  const [dragOverStepKey, setDragOverStepKey] = useState("");
   const [focusedStepKey, setFocusedStepKey] = useState("");
   const [newStepByGroup, setNewStepByGroup] = useState({});
   const [loading, setLoading] = useState(true);
@@ -208,6 +209,50 @@ function WorkflowManager({ onError }) {
     setFocusedStepKey(stepKey);
   };
 
+  const moveStepToPosition = (sourceGroupKey, stepKey, targetGroupKey, targetStepKey) => {
+    if (!sourceGroupKey || !targetGroupKey || !targetStepKey || isPositionLockedStep(stepKey)) return;
+    if (stepKey === targetStepKey) return;
+
+    setGroups((current) => {
+      const sourceGroup = current.find((group) => group.key === sourceGroupKey);
+      const targetGroup = current.find((group) => group.key === targetGroupKey);
+      const step = sourceGroup?.steps.find((item) => item.key === stepKey);
+      const targetStep = targetGroup?.steps.find((item) => item.key === targetStepKey);
+      if (!sourceGroup || !targetGroup || !step || !targetStep) return current;
+
+      const sourceSteps = sourceGroup.steps.filter((item) => item.key !== stepKey);
+      const targetSteps = sourceGroupKey === targetGroupKey
+        ? [...sourceSteps]
+        : [...targetGroup.steps];
+      const targetIndex = targetSteps.findIndex((item) => item.key === targetStepKey);
+      if (targetIndex < 0) return current;
+
+      // Preserve fixed first/last stages while allowing drops on their cards.
+      const insertIndex = targetStep.position_constraint === "FIRST"
+        ? targetIndex + 1
+        : targetIndex;
+      targetSteps.splice(insertIndex, 0, step);
+
+      if (sourceGroupKey === targetGroupKey) {
+        const previousOrder = sourceGroup.steps.map((item) => item.key).join("\u001f");
+        const nextOrder = targetSteps.map((item) => item.key).join("\u001f");
+        if (previousOrder === nextOrder) return current;
+        return current.map((group) => (
+          group.key === targetGroupKey ? { ...group, steps: targetSteps } : group
+        ));
+      }
+
+      return current.map((group) => {
+        if (group.key === sourceGroupKey) return { ...group, steps: sourceSteps };
+        if (group.key === targetGroupKey) return { ...group, steps: targetSteps };
+        return group;
+      });
+    });
+    setSelectedGroupKey(targetGroupKey);
+    setExpandedGroupKeys((current) => ({ ...current, [targetGroupKey]: true }));
+    setFocusedStepKey(stepKey);
+  };
+
   const changeStepGroup = (fromGroupIndex, stepIndex, targetKey) => {
     const sourceGroup = groups[fromGroupIndex];
     const step = sourceGroup?.steps[stepIndex];
@@ -228,11 +273,13 @@ function WorkflowManager({ onError }) {
     }));
     setDraggedStepKey(step.key);
     setDragOverGroupKey("");
+    setDragOverStepKey("");
   };
 
   const handleStepDragEnd = () => {
     setDraggedStepKey("");
     setDragOverGroupKey("");
+    setDragOverStepKey("");
   };
 
   const handleGroupDragOver = (event, groupKey) => {
@@ -240,12 +287,14 @@ function WorkflowManager({ onError }) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
     if (groupKey !== dragOverGroupKey) setDragOverGroupKey(groupKey);
+    if (dragOverStepKey) setDragOverStepKey("");
   };
 
   const handleGroupDrop = (event, targetGroupKey) => {
     event.preventDefault();
     const payload = event.dataTransfer.getData("text/plain");
     setDragOverGroupKey("");
+    setDragOverStepKey("");
     setDraggedStepKey("");
     if (!payload) return;
     try {
@@ -254,6 +303,29 @@ function WorkflowManager({ onError }) {
       moveStepToGroup(sourceGroupKey, stepKey, targetGroupKey);
     } catch {
       onError?.({ type: "error", text: "انتقال مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
+    }
+  };
+
+  const handleStageDragOver = (event, targetGroupKey, targetStepKey) => {
+    if (!draggedStepKey || draggedStepKey === targetStepKey || isPositionLockedStep(draggedStepKey)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    if (dragOverStepKey !== targetStepKey) setDragOverStepKey(targetStepKey);
+    if (dragOverGroupKey) setDragOverGroupKey("");
+  };
+
+  const handleStageDrop = (event, targetGroupKey, targetStepKey) => {
+    event.preventDefault();
+    const payload = event.dataTransfer.getData("text/plain");
+    setDragOverStepKey("");
+    setDragOverGroupKey("");
+    if (!payload) return;
+    try {
+      const { sourceGroupKey, stepKey } = JSON.parse(payload);
+      if (!sourceGroupKey || !stepKey || isPositionLockedStep(stepKey)) return;
+      moveStepToPosition(sourceGroupKey, stepKey, targetGroupKey, targetStepKey);
+    } catch {
+      onError?.({ type: "error", text: "جابه‌جایی مرحله انجام نشد؛ لطفاً دوباره تلاش کنید." });
     }
   };
 
@@ -446,7 +518,7 @@ function WorkflowManager({ onError }) {
             <div>
               <span className="workflow-sidebar-kicker">ساختار فرایند</span>
               <h2>گروه‌ها</h2>
-              <p>برای مدیریت مراحل، یک گروه را انتخاب کنید.</p>
+              <p>برای ویرایش، گروه را انتخاب کنید؛ برای انتقال مرحله، دستگیرهٔ کنار شماره را روی گروه یا جایگاه مقصد رها کنید.</p>
             </div>
             <button type="button" className="workflow-add-group-icon" onClick={addGroup} aria-label="افزودن گروه جدید" title="افزودن گروه">
               <span aria-hidden="true">＋</span>
@@ -518,6 +590,12 @@ function WorkflowManager({ onError }) {
                       {group.steps.length === 0 && <p className="workflow-substep-empty">این گروه هنوز مرحله‌ای ندارد.</p>}
                     </div>
                   )}
+                  {groupIsDropTarget && (
+                    <div className="workflow-group-drop-hint" aria-live="polite">
+                      <span aria-hidden="true">↳</span>
+                      <span>برای انتقال، اینجا رها کنید</span>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -578,13 +656,32 @@ function WorkflowManager({ onError }) {
               </div>
 
               <div className="workflow-stage-list">
-                {selectedGroup.steps.map((step, stepIndex) => (
+                {selectedGroup.steps.map((step, stepIndex) => {
+                  const isFixedStep = isPositionLockedStep(step.key);
+                  const isDragging = draggedStepKey === step.key;
+                  const isDropTarget = Boolean(draggedStepKey && draggedStepKey !== step.key && dragOverStepKey === step.key);
+                  return (
                   <article
-                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "")}
+                    className={"workflow-stage-card" + (focusedStepKey === step.key ? " is-focused" : "") + (!step.active ? " is-inactive" : "") + (isDragging ? " is-dragging" : "") + (isDropTarget ? " is-drop-before" : "")}
                     id={"workflow-stage-" + step.key}
                     key={step.key}
+                    onDragOver={(event) => handleStageDragOver(event, selectedGroup.key, step.key)}
+                    onDragLeave={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) setDragOverStepKey("");
+                    }}
+                    onDrop={(event) => handleStageDrop(event, selectedGroup.key, step.key)}
                   >
-                    <span className="workflow-stage-order">{String(stepIndex + 1).padStart(2, "0")}</span>
+                    <span
+                      className="workflow-stage-order workflow-stage-drag-handle"
+                      draggable={!isFixedStep}
+                      title={isFixedStep ? "این مرحله جایگاه ثابتی دارد" : "بکشید و روی گروه مقصد یا مرحلهٔ دیگر رها کنید"}
+                      aria-label={"دستگیره جابه‌جایی مرحله " + (step.title || step.key)}
+                      onDragStart={(event) => handleStepDragStart(event, selectedGroup.key, step)}
+                      onDragEnd={handleStepDragEnd}
+                    >
+                      {!isFixedStep && <span className="workflow-stage-drag-grip" aria-hidden="true">⠿</span>}
+                      <span>{String(stepIndex + 1).padStart(2, "0")}</span>
+                    </span>
                     <div className="workflow-stage-content">
                       <label className="workflow-stage-title-field">
                         <span>عنوان نمایشی مرحله</span>
@@ -619,7 +716,8 @@ function WorkflowManager({ onError }) {
                       </button>
                     </div>
                   </article>
-                ))}
+                  );
+                })}
                 {selectedGroup.steps.length === 0 && (
                   <div className="workflow-stages-empty">
                     <span className="workflow-stages-empty-icon">↳</span>
