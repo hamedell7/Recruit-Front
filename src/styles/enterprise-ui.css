@@ -958,3 +958,14 @@
   .staff-dashboard-page .staff-requests-table tbody td { font-size: 12px; }
   .staff-dashboard-page .staff-filter-footnote { font-size: 11px; }
 }
+
+/* Dashboard metric icon palette: consistent blue */
+.staff-dashboard-page .staff-metric-card.tone-blue .staff-metric-icon,
+.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon,
+.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon,
+.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon,
+.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
+  border-color: #d2e3f7;
+  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
+  color: #316eae;
+}
