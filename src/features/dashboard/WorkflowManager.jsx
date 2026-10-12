@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
 import "../../styles/workflow-manager.css";
 
@@ -701,7 +701,7 @@ function WorkflowManager({ onError }) {
                   );
 
                   return (
-                    <div className="workflow-stage-row" key={step.key}>
+                    <Fragment key={step.key}>
                       {isDropTarget && dragOverPosition !== "after" && dropSlot}
                       <article
                         className={
@@ -821,7 +821,7 @@ function WorkflowManager({ onError }) {
                         </div>
                       </article>
                       {isDropTarget && dragOverPosition === "after" && dropSlot}
-                    </div>
+                    </Fragment>
                   );
                 })}
                 {selectedGroup.steps.length === 0 && (
