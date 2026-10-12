@@ -332,7 +332,7 @@ function WorkflowManager({ onError }) {
     return ratio >= 0.5 ? "after" : "before";
   };
 
-  const resolveSidebarStepDropTarget = (event, groupKey) {
+  const resolveSidebarStepDropTarget = (event, groupKey) => {
     const targetElement = event.target instanceof Element ? event.target : null;
     const dropSlot = targetElement?.closest(".workflow-substep-drop-slot");
 
