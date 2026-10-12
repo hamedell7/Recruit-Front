@@ -1806,3 +1806,29 @@
     animation: none;
   }
 }
+
+/* Short settle animation after a stage is dropped into its new slot */
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-just-moved {
+  animation: workflow-stage-settle .3s cubic-bezier(.2,.75,.25,1) both;
+}
+@keyframes workflow-stage-settle {
+  from {
+    opacity: .76;
+    transform: translateY(-7px) scale(.995);
+    box-shadow: 0 0 0 3px rgba(86, 139, 208, .12);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(1px) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    box-shadow: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-card.is-just-moved {
+    animation: none;
+  }
+}
