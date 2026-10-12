@@ -1847,3 +1847,9 @@
     box-shadow: none;
   }
 }
+
+/* Make the highlighted in-group insertion gap an actual drop target */
+.workflow-manager .workflow-editor-layout .workflow-stage-drop-slot.is-visible {
+  pointer-events: auto;
+  cursor: copy;
+}
