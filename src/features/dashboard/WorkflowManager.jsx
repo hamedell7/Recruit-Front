@@ -650,7 +650,7 @@ function WorkflowManager({ onError }) {
               <div className="workflow-stages-heading">
                 <div>
                   <h2>مراحل این گروه</h2>
-                  <p>عنوان، ترتیب و محل قرارگیری مراحل را تنظیم کنید.</p>
+                  <p>عنوان و ترتیب مراحل را تنظیم کنید؛ برای جابه‌جایی، دستگیرهٔ کنار شماره را روی مرحله یا گروه مقصد رها کنید.</p>
                 </div>
                 <span className="workflow-stages-count">{selectedGroup.steps.length.toLocaleString("fa-IR")} مرحله</span>
               </div>
