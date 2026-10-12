@@ -2570,3 +2570,30 @@
     margin-left: auto;
   }
 }
+
+
+/* Place the required-stage badge immediately left of the reorder arrows. */
+.workflow-manager .workflow-editor-layout .workflow-stage-required-inline {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  order: 1;
+  flex: 0 0 auto;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
+  order: 2;
+  margin-left: 0;
+}
+
+@media (max-width: 720px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-required-inline {
+    margin-left: auto;
+  }
+
+  .workflow-manager .workflow-editor-layout .workflow-stage-order-buttons {
+    margin-left: 0;
+  }
+}
