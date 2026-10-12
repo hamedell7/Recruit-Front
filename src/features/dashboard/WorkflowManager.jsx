@@ -694,7 +694,7 @@ function WorkflowManager({ onError }) {
             <div>
               <span className="workflow-sidebar-kicker">ساختار فرایند</span>
               <h2>گروه‌ها</h2>
-              <p>گروه را باز کنید و مراحل را بکشید.</p>
+              <p>گروه را باز کنید و مراحل را ویرایش کنید.</p>
             </div>
             <button type="button" className="workflow-add-group-icon" onClick={addGroup} aria-label="افزودن گروه جدید" title="افزودن گروه">
               <span aria-hidden="true">＋</span>
