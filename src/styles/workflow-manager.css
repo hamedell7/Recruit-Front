@@ -1832,3 +1832,91 @@
     animation: none;
   }
 }
+
+/* Animated insertion gap for reordering stages inside one group */
+.workflow-manager .workflow-editor-layout .workflow-stage-drop-slot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  margin-block: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 0 solid #9fc4e4;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f4f9ff 0%, #eaf4ff 100%);
+  color: #326c9f;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  opacity: 0;
+  transform: scale(.985);
+  transition:
+    height 180ms cubic-bezier(.2,.7,.25,1),
+    min-height 180ms cubic-bezier(.2,.7,.25,1),
+    margin 180ms cubic-bezier(.2,.7,.25,1),
+    padding 180ms cubic-bezier(.2,.7,.25,1),
+    border-width 180ms cubic-bezier(.2,.7,.25,1),
+    opacity 140ms ease,
+    transform 180ms cubic-bezier(.2,.7,.25,1);
+  pointer-events: none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drop-slot.is-visible {
+  height: 38px;
+  min-height: 38px;
+  margin-block: 2px;
+  padding: 7px 12px;
+  border-width: 1px;
+  border-style: dashed;
+  opacity: 1;
+  transform: scale(1);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drop-slot-icon {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+  border: 1px solid #c7def3;
+  border-radius: 7px;
+  background: #fff;
+  color: #347ab7;
+  font-size: 17px;
+  line-height: 1;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card {
+  transition:
+    border-color .16s ease,
+    box-shadow .16s ease,
+    opacity .18s ease,
+    transform .18s ease;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-dragging {
+  opacity: .4;
+  transform: scale(.99);
+  border-color: #9fc4e4;
+  border-style: dashed;
+  box-shadow: none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before,
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-after {
+  border-color: #82b0d9;
+  background: #f7fbff;
+  box-shadow: 0 0 0 3px rgba(86, 139, 208, .11);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before {
+  border-top-color: #568bd0;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-after {
+  border-bottom-color: #568bd0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-drop-slot,
+  .workflow-manager .workflow-editor-layout .workflow-stage-card {
+    transition: none;
+  }
+}
