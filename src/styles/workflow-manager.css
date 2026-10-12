@@ -1202,10 +1202,10 @@
   color:#fff;
 }
 .workflow-manager .workflow-selected-group-index{
-  border-color:#244f7b;
-  background:linear-gradient(145deg,#102341 0%,#173b65 70%,#1c5277 100%);
-  color:#fff;
-  box-shadow:0 4px 10px rgba(16,35,65,.14);
+  border-color:#d2dfeb;
+  background:linear-gradient(145deg,#f7f9fc 0%,#eaf1f7 100%);
+  color:#4b6984;
+  box-shadow:0 2px 6px rgba(36,68,98,.06);
 }
 .workflow-manager .workflow-stages-count{
   border-color:#c8dce9;
