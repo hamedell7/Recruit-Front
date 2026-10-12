@@ -37,6 +37,7 @@ function WorkflowManager({ onError }) {
   const [dragOverGroupKey, setDragOverGroupKey] = useState("");
   const [dragOverStepKey, setDragOverStepKey] = useState("");
   const [dragOverPosition, setDragOverPosition] = useState("before");
+  const [recentlyMovedStepKey, setRecentlyMovedStepKey] = useState("");
   const [draggedStepGroupKey, setDraggedStepGroupKey] = useState("");
   const [draggedStepSource, setDraggedStepSource] = useState("");
   const [focusedStepKey, setFocusedStepKey] = useState("");
@@ -154,6 +155,12 @@ function WorkflowManager({ onError }) {
     });
   }, [focusedStepKey, selectedGroupKey]);
 
+  useEffect(() => {
+    if (!recentlyMovedStepKey) return undefined;
+    const timeoutId = window.setTimeout(() => setRecentlyMovedStepKey(""), 320);
+    return () => window.clearTimeout(timeoutId);
+  }, [recentlyMovedStepKey]);
+
   const updateGroupTitle = (groupIndex, title) => {
     setGroups((current) => current.map((group, index) => index === groupIndex ? { ...group, title } : group));
   };
@@ -215,35 +222,34 @@ function WorkflowManager({ onError }) {
   const moveStepWithinGroup = (groupKey, stepKey, targetStepKey, position) => {
     if (!groupKey || !targetStepKey || stepKey === targetStepKey || isPositionLockedStep(stepKey)) return;
 
-    setGroups((current) => {
-      const group = current.find((item) => item.key === groupKey);
-      const step = group?.steps.find((item) => item.key === stepKey);
-      const targetStep = group?.steps.find((item) => item.key === targetStepKey);
-      if (!group || !step || !targetStep) return current;
+    const group = groups.find((item) => item.key === groupKey);
+    const step = group?.steps.find((item) => item.key === stepKey);
+    const targetStep = group?.steps.find((item) => item.key === targetStepKey);
+    if (!group || !step || !targetStep) return;
 
-      const steps = group.steps.filter((item) => item.key !== stepKey);
-      const targetIndex = steps.findIndex((item) => item.key === targetStepKey);
-      if (targetIndex < 0) return current;
+    const steps = group.steps.filter((item) => item.key !== stepKey);
+    const targetIndex = steps.findIndex((item) => item.key === targetStepKey);
+    if (targetIndex < 0) return;
 
-      // Locked FIRST/LAST stages stay pinned; other stages can be dropped before or after.
-      const insertIndex = targetStep.position_constraint === "FIRST"
-        ? targetIndex + 1
-        : targetStep.position_constraint === "LAST"
-          ? targetIndex
-          : position === "after"
-            ? targetIndex + 1
-            : targetIndex;
-      steps.splice(insertIndex, 0, step);
+    // Keep fixed FIRST/LAST stages in place. Drop before or after the hovered stage.
+    const insertIndex = targetStep.position_constraint === "FIRST"
+      ? targetIndex + 1
+      : targetStep.position_constraint === "LAST"
+        ? targetIndex
+        : position === "after"
+          ? targetIndex + 1
+          : targetIndex;
+    steps.splice(insertIndex, 0, step);
 
-      const previousOrder = group.steps.map((item) => item.key).join("\u001f");
-      const nextOrder = steps.map((item) => item.key).join("\u001f");
-      if (previousOrder === nextOrder) return current;
+    const previousOrder = group.steps.map((item) => item.key).join("\u001f");
+    const nextOrder = steps.map((item) => item.key).join("\u001f");
+    if (previousOrder === nextOrder) return;
 
-      return current.map((item) => (
-        item.key === groupKey ? { ...item, steps } : item
-      ));
-    });
+    setGroups((current) => current.map((item) => (
+      item.key === groupKey ? { ...item, steps } : item
+    )));
     setFocusedStepKey(stepKey);
+    setRecentlyMovedStepKey(stepKey);
   };
 
   const changeStepGroup = (fromGroupIndex, stepIndex, targetKey) => {
@@ -717,6 +723,7 @@ function WorkflowManager({ onError }) {
                           + (focusedStepKey === step.key ? " is-focused" : "")
                           + (!step.active ? " is-inactive" : "")
                           + (isDragging ? " is-dragging" : "")
+                          + (recentlyMovedStepKey === step.key ? " is-just-moved" : "")
                           + (isDropTarget
                             ? (dragOverPosition === "after" ? " is-drop-after" : " is-drop-before")
                             : "")
