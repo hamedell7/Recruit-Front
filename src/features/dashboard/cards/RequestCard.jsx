@@ -18,7 +18,7 @@ function RequestCard({ request, onOpen }) {
       <div className="request-code"><span>کد رهگیری</span><b>{request.tracking_code}</b></div>
       <div className="request-meta"><span>ایجاد شده</span><span>{formatDate(request.created_at)}</span></div>
       <button className="outline-button wide" onClick={() => onOpen(request)}>
-        {["SUBMITTED", "APPROVED", "COMPLETED"].includes(request.status) ? "مشاهده پرونده" : "ادامه تکمیل پرونده"} <span>←</span>
+        {["SUBMITTED", "UNDER_REVIEW", "APPROVED", "COMPLETED"].includes(request.status) ? "مشاهده پرونده" : "ادامه تکمیل پرونده"} <span>←</span>
       </button>
     </article>
   );
