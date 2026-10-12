@@ -489,3 +489,12 @@
 .ud-request-grid .request-card:nth-child(4n+3):hover{border-color:#d4caef}
 .ud-request-grid .request-card:nth-child(4n):hover{border-color:#e8d2a9}
 
+/* User dashboard metric icons: consistent blue */
+.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(1) .stat-icon,
+.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(2) .stat-icon,
+.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(3) .stat-icon,
+.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(4) .stat-icon {
+  border-color: #d2e3f7;
+  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
+  color: #316eae;
+}
