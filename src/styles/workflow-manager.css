@@ -1853,3 +1853,90 @@
   pointer-events: auto;
   cursor: copy;
 }
+
+/* Drag-and-drop sorting in the expanded structure navigation */
+.workflow-manager .workflow-editor-layout .workflow-substep-list {
+  gap: 0;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item {
+  margin-block: 2px;
+  transition:
+    background .14s ease,
+    border-color .14s ease,
+    color .14s ease,
+    opacity .14s ease,
+    transform .16s ease;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item.is-dragging {
+  opacity: .42;
+  transform: scale(.985);
+  border-style: dashed;
+  border-color: #91bce0;
+  background: #edf6ff;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-item.is-drop-target {
+  border-color: #93b9dc;
+  background: #f4f9ff;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-drop-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  flex: 0 0 auto;
+  margin-block: 0;
+  padding: 0 8px;
+  overflow: hidden;
+  border: 0 solid #9fc4e4;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f1f7ff, #f8fbff);
+  color: #3475ad;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.4;
+  opacity: 0;
+  transform: scale(.985);
+  pointer-events: none;
+  transition:
+    height 170ms cubic-bezier(.2,.7,.25,1),
+    min-height 170ms cubic-bezier(.2,.7,.25,1),
+    margin 170ms cubic-bezier(.2,.7,.25,1),
+    padding 170ms cubic-bezier(.2,.7,.25,1),
+    border-width 170ms cubic-bezier(.2,.7,.25,1),
+    opacity 130ms ease,
+    transform 170ms cubic-bezier(.2,.7,.25,1);
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-drop-slot.is-visible {
+  height: 30px;
+  min-height: 30px;
+  margin-block: 3px;
+  padding: 4px 8px;
+  border: 1px dashed #91b9dd;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  cursor: copy;
+}
+.workflow-manager .workflow-editor-layout .workflow-substep-drop-slot-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border: 1px solid #d1e4f6;
+  border-radius: 6px;
+  background: #fff;
+  color: #347bb8;
+  font-size: 15px;
+  line-height: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-manager .workflow-editor-layout .workflow-substep-item,
+  .workflow-manager .workflow-editor-layout .workflow-substep-drop-slot {
+    transition: none;
+  }
+}
