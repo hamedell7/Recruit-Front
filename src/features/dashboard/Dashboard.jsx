@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
-import { STEP_META } from "../../config/workflow";
 import Modal from "../../components/common/Modal";
 import StatCard from "./cards/StatCard";
 import RequestCard from "./cards/RequestCard";
@@ -75,8 +74,8 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
       const searchable = [
         request.tracking_code,
         request.id,
-        STEP_META[request.current_step_key]?.title,
-        request.workflow_key === "screening" ? "گزینش فرآیند گزینش screening" : "استخدام employment",
+        request.current_step_title || request.current_step_key,
+        request.request_type_title || request.request_type_code || request.workflow_key,
       ].filter(Boolean).join(" ").toLocaleLowerCase();
 
       return searchable.includes(query);

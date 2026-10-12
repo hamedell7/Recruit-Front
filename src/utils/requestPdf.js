@@ -1,4 +1,4 @@
-import { STEP_META, STATUS } from "../config/workflow";
+import { STATUS } from "../config/workflow";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
@@ -263,7 +263,7 @@ function stepStatusClass(value) {
 
 function renderStep(step) {
   if (step.data === null || step.data === undefined) return "";
-  const meta = STEP_META[step.key] || { title: step.key, kicker: "" };
+  const meta = { title: step.title || step.key, kicker: step.group_title || "" };
   const body = renderObject(step.data);
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
   return `<section class="report-section">
@@ -313,7 +313,7 @@ function renderHtml(report) {
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
   const title = `گزارش پرونده - ${safeTracking}`;
   const progress = steps.map((step) => {
-    const meta = STEP_META[step.key] || { title: step.key };
+    const meta = { title: step.title || step.key };
     return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;
   }).join("");
   const summaryFields = [
