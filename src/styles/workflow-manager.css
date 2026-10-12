@@ -1727,12 +1727,6 @@
 }
 
 /* In-group drag sorting: animated insertion slot */
-.workflow-manager .workflow-editor-layout .workflow-stage-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  min-width: 0;
-}
 .workflow-manager .workflow-editor-layout .workflow-stage-drop-slot {
   display: flex;
   align-items: center;
@@ -1754,11 +1748,11 @@
   animation: workflow-stage-slot-open .18s cubic-bezier(.2,.75,.25,1) both;
 }
 .workflow-manager .workflow-editor-layout .workflow-stage-drop-slot.is-before {
-  margin: 0 0 8px;
+  margin: 0;
   transform-origin: bottom;
 }
 .workflow-manager .workflow-editor-layout .workflow-stage-drop-slot.is-after {
-  margin: 8px 0 0;
+  margin: 0;
   transform-origin: top;
 }
 .workflow-manager .workflow-editor-layout .workflow-stage-drop-slot-icon {
