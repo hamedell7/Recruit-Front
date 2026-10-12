@@ -1614,3 +1614,104 @@
     transition: none;
   }
 }
+
+/* Direct drag-and-drop from stage editor cards */
+.workflow-manager .workflow-editor-layout .workflow-stage-card {
+  grid-template-columns: 58px minmax(160px, 1fr) minmax(235px, auto);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 54px;
+  height: 31px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  cursor: grab;
+  user-select: none;
+  transition: border-color .16s ease, background .16s ease, color .16s ease;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drag-handle:active {
+  cursor: grabbing;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drag-handle[draggable="false"] {
+  cursor: not-allowed;
+  opacity: .68;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drag-grip {
+  color: #6d93b9;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: -3px;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-drag-handle:hover:not([draggable="false"]) {
+  border-color: #a8c5e2;
+  background: #f2f7fd;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-dragging {
+  opacity: .52;
+  border-style: dashed;
+  box-shadow: none;
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before {
+  border-color: #82b0d9;
+  background: #f7fbff;
+  box-shadow: inset 0 3px 0 #568bd0, 0 0 0 3px rgba(86, 139, 208, .12);
+}
+.workflow-manager .workflow-editor-layout .workflow-stage-card.is-drop-before .workflow-stage-order {
+  border-color: #9fc3e4;
+  background: #e5f1fd;
+  color: #2f6da9;
+}
+.workflow-manager .workflow-group-drop-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 7px 8px 2px;
+  padding: 8px 10px;
+  border: 1px dashed #9fc4e4;
+  border-radius: 9px;
+  background: #f3f8ff;
+  color: #326c9f;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.7;
+  pointer-events: none;
+}
+.workflow-manager .workflow-group-drop-hint > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  background: #e0efff;
+  color: #3c7bb7;
+  font-size: 16px;
+}
+.workflow-manager .workflow-group-nav-item.is-drop-target {
+  border-color: #7eadd7;
+  background: #f0f7ff;
+  box-shadow: inset 0 0 0 1px rgba(86, 139, 208, .14), 0 0 0 3px rgba(86, 139, 208, .10);
+}
+@media (max-width: 1250px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-card {
+    grid-template-columns: 58px minmax(140px, 1fr);
+  }
+}
+@media (max-width: 620px) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-card {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+  .workflow-manager .workflow-editor-layout .workflow-stage-drag-handle {
+    width: 52px;
+    height: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workflow-manager .workflow-editor-layout .workflow-stage-drag-handle {
+    transition: none;
+  }
+}
