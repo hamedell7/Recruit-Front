@@ -359,7 +359,16 @@ function WorkflowManager({ onError }) {
       <select
         id="workflow-request-type-select"
         value={selectedRequestTypeCode}
-        onChange={(event) => setSelectedRequestTypeCode(event.target.value)}
+        onChange={(event) => {
+          const nextCode = event.target.value;
+          const nextType = requestTypes.find((type) => type.code === nextCode && type.is_active !== false);
+          if (nextType?.workflow_key && nextType.workflow_key !== workflowKey) {
+            setDetail(null);
+            setGroups([]);
+            setLoading(true);
+          }
+          setSelectedRequestTypeCode(nextCode);
+        }}
         disabled={catalogLoading || !requestTypes.some((type) => type.is_active !== false)}
       >
         {requestTypes.filter((type) => type.is_active !== false).map((type) => (
@@ -369,7 +378,7 @@ function WorkflowManager({ onError }) {
     </div>
   );
 
-  if (catalogLoading || (loading && !detail)) {
+  if (catalogLoading || (!detail && workflowKey)) {
     return (
       <section className="workflow-manager" dir="rtl">
         {requestTypeSelector}
