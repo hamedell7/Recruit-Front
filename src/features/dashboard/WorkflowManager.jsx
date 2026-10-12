@@ -704,9 +704,13 @@ function WorkflowManager({ onError }) {
                     && draggedStepGroupKey === selectedGroup.key
                     && dragOverStepKey === step.key,
                   );
-                  const dropSlot = isDropTarget && (
+                  const dropSlot = (position) => (
                     <div
-                      className={"workflow-stage-drop-slot" + (dragOverPosition === "after" ? " is-after" : " is-before")}
+                      className={
+                        "workflow-stage-drop-slot"
+                        + (position === "after" ? " is-after" : " is-before")
+                        + (isDropTarget && dragOverPosition === position ? " is-visible" : "")
+                      }
                       aria-hidden="true"
                     >
                       <span className="workflow-stage-drop-slot-icon">↳</span>
@@ -716,7 +720,7 @@ function WorkflowManager({ onError }) {
 
                   return (
                     <Fragment key={step.key}>
-                      {isDropTarget && dragOverPosition !== "after" && dropSlot}
+                      {dropSlot("before")}
                       <article
                         className={
                           "workflow-stage-card"
@@ -835,7 +839,7 @@ function WorkflowManager({ onError }) {
                           </button>
                         </div>
                       </article>
-                      {isDropTarget && dragOverPosition === "after" && dropSlot}
+                      {dropSlot("after")}
                     </Fragment>
                   );
                 })}
