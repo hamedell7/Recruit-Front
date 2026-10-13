@@ -496,11 +496,22 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                 <span>تیک سرستون، ردیف‌های همین صفحه را انتخاب می‌کند.</span>
               </div>
               <div className="staff-bulk-actions">
-                <button type="button" className="staff-export-button is-secondary" onClick={exportSelectedRequestsExcel} disabled={excelExportLoading || selectedRequestIds.size === 0 || selectedRequestIds.size > 5000}>
-                  {excelExportLoading ? "در حال ساخت اکسل…" : "خروجی اکسل انتخاب‌شده"}
-                </button>
-                <button type="button" className="staff-export-button" onClick={exportFilteredRequestsExcel} disabled={excelExportLoading || loading || (pagination.total_items || 0) === 0}>
-                  {excelExportLoading ? "در حال ساخت اکسل…" : `خروجی همه نتایج (${numberFormat.format(pagination.total_items || 0)})`}
+                <button
+                  type="button"
+                  className="staff-export-button"
+                  onClick={selectedRequestIds.size > 0 ? exportSelectedRequestsExcel : exportFilteredRequestsExcel}
+                  disabled={
+                    excelExportLoading ||
+                    (selectedRequestIds.size > 0
+                      ? selectedRequestIds.size > 5000
+                      : loading || (pagination.total_items || 0) === 0)
+                  }
+                >
+                  {excelExportLoading
+                    ? "در حال ساخت اکسل…"
+                    : selectedRequestIds.size > 0
+                      ? `خروجی اکسل انتخاب‌شده (${numberFormat.format(selectedRequestIds.size)})`
+                      : `خروجی همه نتایج (${numberFormat.format(pagination.total_items || 0)})`}
                 </button>
               </div>
             </div>
