@@ -62,6 +62,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [returnStepKey, setReturnStepKey] = useState("");
   const [decisionBusy, setDecisionBusy] = useState(false);
   const canExportReport = user?.role === "ADMIN";
+  const canViewFullMobile = user?.role === "ADMIN";
 
   useEffect(() => {
     let cancelled = false;
@@ -379,6 +380,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                 <thead>
                   <tr>
                     <th>متقاضی</th>
+                    <th>شماره موبایل</th>
                     <th>کد رهگیری</th>
                     <th>نوع درخواست</th>
                     <th>استان / شهر</th>
@@ -404,6 +406,11 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                               <small>{applicant.national_id_masked ? `کد ملی ${applicant.national_id_masked}` : "کد ملی ثبت نشده"}</small>
                             </span>
                           </div>
+                        </td>
+                        <td>
+                          <span className="staff-tracking-code" dir="ltr">
+                            {(canViewFullMobile ? applicant.mobile : applicant.mobile_masked) || "—"}
+                          </span>
                         </td>
                         <td><span className="staff-tracking-code">{item.tracking_code}</span><small className="staff-cell-subline">ایجاد {formatDate(item.created_at)}</small></td>
                         <td><span className="staff-type-name">{item.request_type?.title || "—"}</span><small className="staff-cell-subline">{item.workflow_key === "screening" ? "فرآیند گزینش" : "فرآیند استخدام"}</small></td>
@@ -448,7 +455,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
             <div><span>وضعیت پرونده</span><strong>{statusLabel(selectedRequest.status)[0]}</strong></div>
             <div><span>نام پدر</span><strong>{selectedRequest.applicant?.father_name || "—"}</strong></div>
             <div><span>کد ملی</span><strong>{selectedRequest.applicant?.national_id_masked || "—"}</strong></div>
-            <div><span>شماره تماس</span><strong>{selectedRequest.applicant?.mobile_masked || "—"}</strong></div>
+            <div><span>شماره موبایل</span><strong dir="ltr">{(canViewFullMobile ? selectedRequest.applicant?.mobile : selectedRequest.applicant?.mobile_masked) || "—"}</strong></div>
             <div><span>استان و شهر</span><strong>{[selectedRequest.applicant?.province_name, selectedRequest.applicant?.city_name].filter(Boolean).join("، ") || "—"}</strong></div>
             <div><span>مرحله فعلی</span><strong>{reviewWorkflow?.steps?.find((step) => step.key === selectedRequest.current_step_key)?.title || selectedRequest.current_step_title || selectedRequest.current_step_key || "—"}</strong></div>
             <div><span>تاریخ ثبت درخواست</span><strong>{formatDate(selectedRequest.created_at)}</strong></div>
