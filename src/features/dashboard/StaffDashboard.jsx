@@ -700,7 +700,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
               <button className="ghost-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
               {canExportReport && (
                 <>
-                  <button className="ghost-button" type="button" onClick={exportSelectedRequestExcel} disabled={singleExcelLoading}>
+                  <button className="ghost-button staff-excel-export-button" type="button" onClick={exportSelectedRequestExcel} disabled={singleExcelLoading}>
                     {singleExcelLoading ? "در حال ساخت اکسل…" : "خروجی اکسل پرونده"}
                   </button>
                   <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
