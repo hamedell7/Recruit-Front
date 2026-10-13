@@ -152,4 +152,60 @@ async function apiFetch(path, options = {}) {
   return payload;
 }
 
-export { apiFetch, API_BASE_URL };
+
+
+async function apiDownload(path, options = {}) {
+  const method = (options.method || "GET").toUpperCase();
+  const stateChanging = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+  const body = options.body;
+  const headers = {
+    Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json",
+    "X-Request-ID": requestId(),
+    ...(options.headers || {}),
+  };
+
+  if (body !== undefined && !(body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+  if (stateChanging) {
+    const csrf = getCookie("recruit_csrf");
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+  }
+
+  const response = await fetch(API_BASE_URL + path, {
+    ...options,
+    method,
+    credentials: "include",
+    body: body instanceof FormData || body === undefined ? body : JSON.stringify(body),
+    headers,
+  });
+
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type") || "";
+    const payload = contentType.includes("application/json")
+      ? await response.json()
+      : await response.text();
+    const validationErrors = normalizeValidationErrors(payload);
+    const fallbackMessage = validationErrors[0]?.message;
+    const payloadCode = typeof payload === "object" ? payload?.code : undefined;
+    const rawMessage = typeof payload === "object" && payload?.message
+      ? payload.message
+      : fallbackMessage || (typeof payload === "string" && payload.trim() ? payload : "خطا در دریافت فایل");
+    const error = new Error(humanizeApiErrorMessage(response.status, payloadCode, rawMessage));
+    error.status = response.status;
+    error.code = payloadCode;
+    error.requestId = response.headers.get("X-Request-ID") || (typeof payload === "object" ? payload?.request_id : undefined);
+    error.payload = payload;
+    error.validationErrors = validationErrors;
+    throw error;
+  }
+
+  const disposition = response.headers.get("content-disposition") || "";
+  const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
+  const regularName = disposition.match(/filename="?([^";]+)"?/i)?.[1];
+  let filename = encodedName ? decodeURIComponent(encodedName) : regularName;
+  if (!filename) filename = "recruit-export.xlsx";
+  return { blob: await response.blob(), filename };
+}
+
+export { apiFetch, apiDownload, API_BASE_URL };
