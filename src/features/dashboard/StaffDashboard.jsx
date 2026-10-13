@@ -558,7 +558,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                     <th>استان / شهر</th>
                     <th>مرحله فعلی</th>
                     <th>وضعیت</th>
-                    <th>آخرین به‌روزرسانی</th>
+                    <th>ایجاد</th>
+                    <th>به‌روزرسانی</th>
                     <th><span className="sr-only">عملیات</span></th>
                   </tr>
                 </thead>
@@ -600,12 +601,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                         <td><strong className="staff-location-main">{applicant.province_name || "—"}</strong><small className="staff-cell-subline">{applicant.city_name || "شهر ثبت نشده"}</small></td>
                         <td><span className="staff-step-name">{step?.title || item.current_step_key || "—"}</span></td>
                         <td><span className={`status-badge ${tone || "muted"}`}><i />{label}</span></td>
-                        <td>
-                          <div className="staff-date-stack">
-                            <span><small>ایجاد</small><strong>{formatDate(item.created_at)}</strong></span>
-                            <span><small>به‌روزرسانی</small><strong>{formatDate(item.updated_at)}</strong></span>
-                          </div>
-                        </td>
+                        <td><span className="staff-updated-date">{formatDate(item.created_at)}</span></td>
+                        <td><span className="staff-updated-date">{formatDate(item.updated_at)}</span></td>
                         <td><button className="staff-row-action" type="button" onClick={() => setSelectedRequest(item)}>جزئیات <span>←</span></button></td>
                       </tr>
                     );
