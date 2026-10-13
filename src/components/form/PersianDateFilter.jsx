@@ -43,6 +43,22 @@ function PersianDateFilter({ label, value, onChange, minDate, maxDate }) {
           buttons
           shadow
         />
+        {value && (
+          <button
+            className="staff-date-clear-button"
+            type="button"
+            aria-label={`حذف فیلتر ${label}`}
+            title="حذف تاریخ انتخاب‌شده"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onChange("");
+            }}
+          >
+            ×
+          </button>
+        )}
       </div>
     </label>
   );
