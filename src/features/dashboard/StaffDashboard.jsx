@@ -30,6 +30,14 @@ const METRICS = [
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
 
+function localDateOffsetMinutes(value, exclusiveEnd = false) {
+  if (!value) return null;
+  const boundary = new Date(value + "T00:00:00");
+  if (Number.isNaN(boundary.getTime())) return null;
+  if (exclusiveEnd) boundary.setDate(boundary.getDate() + 1);
+  return boundary.getTimezoneOffset();
+}
+
 function fullName(applicant) {
   const value = [applicant?.first_name, applicant?.last_name].filter(Boolean).join(" ").trim();
   return value || "مشخصات فردی تکمیل نشده";
@@ -145,6 +153,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
       city_id: selectedCity,
       created_from: createdFrom,
       created_to: createdTo,
+      created_from_offset_minutes: localDateOffsetMinutes(createdFrom),
+      created_to_offset_minutes: localDateOffsetMinutes(createdTo, true),
     }, controller.signal)
       .then((result) => setDashboard(result))
       .catch((reason) => {
@@ -339,6 +349,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
         city_id: selectedCity || null,
         created_from: createdFrom || null,
         created_to: createdTo || null,
+        created_from_offset_minutes: localDateOffsetMinutes(createdFrom),
+        created_to_offset_minutes: localDateOffsetMinutes(createdTo, true),
       });
       saveDownloadedWorkbook(file);
       onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(pagination.total_items || 0) + " نتیجه فیلترشده آماده شد." });
