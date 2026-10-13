@@ -291,6 +291,50 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     }
   };
 
+  const exportSelectedRequestsExcel = async () => {
+    if (!canExportReport || excelExportLoading || selectedRequestIds.size === 0) return;
+    if (selectedRequestIds.size > 5000) {
+      onError?.({ type: "error", text: "برای خروجی انتخابی، حداکثر ۵۰۰۰ پرونده را انتخاب کنید؛ برای مجموعه‌های بزرگ‌تر از خروجی همه نتایج استفاده کنید." });
+      return;
+    }
+    setExcelExportLoading(true);
+    try {
+      const file = await api.exportStaffRequestsExcel({
+        mode: "selected",
+        request_ids: Array.from(selectedRequestIds),
+      });
+      saveDownloadedWorkbook(file);
+      onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(selectedRequestIds.size) + " پرونده آماده شد." });
+    } catch (reason) {
+      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل انجام نشد." });
+    } finally {
+      setExcelExportLoading(false);
+    }
+  };
+
+  const exportFilteredRequestsExcel = async () => {
+    if (!canExportReport || excelExportLoading || (pagination.total_items || 0) === 0) return;
+    setExcelExportLoading(true);
+    try {
+      const file = await api.exportStaffRequestsExcel({
+        mode: "filtered",
+        search,
+        status: selectedStatus,
+        request_type: selectedType,
+        province_id: selectedProvince,
+        city_id: selectedCity,
+        created_from: createdFrom,
+        created_to: createdTo,
+      });
+      saveDownloadedWorkbook(file);
+      onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(pagination.total_items || 0) + " نتیجه فیلترشده آماده شد." });
+    } catch (reason) {
+      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل انجام نشد." });
+    } finally {
+      setExcelExportLoading(false);
+    }
+  };
+
   return (
     <main className="page staff-dashboard-page">
       <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
