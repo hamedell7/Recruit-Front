@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import { statusLabel } from "../../utils/status";
 import { formatDate } from "../../utils/date";
+import PersianDateFilter from "../../components/form/PersianDateFilter";
 import { normalizeList } from "../../utils/collections";
 import Modal from "../../components/common/Modal";
 import { printRequestReport } from "../../utils/requestPdf";
@@ -461,15 +462,19 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
               </select>
             </label>
 
-            <label className="staff-filter-field">
-              <span>از تاریخ ثبت درخواست</span>
-              <input type="date" value={createdFrom} max={createdTo || undefined} onChange={(event) => { setCreatedFrom(event.target.value); setPage(1); }} />
-            </label>
+            <PersianDateFilter
+              label="از تاریخ ثبت درخواست"
+              value={createdFrom}
+              maxDate={createdTo}
+              onChange={(value) => { setCreatedFrom(value); setPage(1); }}
+            />
 
-            <label className="staff-filter-field">
-              <span>تا تاریخ ثبت درخواست</span>
-              <input type="date" value={createdTo} min={createdFrom || undefined} onChange={(event) => { setCreatedTo(event.target.value); setPage(1); }} />
-            </label>
+            <PersianDateFilter
+              label="تا تاریخ ثبت درخواست"
+              value={createdTo}
+              minDate={createdFrom}
+              onChange={(value) => { setCreatedTo(value); setPage(1); }}
+            />
           </div>
           {metadataError && <div className="staff-inline-warning">{metadataError}</div>}
           <div className="staff-filter-footnote">
