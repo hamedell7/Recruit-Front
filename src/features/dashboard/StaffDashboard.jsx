@@ -35,6 +35,17 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
+function saveDownloadedWorkbook(file) {
+  const url = window.URL.createObjectURL(file.blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = file.filename || "recruit-export.xlsx";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+}
+
 function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -48,7 +59,10 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [selectedType, setSelectedType] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
   const [page, setPage] = useState(1);
+  const [selectedRequestIds, setSelectedRequestIds] = useState(() => new Set());
 
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +70,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [excelExportLoading, setExcelExportLoading] = useState(false);
+  const [singleExcelLoading, setSingleExcelLoading] = useState(false);
   const [reviewWorkflow, setReviewWorkflow] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
   const [decisionReason, setDecisionReason] = useState("");
@@ -127,6 +143,8 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
       request_type: selectedType,
       province_id: selectedProvince,
       city_id: selectedCity,
+      created_from: createdFrom,
+      created_to: createdTo,
     }, controller.signal)
       .then((result) => setDashboard(result))
       .catch((reason) => {
@@ -139,12 +157,39 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
       });
 
     return () => controller.abort();
-  }, [page, search, selectedStatus, selectedType, selectedProvince, selectedCity, refreshKey]);
+  }, [page, search, selectedStatus, selectedType, selectedProvince, selectedCity, createdFrom, createdTo, refreshKey]);
 
   const stats = dashboard?.stats || {};
   const items = normalizeList(dashboard?.items);
   const pagination = dashboard?.pagination || { total_items: 0, total_pages: 0, page: 1 };
-  const hasFilters = Boolean(searchInput || selectedStatus || selectedType || selectedProvince || selectedCity);
+  const hasFilters = Boolean(searchInput || selectedStatus || selectedType || selectedProvince || selectedCity || createdFrom || createdTo);
+  const pageFullySelected = items.length > 0 && items.every((item) => selectedRequestIds.has(String(item.id)));
+
+  useEffect(() => {
+    setSelectedRequestIds(new Set());
+  }, [search, selectedStatus, selectedType, selectedProvince, selectedCity, createdFrom, createdTo]);
+
+  const togglePageSelection = (checked) => {
+    setSelectedRequestIds((current) => {
+      const next = new Set(current);
+      items.forEach((item) => {
+        const id = String(item.id);
+        if (checked) next.add(id);
+        else next.delete(id);
+      });
+      return next;
+    });
+  };
+
+  const toggleRequestSelection = (requestId, checked) => {
+    const id = String(requestId);
+    setSelectedRequestIds((current) => {
+      const next = new Set(current);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
 
   const clearFilters = () => {
     setSearchInput("");
@@ -153,6 +198,9 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     setSelectedType("");
     setSelectedProvince("");
     setSelectedCity("");
+    setCreatedFrom("");
+    setCreatedTo("");
+    setSelectedRequestIds(new Set());
     setPage(1);
   };
 
@@ -342,11 +390,21 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                 {cities.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
               </select>
             </label>
+
+            <label className="staff-filter-field">
+              <span>از تاریخ ثبت درخواست</span>
+              <input type="date" value={createdFrom} max={createdTo || undefined} onChange={(event) => { setCreatedFrom(event.target.value); setPage(1); }} />
+            </label>
+
+            <label className="staff-filter-field">
+              <span>تا تاریخ ثبت درخواست</span>
+              <input type="date" value={createdTo} min={createdFrom || undefined} onChange={(event) => { setCreatedTo(event.target.value); setPage(1); }} />
+            </label>
           </div>
           {metadataError && <div className="staff-inline-warning">{metadataError}</div>}
           <div className="staff-filter-footnote">
             <span aria-hidden="true">ⓘ</span>
-            استان و شهر بر اساس نشانی فعلی و در صورت نبود آن، محل تولد متقاضی است. فیلتر وضعیت فقط فهرست جدول را محدود می‌کند.
+            استان و شهر بر اساس نشانی فعلی و در صورت نبود آن، محل تولد متقاضی است. بازه‌ی تاریخ، تاریخ ثبت پرونده را فیلتر می‌کند.
           </div>
         </div>
 
