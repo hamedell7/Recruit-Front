@@ -1,4 +1,4 @@
-import { apiFetch, API_BASE_URL } from "./httpClient";
+import { apiDownload, apiFetch, API_BASE_URL } from "./httpClient";
 
 const path = (value) => encodeURIComponent(value);
 
@@ -30,6 +30,11 @@ const api = {
   staffRequestTypes: () => apiFetch("/staff/request-types"),
   createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
+  exportStaffRequestsExcel: (payload) => apiDownload("/staff/requests/export.xlsx", {
+    method: "POST",
+    body: payload,
+  }),
+  exportStaffRequestExcel: (id) => apiDownload("/staff/requests/" + path(id) + "/export.xlsx"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
