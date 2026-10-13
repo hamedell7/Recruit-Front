@@ -335,10 +335,10 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
         search,
         status: selectedStatus,
         request_type: selectedType,
-        province_id: selectedProvince,
-        city_id: selectedCity,
-        created_from: createdFrom,
-        created_to: createdTo,
+        province_id: selectedProvince || null,
+        city_id: selectedCity || null,
+        created_from: createdFrom || null,
+        created_to: createdTo || null,
       });
       saveDownloadedWorkbook(file);
       onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(pagination.total_items || 0) + " نتیجه فیلترشده آماده شد." });
