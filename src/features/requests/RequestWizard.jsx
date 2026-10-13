@@ -54,11 +54,25 @@ function RequestWizard({ user, request, onBack, onError }) {
   };
 
   const workflowGroups = useMemo(() => {
-    if (workflowDefinition?.groups?.length) {
-      return workflowDefinition.groups;
+    const configuredGroups = workflowDefinition?.groups;
+    if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
+
+    // Preview the conditional route as soon as gender is selected on the
+    // personal form. The backend still enforces this rule on save and returns
+    // the authoritative, applicant-specific workflow definition afterward.
+    const configuredSteps = configuredGroups.flatMap((group) => group.steps || []);
+    const activeStep = configuredSteps.find((step) => step.key === resume?.current_step);
+    if (activeStep?.handler_key !== "personal_v1" || form?.gender !== "زن") {
+      return configuredGroups;
     }
-    return [];
-  }, [workflowDefinition]);
+
+    return configuredGroups
+      .map((group) => ({
+        ...group,
+        steps: (group.steps || []).filter((step) => step.handler_key !== "military_v1"),
+      }))
+      .filter((group) => group.steps.length > 0);
+  }, [workflowDefinition, resume?.current_step, form?.gender]);
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
 
