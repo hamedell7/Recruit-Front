@@ -291,6 +291,20 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     }
   };
 
+  const exportSelectedRequestExcel = async () => {
+    if (!canExportReport || !selectedRequest?.id || singleExcelLoading) return;
+    setSingleExcelLoading(true);
+    try {
+      const file = await api.exportStaffRequestExcel(selectedRequest.id);
+      saveDownloadedWorkbook(file);
+      onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
+    } catch (reason) {
+      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل پرونده انجام نشد." });
+    } finally {
+      setSingleExcelLoading(false);
+    }
+  };
+
   const exportSelectedRequestsExcel = async () => {
     if (!canExportReport || excelExportLoading || selectedRequestIds.size === 0) return;
     if (selectedRequestIds.size > 5000) {
