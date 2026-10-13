@@ -96,6 +96,10 @@
 .staff-location-main{display:block;color:#334963;font-size:12px;white-space:nowrap}
 .staff-step-name{display:block;min-width:105px;max-width:150px;color:#68778b;font-size:11px;line-height:1.8}
 .staff-updated-date{color:#64758a;font-size:12px;white-space:nowrap}
+.staff-date-stack{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:112px}
+.staff-date-stack>span{display:flex;flex-direction:column;gap:2px;white-space:nowrap}
+.staff-date-stack small{color:#96a1b0;font-size:10px;font-weight:500}
+.staff-date-stack strong{color:#64758a;font-size:12px;font-weight:600;line-height:1.5}
 .staff-row-action{display:inline-flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid #dfe7f0;border-radius:8px;background:#fff;color:#345c8d;font-family:inherit;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;transition:background .15s ease,border-color .15s ease}
 .staff-row-action:hover{border-color:#bdd0e6;background:#f4f8fd}
 .staff-row-action span{font-size:14px}
