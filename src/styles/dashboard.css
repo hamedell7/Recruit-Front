@@ -192,6 +192,9 @@
 .staff-detail-actions .primary-button,.staff-detail-actions .ghost-button{font-family:inherit;font-size:11px;white-space:nowrap}
 .staff-detail-actions .primary-button{min-height:40px}
 .staff-detail-actions .ghost-button{min-height:40px;padding:8px 13px}
+.staff-detail-actions .staff-excel-export-button{border-color:#168354;background:#168354;color:#fff;box-shadow:0 2px 5px rgba(22,131,84,.16);transition:background .16s ease,border-color .16s ease,box-shadow .16s ease}
+.staff-detail-actions .staff-excel-export-button:hover:not(:disabled){border-color:#116a44;background:#116a44;box-shadow:0 4px 10px rgba(22,131,84,.22)}
+.staff-detail-actions .staff-excel-export-button:disabled{opacity:.58;cursor:wait}
 @media (max-width:820px){
   .request-report-toolbar{width:100%;justify-content:space-between}
 }
