@@ -247,25 +247,41 @@ function RequestWizard({ user, request, onBack, onError }) {
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
 
   const refreshWorkflow = async () => {
-    // Resume is the authoritative workflow state. Do not let ancillary API
-    // calls or a client-side next_step override put the UI on a step that the
-    // backend has not actually activated.
+    // The backend resume is authoritative for the active step.
     const resumeData = await api.resume(appRequest.id);
-    const serverIndex = workflowSteps.indexOf(resumeData.current_step);
-
     setResume(resumeData);
-    if (serverIndex >= 0) setIndex(serverIndex);
 
     if (resumeData.status === "SUBMITTED") {
       onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
     }
 
-    // These are display/data refreshes only; they must never block workflow navigation.
-    const [requestResult, stepsResult] = await Promise.allSettled([
+    // A step may no longer apply after a saved answer (for example, military
+    // service after gender is saved). Refresh the version-pinned definition as
+    // well as request/history data so the rail and progress use the same route
+    // that the backend will enforce.
+    const [requestResult, stepsResult, workflowResult] = await Promise.allSettled([
       api.request(appRequest.id),
       api.steps(appRequest.id),
+      api.requestWorkflow(appRequest.id),
     ]);
 
+    let currentWorkflowSteps = workflowSteps;
+    if (
+      workflowResult.status === "fulfilled" &&
+      Array.isArray(workflowResult.value?.groups) &&
+      workflowResult.value.groups.length > 0
+    ) {
+      const refreshedSteps = buildWorkflowSteps(workflowResult.value.groups);
+      if (refreshedSteps.includes(resumeData.current_step)) {
+        setWorkflowDefinition(workflowResult.value);
+        currentWorkflowSteps = refreshedSteps;
+      }
+    }
+
+    const serverIndex = currentWorkflowSteps.indexOf(resumeData.current_step);
+    if (serverIndex >= 0) setIndex(serverIndex);
+
+    // Non-essential dashboard/history refreshes must not block route navigation.
     if (requestResult.status === "fulfilled") setAppRequest(requestResult.value);
     if (stepsResult.status === "fulfilled") setSteps(normalizeList(stepsResult.value));
   };
