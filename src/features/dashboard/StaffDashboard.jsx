@@ -595,12 +595,17 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                             {(canViewFullMobile ? applicant.mobile : applicant.mobile_masked) || "—"}
                           </span>
                         </td>
-                        <td><span className="staff-tracking-code">{item.tracking_code}</span><small className="staff-cell-subline">ایجاد {formatDate(item.created_at)}</small></td>
+                        <td><span className="staff-tracking-code">{item.tracking_code}</span></td>
                         <td><span className="staff-type-name">{item.request_type?.title || "—"}</span><small className="staff-cell-subline">{item.workflow_key === "screening" ? "فرآیند گزینش" : "فرآیند استخدام"}</small></td>
                         <td><strong className="staff-location-main">{applicant.province_name || "—"}</strong><small className="staff-cell-subline">{applicant.city_name || "شهر ثبت نشده"}</small></td>
                         <td><span className="staff-step-name">{step?.title || item.current_step_key || "—"}</span></td>
                         <td><span className={`status-badge ${tone || "muted"}`}><i />{label}</span></td>
-                        <td><span className="staff-updated-date">{formatDate(item.updated_at)}</span></td>
+                        <td>
+                          <div className="staff-date-stack">
+                            <span><small>ایجاد</small><strong>{formatDate(item.created_at)}</strong></span>
+                            <span><small>به‌روزرسانی</small><strong>{formatDate(item.updated_at)}</strong></span>
+                          </div>
+                        </td>
                         <td><button className="staff-row-action" type="button" onClick={() => setSelectedRequest(item)}>جزئیات <span>←</span></button></td>
                       </tr>
                     );
