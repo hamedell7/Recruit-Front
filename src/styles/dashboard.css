@@ -48,13 +48,14 @@
 .staff-search-field,.staff-filter-field{display:flex;flex-direction:column;gap:7px;min-width:0}
 .staff-search-field>span,.staff-filter-field>span{color:#536276;font-size:12px;font-weight:700}
 .staff-search-control{display:flex;align-items:center;gap:8px;min-width:0;height:42px;padding:0 11px;border:1px solid #dbe2eb;border-radius:10px;background:#fff;transition:border-color .16s ease,box-shadow .16s ease}
-.staff-search-control:focus-within,.staff-filter-field select:focus,.staff-filter-field input[type=date]:focus{outline:none;border-color:#7ba0cf;box-shadow:0 0 0 3px rgba(75,124,187,.11)}
+.staff-search-control:focus-within,.staff-filter-field select:focus,.staff-filter-field .staff-date-picker-input:focus{outline:none;border-color:#7ba0cf;box-shadow:0 0 0 3px rgba(75,124,187,.11)}
 .staff-search-icon{font-size:20px;line-height:1;color:#8190a3}
 .staff-search-control input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#26384f;font-family:inherit;font-size:12px}
 .staff-search-control input::placeholder{color:#9ba6b5}
 .staff-search-control input::-webkit-search-cancel-button{-webkit-appearance:none}
 .staff-search-control button{display:grid;place-items:center;width:22px;height:22px;flex:0 0 auto;border:0;border-radius:6px;background:#f1f4f7;color:#617084;font-size:16px;cursor:pointer}
-.staff-filter-field select,.staff-filter-field input[type=date]{width:100%;height:42px;min-width:0;padding:0 10px;border:1px solid #dbe2eb;border-radius:10px;background-color:#fff;color:#34445a;font-family:inherit;font-size:12px;outline:0}
+.staff-filter-field select,.staff-filter-field .staff-date-picker-input{width:100%;height:42px;min-width:0;padding:0 10px;border:1px solid #dbe2eb;border-radius:10px;background-color:#fff;color:#34445a;font-family:inherit;font-size:12px;outline:0}
+.staff-filter-field .staff-date-picker-container{display:block;width:100%;min-width:0}
 .staff-filter-field select{cursor:pointer}
 .staff-filter-field select:disabled{background:#f6f8fa;color:#a0aab8;cursor:not-allowed}
 .staff-filter-footnote{display:flex;align-items:flex-start;gap:7px;margin-top:13px;padding-top:12px;border-top:1px solid #f0f2f5;color:#8a96a6;font-size:11px;line-height:1.8}
