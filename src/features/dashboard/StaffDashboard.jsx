@@ -472,6 +472,23 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
             <span className="staff-table-page-size">۱۰ پرونده در هر صفحه</span>
           </div>
 
+          {canExportReport && (
+            <div className="staff-bulk-toolbar">
+              <div className="staff-bulk-selection-copy">
+                <strong>{numberFormat.format(selectedRequestIds.size)} پرونده انتخاب شده</strong>
+                <span>تیک سرستون، ردیف‌های همین صفحه را انتخاب می‌کند.</span>
+              </div>
+              <div className="staff-bulk-actions">
+                <button type="button" className="staff-export-button is-secondary" onClick={exportSelectedRequestsExcel} disabled={excelExportLoading || selectedRequestIds.size === 0 || selectedRequestIds.size > 5000}>
+                  {excelExportLoading ? "در حال ساخت اکسل…" : "خروجی اکسل انتخاب‌شده"}
+                </button>
+                <button type="button" className="staff-export-button" onClick={exportFilteredRequestsExcel} disabled={excelExportLoading || loading || (pagination.total_items || 0) === 0}>
+                  {excelExportLoading ? "در حال ساخت اکسل…" : `خروجی همه نتایج (${numberFormat.format(pagination.total_items || 0)})`}
+                </button>
+              </div>
+            </div>
+          )}
+
           {error ? (
             <div className="staff-state-panel staff-error-state">
               <span className="staff-state-icon">!</span>
@@ -495,6 +512,17 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
               <table className="staff-requests-table">
                 <thead>
                   <tr>
+                    {canExportReport && (
+                      <th>
+                        <input
+                          className="staff-row-checkbox"
+                          type="checkbox"
+                          aria-label="انتخاب یا لغو انتخاب همه پرونده‌های این صفحه"
+                          checked={pageFullySelected}
+                          onChange={(event) => togglePageSelection(event.target.checked)}
+                        />
+                      </th>
+                    )}
                     <th>متقاضی</th>
                     <th>شماره موبایل</th>
                     <th>کد رهگیری</th>
@@ -514,6 +542,17 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                     const initials = [applicant.first_name, applicant.last_name].filter(Boolean).map((part) => part.trim()[0]).join("").slice(0, 2);
                     return (
                       <tr key={item.id}>
+                        {canExportReport && (
+                          <td className="staff-row-checkbox-cell">
+                            <input
+                              className="staff-row-checkbox"
+                              type="checkbox"
+                              aria-label={"انتخاب پرونده " + item.tracking_code}
+                              checked={selectedRequestIds.has(String(item.id))}
+                              onChange={(event) => toggleRequestSelection(item.id, event.target.checked)}
+                            />
+                          </td>
+                        )}
                         <td>
                           <div className="staff-applicant-cell">
                             <span className="staff-applicant-avatar">{initials || "؟"}</span>
@@ -627,9 +666,14 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
             <div className="staff-detail-actions">
               <button className="ghost-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
               {canExportReport && (
-                <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
-                  {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
-                </button>
+                <>
+                  <button className="ghost-button" type="button" onClick={exportSelectedRequestExcel} disabled={singleExcelLoading}>
+                    {singleExcelLoading ? "در حال ساخت اکسل…" : "خروجی اکسل پرونده"}
+                  </button>
+                  <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
+                    {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
+                  </button>
+                </>
               )}
             </div>
           </div>
