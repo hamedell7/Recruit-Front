@@ -194,7 +194,7 @@
 .request-export-button:disabled{opacity:.62;cursor:wait}
 .request-export-button>span{font-size:16px;line-height:1}
 .staff-detail-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-.staff-detail-actions .primary-button,.staff-detail-actions .ghost-button{font-family:inherit;font-size:11px;white-space:nowrap}
+.staff-detail-actions .primary-button,.staff-detail-actions .ghost-button{font-family:inherit;font-size:11px;white-space:nowrap;border-radius:10px}
 .staff-detail-actions .primary-button{min-height:40px}
 .staff-detail-actions .ghost-button{min-height:40px;padding:8px 13px}
 .staff-detail-actions .staff-excel-export-button{border-color:#168354;background:#168354;color:#fff;box-shadow:0 2px 5px rgba(22,131,84,.16);transition:background .16s ease,border-color .16s ease,box-shadow .16s ease}
