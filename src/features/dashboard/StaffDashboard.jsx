@@ -8,6 +8,7 @@ import Modal from "../../components/common/Modal";
 import ExcelExportModal from "./ExcelExportModal";
 import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
+import RequestSettings from "./RequestSettings";
 
 const PAGE_SIZE = 10;
 
@@ -56,7 +57,7 @@ function saveDownloadedWorkbook(file) {
   window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
 
-function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
+function StaffRequestsDashboard({ onError, user }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -400,10 +401,6 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
 
   return (
     <main className="page staff-dashboard-page">
-      <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
-        <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت درخواست‌ها</button>
-        {user?.role === "ADMIN" && <button type="button" role="tab" aria-selected={false} onClick={onNavigateWorkflow}>مدیریت گردش‌کار</button>}
-      </div>
       <section className="staff-dashboard-hero">
         <div className="staff-dashboard-heading">
           <span className="eyebrow"><span className="eyebrow-dot" /> مرکز عملیات و پایش</span>
@@ -762,10 +759,14 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
 
 const STAFF_REQUESTS_PATH = "/staff/requests";
 const STAFF_WORKFLOW_PATH = "/staff/workflows";
+const STAFF_SETTINGS_PATH = "/staff/request-settings";
 
 function getStaffWorkspace(pathname, role) {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/";
-  return role === "ADMIN" && normalizedPath === STAFF_WORKFLOW_PATH ? "workflow" : "requests";
+  if (role !== "ADMIN") return "requests";
+  if (normalizedPath === STAFF_WORKFLOW_PATH) return "workflow";
+  if (normalizedPath === STAFF_SETTINGS_PATH) return "settings";
+  return "requests";
 }
 
 function StaffDashboard({ onError, user }) {
@@ -788,35 +789,21 @@ function StaffDashboard({ onError, user }) {
     return () => window.removeEventListener("popstate", syncWorkspaceWithRoute);
   }, [user?.role]);
 
-  const navigateWorkspace = (nextWorkspace) => {
-    const path = nextWorkspace === "workflow" ? STAFF_WORKFLOW_PATH : STAFF_REQUESTS_PATH;
-    if (window.location.pathname !== path) {
-      window.history.pushState({ view: "dashboard", workspace: nextWorkspace }, "", path);
-    }
-    setWorkspace(nextWorkspace);
-  };
-
   if (workspace === "workflow" && user?.role === "ADMIN") {
     return (
       <main className="page staff-dashboard-page">
         <div className="staff-workflow-workspace">
-          <div className="staff-workspace-tabs" role="tablist" aria-label="بخش‌های مدیریت">
-            <button type="button" role="tab" aria-selected={false} onClick={() => navigateWorkspace("requests")}>مدیریت درخواست‌ها</button>
-            <button type="button" role="tab" aria-selected={true} className="is-active">مدیریت گردش‌کار</button>
-          </div>
           <WorkflowManager onError={onError} />
         </div>
       </main>
     );
   }
 
-  return (
-    <StaffRequestsDashboard
-      user={user}
-      onError={onError}
-      onNavigateWorkflow={() => navigateWorkspace("workflow")}
-    />
-  );
+  if (workspace === "settings" && user?.role === "ADMIN") {
+    return <RequestSettings onError={onError} />;
+  }
+
+  return <StaffRequestsDashboard user={user} onError={onError} />;
 }
 
 export default StaffDashboard;
