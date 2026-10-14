@@ -61,3 +61,17 @@
 @keyframes excel-export-spin{to{transform:rotate(360deg)}}
 @media(max-width:640px){.modal:has(.excel-export-dialog){width:calc(100vw - 16px);max-height:calc(100vh - 16px);border-radius:17px}.modal:has(.excel-export-dialog) .modal-top{padding:16px 17px 13px}.excel-export-dialog{padding:0 16px 17px}.excel-export-intro{align-items:flex-start;gap:11px;padding:17px 0}.excel-export-intro-icon{flex-basis:47px;height:47px;border-radius:14px;font-size:15px}.excel-export-intro-copy h4{font-size:14px}.excel-export-intro-copy p{font-size:11px}.excel-export-scope{gap:9px;padding:11px;margin-bottom:17px}.excel-export-request-count{padding-right:10px}.excel-export-sheet-grid{grid-template-columns:1fr;gap:8px}.excel-export-sheet-card{min-height:70px}.excel-export-footer{align-items:stretch;flex-direction:column}.excel-export-selected-count{padding-bottom:3px}.excel-export-actions{display:grid;grid-template-columns:.8fr 1.4fr}.excel-export-cancel,.excel-export-submit{padding:0 10px}.excel-export-submit{min-width:0}}
 @media(prefers-reduced-motion:reduce){.excel-export-sheet-card,.excel-export-checkmark,.excel-export-toggle-all,.excel-export-submit{transition:none}.excel-export-spinner{animation-duration:1.5s}}
+
+
+/* Domain grouping keeps a long sheet catalogue scannable without changing sheet semantics. */
+.excel-export-sheet-groups{display:flex;flex-direction:column;gap:18px}
+.excel-export-sheet-group{min-width:0;padding-top:15px;border-top:1px solid #edf1f6}
+.excel-export-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.excel-export-group-heading h6{margin:0 0 3px;color:#2b405a;font-size:12px;font-weight:900}
+.excel-export-group-heading p{margin:0;color:#8a97a8;font-size:10px;line-height:1.8}
+.excel-export-group-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;padding:7px 9px;border:1px solid #e0e8f1;border-radius:9px;background:#fff;color:#617995;font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;transition:background .16s,border-color .16s}
+.excel-export-group-toggle span{padding-right:7px;border-right:1px solid #e5ebf2;color:#8a9bb0;font-size:9px;font-variant-numeric:tabular-nums}
+.excel-export-group-toggle:hover:not(:disabled){border-color:#bfd2e8;background:#f5f9fe;color:#345f90}
+.excel-export-group-toggle:disabled{opacity:.5;cursor:not-allowed}
+.excel-export-selection-hint{flex-basis:100%;color:#9b6b28;font-size:10px}
+@media(max-width:640px){.excel-export-sheet-groups{gap:14px}.excel-export-group-heading{align-items:flex-start}.excel-export-group-heading h6{font-size:11px}.excel-export-group-heading p{max-width:210px}.excel-export-group-toggle{padding:7px;font-size:9px}.excel-export-group-toggle span{padding-right:5px}}
