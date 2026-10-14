@@ -359,8 +359,9 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
       const payload = scope.mode === "selected"
         ? { mode: "selected", request_ids: scope.requestIds, sheets }
         : { mode: "filtered", ...scope.filters, sheets };
-      const streamToDisk = (scope.requestCount || 0) >= 1000
-        && sheets.some((sheet) => sheet !== "summary");
+      const selectedDetailSheets = sheets.some((sheet) => sheet !== "summary");
+      const streamThreshold = selectedDetailSheets ? 1000 : 10000;
+      const streamToDisk = (scope.requestCount || 0) >= streamThreshold;
       const file = await api.exportStaffRequestsExcel(payload, { streamToDisk });
       if (!file.savedToDisk) saveDownloadedWorkbook(file);
       setExcelExportModal(null);
