@@ -5,6 +5,7 @@ import { formatDate } from "../../utils/date";
 import PersianDateFilter from "../../components/form/PersianDateFilter";
 import { normalizeList } from "../../utils/collections";
 import Modal from "../../components/common/Modal";
+import ExcelExportModal from "./ExcelExportModal";
 import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
 
@@ -48,7 +49,7 @@ function saveDownloadedWorkbook(file) {
   const url = window.URL.createObjectURL(file.blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = file.filename || "recruit-export.xlsx";
+  anchor.download = file.filename || "e" + Date.now() + ".xlsx";
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
@@ -81,6 +82,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [reportLoading, setReportLoading] = useState(false);
   const [excelExportLoading, setExcelExportLoading] = useState(false);
   const [singleExcelLoading, setSingleExcelLoading] = useState(false);
+  const [excelExportModal, setExcelExportModal] = useState(null);
   const [reviewWorkflow, setReviewWorkflow] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
   const [decisionReason, setDecisionReason] = useState("");
@@ -302,47 +304,36 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     }
   };
 
-  const exportSelectedRequestExcel = async () => {
-    if (!canExportReport || !selectedRequest?.id || singleExcelLoading) return;
-    setSingleExcelLoading(true);
-    try {
-      const file = await api.exportStaffRequestExcel(selectedRequest.id);
-      saveDownloadedWorkbook(file);
-      onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
-    } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل پرونده انجام نشد." });
-    } finally {
-      setSingleExcelLoading(false);
-    }
+  const openSingleExcelExportModal = () => {
+    if (!canExportReport || !selectedRequest?.id || singleExcelLoading || excelExportLoading) return;
+    setExcelExportModal({
+      mode: "selected",
+      singleRequest: true,
+      requestIds: [String(selectedRequest.id)],
+      requestCount: 1,
+      scopeLabel: "پرونده " + (selectedRequest.tracking_code || fullName(selectedRequest.applicant)),
+    });
   };
 
-  const exportSelectedRequestsExcel = async () => {
-    if (!canExportReport || excelExportLoading || selectedRequestIds.size === 0) return;
+  const openBulkExcelExportModal = () => {
+    if (!canExportReport || excelExportLoading || singleExcelLoading) return;
     if (selectedRequestIds.size > 5000) {
       onError?.({ type: "error", text: "برای خروجی انتخابی، حداکثر ۵۰۰۰ پرونده را انتخاب کنید؛ برای مجموعه‌های بزرگ‌تر از خروجی همه نتایج استفاده کنید." });
       return;
     }
-    setExcelExportLoading(true);
-    try {
-      const file = await api.exportStaffRequestsExcel({
+    if (selectedRequestIds.size > 0) {
+      setExcelExportModal({
         mode: "selected",
-        request_ids: Array.from(selectedRequestIds),
+        requestIds: Array.from(selectedRequestIds),
+        requestCount: selectedRequestIds.size,
+        scopeLabel: numberFormat.format(selectedRequestIds.size) + " پرونده انتخاب‌شده",
       });
-      saveDownloadedWorkbook(file);
-      onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(selectedRequestIds.size) + " پرونده آماده شد." });
-    } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل انجام نشد." });
-    } finally {
-      setExcelExportLoading(false);
+      return;
     }
-  };
-
-  const exportFilteredRequestsExcel = async () => {
-    if (!canExportReport || excelExportLoading || (pagination.total_items || 0) === 0) return;
-    setExcelExportLoading(true);
-    try {
-      const file = await api.exportStaffRequestsExcel({
-        mode: "filtered",
+    if ((pagination.total_items || 0) === 0) return;
+    setExcelExportModal({
+      mode: "filtered",
+      filters: {
         search,
         status: selectedStatus,
         request_type: selectedType,
@@ -352,15 +343,55 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
         created_to: createdTo || null,
         created_from_offset_minutes: localDateOffsetMinutes(createdFrom),
         created_to_offset_minutes: localDateOffsetMinutes(createdTo, true),
-      });
+      },
+      requestCount: pagination.total_items || 0,
+      scopeLabel: numberFormat.format(pagination.total_items || 0) + " نتیجه منطبق با فیلترها",
+    });
+  };
+
+  const handleExcelExport = async (sheets) => {
+    const scope = excelExportModal;
+    if (!scope || !Array.isArray(sheets) || sheets.length === 0) return;
+    if (scope.singleRequest) setSingleExcelLoading(true);
+    else setExcelExportLoading(true);
+
+    try {
+      const payload = scope.mode === "selected"
+        ? { mode: "selected", request_ids: scope.requestIds, sheets }
+        : { mode: "filtered", ...scope.filters, sheets };
+      const file = await api.exportStaffRequestsExcel(payload);
       saveDownloadedWorkbook(file);
-      onError?.({ type: "success", text: "خروجی اکسل " + numberFormat.format(pagination.total_items || 0) + " نتیجه فیلترشده آماده شد." });
+      setExcelExportModal(null);
+
+      if (scope.singleRequest) {
+        onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
+      } else if (scope.mode === "selected") {
+        onError?.({
+          type: "success",
+          text: "خروجی اکسل " + numberFormat.format(scope.requestCount) + " پرونده آماده شد.",
+        });
+      } else {
+        onError?.({
+          type: "success",
+          text: "خروجی اکسل " + numberFormat.format(scope.requestCount) + " نتیجه فیلترشده آماده شد.",
+        });
+      }
     } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "تولید فایل اکسل انجام نشد." });
+      onError?.({
+        type: "error",
+        text: reason.message || (scope.singleRequest
+          ? "تولید فایل اکسل پرونده انجام نشد."
+          : "تولید فایل اکسل انجام نشد."),
+      });
     } finally {
-      setExcelExportLoading(false);
+      if (scope.singleRequest) setSingleExcelLoading(false);
+      else setExcelExportLoading(false);
     }
   };
+
+  const excelModalLoading = Boolean(
+    excelExportModal?.singleRequest ? singleExcelLoading : excelExportLoading
+  );
 
   return (
     <main className="page staff-dashboard-page">
@@ -499,9 +530,9 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                 <button
                   type="button"
                   className="staff-export-button"
-                  onClick={selectedRequestIds.size > 0 ? exportSelectedRequestsExcel : exportFilteredRequestsExcel}
+                  onClick={openBulkExcelExportModal}
                   disabled={
-                    excelExportLoading ||
+                    excelExportLoading || singleExcelLoading ||
                     (selectedRequestIds.size > 0
                       ? selectedRequestIds.size > 5000
                       : loading || (pagination.total_items || 0) === 0)
@@ -697,7 +728,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
               <button className="ghost-button" type="button" onClick={() => setSelectedRequest(null)}>بستن</button>
               {canExportReport && (
                 <>
-                  <button className="ghost-button staff-excel-export-button" type="button" onClick={exportSelectedRequestExcel} disabled={singleExcelLoading}>
+                  <button className="ghost-button staff-excel-export-button" type="button" onClick={openSingleExcelExportModal} disabled={singleExcelLoading || excelExportLoading}>
                     {singleExcelLoading ? "در حال ساخت اکسل…" : "خروجی اکسل پرونده"}
                   </button>
                   <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
@@ -708,6 +739,17 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
             </div>
           </div>
         </Modal>
+      )}
+      {excelExportModal && (
+        <ExcelExportModal
+          scopeLabel={excelExportModal.scopeLabel}
+          requestCount={excelExportModal.requestCount}
+          loading={excelModalLoading}
+          onClose={() => {
+            if (!excelModalLoading) setExcelExportModal(null);
+          }}
+          onExport={handleExcelExport}
+        />
       )}
     </main>
   );
