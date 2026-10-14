@@ -14,16 +14,20 @@ function App() {
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
   const [view, setView] = useState("dashboard");
+  const [staffPath, setStaffPath] = useState(() => window.location.pathname);
   const [activeRequest, setActiveRequest] = useState(null);
   const [toast, setToast] = useState(null);
 
   const restoreRoute = async (currentUser) => {
     const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
-    const staffRouteMatch = pathname === "/staff/requests" || pathname === "/staff/workflows";
+    const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
     if (staffRouteMatch && STAFF_ROLES.includes(currentUser?.role)) {
-      if (pathname === "/staff/workflows" && currentUser?.role !== "ADMIN") {
-        window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", "/staff/requests");
+      const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
+      const canonicalPath = adminOnlyRoute && currentUser?.role !== "ADMIN" ? "/staff/requests" : pathname;
+      if (canonicalPath !== pathname) {
+        window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", canonicalPath);
       }
+      setStaffPath(canonicalPath);
       setActiveRequest(null);
       setView("dashboard");
       return;
@@ -43,6 +47,7 @@ function App() {
     }
 
     setActiveRequest(null);
+    setStaffPath("/dashboard");
     setView("dashboard");
     if (window.location.pathname !== "/dashboard") {
       window.history.replaceState({ view: "dashboard" }, "", "/dashboard");
@@ -52,6 +57,19 @@ function App() {
   const navigateToDashboard = (replace = false) => {
     const method = replace ? "replaceState" : "pushState";
     window.history[method]({ view: "dashboard" }, "", "/dashboard");
+    setStaffPath("/dashboard");
+    setActiveRequest(null);
+    setView("dashboard");
+  };
+
+  const navigateStaffWorkspace = (path) => {
+    const allowedPaths = ["/staff/requests"];
+    if (user?.role === "ADMIN") allowedPaths.push("/staff/workflows", "/staff/request-settings");
+    if (!allowedPaths.includes(path)) return;
+    if (window.location.pathname !== path) {
+      window.history.pushState({ view: "dashboard", workspace: path }, "", path);
+    }
+    setStaffPath(path);
     setActiveRequest(null);
     setView("dashboard");
   };
@@ -85,11 +103,14 @@ function App() {
     let cancelled = false;
     const onPopState = async () => {
       const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
-      const staffRouteMatch = pathname === "/staff/requests" || pathname === "/staff/workflows";
+      const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
       if (staffRouteMatch && STAFF_ROLES.includes(user.role)) {
-        if (pathname === "/staff/workflows" && user.role !== "ADMIN") {
-          window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", "/staff/requests");
+        const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
+        const canonicalPath = adminOnlyRoute && user.role !== "ADMIN" ? "/staff/requests" : pathname;
+        if (canonicalPath !== pathname) {
+          window.history.replaceState({ view: "dashboard", workspace: "requests" }, "", canonicalPath);
         }
+        setStaffPath(canonicalPath);
         setActiveRequest(null);
         setView("dashboard");
         return;
@@ -109,6 +130,7 @@ function App() {
       }
       if (cancelled) return;
       setActiveRequest(null);
+      setStaffPath("/dashboard");
       setView("dashboard");
       if (window.location.pathname !== "/dashboard") {
         window.history.replaceState({ view: "dashboard" }, "", "/dashboard");
@@ -153,10 +175,15 @@ function App() {
         />
       ) : (
         <>
-          <Header user={user} onLogout={logout} />
+          <Header
+            user={user}
+            onLogout={logout}
+            staffPath={staffPath}
+            onNavigateStaff={navigateStaffWorkspace}
+          />
           {view === "dashboard" ? (
             STAFF_ROLES.includes(user.role) ? (
-              <StaffDashboard user={user} onError={setToast} />
+              <StaffDashboard key={staffPath} user={user} onError={setToast} />
             ) : (
               <Dashboard
                 user={user}
