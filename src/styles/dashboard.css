@@ -77,10 +77,6 @@
 .staff-bulk-selection-copy strong{color:#31445d;font-size:12px}
 .staff-bulk-selection-copy span{color:#8b97a7;font-size:11px}
 .staff-bulk-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.staff-export-format-control{display:flex;flex-direction:column;gap:3px;min-width:165px;color:#64748b;font-size:10px;font-weight:700}
-.staff-export-format-control select{width:100%;min-height:36px;padding:7px 28px 7px 10px;border:1px solid #d6e0eb;border-radius:9px;background:#fff;color:#29445f;font-family:inherit;font-size:11px;font-weight:700;outline:none}
-.staff-export-format-control select:focus{border-color:#6d92bb;box-shadow:0 0 0 3px rgba(90,135,185,.13)}
-.staff-export-format-control select:disabled{opacity:.6;cursor:not-allowed}
 .staff-export-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:8px 12px;border:1px solid #244f81;border-radius:9px;background:#244f81;color:#fff;font-family:inherit;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;transition:background .15s ease,border-color .15s ease}
 .staff-export-button:hover:not(:disabled){border-color:#17385e;background:#17385e}
 .staff-export-button.is-secondary{border-color:#cfdae8;background:#fff;color:#315777}
