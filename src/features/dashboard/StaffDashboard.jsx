@@ -776,7 +776,11 @@ function StaffDashboard({ onError, user }) {
     const syncWorkspaceWithRoute = () => {
       const normalizedPath = window.location.pathname.replace(/\/+$/, "") || "/";
       const nextWorkspace = getStaffWorkspace(normalizedPath, user?.role);
-      const canonicalPath = nextWorkspace === "workflow" ? STAFF_WORKFLOW_PATH : STAFF_REQUESTS_PATH;
+      const canonicalPath = nextWorkspace === "workflow"
+        ? STAFF_WORKFLOW_PATH
+        : nextWorkspace === "settings"
+          ? STAFF_SETTINGS_PATH
+          : STAFF_REQUESTS_PATH;
 
       if (normalizedPath !== canonicalPath) {
         window.history.replaceState({ view: "dashboard", workspace: nextWorkspace }, "", canonicalPath);
