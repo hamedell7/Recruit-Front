@@ -261,7 +261,7 @@ async function apiDownload(path, options = {}, downloadOptions = {}) {
   }
 
   const disposition = response.headers.get("content-disposition") || "";
-  const encodedName = disposition.match(/filename\\*=UTF-8''([^;]+)/i)?.[1];
+  const encodedName = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1];
   const regularName = disposition.match(/filename="?([^";]+)"?/i)?.[1];
   const filename = (encodedName ? decodeURIComponent(encodedName) : regularName) || "recruit-export.xlsx";
 
