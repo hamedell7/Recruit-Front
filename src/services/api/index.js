@@ -34,9 +34,7 @@ const api = {
     method: "POST",
     body: payload,
   }),
-  exportStaffRequestExcel: (id, format = "categorized") => apiDownload(
-    "/staff/requests/" + path(id) + "/export.xlsx?format=" + path(format)
-  ),
+  exportStaffRequestExcel: (id) => apiDownload("/staff/requests/" + path(id) + "/export.xlsx"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
