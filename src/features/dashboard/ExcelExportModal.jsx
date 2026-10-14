@@ -140,7 +140,7 @@ function ExcelExportModal({
           </div>
           <div className="excel-export-request-count">
             <strong>{numberFormat.format(requestCount || 0)}</strong>
-            <span>{requestCount === 1 ? "پرونده" : "پرونده"}</span>
+            <span>پرونده</span>
           </div>
         </div>
 
