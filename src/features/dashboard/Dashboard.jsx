@@ -234,28 +234,26 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
             <p>نوع پرونده، مسیر مرحله‌ای و اطلاعات لازم برای ادامه کار را مشخص می‌کند.</p>
           </div>
           <div className="request-type-list">
-            {types.map((item) => (
-              {(() => {
-                const availability = requestTypeAvailability(item, requests);
-                return (
-                  <button
-                    key={item.code}
-                    type="button"
-                    className={"request-type " + (selectedType === item.code ? "selected" : "") + (!availability.available ? " is-unavailable" : "")}
-                    disabled={!availability.available}
-                    onClick={() => setSelectedType(item.code)}
-                  >
-                    <div className="type-icon">{item.code === "SCREENING" ? "S" : "E"}</div>
-                    <div className="request-type-copy">
-                      <strong>{item.title}</strong>
-                      <span>{item.workflow_key === "screening" ? "فرآیند کامل گزینش" : "فرآیند استخدام"}</span>
-                      <small className={!availability.available ? "request-type-limit is-blocked" : "request-type-limit"}>{availability.message}</small>
-                    </div>
-                    <span className="type-arrow">{availability.available ? "←" : "—"}</span>
-                  </button>
-                );
-              })()}
-            ))}
+            {types.map((item) => {
+              const availability = requestTypeAvailability(item, requests);
+              return (
+                <button
+                  key={item.code}
+                  type="button"
+                  className={"request-type " + (selectedType === item.code ? "selected" : "") + (!availability.available ? " is-unavailable" : "")}
+                  disabled={!availability.available}
+                  onClick={() => setSelectedType(item.code)}
+                >
+                  <div className="type-icon">{item.code === "SCREENING" ? "S" : "E"}</div>
+                  <div className="request-type-copy">
+                    <strong>{item.title}</strong>
+                    <span>{item.workflow_key === "screening" ? "فرآیند کامل گزینش" : "فرآیند استخدام"}</span>
+                    <small className={!availability.available ? "request-type-limit is-blocked" : "request-type-limit"}>{availability.message}</small>
+                  </div>
+                  <span className="type-arrow">{availability.available ? "←" : "—"}</span>
+                </button>
+              );
+            })}
           </div>
           <div className="modal-actions">
             <button className="ghost-button" onClick={() => setSelectedType(null)}>انصراف</button>
