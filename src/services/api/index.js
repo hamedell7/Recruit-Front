@@ -31,10 +31,14 @@ const api = {
   createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
   staffExcelExportSheets: () => apiFetch("/staff/requests/export.xlsx/sheets"),
-  exportStaffRequestsExcel: (payload) => apiDownload("/staff/requests/export.xlsx", {
-    method: "POST",
-    body: payload,
-  }),
+  exportStaffRequestsExcel: (payload, downloadOptions = {}) => apiDownload(
+    "/staff/requests/export.xlsx",
+    {
+      method: "POST",
+      body: payload,
+    },
+    downloadOptions,
+  ),
   exportStaffRequestExcel: (id) => apiDownload("/staff/requests/" + path(id) + "/export.xlsx"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
