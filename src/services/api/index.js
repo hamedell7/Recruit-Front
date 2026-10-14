@@ -29,6 +29,10 @@ const api = {
   createWorkflow: (payload) => apiFetch("/staff/workflows", { method: "POST", body: payload }),
   staffRequestTypes: () => apiFetch("/staff/request-types"),
   createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
+  updateRequestTypeSettings: (code, payload) => apiFetch("/staff/request-types/" + path(code) + "/settings", {
+    method: "PUT",
+    body: payload,
+  }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
   staffExcelExportSheets: () => apiFetch("/staff/requests/export.xlsx/sheets"),
   exportStaffRequestsExcel: (payload, downloadOptions = {}) => apiDownload(
