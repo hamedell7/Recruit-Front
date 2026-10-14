@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
+import { formatDate } from "../../utils/date";
 import Modal from "../../components/common/Modal";
 import StatCard from "./cards/StatCard";
 import RequestCard from "./cards/RequestCard";
@@ -10,6 +11,37 @@ import "../../styles/user-dashboard.css";
 
 const ACTIVE_STATUSES = ["IN_PROGRESS", "DRAFT"];
 const FINAL_STATUSES = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
+
+function tehranToday() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tehran",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return values.year + "-" + values.month + "-" + values.day;
+}
+
+function requestTypeAvailability(type, requests, today = tehranToday()) {
+  const used = requests.filter((request) => request.request_type_code === type.code).length;
+  if (type.is_active === false) return { available: false, message: "ثبت این نوع درخواست غیرفعال است." };
+  if (type.registration_start_date && today < type.registration_start_date) {
+    return { available: false, message: "شروع ثبت از " + formatDate(type.registration_start_date) };
+  }
+  if (type.registration_end_date && today > type.registration_end_date) {
+    return { available: false, message: "مهلت ثبت در " + formatDate(type.registration_end_date) + " پایان یافته است." };
+  }
+  if (type.max_requests_per_user != null && used >= Number(type.max_requests_per_user)) {
+    return { available: false, message: "سقف " + type.max_requests_per_user + " درخواست ثبت شده است." };
+  }
+  return {
+    available: true,
+    message: type.max_requests_per_user == null
+      ? "پرونده‌های ثبت‌شده: " + used
+      : "پرونده‌های ثبت‌شده: " + used + " از " + type.max_requests_per_user,
+  };
+}
 
 function Dashboard({ user, onOpenRequest, onCreated, onError }) {
   const [requests, setRequests] = useState([]);
@@ -82,7 +114,15 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
     });
   }, [requests, searchQuery, activeFilter]);
 
-  const openNewRequest = () => setSelectedType(types[0]?.code || null);
+  const openNewRequest = () => {
+    const firstAvailable = types.find((item) => requestTypeAvailability(item, requests).available);
+    setSelectedType(firstAvailable?.code || types[0]?.code || null);
+  };
+
+  const selectedTypeItem = types.find((item) => item.code === selectedType);
+  const selectedTypeAvailability = selectedTypeItem
+    ? requestTypeAvailability(selectedTypeItem, requests)
+    : { available: false, message: "" };
 
   return (
     <main className="page dashboard-page ud-dashboard-page" dir="rtl">
@@ -195,20 +235,31 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
           </div>
           <div className="request-type-list">
             {types.map((item) => (
-              <button
-                key={item.code}
-                className={"request-type " + (selectedType === item.code ? "selected" : "")}
-                onClick={() => setSelectedType(item.code)}
-              >
-                <div className="type-icon">{item.code === "SCREENING" ? "S" : "E"}</div>
-                <div><strong>{item.title}</strong><span>{item.workflow_key === "screening" ? "فرآیند کامل گزینش" : "فرآیند استخدام"}</span></div>
-                <span className="type-arrow">←</span>
-              </button>
+              {(() => {
+                const availability = requestTypeAvailability(item, requests);
+                return (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={"request-type " + (selectedType === item.code ? "selected" : "") + (!availability.available ? " is-unavailable" : "")}
+                    disabled={!availability.available}
+                    onClick={() => setSelectedType(item.code)}
+                  >
+                    <div className="type-icon">{item.code === "SCREENING" ? "S" : "E"}</div>
+                    <div className="request-type-copy">
+                      <strong>{item.title}</strong>
+                      <span>{item.workflow_key === "screening" ? "فرآیند کامل گزینش" : "فرآیند استخدام"}</span>
+                      <small className={!availability.available ? "request-type-limit is-blocked" : "request-type-limit"}>{availability.message}</small>
+                    </div>
+                    <span className="type-arrow">{availability.available ? "←" : "—"}</span>
+                  </button>
+                );
+              })()}
             ))}
           </div>
           <div className="modal-actions">
             <button className="ghost-button" onClick={() => setSelectedType(null)}>انصراف</button>
-            <button className="primary-button" disabled={creating} onClick={createRequest}>{creating ? "در حال ایجاد…" : "ایجاد پرونده و شروع"}</button>
+            <button className="primary-button" disabled={creating || !selectedTypeAvailability.available} onClick={createRequest}>{creating ? "در حال ایجاد…" : "ایجاد پرونده و شروع"}</button>
           </div>
         </Modal>
       )}
