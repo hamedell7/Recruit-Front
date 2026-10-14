@@ -30,6 +30,7 @@ const api = {
   staffRequestTypes: () => apiFetch("/staff/request-types"),
   createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
+  staffExcelExportSheets: () => apiFetch("/staff/requests/export.xlsx/sheets"),
   exportStaffRequestsExcel: (payload) => apiDownload("/staff/requests/export.xlsx", {
     method: "POST",
     body: payload,
