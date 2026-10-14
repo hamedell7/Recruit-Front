@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import "../../styles/staff-menu.css";
 
 const ROLE_LABELS = {
   APPLICANT: "متقاضی",
