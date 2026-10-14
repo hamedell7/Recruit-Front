@@ -81,7 +81,6 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
   const [reportLoading, setReportLoading] = useState(false);
   const [excelExportLoading, setExcelExportLoading] = useState(false);
   const [singleExcelLoading, setSingleExcelLoading] = useState(false);
-  const [excelFormat, setExcelFormat] = useState("categorized");
   const [reviewWorkflow, setReviewWorkflow] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
   const [decisionReason, setDecisionReason] = useState("");
@@ -307,7 +306,7 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     if (!canExportReport || !selectedRequest?.id || singleExcelLoading) return;
     setSingleExcelLoading(true);
     try {
-      const file = await api.exportStaffRequestExcel(selectedRequest.id, excelFormat);
+      const file = await api.exportStaffRequestExcel(selectedRequest.id);
       saveDownloadedWorkbook(file);
       onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
     } catch (reason) {
@@ -327,7 +326,6 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     try {
       const file = await api.exportStaffRequestsExcel({
         mode: "selected",
-        format: excelFormat,
         request_ids: Array.from(selectedRequestIds),
       });
       saveDownloadedWorkbook(file);
@@ -345,7 +343,6 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
     try {
       const file = await api.exportStaffRequestsExcel({
         mode: "filtered",
-        format: excelFormat,
         search,
         status: selectedStatus,
         request_type: selectedType,
@@ -499,18 +496,6 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
                 <span>تیک سرستون، ردیف‌های همین صفحه را انتخاب می‌کند.</span>
               </div>
               <div className="staff-bulk-actions">
-                <label className="staff-export-format-control">
-                  <span>قالب فایل</span>
-                  <select
-                    value={excelFormat}
-                    onChange={(event) => setExcelFormat(event.target.value)}
-                    disabled={excelExportLoading || singleExcelLoading}
-                    aria-label="قالب فایل اکسل"
-                  >
-                    <option value="categorized">دسته‌بندی‌شده (چند شیت)</option>
-                    <option value="complete">گزارش کامل (تک‌شیت)</option>
-                  </select>
-                </label>
                 <button
                   type="button"
                   className="staff-export-button"
