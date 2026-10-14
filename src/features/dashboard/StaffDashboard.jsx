@@ -359,8 +359,10 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
       const payload = scope.mode === "selected"
         ? { mode: "selected", request_ids: scope.requestIds, sheets }
         : { mode: "filtered", ...scope.filters, sheets };
-      const file = await api.exportStaffRequestsExcel(payload);
-      saveDownloadedWorkbook(file);
+      const streamToDisk = (scope.requestCount || 0) >= 1000
+        && sheets.some((sheet) => sheet !== "summary");
+      const file = await api.exportStaffRequestsExcel(payload, { streamToDisk });
+      if (!file.savedToDisk) saveDownloadedWorkbook(file);
       setExcelExportModal(null);
 
       if (scope.singleRequest) {
@@ -377,12 +379,14 @@ function StaffRequestsDashboard({ onError, user, onNavigateWorkflow }) {
         });
       }
     } catch (reason) {
-      onError?.({
-        type: "error",
-        text: reason.message || (scope.singleRequest
-          ? "تولید فایل اکسل پرونده انجام نشد."
-          : "تولید فایل اکسل انجام نشد."),
-      });
+      if (reason?.name !== "DownloadCancelledError") {
+        onError?.({
+          type: "error",
+          text: reason.message || (scope.singleRequest
+            ? "تولید فایل اکسل پرونده انجام نشد."
+            : "تولید فایل اکسل انجام نشد."),
+        });
+      }
     } finally {
       if (scope.singleRequest) setSingleExcelLoading(false);
       else setExcelExportLoading(false);
