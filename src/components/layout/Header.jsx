@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "../../styles/staff-menu.css";
 
 const ROLE_LABELS = {
@@ -203,7 +204,7 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                     </span>
                   </button>
         
-                  {menuMounted && (
+                  {menuMounted && createPortal(
                     <div className={"staff-menu-layer" + (!menuOpen ? " is-closing" : "")} dir="rtl">
                       <button
                         type="button"
@@ -302,7 +303,8 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                         </div>
         
                       </aside>
-                    </div>
+                    </div>,
+                    document.body,
                   )}
                 </div>
               )}
