@@ -241,14 +241,6 @@ function RequestSettings({ onError }) {
                   <small>خالی گذاشتن این فیلد یعنی تعداد نامحدود. پرونده‌های قبلی کاربر هم در محاسبه سقف لحاظ می‌شوند.</small>
                 </div>
 
-                <div className="request-settings-policy-note">
-                  <span aria-hidden="true">✓</span>
-                  <div>
-                    <strong>قواعد در سمت سرور هم کنترل می‌شوند</strong>
-                    <p>محدودیت تاریخ، سقف تعداد درخواست و مهلت ویرایش فقط به رابط کاربری وابسته نیست و در API نیز بررسی می‌شود.</p>
-                  </div>
-                </div>
-
                 <div className="request-settings-actions">
                   <button className="ghost-button" type="button" onClick={resetForm} disabled={saving}>بازگردانی تغییرات</button>
                   <button className="primary-button request-settings-save" type="submit" disabled={saving}>
