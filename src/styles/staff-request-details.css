@@ -63,6 +63,15 @@
 .srd-tab b{display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:6px;background:#edf1f6;color:#7e8ca0;font-size:9px;font-weight:800}
 .srd-tab.is-active b{background:#dceafd;color:#2f68a7}
 .srd-content-grid{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(300px,.88fr);align-items:start;gap:16px}
+.srd-information-layout{grid-template-columns:minmax(0,1fr) minmax(265px,.46fr)}
+.srd-information-layout .srd-step-sections{gap:12px}
+.srd-information-layout .srd-step-panel{padding:17px}
+.srd-workflow-sidebar{align-self:start}
+.srd-workflow-sidebar .srd-workflow-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.srd-workflow-sidebar .srd-timeline-item{padding-bottom:14px}
+.srd-workflow-sidebar .srd-panel-heading{gap:8px}
+.srd-workflow-sidebar .srd-panel-heading h2{font-size:14px}
+.srd-workflow-sidebar .srd-panel-heading p{font-size:9px}
 .srd-primary-column,.srd-side-column{display:grid;gap:16px;min-width:0}
 .srd-panel{min-width:0;padding:20px;border:1px solid #e1e8f0;border-radius:17px;background:#fff;box-shadow:0 6px 20px rgba(23,59,115,.035)}
 .srd-panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
@@ -169,9 +178,13 @@
  .srd-hero{align-items:flex-start;flex-direction:column}
  .srd-hero-actions{width:100%;justify-content:flex-start}
  .srd-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .srd-content-grid{grid-template-columns:minmax(0,1fr)}
- .srd-side-column{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+ .srd-content-grid:not(.srd-information-layout){grid-template-columns:minmax(0,1fr)}
+ .srd-side-column:not(.srd-workflow-sidebar){grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
  .srd-field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:850px){
+ .srd-information-layout{grid-template-columns:minmax(0,1fr)}
+ .srd-workflow-sidebar .srd-workflow-panel{position:static;max-height:none;overflow:visible}
 }
 @media(max-width:700px){
  .srd-page{padding:19px 13px 40px}
