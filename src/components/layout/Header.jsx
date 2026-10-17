@@ -51,14 +51,6 @@ function MenuGlyph({ name, className }) {
     case "close":
       content = <path d="m6 6 12 12M18 6 6 18" />;
       break;
-    case "shield":
-      content = (
-        <>
-          <path d="M12 3 19 6v5c0 4.5-2.8 7.7-7 10-4.2-2.3-7-5.5-7-10V6l7-3Z" />
-          <path d="m9 12 2 2 4-4" />
-        </>
-      );
-      break;
     default:
       content = <circle cx="12" cy="12" r="8" />;
   }
@@ -236,7 +228,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                               <span className="staff-drawer-brand-mark">R</span>
                               <span className="staff-drawer-brand-wordmark">
                                 <strong>Recruit</strong>
-                                <small>WORKSPACE</small>
                               </span>
                             </div>
                             <button
@@ -258,7 +249,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                             <h2 id="staff-drawer-title">مرکز مدیریت</h2>
                             <p>دسترسی سریع و یکپارچه به ابزارهای مدیریت پرونده‌ها</p>
                           </div>
-                          <div className="staff-drawer-hero-index" aria-hidden="true">01 / WORKSPACE</div>
                         </div>
         
                         <div className="staff-drawer-profile">
@@ -275,13 +265,9 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                         <div className="staff-drawer-content">
                           <div className="staff-drawer-section-heading">
                             <div>
-                              <span className="staff-drawer-section-kicker">NAVIGATION</span>
+                              <span className="staff-drawer-section-kicker">ناوبری</span>
                               <h3>بخش‌های سامانه</h3>
                             </div>
-                            <span className="staff-drawer-item-count">
-                              {String(menuItems.length).padStart(2, "0")}
-                              <small>بخش</small>
-                            </span>
                           </div>
         
                           <nav className="staff-drawer-nav" aria-label="بخش‌های مدیریت">
@@ -313,15 +299,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                             })}
                           </nav>
         
-                          <div className="staff-drawer-help">
-                            <span className="staff-drawer-help-icon">
-                              <MenuGlyph name="shield" />
-                            </span>
-                            <div>
-                              <strong>فضای مدیریت Recruit</strong>
-                              <span>همه ابزارهای کاری در یک نمای متمرکز</span>
-                            </div>
-                          </div>
                         </div>
         
                       </aside>
