@@ -79,7 +79,7 @@ function saveDownloadedWorkbook(file) {
   window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
 
-function StaffRequestsDashboard({ onError, user, onOpenRequestDetails }) {
+function StaffRequestsDashboard({ onError, user }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -888,7 +888,7 @@ function getStaffWorkspace(pathname, role) {
   return "requests";
 }
 
-function StaffDashboard({ onError, user, onOpenRequestDetails }) {
+function StaffDashboard({ onError, user }) {
   const [workspace, setWorkspace] = useState(() => getStaffWorkspace(window.location.pathname, user?.role));
 
   useEffect(() => {
@@ -926,7 +926,7 @@ function StaffDashboard({ onError, user, onOpenRequestDetails }) {
     return <RequestSettings onError={onError} />;
   }
 
-  return <StaffRequestsDashboard user={user} onError={onError} onOpenRequestDetails={onOpenRequestDetails} />;
+  return <StaffRequestsDashboard user={user} onError={onError} />;
 }
 
 export default StaffDashboard;
