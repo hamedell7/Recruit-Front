@@ -105,13 +105,14 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     // Keep the applicant-specific route stable while the backend refreshes the
     // active step after saving gender. Otherwise the military step can briefly
     // reappear between the completion response and the refreshed workflow.
-    const configuredSteps = configuredGroups.flatMap((group) => group.steps || []);
-    const activeStep = configuredSteps.find((step) => step.key === resume?.current_step);
-    const effectiveGender = activeStep?.handler_key === "personal_v1" && form?.gender
+    // Gender editing is only possible on the personal step, which is the
+    // first workflow step. Use that visible form selection immediately even
+    // when the server cursor is many steps ahead.
+    const effectiveGender = index === 0 && form?.gender
       ? form.gender
       : applicantGender;
     return filterWorkflowGroupsByGender(configuredGroups, effectiveGender);
-  }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
+  }, [workflowDefinition, index, form?.gender, applicantGender]);
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
 
