@@ -257,10 +257,18 @@ export function validateStep(stepKey, form) {
     for (let i = 0; i < (form?.contacts || []).length; i += 1) {
       const contact = form.contacts[i];
       const prefix = "contacts." + i;
-      if (empty(contact?.contact_type)) add(prefix + ".contact_type", "نوع تماس را وارد کنید.");
       const isSocialNetwork = Boolean(socialNetworkLabels[contact?.contact_type]);
+      const allowedContactTypes = ["موبایل", "تلفن ثابت"];
+      if (!isSocialNetwork && !allowedContactTypes.includes(contact?.contact_type)) {
+        add(prefix + ".contact_type", "نوع تماس را از فهرست انتخاب کنید.");
+      }
       if (!isSocialNetwork && empty(contact?.value)) {
         add(prefix + ".value", "شماره تماس را وارد کنید.");
+      } else if (!isSocialNetwork && contact?.contact_type === "موبایل") {
+        const mobile = normalizeDigits(String(contact.value)).replace(/\s+/g, "");
+        if (!/^09\d{9}$/.test(mobile)) {
+          add(prefix + ".value", "شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.");
+        }
       }
       if (empty(contact?.owner_type)) add(prefix + ".owner_type", "نوع مالکیت را انتخاب کنید.");
       if (contact?.owner_type === "OPERATOR" && empty(contact?.owner_name)) {
