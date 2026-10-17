@@ -684,8 +684,11 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           await refreshWorkflow({ preserveIndex: true });
           const nextIndex = currentTargetIndex + 1;
           if (nextIndex < workflowSteps.length) setIndex(nextIndex);
-        } else if (currentTargetIndex < liveIndex) {
-          setIndex(Math.min(currentTargetIndex + 1, liveIndex));
+        } else {
+          // Historical saves always continue to the next route stage, rather
+          // than restoring the stage that was active before the user went back.
+          const nextIndex = currentTargetIndex + 1;
+          if (nextIndex < workflowSteps.length) setIndex(nextIndex);
         }
 
         onError({ type: "success", text: "تغییرات مرحله «" + stepTitle + "» با موفقیت ذخیره شد." });
