@@ -119,7 +119,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-left: 1px solid rgba(214, 226, 239, .95);
   border-radius: 20px 0 0 20px;
   background: linear-gradient(180deg, #ffffff 0%, #fbfdff 66%, #f7faff 100%);
   box-shadow: -20px 0 75px rgba(5, 19, 39, .2), -3px 0 12px rgba(5, 19, 39, .06);
