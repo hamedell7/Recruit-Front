@@ -408,7 +408,6 @@ body{padding:0}
 .document-main{display:flex;flex:1;min-width:0;flex-direction:column}
 .document-main strong{color:#263b56;overflow-wrap:anywhere;font-size:9pt}
 .document-main small,.document-size{color:var(--muted);font-size:8pt}
-.document-status{font-size:8pt;color:#4d6380;white-space:nowrap}
 .document-note{margin:9px 0 0;color:#7a8798;font-size:8pt}
 .report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
