@@ -198,6 +198,10 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
               value={item.contact_type}
               onChange={(v) => {
                 updateRegularContact(index, "contact_type", v);
+                if (v === "موبایل") {
+                  const mobile = normalizeDigits(String(item.value || "")).replace(/\D/g, "").slice(0, 11);
+                  updateRegularContact(index, "value", mobile);
+                }
                 clearValidationError(`contacts.${index}.value`);
               }}
               error={getFieldError(errors, `contacts.${index}.contact_type`)}
@@ -208,9 +212,16 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
             <TextField
               label="شماره تماس"
               value={item.value}
-              onChange={(v) => updateRegularContact(index, "value", normalizeDigits(v))}
+              onChange={(v) => {
+                const normalized = normalizeDigits(v);
+                const nextValue = item.contact_type === "موبایل"
+                  ? normalized.replace(/\D/g, "").slice(0, 11)
+                  : normalized;
+                updateRegularContact(index, "value", nextValue);
+              }}
               error={getFieldError(errors, `contacts.${index}.value`)}
               inputMode={item.contact_type === "موبایل" ? "numeric" : "tel"}
+              maxLength={item.contact_type === "موبایل" ? 11 : undefined}
               readOnly={readOnly}
             />
             <SelectField
