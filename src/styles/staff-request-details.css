@@ -303,3 +303,77 @@
 @media(prefers-reduced-motion:reduce){
  .srd-page *, .srd-page *::before, .srd-page *::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
+
+
+/* Admin workflow sidebar: clean white header and more legible labels */
+.srd-workflow-sidebar .srd-workflow-panel{
+  background:#fff;
+  border-color:#e1e7ee;
+  box-shadow:0 12px 34px rgba(28,48,73,.07);
+}
+.srd-workflow-hero{
+  background:#fff;
+  color:#243b53;
+  border-bottom:1px solid #edf0f4;
+  border-radius:21px 21px 0 0;
+  box-shadow:none;
+}
+.srd-workflow-hero::before,
+.srd-workflow-hero::after{border-color:rgba(58,81,108,.055)}
+.srd-workflow-hero-icon{
+  border-color:#e0e7ed;
+  border-radius:13px;
+  background:#f5f8fa;
+  box-shadow:none;
+  color:#56718d;
+}
+.srd-workflow-hero-copy small{color:#7b8998;font-size:10px}
+.srd-workflow-hero-copy strong{color:#243b53;font-size:15px}
+.srd-workflow-count-pill{
+  border-color:#e3e9ef;
+  background:#f8fafb;
+  color:#66788a;
+  font-size:11px;
+}
+.srd-workflow-count-pill b{color:#314b64;font-size:14px}
+.srd-workflow-count-pill i{color:#a3afba;font-size:11px}
+.srd-workflow-progress-meta span{color:#718196;font-size:11px}
+.srd-workflow-progress-meta strong{color:#3e7c70;font-size:12px}
+.srd-workflow-progress-track{
+  border-color:#e7eee9;
+  background:#eef3f1;
+}
+.srd-workflow-progress-track span{
+  background:linear-gradient(90deg,#78bca9,#3d927d);
+  box-shadow:none;
+}
+.srd-workflow-hero-footer{color:#7c8b9b;font-size:10px}
+.srd-workflow-hero-footer>span:first-child i{box-shadow:none}
+.srd-workflow-rail-body{background:#fff}
+.srd-workflow-rail-label{color:#344c65;font-size:12px}
+.srd-workflow-rail-label>span:last-child{background:#fff;font-size:10px}
+.srd-step-section-title{color:#697d91;font-size:11px}
+.srd-step-section-count{color:#718196;font-size:10px}
+.srd-step-item{border-radius:11px}
+.srd-step-item.active{
+  border-color:#dfe8e5;
+  background:#fff;
+  color:#285d50;
+  box-shadow:inset -3px 0 #4b9b86,0 2px 7px rgba(32,71,60,.045);
+}
+.srd-step-dot{font-size:10px}
+.srd-step-item.active .srd-step-dot{
+  border-color:#cce7dc;
+  background:#eaf6f0;
+  color:#287a60;
+  box-shadow:none;
+}
+.srd-step-item.is-current:not(.completed):not(.active) .srd-step-dot{
+  border-color:#dce7e4;
+  background:#f3f7f6;
+  color:#507c70;
+}
+.srd-step-copy strong{font-size:12px;line-height:1.8}
+.srd-step-copy small{color:#7f8e9e;font-size:10px;line-height:1.7}
+.srd-step-item.active .srd-step-copy small{color:#648678}
+.srd-step-item>i{background:#edf4f1;color:#4b8273;font-size:18px}
