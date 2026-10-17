@@ -14,7 +14,11 @@ function App() {
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
   const [view, setView] = useState("dashboard");
+<<<<<<< HEAD
   const [staffPath, setStaffPath] = useState(() => window.location.pathname);
+=======
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+>>>>>>> 019d9c2733cc14659ed87d02b64e555a2a65c9bd
   const [activeRequest, setActiveRequest] = useState(null);
   const [toast, setToast] = useState(null);
 
@@ -59,6 +63,7 @@ function App() {
     const isStaff = STAFF_ROLES.includes(targetUser?.role);
     const path = isStaff ? "/staff/requests" : "/dashboard";
     const method = replace ? "replaceState" : "pushState";
+<<<<<<< HEAD
     window.history[method]({ view: "dashboard", workspace: path }, "", path);
     setStaffPath(path);
     setActiveRequest(null);
@@ -73,6 +78,10 @@ function App() {
       window.history.pushState({ view: "dashboard", workspace: path }, "", path);
     }
     setStaffPath(path);
+=======
+    setSidebarOpen(true);
+    window.history[method]({ view: "dashboard" }, "", "/dashboard");
+>>>>>>> 019d9c2733cc14659ed87d02b64e555a2a65c9bd
     setActiveRequest(null);
     setView("dashboard");
   };
@@ -151,6 +160,7 @@ function App() {
 
   const openRequest = (request) => {
     window.history.pushState({ view: "wizard", requestId: request.id }, "", "/requests/" + encodeURIComponent(request.id));
+    setSidebarOpen(true);
     setActiveRequest(request);
     setView("wizard");
   };
@@ -182,8 +192,14 @@ function App() {
           <Header
             user={user}
             onLogout={logout}
+<<<<<<< HEAD
             staffPath={staffPath}
             onNavigateStaff={navigateStaffWorkspace}
+=======
+            showSidebarToggle={view === "wizard"}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen((open) => !open)}
+>>>>>>> 019d9c2733cc14659ed87d02b64e555a2a65c9bd
           />
           {view === "dashboard" ? (
             STAFF_ROLES.includes(user.role) ? (
@@ -200,6 +216,7 @@ function App() {
             <RequestWizard
               user={user}
               request={activeRequest}
+              sidebarOpen={sidebarOpen}
               onBack={() => navigateToDashboard(true)}
               onError={setToast}
             />
