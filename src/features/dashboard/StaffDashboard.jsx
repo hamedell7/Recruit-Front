@@ -688,7 +688,28 @@ function StaffRequestsDashboard({ onError, user, onOpenRequestDetails }) {
                         <td><span className={`status-badge ${tone || "muted"}`}><i />{label}</span></td>
                         <td><span className="staff-updated-date">{formatDate(item.created_at)}</span></td>
                         <td><span className="staff-updated-date">{formatDate(item.updated_at)}</span></td>
-                        <td><button className="staff-row-action" type="button" onClick={() => (canExportReport && onOpenRequestDetails ? onOpenRequestDetails(item.id) : setSelectedRequest(item))} aria-label={(canExportReport ? "جزئیات کامل پرونده " : "جزئیات پرونده ") + item.tracking_code}>{canExportReport ? "جزئیات کامل" : "جزئیات"} <span>←</span></button></td>
+                        <td>
+                          {canExportReport ? (
+                            <a
+                              className="staff-row-action"
+                              href={"/staff/requests/" + encodeURIComponent(item.id)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={"باز کردن جزئیات کامل پرونده " + item.tracking_code + " در تب جدید"}
+                            >
+                              جزئیات کامل <span aria-hidden="true">↗</span>
+                            </a>
+                          ) : (
+                            <button
+                              className="staff-row-action"
+                              type="button"
+                              onClick={() => setSelectedRequest(item)}
+                              aria-label={"جزئیات پرونده " + item.tracking_code}
+                            >
+                              جزئیات <span aria-hidden="true">←</span>
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
