@@ -117,6 +117,15 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   );
   const isDeclarationStep = handlerKey === "declaration_v1";
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
+  const sidebarBackendCurrentIndex = sidebarWorkflowSteps.indexOf(resume?.current_step);
+  const sidebarProgressIndex = sidebarBackendCurrentIndex >= 0
+    ? sidebarBackendCurrentIndex
+    : Math.max(
+      0,
+      workflowSteps
+        .slice(0, backendCurrentIndex + 1)
+        .filter((stepKey) => sidebarWorkflowSteps.includes(stepKey)).length - 1
+    );
   const currentReturnReason = steps
     .filter((step) => step.step_key === resume?.current_step && step.status === "RETURNED")
     .sort((left, right) => right.attempt_no - left.attempt_no)[0]?.return_reason;
@@ -536,16 +545,31 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       <div className={"wizard-layout" + (sidebarOpen ? "" : " is-sidebar-closed")}>
         <aside id="request-step-sidebar" className="wizard-sidebar" aria-hidden={!sidebarOpen} inert={!sidebarOpen}>
           <div className="wizard-progress-head">
-            <div><span className="eyebrow">مسیر پرونده</span><strong>{backendCurrentIndex + 1} از {workflowSteps.length}</strong></div>
-            <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
+            <div><span className="eyebrow">مسیر پرونده</span><strong>{sidebarProgressIndex + 1} از {sidebarWorkflowSteps.length}</strong></div>
+            <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (sidebarProgressIndex / Math.max(sidebarWorkflowSteps.length, 1)) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
-            {workflowGroups.map((group) => (
+            {sidebarWorkflowGroups.map((group) => (
               <div className="step-section" key={group.key}>
                 <span className="step-section-title">{group.title}</span>
-                {group.steps.filter((step) => workflowSteps.includes(step.key)).map((step) => {
-                  const target = workflowSteps.indexOf(step.key);
-                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || (isFinalized && target <= backendCurrentIndex)} onClick={() => moveTo(target)} order={target + 1} />;
+                {group.steps.map((step) => {
+                  const displayTarget = sidebarWorkflowSteps.indexOf(step.key);
+                  const routeTarget = workflowSteps.indexOf(step.key);
+                  return (
+                    <StepRailItem
+                      key={step.key}
+                      keyName={step.key}
+                      title={step.title}
+                      kicker={group.title}
+                      active={currentKey === step.key}
+                      completed={displayTarget < sidebarProgressIndex || (isFinalized && displayTarget <= sidebarProgressIndex)}
+                      disabled={routeTarget < 0}
+                      onClick={() => {
+                        if (routeTarget >= 0) moveTo(routeTarget);
+                      }}
+                      order={displayTarget + 1}
+                    />
+                  );
                 })}
               </div>
             ))}
