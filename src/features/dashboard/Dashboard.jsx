@@ -46,6 +46,22 @@ function requestTypeAvailability(type, requests, today = tehranToday()) {
   return { available: true, message: "" };
 }
 
+function requestEditBlockedMessage(type, request, today = tehranToday()) {
+  if (!type || !["IN_PROGRESS", "RETURNED"].includes(request.status)) return "";
+
+  if (type.is_active === false) {
+    return "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل پرونده متوقف است.";
+  }
+  if (type.registration_start_date && today < type.registration_start_date) {
+    return "تکمیل این پرونده از " + formatDate(type.registration_start_date) + " امکان‌پذیر است.";
+  }
+  if (type.registration_end_date && today > type.registration_end_date) {
+    return "مهلت تکمیل این پرونده در " + formatDate(type.registration_end_date) + " پایان یافته است.";
+  }
+
+  return "";
+}
+
 function Dashboard({ user, onOpenRequest, onCreated, onError }) {
   const [requests, setRequests] = useState([]);
   const [types, setTypes] = useState([]);
@@ -223,7 +239,15 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
         ) : (
           <div className="request-grid ud-request-grid">
             {visibleRequests.map((request) => (
-              <RequestCard key={String(request.id)} request={request} onOpen={onOpenRequest} />
+              <RequestCard
+                key={String(request.id)}
+                request={request}
+                onOpen={onOpenRequest}
+                editBlockedMessage={requestEditBlockedMessage(
+                  types.find((type) => type.code === request.request_type_code),
+                  request,
+                )}
+              />
             ))}
           </div>
         )}
