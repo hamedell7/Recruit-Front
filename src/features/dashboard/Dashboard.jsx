@@ -25,22 +25,25 @@ function tehranToday() {
 
 function requestTypeAvailability(type, requests, today = tehranToday()) {
   const used = requests.filter((request) => request.request_type_code === type.code).length;
-  if (type.is_active === false) return { available: false, message: "ثبت این نوع درخواست غیرفعال است." };
+
+  if (type.is_active === false) {
+    return { available: false, message: "ثبت این نوع درخواست در حال حاضر غیرفعال است." };
+  }
   if (type.registration_start_date && today < type.registration_start_date) {
-    return { available: false, message: "شروع ثبت از " + formatDate(type.registration_start_date) };
+    return { available: false, message: "ثبت این نوع درخواست از " + formatDate(type.registration_start_date) + " آغاز می‌شود." };
   }
   if (type.registration_end_date && today > type.registration_end_date) {
-    return { available: false, message: "مهلت ثبت در " + formatDate(type.registration_end_date) + " پایان یافته است." };
+    return { available: false, message: "مهلت ثبت این نوع درخواست در " + formatDate(type.registration_end_date) + " پایان یافته است." };
   }
   if (type.max_requests_per_user != null && used >= Number(type.max_requests_per_user)) {
-    return { available: false, message: "سقف " + type.max_requests_per_user + " درخواست ثبت شده است." };
+    return {
+      available: false,
+      message: "به سقف مجاز (" + type.max_requests_per_user + " درخواست) برای این نوع پرونده رسیده‌اید.",
+    };
   }
-  return {
-    available: true,
-    message: type.max_requests_per_user == null
-      ? "پرونده‌های ثبت‌شده: " + used
-      : "پرونده‌های ثبت‌شده: " + used + " از " + type.max_requests_per_user,
-  };
+
+  // Do not show quota/count messaging while registration is still available.
+  return { available: true, message: "" };
 }
 
 function Dashboard({ user, onOpenRequest, onCreated, onError }) {
@@ -241,16 +244,18 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
                   key={item.code}
                   type="button"
                   className={"request-type " + (selectedType === item.code ? "selected" : "") + (!availability.available ? " is-unavailable" : "")}
-                  disabled={!availability.available}
                   onClick={() => setSelectedType(item.code)}
+                  aria-pressed={selectedType === item.code}
                 >
                   <div className="type-icon">{item.code === "SCREENING" ? "S" : "E"}</div>
                   <div className="request-type-copy">
                     <strong>{item.title}</strong>
                     <span>{item.workflow_key === "screening" ? "فرآیند کامل گزینش" : "فرآیند استخدام"}</span>
-                    <small className={!availability.available ? "request-type-limit is-blocked" : "request-type-limit"}>{availability.message}</small>
+                    {availability.message && (
+                      <small className="request-type-limit is-blocked">{availability.message}</small>
+                    )}
                   </div>
-                  <span className="type-arrow">{availability.available ? "←" : "—"}</span>
+                  <span className="type-arrow">{availability.available ? "←" : "i"}</span>
                 </button>
               );
             })}
