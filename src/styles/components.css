@@ -12,7 +12,11 @@
 .request-type.is-unavailable:hover {
   border-color: #e7eaf0;
   background: #f7f8fa;
-  cursor: not-allowed;
+  cursor: pointer;
+}
+.request-type.is-unavailable.selected {
+  border-color: #d9a68d;
+  background: #fffaf7;
 }
 .request-type.is-unavailable .type-icon {
   background: #edf0f4;
