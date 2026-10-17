@@ -20,6 +20,8 @@ const api = {
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
   staffRequestWorkflow: (id) => apiFetch("/staff/requests/" + path(id) + "/workflow"),
+  staffRequestDocuments: (id) => apiFetch("/staff/requests/" + path(id) + "/documents"),
+  staffRequestDocumentUrl: (requestId, fileId, download = true) => API_BASE_URL + "/staff/requests/" + path(requestId) + "/documents/" + path(fileId) + "/download?download=" + (download ? "true" : "false"),
   decideStaffRequest: (id, payload) => apiFetch("/staff/requests/" + path(id) + "/decision", { method: "POST", body: payload }),
   requestWorkflow: (id) => apiFetch("/requests/" + path(id) + "/workflow"),
   workflowDetail: (key) => apiFetch("/staff/workflows/" + path(key)),
