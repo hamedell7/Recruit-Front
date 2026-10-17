@@ -9,7 +9,6 @@ const ROLE_LABELS = {
   ADMIN: "مدیر سامانه",
 };
 
-<<<<<<< HEAD
 const STAFF_ROLES = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"];
 
 function MenuGlyph({ name, className }) {
@@ -306,32 +305,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff }) {
                   )}
                 </div>
               )}
-=======
-function Header({ user, onLogout, showSidebarToggle = false, sidebarOpen = true, onToggleSidebar }) {
-  const isStaff = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"].includes(user?.role);
-  return (
-    <header className="topbar">
-      <div className="topbar-brand-group">
-        {showSidebarToggle && (
-          <button
-            className={"sidebar-toggle" + (sidebarOpen ? " is-open" : "")}
-            type="button"
-            onClick={onToggleSidebar}
-            aria-label={sidebarOpen ? "بستن منوی مراحل" : "باز کردن منوی مراحل"}
-            aria-expanded={sidebarOpen}
-            aria-controls="request-step-sidebar"
-            title={sidebarOpen ? "بستن منوی مراحل" : "باز کردن منوی مراحل"}
-          >
-            <span aria-hidden="true" />
-            <span aria-hidden="true" />
-            <span aria-hidden="true" />
-          </button>
-        )}
-        <div className="brand">
-          <div className="brand-mark">R</div>
-          <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
-        </div>
->>>>>>> 019d9c2733cc14659ed87d02b64e555a2a65c9bd
       </div>
 
       <div className="topbar-actions">
