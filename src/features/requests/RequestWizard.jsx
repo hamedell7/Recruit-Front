@@ -586,9 +586,18 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       try {
         const liveResume = await api.resume(appRequest.id);
         setResume(liveResume);
-        const nextIndex = workflowSteps.indexOf(liveResume.current_step);
+
+        // Skipping the inactive military placeholder must follow the visual
+        // workflow order, not jump back to the backend's older active cursor.
+        const militaryRailIndex = sidebarWorkflowSteps.indexOf("military");
+        const nextStepKey = militaryRailIndex >= 0
+          ? sidebarWorkflowSteps
+            .slice(militaryRailIndex + 1)
+            .find((key) => key !== "military" && workflowSteps.includes(key))
+          : "";
+        const nextIndex = nextStepKey ? workflowSteps.indexOf(nextStepKey) : -1;
         if (nextIndex < 0) {
-          throw new Error("مرحله بعدی پرونده از سرور دریافت نشد؛ دوباره تلاش کنید.");
+          throw new Error("مرحله بعدی پس از نظام وظیفه غیرفعال از مسیر پرونده پیدا نشد.");
         }
         setIndex(nextIndex);
         setMilitarySkipped(true);
@@ -670,7 +679,11 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         } else if (handlerKey === "personal_v1") {
           setShowMilitaryPlaceholder(false);
           setMilitarySkipped(false);
-          await refreshWorkflow();
+          // Keep the applicant on the next sequential stage after editing
+          // personal information, even when the backend cursor is much later.
+          await refreshWorkflow({ preserveIndex: true });
+          const nextIndex = currentTargetIndex + 1;
+          if (nextIndex < workflowSteps.length) setIndex(nextIndex);
         } else if (currentTargetIndex < liveIndex) {
           setIndex(Math.min(currentTargetIndex + 1, liveIndex));
         }
