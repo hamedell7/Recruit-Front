@@ -854,7 +854,6 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
                   )}
                   <div className="srd-step-footer">
                     {step.completed_at && <span>تاریخ تکمیل: {formatDate(step.completed_at)}</span>}
-                    {step.attempt_no && <span>تعداد تلاش: {numberFormat.format(step.attempt_no)}</span>}
                   </div>
                 </section>
               );
