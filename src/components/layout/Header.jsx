@@ -86,6 +86,8 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
   const isStaff = STAFF_ROLES.includes(user?.role);
   const isAdmin = user?.role === "ADMIN";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuMounted, setMenuMounted] = useState(false);
+  const menuCloseTimerRef = useRef(null);
   const triggerRef = useRef(null);
   const closeButtonRef = useRef(null);
 
@@ -117,17 +119,33 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
       : []),
   ];
 
+  const openMenu = () => {
+    if (menuCloseTimerRef.current !== null) {
+      window.clearTimeout(menuCloseTimerRef.current);
+      menuCloseTimerRef.current = null;
+    }
+    setMenuMounted(true);
+    setMenuOpen(true);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    if (menuCloseTimerRef.current !== null) window.clearTimeout(menuCloseTimerRef.current);
+    menuCloseTimerRef.current = window.setTimeout(() => {
+      setMenuMounted(false);
+      menuCloseTimerRef.current = null;
+    }, 260);
+    triggerRef.current?.focus();
+  };
+
   useEffect(() => {
-    if (!menuOpen) return undefined;
+    if (!menuMounted) return undefined;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-        triggerRef.current?.focus();
-      }
+      if (event.key === "Escape") closeMenu();
     };
 
     document.addEventListener("keydown", closeOnEscape);
@@ -137,12 +155,11 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", closeOnEscape);
     };
-  }, [menuOpen]);
+  }, [menuMounted]);
 
-  const closeMenu = () => {
-    setMenuOpen(false);
-    triggerRef.current?.focus();
-  };
+  useEffect(() => () => {
+    if (menuCloseTimerRef.current !== null) window.clearTimeout(menuCloseTimerRef.current);
+  }, []);
 
   const navigateTo = (path) => {
     closeMenu();
@@ -185,7 +202,7 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                     aria-haspopup="dialog"
                     aria-controls="staff-management-drawer"
                     aria-expanded={menuOpen}
-                    onClick={() => setMenuOpen((current) => !current)}
+                    onClick={() => (menuOpen ? closeMenu() : openMenu())}
                   >
                     <span className="staff-hamburger-icon" aria-hidden="true">
                       <i />
@@ -194,8 +211,8 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                     </span>
                   </button>
         
-                  {menuOpen && (
-                    <div className="staff-menu-layer" dir="rtl">
+                  {menuMounted && (
+                    <div className={"staff-menu-layer" + (!menuOpen ? " is-closing" : "")} dir="rtl">
                       <button
                         type="button"
                         className="staff-menu-backdrop"
@@ -307,16 +324,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
                           </div>
                         </div>
         
-                        <footer className="staff-drawer-footer">
-                          <div className="staff-drawer-footer-brand">
-                            <span className="staff-drawer-footer-mark">R</span>
-                            <span>
-                              <strong>Recruit</strong>
-                              <small>سامانه یکپارچه درخواست‌ها</small>
-                            </span>
-                          </div>
-                          <span className="staff-drawer-footer-status"><i /> جلسه فعال</span>
-                        </footer>
                       </aside>
                     </div>
                   )}
