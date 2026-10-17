@@ -14,8 +14,22 @@ import StepRenderer from "./StepRenderer";
 
 function buildWorkflowSteps(groups = []) {
   return Array.isArray(groups)
-    ? groups.flatMap((group) => group.steps.map((step) => step.key))
+    ? groups.flatMap((group) => (group.steps || []).map((step) => step.key))
     : [];
+}
+
+function filterWorkflowGroupsByGender(groups = [], gender) {
+  if (!Array.isArray(groups) || groups.length === 0) return [];
+  if (String(gender || "").trim() !== "زن") return groups;
+
+  return groups
+    .map((group) => ({
+      ...group,
+      steps: (group.steps || []).filter((step) => (
+        step.key !== "military" && step.handler_key !== "military_v1"
+      )),
+    }))
+    .filter((group) => group.steps.length > 0);
 }
 
 function getEditBlockMessage(resume) {
@@ -77,21 +91,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     }
   };
 
-  const workflowGroups = useMemo(() => {
-    const configuredGroups = workflowDefinition?.groups;
-    if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
-
-    // Only use the gender persisted by the backend to determine the route.
-    // A form edit is not authoritative until its save request has succeeded.
-    if (applicantGender !== "زن") return configuredGroups;
-
-    return configuredGroups
-      .map((group) => ({
-        ...group,
-        steps: (group.steps || []).filter((step) => step.key !== "military" && step.handler_key !== "military_v1"),
-      }))
-      .filter((group) => group.steps.length > 0);
-  }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
+  const workflowGroups = useMemo(
+    () => filterWorkflowGroupsByGender(workflowDefinition?.groups, applicantGender),
+    [workflowDefinition, applicantGender]
+  );
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
 
@@ -99,6 +102,19 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const currentStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
   const handlerKey = currentStep?.handler_key;
   const isDocumentsStep = handlerKey === "documents_v1";
+  // The rail reflects the live selection while personal details are open,
+  // even before saving. The actual route above stays tied to saved backend data.
+  const sidebarGender = handlerKey === "personal_v1" && form
+    ? String(form.gender || "")
+    : applicantGender;
+  const sidebarWorkflowGroups = useMemo(
+    () => filterWorkflowGroupsByGender(workflowDefinition?.groups, sidebarGender),
+    [workflowDefinition, sidebarGender]
+  );
+  const sidebarWorkflowSteps = useMemo(
+    () => buildWorkflowSteps(sidebarWorkflowGroups),
+    [sidebarWorkflowGroups]
+  );
   const isDeclarationStep = handlerKey === "declaration_v1";
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
   const currentReturnReason = steps
@@ -158,7 +174,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
           throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
         }
-        const initialWorkflowSteps = buildWorkflowSteps(workflowData?.groups);
+        const savedGender = String(personalData?.person?.gender || "");
+        const initialWorkflowSteps = buildWorkflowSteps(
+          filterWorkflowGroupsByGender(workflowData?.groups, savedGender)
+        );
         setAppRequest(requestData);
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
@@ -316,25 +335,35 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     // service after gender is saved). Refresh the version-pinned definition as
     // well as request/history data so the rail and progress use the same route
     // that the backend will enforce.
-    const [requestResult, stepsResult, workflowResult] = await Promise.allSettled([
+    const [requestResult, stepsResult, workflowResult, personalResult] = await Promise.allSettled([
       api.request(appRequest.id),
       api.steps(appRequest.id),
       api.requestWorkflow(appRequest.id),
+      api.stepData(appRequest.id, "personal"),
     ]);
 
-    let currentWorkflowSteps = workflowSteps;
+    const persistedGender = personalResult.status === "fulfilled"
+      ? String(personalResult.value?.person?.gender || "")
+      : applicantGender;
+    if (personalResult.status === "fulfilled") setApplicantGender(persistedGender);
+
+    let currentWorkflowGroups = filterWorkflowGroupsByGender(
+      workflowDefinition?.groups,
+      persistedGender
+    );
     if (
       workflowResult.status === "fulfilled" &&
       Array.isArray(workflowResult.value?.groups) &&
       workflowResult.value.groups.length > 0
     ) {
-      const refreshedSteps = buildWorkflowSteps(workflowResult.value.groups);
-      if (refreshedSteps.includes(resumeData.current_step)) {
-        setWorkflowDefinition(workflowResult.value);
-        currentWorkflowSteps = refreshedSteps;
-      }
+      setWorkflowDefinition(workflowResult.value);
+      currentWorkflowGroups = filterWorkflowGroupsByGender(
+        workflowResult.value.groups,
+        persistedGender
+      );
     }
 
+    const currentWorkflowSteps = buildWorkflowSteps(currentWorkflowGroups);
     const serverIndex = currentWorkflowSteps.indexOf(resumeData.current_step);
     if (serverIndex >= 0) setIndex(serverIndex);
 
