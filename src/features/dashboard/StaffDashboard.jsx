@@ -9,6 +9,7 @@ import ExcelExportModal from "./ExcelExportModal";
 import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
 import RequestSettings from "./RequestSettings";
+import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 
 const PAGE_SIZE = 10;
 
@@ -453,6 +454,7 @@ function StaffRequestsDashboard({ onError, user }) {
 
   return (
     <main className="page staff-dashboard-page">
+      <AdminBreadcrumb items={["پنل مدیریت", "پرونده‌ها"]} />
       <section className="staff-dashboard-hero">
         <div className="staff-dashboard-heading">
           <span className="eyebrow"><span className="eyebrow-dot" /> مرکز عملیات و پایش</span>
@@ -915,6 +917,7 @@ function StaffDashboard({ onError, user }) {
   if (workspace === "workflow" && user?.role === "ADMIN") {
     return (
       <main className="page staff-dashboard-page">
+        <AdminBreadcrumb items={["پنل مدیریت", "مدیریت گردش‌کار"]} />
         <div className="staff-workflow-workspace">
           <WorkflowManager onError={onError} />
         </div>

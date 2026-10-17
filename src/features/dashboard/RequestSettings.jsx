@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import PersianDateFilter from "../../components/form/PersianDateFilter";
 import { normalizeList } from "../../utils/collections";
+import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 import "../../styles/request-settings.css";
 
 function formFromRequestType(requestType) {
@@ -104,6 +105,7 @@ function RequestSettings({ onError }) {
 
   return (
     <main className="page staff-dashboard-page request-settings-page" dir="rtl">
+      <AdminBreadcrumb items={["پنل مدیریت", "تنظیمات درخواست‌ها"]} />
       <section className="request-settings-hero">
         <div>
           <span className="eyebrow"><span className="request-settings-eyebrow-dot" /> تنظیمات سامانه</span>

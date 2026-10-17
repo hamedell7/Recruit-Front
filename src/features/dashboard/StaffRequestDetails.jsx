@@ -9,6 +9,7 @@ import {
   valueFor,
   printRequestReport,
 } from "../../utils/requestPdf";
+import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 import "../../styles/staff-request-details.css";
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
@@ -649,14 +650,11 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
 
   return (
     <main className="page srd-page" dir="rtl">
-      <div className="srd-toolbar">
-        <button type="button" className="srd-back-button" onClick={onBack}>
-          <span aria-hidden="true">→</span> بازگشت به فهرست پرونده‌ها
-        </button>
-        <div className="srd-breadcrumb">
-          <span>پنل مدیریت</span><i>/</i><span>پرونده‌ها</span><i>/</i><strong>جزئیات کامل</strong>
-        </div>
-      </div>
+      <AdminBreadcrumb
+        items={["پنل مدیریت", "پرونده‌ها", "جزئیات کامل"]}
+        onBack={onBack}
+        backLabel="بازگشت به فهرست پرونده‌ها"
+      />
 
       <section className="srd-hero">
         <div className="srd-hero-main">
