@@ -679,30 +679,10 @@
 .staff-dashboard-page .staff-metric-icon {
   width: 39px;
   height: 39px;
-  border: 1px solid #dce9fb;
+  border: 1px solid #d2e3f7;
   border-radius: 13px;
-  background: #edf4ff;
+  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
   color: #316eae;
-}
-.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon {
-  border: 1px solid #d5efe8;
-  background: #eaf8f3;
-  color: #16866e;
-}
-.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon {
-  border: 1px solid #e3def7;
-  background: #f2efff;
-  color: #6b57b4;
-}
-.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon {
-  border: 1px solid #f5e5c5;
-  background: #fff6e6;
-  color: #a8731c;
-}
-.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
-  border: 1px solid #e1e8f0;
-  background: #f1f5f9;
-  color: #526b86;
 }
 .staff-dashboard-page .staff-metric-caption { color: #7a899c; }
 .staff-dashboard-page .staff-metric-value { color: #1c3554; }
@@ -822,42 +802,6 @@
 .staff-dashboard-page .staff-metric-card::after {
   border-color: rgba(107, 156, 208, .15);
   background: radial-gradient(circle, rgba(107, 156, 208, .055), transparent 68%);
-}
-.staff-dashboard-page .staff-metric-card.tone-blue {
-  border-top-color: #568bd0;
-  background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
-}
-.staff-dashboard-page .staff-metric-card.tone-green {
-  border-top-color: #568bd0;
-  background: linear-gradient(145deg, #fff 0%, #ecf9f4 100%);
-}
-.staff-dashboard-page .staff-metric-card.tone-violet {
-  border-top-color: #568bd0;
-  background: linear-gradient(145deg, #fff 0%, #f4f1ff 100%);
-}
-.staff-dashboard-page .staff-metric-card.tone-amber {
-  border-top-color: #568bd0;
-  background: linear-gradient(145deg, #fff 0%, #fff7e9 100%);
-}
-.staff-dashboard-page .staff-metric-card.tone-slate {
-  border-top-color: #568bd0;
-  background: linear-gradient(145deg, #fff 0%, #eff3f7 100%);
-}
-.staff-dashboard-page .staff-metric-card.tone-blue .staff-metric-icon {
-  border-color: #d2e3f7;
-  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
-}
-.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon {
-  background: linear-gradient(145deg, #e0f6ed, #d4efe7);
-}
-.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon {
-  background: linear-gradient(145deg, #eee9ff, #e7e0fb);
-}
-.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon {
-  background: linear-gradient(145deg, #fff0d1, #ffe9c2);
-}
-.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
-  background: linear-gradient(145deg, #e8eef5, #e0e8f0);
 }
 .staff-dashboard-page .staff-filter-panel {
   border-color: #d8e5f1;
@@ -984,17 +928,6 @@
   .staff-dashboard-page .staff-metric-foot { font-size: 11px; }
   .staff-dashboard-page .staff-requests-table tbody td { font-size: 12px; }
   .staff-dashboard-page .staff-filter-footnote { font-size: 11px; }
-}
-
-/* Dashboard metric icon palette: consistent blue */
-.staff-dashboard-page .staff-metric-card.tone-blue .staff-metric-icon,
-.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon,
-.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon,
-.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon,
-.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
-  border-color: #d2e3f7;
-  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
-  color: #316eae;
 }
 
 
