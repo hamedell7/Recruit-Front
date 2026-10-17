@@ -1,8 +1,18 @@
-function StepRailItem({ keyName, title, kicker, active, completed, disabled = false, onClick, order }) {
+function StepRailItem({ keyName, title, kicker, active, completed, onClick, order, disabledLabel = "", disabled: forceDisabled = false }) {
+  const disabled = forceDisabled || (!completed && !active);
   return (
-    <button className={"step-item " + (active ? "active" : "") + " " + (completed ? "completed" : "")} onClick={onClick} disabled={disabled || (!completed && !active)} aria-current={active ? "step" : undefined}>
-      <span className="step-dot">{completed ? "✓" : order}</span>
-      <span><small>{kicker || ""}</small><strong>{title || keyName}</strong></span>
+    <button
+      className={"step-item " + (active ? "active " : "") + (completed ? "completed " : "") + (disabledLabel ? "inactive-step" : "")}
+      onClick={onClick}
+      disabled={disabled}
+      aria-current={active ? "step" : undefined}
+      aria-label={disabledLabel ? (title || keyName) + "، " + disabledLabel : undefined}
+    >
+      <span className="step-dot">{completed ? "✓" : disabledLabel ? "—" : order}</span>
+      <span>
+        <small>{disabledLabel || kicker || ""}</small>
+        <strong>{title || keyName}</strong>
+      </span>
       {active && <i>●</i>}
     </button>
   );
