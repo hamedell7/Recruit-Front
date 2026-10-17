@@ -182,7 +182,6 @@ function Header({ user, onLogout, staffPath, onNavigateStaff }) {
               />
 
               <aside
-                ref={closeButtonRef}
                 id="staff-management-drawer"
                 className="staff-menu-drawer"
                 role="dialog"
