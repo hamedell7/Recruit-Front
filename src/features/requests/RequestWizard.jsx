@@ -18,18 +18,8 @@ function buildWorkflowSteps(groups = []) {
     : [];
 }
 
-function filterWorkflowGroupsByGender(groups = [], gender) {
-  if (!Array.isArray(groups) || groups.length === 0) return [];
-  if (String(gender || "").trim() !== "زن") return groups;
-
-  return groups
-    .map((group) => ({
-      ...group,
-      steps: (group.steps || []).filter((step) => (
-        step.key !== "military" && step.handler_key !== "military_v1"
-      )),
-    }))
-    .filter((group) => group.steps.length > 0);
+function militarySkipStorageKey(requestId) {
+  return "recruit:request:" + String(requestId) + ":military-skipped";
 }
 
 function getEditBlockMessage(resume) {
@@ -59,7 +49,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const [steps, setSteps] = useState([]);
   const [resume, setResume] = useState(null);
   const [workflowDefinition, setWorkflowDefinition] = useState(null);
+  const [workflowTemplateGroups, setWorkflowTemplateGroups] = useState([]);
   const [workflowLoadError, setWorkflowLoadError] = useState("");
+  const [showMilitaryPlaceholder, setShowMilitaryPlaceholder] = useState(false);
+  const [militarySkipped, setMilitarySkipped] = useState(false);
   const [index, setIndex] = useState(0);
   const [stepData, setStepData] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -91,41 +84,123 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     }
   };
 
-  const workflowGroups = useMemo(
-    () => filterWorkflowGroupsByGender(workflowDefinition?.groups, applicantGender),
-    [workflowDefinition, applicantGender]
-  );
+  const workflowGroups = useMemo(() => {
+    const configuredGroups = workflowDefinition?.groups;
+    if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
+
+    // Keep the applicant-specific route stable while the backend refreshes the
+    // active step after saving gender. Otherwise the military step can briefly
+    // reappear between the completion response and the refreshed workflow.
+    const configuredSteps = configuredGroups.flatMap((group) => group.steps || []);
+    const activeStep = configuredSteps.find((step) => step.key === resume?.current_step);
+    const effectiveGender = activeStep?.handler_key === "personal_v1" && form?.gender
+      ? form.gender
+      : applicantGender;
+    if (effectiveGender !== "زن") return configuredGroups;
+
+    return configuredGroups
+      .map((group) => ({
+        ...group,
+        steps: (group.steps || []).filter((step) => step.handler_key !== "military_v1"),
+      }))
+      .filter((group) => group.steps.length > 0);
+  }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
+
+  const militaryStepTemplate = useMemo(() => {
+    for (const group of workflowTemplateGroups) {
+      const step = (group.steps || []).find((item) => (
+        item.key === "military" || item.handler_key === "military_v1"
+      ));
+      if (step) {
+        return { ...step, group_key: group.key, group_title: group.title };
+      }
+    }
+
+    const personalGroup = workflowTemplateGroups.find((group) => (
+      (group.steps || []).some((step) => step.key === "personal" || step.handler_key === "personal_v1")
+    )) || workflowTemplateGroups[0];
+    const personalSteps = personalGroup?.steps || [];
+    const personalStep = personalSteps.find((step) => (
+      step.key === "personal" || step.handler_key === "personal_v1"
+    ));
+    const marriageStep = personalSteps.find((step) => (
+      step.key === "marriage" || step.handler_key === "marriage_v1"
+    ));
+    return {
+      key: "military",
+      title: "وضعیت نظام وظیفه",
+      handler_key: "military_v1",
+      order: Number(marriageStep?.order || personalStep?.order || 1) + 0.5,
+      required: false,
+      active: false,
+      group_key: personalGroup?.key || "identity",
+      group_title: personalGroup?.title || "هویت و اطلاعات پایه",
+    };
+  }, [workflowTemplateGroups]);
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const currentStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
   const handlerKey = currentStep?.handler_key;
   const isDocumentsStep = handlerKey === "documents_v1";
-  // The rail reflects the live selection while personal details are open,
-  // even before saving. The actual route above stays tied to saved backend data.
-  const sidebarGender = handlerKey === "personal_v1" && form
-    ? String(form.gender || "")
-    : applicantGender;
-  const sidebarWorkflowGroups = useMemo(
-    () => filterWorkflowGroupsByGender(workflowDefinition?.groups, sidebarGender),
-    [workflowDefinition, sidebarGender]
-  );
+  const isFemaleApplicant = (
+    handlerKey === "personal_v1" && form?.gender
+      ? form.gender
+      : applicantGender
+  ) === "زن";
+
+  const sidebarWorkflowGroups = useMemo(() => {
+    const groups = workflowGroups.map((group) => ({
+      ...group,
+      steps: [...(group.steps || [])],
+    }));
+
+    if (
+      !isFemaleApplicant ||
+      !militaryStepTemplate ||
+      groups.some((group) => group.steps.some((step) => step.key === "military" || step.handler_key === "military_v1"))
+    ) {
+      return groups;
+    }
+
+    const placeholder = {
+      ...militaryStepTemplate,
+      key: "military",
+      disabled_placeholder: true,
+      active: false,
+    };
+    let targetGroup = groups.find((group) => group.key === militaryStepTemplate.group_key);
+    if (!targetGroup) {
+      targetGroup = groups.find((group) => group.steps.some((step) => (
+        step.key === "personal" || step.handler_key === "personal_v1"
+      )));
+    }
+
+    if (targetGroup) {
+      const insertAt = targetGroup.steps.findIndex((step) => (
+        Number(step.order) > Number(militaryStepTemplate.order)
+      ));
+      if (insertAt >= 0) targetGroup.steps.splice(insertAt, 0, placeholder);
+      else targetGroup.steps.push(placeholder);
+    } else {
+      groups.push({
+        key: militaryStepTemplate.group_key || "identity",
+        title: militaryStepTemplate.group_title || "هویت و اطلاعات پایه",
+        order: 0,
+        steps: [placeholder],
+      });
+    }
+
+    return groups.filter((group) => group.steps.length > 0);
+  }, [workflowGroups, isFemaleApplicant, militaryStepTemplate]);
+
   const sidebarWorkflowSteps = useMemo(
     () => buildWorkflowSteps(sidebarWorkflowGroups),
     [sidebarWorkflowGroups]
   );
   const isDeclarationStep = handlerKey === "declaration_v1";
   const backendCurrentIndex = Math.max(0, workflowSteps.indexOf(resume?.current_step));
-  const sidebarBackendCurrentIndex = sidebarWorkflowSteps.indexOf(resume?.current_step);
-  const sidebarProgressIndex = sidebarBackendCurrentIndex >= 0
-    ? sidebarBackendCurrentIndex
-    : Math.max(
-      0,
-      workflowSteps
-        .slice(0, backendCurrentIndex + 1)
-        .filter((stepKey) => sidebarWorkflowSteps.includes(stepKey)).length - 1
-    );
   const currentReturnReason = steps
     .filter((step) => step.step_key === resume?.current_step && step.status === "RETURNED")
     .sort((left, right) => right.attempt_no - left.attempt_no)[0]?.return_reason;
@@ -168,6 +243,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       setLoading(true);
       setWorkflowLoadError("");
       setHasSpouse(false);
+      setShowMilitaryPlaceholder(false);
+      setMilitarySkipped(false);
+      setWorkflowTemplateGroups([]);
       setApplicantGender("");
       try {
         const [requestData, resumeData, stepsData, countriesData, workflowData, personalData] = await Promise.all([
@@ -176,21 +254,26 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           api.steps(request.id),
           api.countries(),
           api.requestWorkflow(request.id),
-          // Gender must be restored from persisted personal data on refresh,
-          // including when the applicant is already on a later workflow step.
           api.stepData(request.id, "personal").catch(() => null),
         ]);
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
           throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
         }
         const savedGender = String(personalData?.person?.gender || "");
-        const initialWorkflowSteps = buildWorkflowSteps(
-          filterWorkflowGroupsByGender(workflowData?.groups, savedGender)
-        );
+        let savedMilitarySkipped = false;
+        try {
+          savedMilitarySkipped = savedGender === "زن"
+            && window.localStorage.getItem(militarySkipStorageKey(request.id)) === "true";
+        } catch {
+          // The workflow remains usable if browser storage is unavailable.
+        }
+        const initialWorkflowSteps = buildWorkflowSteps(workflowData?.groups);
         setAppRequest(requestData);
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
-        setApplicantGender(String(personalData?.person?.gender || ""));
+        setWorkflowTemplateGroups(workflowData.groups);
+        setApplicantGender(savedGender);
+        setMilitarySkipped(savedMilitarySkipped);
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
         const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
@@ -210,6 +293,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   }, [request.id]);
 
   useEffect(() => {
+    if (showMilitaryPlaceholder) return undefined;
     if (!bootstrapped || !resume?.current_step || !appRequest || !currentKey) return;
     let cancelled = false;
     const load = async () => {
@@ -275,10 +359,11 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user, isDocumentsStep]);
+  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user, isDocumentsStep, showMilitaryPlaceholder]);
 
   useEffect(() => {
     if (
+      showMilitaryPlaceholder ||
       !appRequest ||
       !form ||
       !draftHydrated ||
@@ -329,9 +414,23 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         autosaveController.current = null;
       }
     };
-  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
+  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep, showMilitaryPlaceholder]);
 
-  const refreshWorkflow = async () => {
+  useEffect(() => {
+    if (handlerKey !== "personal_v1" || !form?.gender) return;
+
+    setApplicantGender(form.gender);
+    if (form.gender !== "زن") {
+      setMilitarySkipped(false);
+      try {
+        window.localStorage.removeItem(militarySkipStorageKey(appRequest?.id));
+      } catch {
+        // The form can still switch back to military without browser storage.
+      }
+    }
+  }, [handlerKey, form?.gender, appRequest?.id]);
+
+  const refreshWorkflow = async ({ preserveIndex = false } = {}) => {
     // The backend resume is authoritative for the active step.
     const resumeData = await api.resume(appRequest.id);
     setResume(resumeData);
@@ -344,37 +443,27 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     // service after gender is saved). Refresh the version-pinned definition as
     // well as request/history data so the rail and progress use the same route
     // that the backend will enforce.
-    const [requestResult, stepsResult, workflowResult, personalResult] = await Promise.allSettled([
+    const [requestResult, stepsResult, workflowResult] = await Promise.allSettled([
       api.request(appRequest.id),
       api.steps(appRequest.id),
       api.requestWorkflow(appRequest.id),
-      api.stepData(appRequest.id, "personal"),
     ]);
 
-    const persistedGender = personalResult.status === "fulfilled"
-      ? String(personalResult.value?.person?.gender || "")
-      : applicantGender;
-    if (personalResult.status === "fulfilled") setApplicantGender(persistedGender);
-
-    let currentWorkflowGroups = filterWorkflowGroupsByGender(
-      workflowDefinition?.groups,
-      persistedGender
-    );
+    let currentWorkflowSteps = workflowSteps;
     if (
       workflowResult.status === "fulfilled" &&
       Array.isArray(workflowResult.value?.groups) &&
       workflowResult.value.groups.length > 0
     ) {
-      setWorkflowDefinition(workflowResult.value);
-      currentWorkflowGroups = filterWorkflowGroupsByGender(
-        workflowResult.value.groups,
-        persistedGender
-      );
+      const refreshedSteps = buildWorkflowSteps(workflowResult.value.groups);
+      if (refreshedSteps.includes(resumeData.current_step)) {
+        setWorkflowDefinition(workflowResult.value);
+        currentWorkflowSteps = refreshedSteps;
+      }
     }
 
-    const currentWorkflowSteps = buildWorkflowSteps(currentWorkflowGroups);
     const serverIndex = currentWorkflowSteps.indexOf(resumeData.current_step);
-    if (serverIndex >= 0) setIndex(serverIndex);
+    if (serverIndex >= 0 && !preserveIndex) setIndex(serverIndex);
 
     // Non-essential dashboard/history refreshes must not block route navigation.
     if (requestResult.status === "fulfilled") setAppRequest(requestResult.value);
@@ -382,6 +471,36 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   };
 
   const complete = async () => {
+    if (showMilitaryPlaceholder) {
+      cancelPendingAutosave();
+      setSaving(true);
+      try {
+        const liveResume = await api.resume(appRequest.id);
+        setResume(liveResume);
+        const nextIndex = workflowSteps.indexOf(liveResume.current_step);
+        if (nextIndex < 0) {
+          throw new Error("مرحله بعدی پرونده از سرور دریافت نشد؛ دوباره تلاش کنید.");
+        }
+        setIndex(nextIndex);
+        setMilitarySkipped(true);
+        try {
+          window.localStorage.setItem(militarySkipStorageKey(appRequest.id), "true");
+        } catch {
+          // Keep the green check for the current session if storage is unavailable.
+        }
+        setShowMilitaryPlaceholder(false);
+      } catch (error) {
+        onError({
+          type: "error",
+          text: error.message || "عبور از مرحله غیرفعال انجام نشد.",
+          requestId: error.requestId,
+        });
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     if (readOnly) return;
     const localErrors = validateStep(currentKey, form || {});
     if (Object.keys(localErrors).length > 0) {
@@ -391,9 +510,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       return;
     }
     setValidationErrors({});
-    const personalGenderChanged = handlerKey === "personal_v1"
-      && Boolean(form?.gender)
-      && form.gender !== applicantGender;
+    if (handlerKey === "personal_v1" && form?.gender) {
+      setApplicantGender(form.gender);
+    }
     cancelPendingAutosave();
     setSaving(true);
     try {
@@ -424,23 +543,20 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
-
-      // A successful response confirms that gender has been persisted. Reflect
-      // it in the sidebar immediately, then reconcile the active step with the
-      // authoritative server cursor below.
-      if (handlerKey === "personal_v1" && form?.gender) {
-        setApplicantGender(form.gender);
-      }
-
       // Editing a previous step must preserve the server's workflow cursor.
       // After saving, move one step forward locally without submitting the request again.
       if (editingHistorical) {
         setDraftStatus("idle");
         setLastDraftSaved(null);
 
-        // A historical personal-data edit can change which steps apply. Refresh
-        // from the backend instead of moving by a stale, gender-dependent index.
-        if (personalGenderChanged) {
+        // When personal data is edited far into the workflow, keep the manual
+        // inactive-step acknowledgement in front of the applicant.
+        if (handlerKey === "personal_v1" && form?.gender === "زن") {
+          setShowMilitaryPlaceholder(true);
+          await refreshWorkflow({ preserveIndex: true });
+        } else if (handlerKey === "personal_v1") {
+          setShowMilitaryPlaceholder(false);
+          setMilitarySkipped(false);
           await refreshWorkflow();
         } else if (currentTargetIndex < liveIndex) {
           setIndex(Math.min(currentTargetIndex + 1, liveIndex));
@@ -457,9 +573,14 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         return;
       }
 
-      // The route may change with gender (for example, military can be
-      // removed). Let refreshWorkflow map the server cursor onto the new route
-      // instead of applying next_step to the old, gender-dependent index.
+      if (handlerKey === "personal_v1" && form?.gender === "زن") {
+        // Show an explicit, non-editable military step instead of briefly
+        // jumping to the backend cursor and immediately away from it.
+        setShowMilitaryPlaceholder(true);
+        await refreshWorkflow({ preserveIndex: true });
+        return;
+      }
+
       await refreshWorkflow();
     } catch (error) {
       if (error.validationErrors?.length) {
@@ -526,9 +647,18 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   if (loading) return <div className="page"><div className="wizard-loading"><div className="loading-spinner" /><strong>در حال بارگذاری پرونده…</strong></div></div>;
 
   const currentGroup = workflowGroups.find((group) => group.steps.some((step) => step.key === currentKey));
-  const stepTitle = currentStep?.title || currentKey || "";
-  const stepDescription = currentStep?.description || STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را تکمیل کنید و پس از بررسی، ثبت نمایید.";
-  const groupTitle = currentGroup?.title || "";
+  const stepTitle = showMilitaryPlaceholder
+    ? (militaryStepTemplate?.title || "وضعیت نظام وظیفه")
+    : (currentStep?.title || currentKey || "");
+  const stepDescription = showMilitaryPlaceholder
+    ? "این مرحله برای متقاضیان خانم غیرفعال است. برای ادامه، دکمه «مرحله بعد» را بزنید؛ نیازی به ثبت اطلاعات نظام وظیفه نیست."
+    : (currentStep?.description || STEP_DESCRIPTIONS[currentKey] || "اطلاعات این مرحله را تکمیل کنید و پس از بررسی، ثبت نمایید.");
+  const groupTitle = showMilitaryPlaceholder
+    ? (militaryStepTemplate?.group_title || "هویت و اطلاعات پایه")
+    : (currentGroup?.title || "");
+  const displayCurrentIndex = Math.max(0, sidebarWorkflowSteps.indexOf(
+    showMilitaryPlaceholder ? "military" : resume?.current_step
+  ));
   const completionCount = Math.min(workflowSteps.length, backendCurrentIndex + (resume?.status === "SUBMITTED" ? 0 : 0));
   const status = statusLabel(appRequest?.status);
 
@@ -544,29 +674,33 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       <div className={"wizard-layout" + (sidebarOpen ? "" : " is-sidebar-closed")}>
         <aside id="request-step-sidebar" className="wizard-sidebar" aria-hidden={!sidebarOpen} inert={!sidebarOpen}>
           <div className="wizard-progress-head">
-            <div><span className="eyebrow">مسیر پرونده</span><strong>{sidebarProgressIndex + 1} از {sidebarWorkflowSteps.length}</strong></div>
-            <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (sidebarProgressIndex / Math.max(sidebarWorkflowSteps.length, 1)) * 100)) + "%" }} /></div>
+            <div><span className="eyebrow">مسیر پرونده</span><strong>{displayCurrentIndex + 1} از {sidebarWorkflowSteps.length}</strong></div>
+            <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (displayCurrentIndex / sidebarWorkflowSteps.length) * 100)) + "%" }} /></div>
           </div>
           <div className="step-sections">
             {sidebarWorkflowGroups.map((group) => (
               <div className="step-section" key={group.key}>
                 <span className="step-section-title">{group.title}</span>
                 {group.steps.map((step) => {
-                  const displayTarget = sidebarWorkflowSteps.indexOf(step.key);
+                  const inactivePlaceholder = Boolean(step.disabled_placeholder);
                   const routeTarget = workflowSteps.indexOf(step.key);
+                  const displayTarget = sidebarWorkflowSteps.indexOf(step.key);
                   return (
                     <StepRailItem
                       key={step.key}
                       keyName={step.key}
                       title={step.title}
                       kicker={group.title}
-                      active={currentKey === step.key}
-                      completed={displayTarget < sidebarProgressIndex || (isFinalized && displayTarget <= sidebarProgressIndex)}
-                      disabled={routeTarget < 0}
+                      disabledLabel={inactivePlaceholder ? (militarySkipped ? "رد شده" : "غیرفعال") : ""}
+                      active={inactivePlaceholder ? showMilitaryPlaceholder : currentKey === step.key}
+                      completed={inactivePlaceholder
+                        ? militarySkipped
+                        : (displayTarget < displayCurrentIndex || (isFinalized && displayTarget <= displayCurrentIndex))}
+                      disabled={inactivePlaceholder}
                       onClick={() => {
-                        if (routeTarget >= 0) moveTo(routeTarget);
+                        if (!inactivePlaceholder) moveTo(routeTarget);
                       }}
-                      order={displayTarget + 1}
+                      order={inactivePlaceholder ? "—" : displayTarget + 1}
                     />
                   );
                 })}
@@ -603,7 +737,12 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
             <div className="return-alert"><strong>این مرحله برای اصلاح برگشت داده شده است.</strong>{currentReturnReason && <span>علت بازگشت: {currentReturnReason}</span>}<span>پس از اصلاح اطلاعات، دکمه ثبت و ادامه را بزنید تا دوباره وارد فرآیند بررسی شود.</span></div>
           )}
 
-          {isDocumentsStep ? (
+          {showMilitaryPlaceholder ? (
+            <div className="inline-info military-inactive-step" role="status">
+              <strong>مرحله نظام وظیفه برای شما غیرفعال است.</strong>
+              <span>اطلاعاتی در این مرحله لازم نیست ثبت کنید. با زدن «مرحله بعد» به ادامه فرم می‌روید.</span>
+            </div>
+          ) : isDocumentsStep ? (
             <DocumentsStep documents={documents} requestId={appRequest.id} onUploaded={(doc) => setDocuments((items) => [doc, ...items])} onError={onError} readOnly={readOnly} />
           ) : (
             <StepRenderer
@@ -627,9 +766,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
               ) : null}
             </div>
             <div className="footer-right">
-              {!readOnly ? (
+              {(!readOnly || showMilitaryPlaceholder) ? (
                 <button className="primary-button" disabled={saving} onClick={complete}>
-                  {saving ? <><span className="button-spinner" /> در حال ذخیره…</> : (
+                  {saving ? <><span className="button-spinner" /> در حال ذخیره…</> : showMilitaryPlaceholder ? "مرحله بعد" : (
                     isEditingSubmittedRequest
                       ? (isHistoricalStep ? "ذخیره تغییرات و مرحله بعد" : "ذخیره تغییرات")
                       : (isHistoricalStep ? "ذخیره تغییرات و مرحله بعد" : (isDeclarationStep ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه"))
