@@ -19,7 +19,7 @@ function buildWorkflowSteps(applicantIsFemale) {
   return applicantIsFemale ? baseSteps.filter((key) => key !== "military") : baseSteps;
 }
 
-function RequestWizard({ user, request, onBack, onError }) {
+function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
   const [resume, setResume] = useState(null);
@@ -358,8 +358,8 @@ function RequestWizard({ user, request, onBack, onError }) {
         </div>
       </div>
 
-      <div className="wizard-layout">
-        <aside className="wizard-sidebar">
+      <div className={"wizard-layout" + (sidebarOpen ? "" : " is-sidebar-closed")}>
+        <aside id="request-step-sidebar" className="wizard-sidebar" aria-hidden={!sidebarOpen} inert={!sidebarOpen}>
           <div className="wizard-progress-head">
             <div><span className="eyebrow">مسیر پرونده</span><strong>{backendCurrentIndex + 1} از {workflowSteps.length}</strong></div>
             <div className="progress-track"><span style={{ width: ((isFinalized ? 100 : (backendCurrentIndex / workflowSteps.length) * 100)) + "%" }} /></div>
@@ -375,7 +375,6 @@ function RequestWizard({ user, request, onBack, onError }) {
               </div>
             ))}
           </div>
-          <div className="privacy-card"><span>✓</span><div><strong>حفاظت از اطلاعات</strong><small>این صفحه اطلاعات پرونده را از طریق نشست امن و بدون ذخیره توکن در مرورگر مصرف می‌کند.</small></div></div>
         </aside>
 
         <section className="wizard-content">
