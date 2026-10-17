@@ -99,6 +99,16 @@
 .srd-timeline-item.is-warning .srd-timeline-marker{border-color:#f0d9d4;background:#fff2ef;color:#ab493c}
 .srd-timeline-copy{flex:1;min-width:0;padding-top:1px}
 .srd-timeline-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.srd-timeline-step-button{display:flex;align-items:center;justify-content:space-between;gap:9px;flex:1;min-width:0;padding:6px 8px;border:1px solid transparent;border-radius:9px;background:transparent;color:#354b66;font-family:inherit;text-align:right;cursor:pointer;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease}
+.srd-timeline-step-button strong{min-width:0;color:#354b66;font-size:11px;font-weight:800;line-height:1.8}
+.srd-timeline-step-button>span{flex:0 0 auto;color:#7c9fc7;font-size:12px;transition:transform .16s ease}
+.srd-timeline-step-button:hover{border-color:#dbe7f5;background:#f7faff}
+.srd-timeline-step-button:focus-visible{outline:3px solid rgba(60,126,198,.3);outline-offset:2px}
+.srd-timeline-item.is-selected .srd-timeline-step-button{border-color:#cfe1f7;background:#eff6ff;box-shadow:inset -3px 0 #3978b8}
+.srd-timeline-item.is-selected .srd-timeline-step-button strong,.srd-timeline-item.is-selected .srd-timeline-step-button>span{color:#285e96}
+.srd-timeline-item.is-selected .srd-timeline-marker{border-color:#bcd5f0;background:#e4f0ff;color:#285e96;box-shadow:0 0 0 3px #f4f8fe}
+.srd-selected-step-panel{animation:srd-step-enter .2s ease both}
+@keyframes srd-step-enter{from{opacity:.72;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .srd-timeline-title-row strong{color:#354b66;font-size:11px;font-weight:800;line-height:1.8}
 .srd-timeline-copy p{margin:3px 0 0;color:#9aa6b5;font-size:9px;line-height:1.8}
 .srd-timeline-copy small{display:block;margin-top:5px;color:#9aa6b5;font-size:9px}
