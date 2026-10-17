@@ -284,7 +284,6 @@ function renderDocumentList(documents = []) {
     <div class="document-list">${documents.map((file, index) => `<div class="document-row">
       <span class="document-index">${new Intl.NumberFormat("fa-IR").format(index + 1)}</span>
       <div class="document-main"><strong>${escapeHtml(file.filename || "بدون نام")}</strong><small>${escapeHtml(file.document_type || "نوع مدرک مشخص نشده")}</small></div>
-      <span class="document-status">${escapeHtml(statusLabel(file.status))}</span>
       <span class="document-size">${escapeHtml(formatBytes(file.size_bytes))}</span>
     </div>`).join("")}</div>
     <p class="document-note">فایل‌های پیوست به‌صورت فهرست در این گزارش درج شده‌اند؛ محتوای خود فایل‌ها داخل PDF ادغام نشده است.</p>
