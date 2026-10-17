@@ -337,6 +337,69 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
     return <div className="srd-empty-inline"><strong>گردش‌کاری برای نمایش وجود ندارد.</strong></div>;
   }
 
+  if (onSelectStep) {
+    const completedCount = steps.filter((step) => (
+      ["COMPLETED", "APPROVED", "SKIPPED"].includes(step.status)
+    )).length;
+    const progress = Math.round((completedCount / steps.length) * 100);
+    const groups = steps.reduce((result, step, index) => {
+      const title = displayGroupTitle(step.group_title, step);
+      const lastGroup = result[result.length - 1];
+      if (!lastGroup || lastGroup.title !== title) {
+        result.push({ title, steps: [{ step, index }] });
+      } else {
+        lastGroup.steps.push({ step, index });
+      }
+      return result;
+    }, []);
+
+    return (
+      <div className="srd-workflow-rail">
+        <div className="srd-workflow-progress-head">
+          <div><span>مسیر پرونده</span><strong>{numberFormat.format(completedCount)} از {numberFormat.format(steps.length)}</strong></div>
+          <div className="srd-workflow-progress-track">
+            <span style={{ width: progress + "%" }} />
+          </div>
+        </div>
+        <div className="srd-step-sections">
+          {groups.map((group, groupIndex) => (
+            <section className="srd-step-section" key={group.title + "-" + groupIndex}>
+              <span className="srd-step-section-title">{group.title}</span>
+              <div className="srd-step-rail">
+                {group.steps.map(({ step, index }) => {
+                  const isSelected = selectedStepKey === step.key;
+                  const isCompleted = ["COMPLETED", "APPROVED", "SKIPPED"].includes(step.status);
+                  const isCurrent = step.status === "ACTIVE" || step.key === step.current_step_key;
+                  const tone = step.status === "RETURNED" || step.status === "REJECTED"
+                    ? "warning"
+                    : isCurrent ? "current" : isCompleted ? "success" : "neutral";
+                  return (
+                    <button
+                      type="button"
+                      className={"srd-step-item" + (isSelected ? " active" : "") + (isCompleted ? " completed" : "") + (tone === "warning" ? " is-warning" : "")}
+                      key={step.key || index}
+                      onClick={() => onSelectStep(step.key)}
+                      aria-current={isSelected ? "step" : undefined}
+                      aria-pressed={isSelected}
+                      aria-label={"نمایش اطلاعات مرحله " + displayStepTitle(step, index)}
+                    >
+                      <span className="srd-step-dot">{isCompleted ? "✓" : numberFormat.format(index + 1)}</span>
+                      <span className="srd-step-copy">
+                        <small>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</small>
+                        <strong>{displayStepTitle(step, index)}</strong>
+                      </span>
+                      {isSelected && <i aria-hidden="true">●</i>}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ol className="srd-timeline">
       {steps.map((step, index) => {
@@ -346,26 +409,12 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
           : step.status === "RETURNED" || step.status === "REJECTED"
             ? "warning"
             : isCurrent ? "current" : "neutral";
-        const isSelected = selectedStepKey === step.key;
         return (
-          <li className={"srd-timeline-item is-" + tone + (isSelected ? " is-selected" : "")} key={step.key || index}>
+          <li className={"srd-timeline-item is-" + tone} key={step.key || index}>
             <span className="srd-timeline-marker">{step.status === "COMPLETED" || step.status === "APPROVED" ? "✓" : numberFormat.format(index + 1)}</span>
             <div className="srd-timeline-copy">
               <div className="srd-timeline-title-row">
-                {onSelectStep ? (
-                  <button
-                    type="button"
-                    className="srd-timeline-step-button"
-                    onClick={() => onSelectStep(step.key)}
-                    aria-pressed={isSelected}
-                    aria-label={"نمایش اطلاعات مرحله " + displayStepTitle(step, index)}
-                  >
-                    <strong>{displayStepTitle(step, index)}</strong>
-                    <span aria-hidden="true">{isSelected ? "●" : "←"}</span>
-                  </button>
-                ) : (
-                  <strong>{displayStepTitle(step, index)}</strong>
-                )}
+                <strong>{displayStepTitle(step, index)}</strong>
                 <span className={"srd-step-status is-" + tone}>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</span>
               </div>
               <p>{displayGroupTitle(step.group_title, step)}</p>
@@ -773,11 +822,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           </div>
 
           <aside className="srd-side-column srd-workflow-sidebar">
-            <section className="srd-panel srd-workflow-panel">
-              <div className="srd-panel-heading">
-                <div><span className="srd-panel-kicker">مسیر رسیدگی</span><h2>گردش‌کار پرونده</h2></div>
-                <span className="srd-count-badge">{numberFormat.format(informationSteps.length)} مرحله</span>
-              </div>
+            <section className="srd-panel srd-workflow-panel srd-workflow-rail-panel" aria-label="انتخاب مرحله پرونده">
               <StepTimeline
                 steps={informationSteps}
                 selectedStepKey={selectedInformationStep?.key}
