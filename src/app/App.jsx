@@ -92,17 +92,6 @@ function App() {
     setView("dashboard");
   };
 
-  const openStaffRequestDetails = (requestId) => {
-    if (user?.role !== "ADMIN" || !requestId) return;
-    const path = "/staff/requests/" + encodeURIComponent(requestId);
-    window.history.pushState({ view: "staff-request-details", requestId: String(requestId) }, "", path);
-    setSidebarOpen(true);
-    setStaffPath("/staff/requests");
-    setActiveRequest(null);
-    setActiveStaffRequestId(String(requestId));
-    setView("staff-request-details");
-  };
-
   const backToStaffRequests = () => {
     navigateStaffWorkspace("/staff/requests");
   };
@@ -245,7 +234,6 @@ function App() {
                 key={staffPath}
                 user={user}
                 onError={setToast}
-                onOpenRequestDetails={openStaffRequestDetails}
               />
             ) : (
               <Dashboard
