@@ -634,8 +634,15 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       // Re-check the persisted backend state immediately before completion so a
       // stale UI can never submit a step that is no longer current.
       const liveResume = await api.resume(appRequest.id);
-      const liveIndex = workflowSteps.indexOf(liveResume.current_step);
-      const currentTargetIndex = workflowSteps.indexOf(currentKey);
+      // Compare navigation against the canonical route that includes military.
+      // The visible route may hide that step as soon as gender is changed to
+      // female, even though the server cursor can still be on military.
+      const canonicalWorkflowSteps = buildWorkflowSteps(
+        ensureMilitaryStep(workflowDefinition?.groups || [], militaryStepTemplate)
+      );
+      const liveIndex = canonicalWorkflowSteps.indexOf(liveResume.current_step);
+      const currentTargetIndex = canonicalWorkflowSteps.indexOf(currentKey);
+      const visibleTargetIndex = workflowSteps.indexOf(currentKey);
       const editingHistorical = liveResume.status === "SUBMITTED" || currentTargetIndex < liveIndex;
 
       if (
@@ -682,12 +689,12 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           // Keep the applicant on the next sequential stage after editing
           // personal information, even when the backend cursor is much later.
           await refreshWorkflow({ preserveIndex: true });
-          const nextIndex = currentTargetIndex + 1;
+          const nextIndex = visibleTargetIndex + 1;
           if (nextIndex < workflowSteps.length) setIndex(nextIndex);
         } else {
           // Historical saves always continue to the next route stage, rather
           // than restoring the stage that was active before the user went back.
-          const nextIndex = currentTargetIndex + 1;
+          const nextIndex = visibleTargetIndex + 1;
           if (nextIndex < workflowSteps.length) setIndex(nextIndex);
         }
 
