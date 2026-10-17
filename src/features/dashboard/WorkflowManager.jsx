@@ -56,7 +56,7 @@ function WorkflowManager({ onError }) {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const selectedRequestType = requestTypes.find(
-    (type) => type.code === selectedRequestTypeCode && type.is_active !== false,
+    (type) => type.code === selectedRequestTypeCode,
   ) || null;
   const workflowKey = selectedRequestType?.workflow_key || "";
   const workflowKeyRef = useRef(workflowKey);
@@ -120,11 +120,12 @@ function WorkflowManager({ onError }) {
       const result = await requestOnce("workflow-manager:request-types", () => api.staffRequestTypes());
       const items = Array.isArray(result) ? result : [];
       const activeItems = items.filter((type) => type.is_active !== false);
+      const preferredItems = activeItems.length ? activeItems : items;
       setRequestTypes(items);
       setSelectedRequestTypeCode((current) => (
-        activeItems.some((type) => type.code === current)
+        items.some((type) => type.code === current)
           ? current
-          : activeItems[0]?.code || ""
+          : preferredItems[0]?.code || ""
       ));
     } catch (error) {
       onError?.({ type: "error", text: error.message || "دریافت فهرست انواع درخواست انجام نشد." });
@@ -609,7 +610,7 @@ function WorkflowManager({ onError }) {
         value={selectedRequestTypeCode}
         onChange={(event) => {
           const nextCode = event.target.value;
-          const nextType = requestTypes.find((type) => type.code === nextCode && type.is_active !== false);
+          const nextType = requestTypes.find((type) => type.code === nextCode);
           if (nextType?.workflow_key && nextType.workflow_key !== workflowKey) {
             setDetail(null);
             setGroups([]);
@@ -617,10 +618,12 @@ function WorkflowManager({ onError }) {
           }
           setSelectedRequestTypeCode(nextCode);
         }}
-        disabled={catalogLoading || !requestTypes.some((type) => type.is_active !== false)}
+        disabled={catalogLoading || requestTypes.length === 0}
       >
-        {requestTypes.filter((type) => type.is_active !== false).map((type) => (
-          <option key={type.code} value={type.code}>{type.title}</option>
+        {requestTypes.map((type) => (
+          <option key={type.code} value={type.code}>
+            {type.title}{type.is_active === false ? " (غیرفعال)" : ""}
+          </option>
         ))}
       </select>
     </div>
