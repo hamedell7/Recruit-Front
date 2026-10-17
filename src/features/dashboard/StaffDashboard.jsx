@@ -79,7 +79,7 @@ function saveDownloadedWorkbook(file) {
   window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
 
-function StaffRequestsDashboard({ onError, user }) {
+function StaffRequestsDashboard({ onError, user, onOpenRequestDetails }) {
   const [requestTypes, setRequestTypes] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [cities, setCities] = useState([]);
@@ -688,7 +688,7 @@ function StaffRequestsDashboard({ onError, user }) {
                         <td><span className={`status-badge ${tone || "muted"}`}><i />{label}</span></td>
                         <td><span className="staff-updated-date">{formatDate(item.created_at)}</span></td>
                         <td><span className="staff-updated-date">{formatDate(item.updated_at)}</span></td>
-                        <td><button className="staff-row-action" type="button" onClick={() => setSelectedRequest(item)}>جزئیات <span>←</span></button></td>
+                        <td><button className="staff-row-action" type="button" onClick={() => (canExportReport && onOpenRequestDetails ? onOpenRequestDetails(item.id) : setSelectedRequest(item))} aria-label={(canExportReport ? "جزئیات کامل پرونده " : "جزئیات پرونده ") + item.tracking_code}>{canExportReport ? "جزئیات کامل" : "جزئیات"} <span>←</span></button></td>
                       </tr>
                     );
                   })}
@@ -867,7 +867,7 @@ function getStaffWorkspace(pathname, role) {
   return "requests";
 }
 
-function StaffDashboard({ onError, user }) {
+function StaffDashboard({ onError, user, onOpenRequestDetails }) {
   const [workspace, setWorkspace] = useState(() => getStaffWorkspace(window.location.pathname, user?.role));
 
   useEffect(() => {
@@ -905,7 +905,7 @@ function StaffDashboard({ onError, user }) {
     return <RequestSettings onError={onError} />;
   }
 
-  return <StaffRequestsDashboard user={user} onError={onError} />;
+  return <StaffRequestsDashboard user={user} onError={onError} onOpenRequestDetails={onOpenRequestDetails} />;
 }
 
 export default StaffDashboard;
