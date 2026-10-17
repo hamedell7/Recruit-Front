@@ -151,12 +151,15 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       setHasSpouse(false);
       setApplicantGender("");
       try {
-        const [requestData, resumeData, stepsData, countriesData, workflowData] = await Promise.all([
+        const [requestData, resumeData, stepsData, countriesData, workflowData, personalData] = await Promise.all([
           api.request(request.id),
           api.resume(request.id),
           api.steps(request.id),
           api.countries(),
           api.requestWorkflow(request.id),
+          // Gender must be restored from persisted personal data on refresh,
+          // including when the applicant is already on a later workflow step.
+          api.stepData(request.id, "personal").catch(() => null),
         ]);
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
           throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
@@ -165,6 +168,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         setAppRequest(requestData);
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
+        setApplicantGender(String(personalData?.person?.gender || ""));
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
         const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
