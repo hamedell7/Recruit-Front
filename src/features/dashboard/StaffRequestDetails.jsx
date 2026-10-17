@@ -612,9 +612,6 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   if (loading && !report) {
     return (
       <main className="page srd-page" dir="rtl">
-        <div className="srd-toolbar">
-          <button type="button" className="srd-back-button" onClick={onBack}>← بازگشت به فهرست پرونده‌ها</button>
-        </div>
         <div className="srd-loading">
           <span className="srd-spinner" />
           <strong>در حال دریافت اطلاعات کامل پرونده…</strong>
