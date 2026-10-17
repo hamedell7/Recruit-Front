@@ -12,11 +12,11 @@
   margin-bottom: 22px;
   padding: clamp(23px, 3.2vw, 38px);
   overflow: hidden;
-  border: 1px solid #e1e8f0;
+  border: 1px solid #dfe6ef;
   border-radius: 22px;
   background:
-    radial-gradient(circle at 7% 30%, rgba(80, 140, 197, .09), transparent 32%),
-    linear-gradient(120deg, #fff 0%, #f8fbff 100%);
+    radial-gradient(ellipse at 88% 0%, rgba(219, 232, 250, .72), transparent 42%),
+    linear-gradient(120deg, #fff 0%, #fbfcfe 100%);
   box-shadow: 0 8px 24px rgba(23, 43, 69, .035);
 }
 
