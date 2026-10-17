@@ -141,7 +141,7 @@ function ExcelExportModal({
           <div className="excel-export-intro-copy">
             <span className="excel-export-eyebrow">EXPORT CENTER</span>
             <h4>فایل اکسل، دقیقاً مطابق نیاز شما</h4>
-            <p>هیچ شیتی از قبل انتخاب نشده است؛ فقط بخش‌های موردنیازتان را علامت بزنید.</p>
+            <p>شیت‌های موردنیازتان را انتخاب کنید.</p>
           </div>
         </div>
 
