@@ -239,9 +239,6 @@
 }
 .ud-stats-grid .stat-card:hover { transform: translateY(-3px); border-color: #cfdeef; box-shadow: 0 10px 24px rgba(25, 48, 79, .07); }
 .ud-stats-grid .stat-icon { z-index: 1; width: 44px; height: 44px; flex: 0 0 auto; border: 1px solid #dce9fb; border-radius: 14px; background: #edf4ff; color: #316eae; font-size: 19px; }
-.ud-stats-grid .stat-card:nth-child(2) .stat-icon { border-color: #d5efe8; background: #eaf8f3; color: #16866e; }
-.ud-stats-grid .stat-card:nth-child(3) .stat-icon { border-color: #f5e5c5; background: #fff6e6; color: #a8731c; }
-.ud-stats-grid .stat-card:nth-child(4) .stat-icon { border-color: #d9e9df; background: #edf8f0; color: #2b8a54; }
 .ud-stats-grid .stat-card > div:last-child { z-index: 1; min-width: 0; }
 .ud-stats-grid .stat-card span { margin-bottom: 8px; color: #7a899c; font-size: 11px; }
 .ud-stats-grid .stat-card strong { color: #1c3554; font-size: 27px; font-weight: 800; font-variant-numeric: tabular-nums; }
@@ -407,61 +404,11 @@
   .ud-dashboard-page *, .ud-dashboard-page *::before, .ud-dashboard-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
 
-/* User dashboard cards — align the palette with the admin dashboard metrics */
-.ud-dashboard-page{
-  --ud-tone-blue:#568bd0;
-  --ud-tone-blue-bg:#f0f6ff;
-  --ud-tone-green:#42aa91;
-  --ud-tone-green-bg:#ecf9f4;
-  --ud-tone-violet:#9484d1;
-  --ud-tone-violet-bg:#f4f1ff;
-  --ud-tone-amber:#d4a34f;
-  --ud-tone-amber-bg:#fff7e9;
-}
+/* User dashboard metric cards: use one consistent blue palette */
 .ud-stats-grid .stat-card{
   border-top:3px solid #568bd0;
-  background:linear-gradient(145deg,#fff 0%,var(--ud-tone-blue-bg) 100%);
+  background:linear-gradient(145deg,#fff 0%,#f0f6ff 100%);
 }
-.ud-stats-grid .stat-card:nth-child(1){
-  border-top-color:#568bd0;
-  background:linear-gradient(145deg,#fff 0%,var(--ud-tone-blue-bg) 100%);
-}
-.ud-stats-grid .stat-card:nth-child(2){
-  border-top-color:#568bd0;
-  background:linear-gradient(145deg,#fff 0%,var(--ud-tone-green-bg) 100%);
-}
-.ud-stats-grid .stat-card:nth-child(3){
-  border-top-color:#568bd0;
-  background:linear-gradient(145deg,#fff 0%,var(--ud-tone-violet-bg) 100%);
-}
-.ud-stats-grid .stat-card:nth-child(4){
-  border-top-color:#568bd0;
-  background:linear-gradient(145deg,#fff 0%,var(--ud-tone-amber-bg) 100%);
-}
-.ud-stats-grid .stat-card:nth-child(1) .stat-icon{
-  border-color:#d2e3f7;
-  background:linear-gradient(145deg,#e4f0ff,#d9eafb);
-  color:#316eae;
-}
-.ud-stats-grid .stat-card:nth-child(2) .stat-icon{
-  border-color:#cfeade;
-  background:linear-gradient(145deg,#e0f6ed,#d4efe7);
-  color:#16866e;
-}
-.ud-stats-grid .stat-card:nth-child(3) .stat-icon{
-  border-color:#e0d9f5;
-  background:linear-gradient(145deg,#eee9ff,#e7e0fb);
-  color:#6b57b4;
-}
-.ud-stats-grid .stat-card:nth-child(4) .stat-icon{
-  border-color:#f0dfc0;
-  background:linear-gradient(145deg,#fff0d1,#ffe9c2);
-  color:#a8731c;
-}
-.ud-stats-grid .stat-card:nth-child(1):hover{border-color:#cfdeef;border-top-color:#568bd0}
-.ud-stats-grid .stat-card:nth-child(2):hover{border-color:#cde8df;border-top-color:#568bd0}
-.ud-stats-grid .stat-card:nth-child(3):hover{border-color:#dfd8f4;border-top-color:#568bd0}
-.ud-stats-grid .stat-card:nth-child(4):hover{border-color:#efdfc4;border-top-color:#568bd0}
 
 /* Request cards use the same admin palette at a softer intensity */
 .ud-request-grid .request-card:nth-child(4n+1){
@@ -490,11 +437,8 @@
 .ud-request-grid .request-card:nth-child(4n+3):hover{border-color:#d4caef}
 .ud-request-grid .request-card:nth-child(4n):hover{border-color:#e8d2a9}
 
-/* User dashboard metric icons: consistent blue */
-.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(1) .stat-icon,
-.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(2) .stat-icon,
-.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(3) .stat-icon,
-.ud-dashboard-page .ud-stats-grid .stat-card:nth-child(4) .stat-icon {
+/* User dashboard metric icons: use the first card's blue palette */
+.ud-dashboard-page .ud-stats-grid .stat-icon {
   border-color: #d2e3f7;
   background: linear-gradient(145deg, #e4f0ff, #d9eafb);
   color: #316eae;
