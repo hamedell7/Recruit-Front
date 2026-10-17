@@ -509,7 +509,6 @@
   .step-section { min-width: 205px; flex: 0 0 auto; margin: 0; }
   .step-section-title { margin-bottom: 7px; }
   .step-item { min-height: 45px; }
-  .privacy-card { margin-top: 12px; padding-top: 11px; }
   .wizard-content { min-height: auto; padding: 22px; }
   .step-header h1 { font-size: 24px; }
   .field-grid { gap: 14px; }
