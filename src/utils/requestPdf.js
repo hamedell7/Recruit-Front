@@ -482,6 +482,8 @@ function errorHtml(message) {
   <h2>تهیه گزارش انجام نشد</h2><p>${escapeHtml(message)}</p><button id="report-close" type="button">بستن پنجره</button></body></html>`;
 }
 
+export { FIELD_LABELS, VALUE_LABELS, isInternalKey, labelFor, valueFor };
+
 export async function printRequestReport(requestId, { staff = false } = {}) {
   const popup = window.open("", "_blank");
   if (!popup) throw new Error("مرورگر اجازه باز کردن پنجره گزارش را نداد. پنجره‌های بازشو را برای سامانه مجاز کنید.");
