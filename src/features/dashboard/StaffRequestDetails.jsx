@@ -342,6 +342,7 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
       ["COMPLETED", "APPROVED", "SKIPPED"].includes(step.status)
     )).length;
     const progress = Math.round((completedCount / steps.length) * 100);
+    const selectedIndex = Math.max(0, steps.findIndex((step) => step.key === selectedStepKey));
     const groups = steps.reduce((result, step, index) => {
       const title = displayGroupTitle(step.group_title, step);
       const lastGroup = result[result.length - 1];
@@ -355,46 +356,77 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
 
     return (
       <div className="srd-workflow-rail">
-        <div className="srd-workflow-progress-head">
-          <div><span>مسیر پرونده</span><strong>{numberFormat.format(completedCount)} از {numberFormat.format(steps.length)}</strong></div>
-          <div className="srd-workflow-progress-track">
-            <span style={{ width: progress + "%" }} />
+        <header className="srd-workflow-hero">
+          <div className="srd-workflow-hero-top">
+            <span className="srd-workflow-hero-icon" aria-hidden="true">⌁</span>
+            <div className="srd-workflow-hero-copy">
+              <small>گردش‌کار پرونده</small>
+              <strong>مراحل رسیدگی</strong>
+            </div>
+            <span className="srd-workflow-count-pill">
+              <b>{numberFormat.format(completedCount)}</b>
+              <i>/</i>
+              {numberFormat.format(steps.length)}
+            </span>
           </div>
-        </div>
-        <div className="srd-step-sections">
-          {groups.map((group, groupIndex) => (
-            <section className="srd-step-section" key={group.title + "-" + groupIndex}>
-              <span className="srd-step-section-title">{group.title}</span>
-              <div className="srd-step-rail">
-                {group.steps.map(({ step, index }) => {
-                  const isSelected = selectedStepKey === step.key;
-                  const isCompleted = ["COMPLETED", "APPROVED", "SKIPPED"].includes(step.status);
-                  const isCurrent = step.status === "ACTIVE" || step.key === step.current_step_key;
-                  const tone = step.status === "RETURNED" || step.status === "REJECTED"
-                    ? "warning"
-                    : isCurrent ? "current" : isCompleted ? "success" : "neutral";
-                  return (
-                    <button
-                      type="button"
-                      className={"srd-step-item" + (isSelected ? " active" : "") + (isCompleted ? " completed" : "") + (tone === "warning" ? " is-warning" : "")}
-                      key={step.key || index}
-                      onClick={() => onSelectStep(step.key)}
-                      aria-current={isSelected ? "step" : undefined}
-                      aria-pressed={isSelected}
-                      aria-label={"نمایش اطلاعات مرحله " + displayStepTitle(step, index)}
-                    >
-                      <span className="srd-step-dot">{isCompleted ? "✓" : numberFormat.format(index + 1)}</span>
-                      <span className="srd-step-copy">
-                        <small>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</small>
-                        <strong>{displayStepTitle(step, index)}</strong>
-                      </span>
-                      {isSelected && <i aria-hidden="true">●</i>}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+          <div className="srd-workflow-progress-block">
+            <div className="srd-workflow-progress-meta">
+              <span>پیشرفت تکمیل مراحل</span>
+              <strong>{numberFormat.format(progress)}٪</strong>
+            </div>
+            <div className="srd-workflow-progress-track">
+              <span style={{ width: progress + "%" }} />
+            </div>
+          </div>
+          <div className="srd-workflow-hero-footer">
+            <span><i aria-hidden="true" /> {numberFormat.format(completedCount)} مرحله تکمیل شده</span>
+            <span>مرحله {numberFormat.format(selectedIndex + 1)} از {numberFormat.format(steps.length)}</span>
+          </div>
+        </header>
+        <div className="srd-workflow-rail-body">
+          <div className="srd-workflow-rail-label">
+            <span>همه مراحل</span>
+            <span>{numberFormat.format(steps.length)} مرحله</span>
+          </div>
+          <div className="srd-step-sections">
+            {groups.map((group, groupIndex) => (
+              <section className="srd-step-section" key={group.title + "-" + groupIndex}>
+                <div className="srd-step-section-heading">
+                  <span className="srd-step-section-indicator" aria-hidden="true" />
+                  <span className="srd-step-section-title">{group.title}</span>
+                  <span className="srd-step-section-count">{numberFormat.format(group.steps.length)}</span>
+                </div>
+                <div className="srd-step-rail">
+                  {group.steps.map(({ step, index }) => {
+                    const isSelected = selectedStepKey === step.key;
+                    const isCompleted = ["COMPLETED", "APPROVED", "SKIPPED"].includes(step.status);
+                    const isCurrent = step.status === "ACTIVE" || step.key === step.current_step_key;
+                    const tone = step.status === "RETURNED" || step.status === "REJECTED"
+                      ? "warning"
+                      : isCurrent ? "current" : isCompleted ? "success" : "neutral";
+                    return (
+                      <button
+                        type="button"
+                        className={"srd-step-item" + (isSelected ? " active" : "") + (isCompleted ? " completed" : "") + (isCurrent ? " is-current" : "") + (tone === "warning" ? " is-warning" : "")}
+                        key={step.key || index}
+                        onClick={() => onSelectStep(step.key)}
+                        aria-current={isSelected ? "step" : undefined}
+                        aria-pressed={isSelected}
+                        aria-label={"نمایش اطلاعات مرحله " + displayStepTitle(step, index)}
+                      >
+                        <span className="srd-step-dot">{isCompleted ? "✓" : numberFormat.format(index + 1)}</span>
+                        <span className="srd-step-copy">
+                          <strong>{displayStepTitle(step, index)}</strong>
+                          <small>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</small>
+                        </span>
+                        {isSelected && <i aria-hidden="true">‹</i>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     );
