@@ -377,3 +377,17 @@
 .srd-step-copy small{color:#7f8e9e;font-size:10px;line-height:1.7}
 .srd-step-item.active .srd-step-copy small{color:#648678}
 .srd-step-item>i{background:#edf4f1;color:#4b8273;font-size:18px}
+
+
+/* Clear visual separation between the workflow header and its step list */
+.srd-workflow-hero{
+  margin-bottom:8px;
+  border:1px solid #e2eaf1;
+  border-bottom-color:#d6e1ea;
+  border-radius:21px 21px 13px 13px;
+  background:linear-gradient(180deg,#f5f8fb 0%,#fff 100%);
+  box-shadow:0 8px 18px rgba(32,57,82,.075);
+}
+.srd-workflow-hero::before,
+.srd-workflow-hero::after{border-color:rgba(58,81,108,.045)}
+.srd-workflow-hero-top{gap:0}
