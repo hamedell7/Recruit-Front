@@ -5,6 +5,7 @@
 
 .request-settings-hero {
   position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,6 +20,32 @@
     radial-gradient(circle at 90% 8%, rgba(83, 141, 213, .32), transparent 30%),
     linear-gradient(123deg, #102341 0%, #173b65 58%, #1c5277 100%);
   box-shadow: 0 8px 24px rgba(23, 43, 69, .035);
+}
+
+.request-settings-hero::before {
+  position: absolute;
+  z-index: -1;
+  top: -125px;
+  right: 37%;
+  width: 270px;
+  height: 270px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.request-settings-hero::after {
+  position: absolute;
+  z-index: -1;
+  right: 34%;
+  bottom: -190px;
+  width: 350px;
+  height: 350px;
+  border: 1px solid rgba(255, 255, 255, .065);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
 }
 
 .request-settings-hero h1 {
