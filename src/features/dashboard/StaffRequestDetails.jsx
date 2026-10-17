@@ -332,7 +332,7 @@ function DocumentList({ documents, requestId, compact = false }) {
   );
 }
 
-function StepTimeline({ steps }) {
+function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
   if (!steps.length) {
     return <div className="srd-empty-inline"><strong>گردش‌کاری برای نمایش وجود ندارد.</strong></div>;
   }
@@ -346,12 +346,26 @@ function StepTimeline({ steps }) {
           : step.status === "RETURNED" || step.status === "REJECTED"
             ? "warning"
             : isCurrent ? "current" : "neutral";
+        const isSelected = selectedStepKey === step.key;
         return (
-          <li className={"srd-timeline-item is-" + tone} key={step.key || index}>
+          <li className={"srd-timeline-item is-" + tone + (isSelected ? " is-selected" : "")} key={step.key || index}>
             <span className="srd-timeline-marker">{step.status === "COMPLETED" || step.status === "APPROVED" ? "✓" : numberFormat.format(index + 1)}</span>
             <div className="srd-timeline-copy">
               <div className="srd-timeline-title-row">
-                <strong>{displayStepTitle(step, index)}</strong>
+                {onSelectStep ? (
+                  <button
+                    type="button"
+                    className="srd-timeline-step-button"
+                    onClick={() => onSelectStep(step.key)}
+                    aria-pressed={isSelected}
+                    aria-label={"نمایش اطلاعات مرحله " + displayStepTitle(step, index)}
+                  >
+                    <strong>{displayStepTitle(step, index)}</strong>
+                    <span aria-hidden="true">{isSelected ? "●" : "←"}</span>
+                  </button>
+                ) : (
+                  <strong>{displayStepTitle(step, index)}</strong>
+                )}
                 <span className={"srd-step-status is-" + tone}>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</span>
               </div>
               <p>{displayGroupTitle(step.group_title, step)}</p>
@@ -373,6 +387,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   const [error, setError] = useState("");
   const [documentsError, setDocumentsError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedInformationStepKey, setSelectedInformationStepKey] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [excelLoading, setExcelLoading] = useState(false);
@@ -432,6 +447,8 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
 
   const request = report?.request || {};
   const steps = useMemo(() => report?.steps || [], [report?.steps]);
+  const informationSteps = useMemo(() => steps.filter((step) => step.key !== "documents"), [steps]);
+  const selectedInformationStep = informationSteps.find((step) => step.key === selectedInformationStepKey) || informationSteps[0];
   const applicant = useMemo(() => {
     const personal = steps.find((step) => step.key === "personal")?.data;
     return findApplicantProfile(personal) || {};
@@ -721,43 +738,51 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
       {activeTab === "information" && (
         <div className="srd-content-grid srd-information-layout">
           <div className="srd-primary-column">
-            <div className="srd-step-sections">
-              {steps.filter((step) => step.key !== "documents").map((step, index) => {
-                const [stepLabel, stepTone] = statusLabel(step.status);
-                return (
-                  <section className="srd-panel srd-step-panel" key={step.key}>
-                    <div className="srd-panel-heading">
-                      <div className="srd-step-heading-copy">
-                        <span className="srd-step-number">{numberFormat.format(index + 1)}</span>
-                        <div><span className="srd-panel-kicker">{displayGroupTitle(step.group_title, step)}</span><h2>{displayStepTitle(step, index)}</h2></div>
-                      </div>
-                      <span className={"srd-status-pill is-" + (stepTone || "muted")}>{STEP_STATUS_LABELS[step.status] || stepLabel}</span>
+            {selectedInformationStep ? (() => {
+              const step = selectedInformationStep;
+              const index = informationSteps.findIndex((item) => item.key === step.key);
+              const [stepLabel, stepTone] = statusLabel(step.status);
+              return (
+                <section className="srd-panel srd-step-panel srd-selected-step-panel" key={step.key}>
+                  <div className="srd-panel-heading">
+                    <div className="srd-step-heading-copy">
+                      <span className="srd-step-number">{numberFormat.format(index + 1)}</span>
+                      <div><span className="srd-panel-kicker">{displayGroupTitle(step.group_title, step)}</span><h2>{displayStepTitle(step, index)}</h2></div>
                     </div>
-                    {step.return_reason && <div className="srd-return-reason">علت بازگشت برای اصلاح: {step.return_reason}</div>}
-                    {step.data_source === "not_loaded" ? (
-                      <div className="srd-empty-inline">اطلاعات این مرحله بارگذاری نشده است.</div>
-                    ) : step.data === null || step.data === undefined || (typeof step.data === "object" && Object.keys(step.data).length === 0) ? (
-                      <div className="srd-empty-inline">اطلاعاتی برای نمایش در این مرحله ثبت نشده است.</div>
-                    ) : (
-                      <ApplicantData value={step.data} />
-                    )}
-                    <div className="srd-step-footer">
-                      {step.completed_at && <span>تاریخ تکمیل: {formatDate(step.completed_at)}</span>}
-                      {step.attempt_no && <span>تعداد تلاش: {numberFormat.format(step.attempt_no)}</span>}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
+                    <span className={"srd-status-pill is-" + (stepTone || "muted")}>{STEP_STATUS_LABELS[step.status] || stepLabel}</span>
+                  </div>
+                  {step.return_reason && <div className="srd-return-reason">علت بازگشت برای اصلاح: {step.return_reason}</div>}
+                  {step.data_source === "not_loaded" ? (
+                    <div className="srd-empty-inline">اطلاعات این مرحله بارگذاری نشده است.</div>
+                  ) : step.data === null || step.data === undefined || (typeof step.data === "object" && Object.keys(step.data).length === 0) ? (
+                    <div className="srd-empty-inline">اطلاعاتی برای نمایش در این مرحله ثبت نشده است.</div>
+                  ) : (
+                    <ApplicantData value={step.data} />
+                  )}
+                  <div className="srd-step-footer">
+                    {step.completed_at && <span>تاریخ تکمیل: {formatDate(step.completed_at)}</span>}
+                    {step.attempt_no && <span>تعداد تلاش: {numberFormat.format(step.attempt_no)}</span>}
+                  </div>
+                </section>
+              );
+            })() : (
+              <section className="srd-panel srd-empty-inline">
+                اطلاعاتی برای نمایش ثبت نشده است.
+              </section>
+            )}
           </div>
 
           <aside className="srd-side-column srd-workflow-sidebar">
             <section className="srd-panel srd-workflow-panel">
               <div className="srd-panel-heading">
                 <div><span className="srd-panel-kicker">مسیر رسیدگی</span><h2>گردش‌کار پرونده</h2></div>
-                <span className="srd-count-badge">{numberFormat.format(steps.length)} مرحله</span>
+                <span className="srd-count-badge">{numberFormat.format(informationSteps.length)} مرحله</span>
               </div>
-              <StepTimeline steps={steps} />
+              <StepTimeline
+                steps={informationSteps}
+                selectedStepKey={selectedInformationStep?.key}
+                onSelectStep={setSelectedInformationStepKey}
+              />
             </section>
           </aside>
         </div>
