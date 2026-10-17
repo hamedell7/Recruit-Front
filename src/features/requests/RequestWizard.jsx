@@ -452,7 +452,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
                 <span className="step-section-title">{group.title}</span>
                 {group.steps.filter((step) => workflowSteps.includes(step.key)).map((step) => {
                   const target = workflowSteps.indexOf(step.key);
-                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || isFinalized} onClick={() => moveTo(target)} order={target + 1} />;
+                  return <StepRailItem key={step.key} keyName={step.key} title={step.title} kicker={group.title} active={currentKey === step.key} completed={target < backendCurrentIndex || (isFinalized && target <= backendCurrentIndex)} onClick={() => moveTo(target)} order={target + 1} />;
                 })}
               </div>
             ))}
