@@ -96,9 +96,15 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const editDeadlineClosed = ["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(resume?.status)
     && !canEditRequest
     && Boolean(resume?.edit_until_date);
-  const readOnlyMessage = editDeadlineClosed
-    ? "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است."
-    : "این پرونده در وضعیت فعلی فقط برای مشاهده در دسترس است.";
+  const readOnlyMessage = resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE"
+    ? "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل این پرونده امکان‌پذیر نیست."
+    : resume?.edit_block_reason === "REQUEST_REGISTRATION_NOT_STARTED"
+      ? "امکان تکمیل این پرونده از تاریخ " + formatDate(resume.registration_start_date) + " فعال می‌شود."
+      : resume?.edit_block_reason === "REQUEST_REGISTRATION_CLOSED"
+        ? "مهلت تکمیل این پرونده در تاریخ " + formatDate(resume.registration_end_date) + " پایان یافته است؛ اطلاعات فقط برای مشاهده در دسترس است."
+        : resume?.edit_block_reason === "REQUEST_EDIT_DEADLINE_PASSED" || editDeadlineClosed
+          ? "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است."
+          : "این پرونده در وضعیت فعلی فقط برای مشاهده در دسترس است.";
   const submittedEditMessage = resume?.edit_until_date
     ? "پرونده ثبت نهایی شده است؛ تا " + formatDate(resume.edit_until_date) + " امکان ویرایش اطلاعات وجود دارد."
     : "پرونده ثبت نهایی شده است؛ امکان ویرایش اطلاعات وجود دارد.";
