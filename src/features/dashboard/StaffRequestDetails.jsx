@@ -10,6 +10,7 @@ import {
   printRequestReport,
 } from "../../utils/requestPdf";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
+import ExcelExportModal from "./ExcelExportModal";
 import "../../styles/staff-request-details.css";
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
@@ -471,6 +472,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [excelLoading, setExcelLoading] = useState(false);
+  const [excelExportModal, setExcelExportModal] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
   const [decisionReason, setDecisionReason] = useState("");
   const [returnStepKey, setReturnStepKey] = useState("");
@@ -556,14 +558,31 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
     }
   };
 
-  const exportExcel = async () => {
+  const openExcelExportModal = () => {
     if (excelLoading) return;
+    setExcelExportModal({
+      requestIds: [String(requestId)],
+      requestCount: 1,
+      scopeLabel: "پرونده " + (request.tracking_code || applicantName),
+    });
+  };
+
+  const handleExcelExport = async (sheets) => {
+    if (excelLoading || !Array.isArray(sheets) || sheets.length === 0) return;
     setExcelLoading(true);
     try {
-      const file = await api.exportStaffRequestExcel(requestId);
+      const file = await api.exportStaffRequestsExcel({
+        mode: "selected",
+        request_ids: [String(requestId)],
+        sheets,
+      });
       if (!file.savedToDisk) saveDownloadedFile(file);
+      setExcelExportModal(null);
+      onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
     } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "دریافت خروجی اکسل پرونده انجام نشد." });
+      if (reason?.name !== "DownloadCancelledError") {
+        onError?.({ type: "error", text: reason.message || "دریافت خروجی اکسل پرونده انجام نشد." });
+      }
     } finally {
       setExcelLoading(false);
     }
@@ -667,7 +686,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           </div>
         </div>
         <div className="srd-hero-actions">
-          <button type="button" className="srd-action-button is-secondary" onClick={exportExcel} disabled={excelLoading}>
+          <button type="button" className="srd-action-button is-secondary" onClick={openExcelExportModal} disabled={excelLoading}>
             <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "دریافت فایل اکسل"}
           </button>
           <button type="button" className="srd-action-button is-primary" onClick={exportPdf} disabled={pdfLoading}>
@@ -887,6 +906,18 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
         <span>آخرین به‌روزرسانی: {formatDate(request.updated_at)}</span>
         <button type="button" className="srd-back-button" onClick={onBack}>بازگشت به فهرست پرونده‌ها</button>
       </footer>
+
+      {excelExportModal && (
+        <ExcelExportModal
+          scopeLabel={excelExportModal.scopeLabel}
+          requestCount={excelExportModal.requestCount}
+          loading={excelLoading}
+          onClose={() => {
+            if (!excelLoading) setExcelExportModal(null);
+          }}
+          onExport={handleExcelExport}
+        />
+      )}
     </main>
   );
 }
