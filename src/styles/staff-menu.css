@@ -264,18 +264,6 @@
   line-height: 1.95;
 }
 
-.staff-drawer-hero-index {
-  position: absolute;
-  left: 27px;
-  bottom: 20px;
-  color: rgba(214, 231, 248, .46);
-  font-family: Arial, sans-serif;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  direction: ltr;
-}
-
 .staff-drawer-profile {
   position: relative;
   z-index: 2;
@@ -355,26 +343,8 @@
 }
 
 .staff-drawer-section-heading > div { display: flex; flex-direction: column; gap: 5px; }
-.staff-drawer-section-kicker { color: #94a3b5; font-family: Arial, sans-serif; font-size: 9px; font-weight: 800; letter-spacing: .16em; direction: ltr; text-align: right; }
+.staff-drawer-section-kicker { color: #94a3b5; font-family: inherit; font-size: 10px; font-weight: 800; letter-spacing: 0; text-align: right; }
 .staff-drawer-section-heading h3 { margin: 0; color: #243c58; font-size: 16px; font-weight: 850; }
-
-.staff-drawer-item-count {
-  min-width: 49px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 7px 9px;
-  border: 1px solid #e4ebf3;
-  border-radius: 10px;
-  background: #fff;
-  color: #6e86a1;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.staff-drawer-item-count small { color: #8b9bb0; font-family: inherit; font-size: 9px; font-weight: 600; }
 
 .staff-drawer-nav { display: flex; flex-direction: column; gap: 10px; }
 
@@ -462,33 +432,6 @@
   background: linear-gradient(180deg, #2f8baf, #48baa7);
 }
 
-.staff-drawer-help {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin-top: 18px;
-  padding: 14px 13px;
-  border: 1px solid #e5edf2;
-  border-radius: 14px;
-  background: linear-gradient(120deg, #f7faff, #f4faf9);
-}
-
-.staff-drawer-help-icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid #dbe7f1;
-  border-radius: 11px;
-  background: #fff;
-  color: #557c9e;
-}
-.staff-drawer-help-icon svg { width: 19px; height: 19px; }
-.staff-drawer-help > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.staff-drawer-help strong { color: #47617d; font-size: 10px; font-weight: 800; }
-.staff-drawer-help > div > span { color: #8797a9; font-size: 9px; line-height: 1.65; }
-
 @keyframes staff-backdrop-enter {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -526,7 +469,6 @@
   .staff-drawer-title-block { margin-top: 22px; }
   .staff-drawer-title-block h2 { font-size: 22px; }
   .staff-drawer-title-block p { max-width: 255px; font-size: 11px; }
-  .staff-drawer-hero-index { left: 18px; bottom: 17px; font-size: 7px; }
   .staff-drawer-profile { gap: 9px; margin-right: 12px; margin-left: 12px; padding: 11px 10px; }
   .staff-drawer-profile-avatar { width: 37px; height: 37px; border-radius: 12px; }
   .staff-drawer-role-chip { display: none; }
