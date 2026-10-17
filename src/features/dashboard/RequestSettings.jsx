@@ -152,7 +152,7 @@ function RequestSettings({ onError }) {
                       {isSelected ? "✓" : new Intl.NumberFormat("fa-IR").format(index + 1)}
                     </span>
                     <span className="request-settings-type-copy">
-                      <small>{isSelected ? "در حال تنظیم" : "نوع درخواست"}</small>
+                      <small>{isSelected ? "تنظیمات انتخاب‌شده" : "نوع درخواست"}</small>
                       <strong>{item.title}</strong>
                     </span>
                     <span className={"request-settings-status-dot" + (item.is_active ? " is-active" : "")} title={item.is_active ? "فعال" : "غیرفعال"} />
