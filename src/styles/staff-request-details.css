@@ -67,7 +67,32 @@
 .srd-information-layout .srd-step-sections{gap:12px}
 .srd-information-layout .srd-step-panel{padding:17px}
 .srd-workflow-sidebar{align-self:start}
-.srd-workflow-sidebar .srd-workflow-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.srd-workflow-sidebar .srd-workflow-panel{position:sticky;top:96px;max-height:calc(100vh - 120px);padding:18px;border-radius:20px;box-shadow:var(--shadow-sm);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.srd-workflow-rail-panel{align-self:start}
+.srd-workflow-progress-head{padding-bottom:15px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.srd-workflow-progress-head>div:first-child{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.srd-workflow-progress-head>div:first-child>span{color:#54709a;font-size:10px;font-weight:700}
+.srd-workflow-progress-head strong{color:var(--ink);font-size:13px;font-weight:800;white-space:nowrap}
+.srd-workflow-progress-track{height:5px;margin-top:11px;overflow:hidden;border-radius:999px;background:#edf1f5}
+.srd-workflow-progress-track span{display:block;height:100%;border-radius:inherit;background:var(--brand);transition:width .25s ease}
+.srd-workflow-rail .srd-step-sections{display:block}
+.srd-step-section{margin:15px 0}
+.srd-step-section-title{display:block;padding:0 5px;color:#98a2b3;font-size:10px;font-weight:700}
+.srd-step-rail{display:flex;flex-direction:column;gap:3px}
+.srd-step-item{width:100%;display:grid;grid-template-columns:33px minmax(0,1fr) 10px;align-items:center;gap:8px;padding:8px 7px;border:0;border-radius:11px;background:transparent;text-align:right;color:#98a2b3;font-family:inherit;cursor:pointer;transition:background .16s ease,color .16s ease}
+.srd-step-item.active{background:var(--brand-soft);color:var(--brand)}
+.srd-step-item.completed{color:#475467}
+.srd-step-item:hover{background:#f6f8fb}
+.srd-step-item:focus-visible{outline:3px solid rgba(60,126,198,.3);outline-offset:2px}
+.srd-step-dot{width:25px;height:25px;border-radius:8px;background:#f2f4f7;display:grid;place-items:center;font-size:9px;font-weight:700}
+.srd-step-item.completed .srd-step-dot{background:var(--success-soft);color:var(--success)}
+.srd-step-item.active .srd-step-dot{background:var(--brand);color:#fff}
+.srd-step-item.is-warning:not(.active){color:#a74438}
+.srd-step-item.is-warning:not(.active) .srd-step-dot{background:#fff2ef;color:#ab493c}
+.srd-step-copy{display:block;min-width:0}
+.srd-step-copy small{display:block;margin-bottom:1px;color:inherit;opacity:.68;font-size:9px}
+.srd-step-copy strong{display:block;overflow:hidden;color:inherit;font-size:11px;font-weight:700;white-space:nowrap;text-overflow:ellipsis}
+.srd-step-item>i{font-style:normal;font-size:8px;text-align:center}
 .srd-workflow-sidebar .srd-timeline-item{padding-bottom:14px}
 .srd-workflow-sidebar .srd-panel-heading{gap:8px}
 .srd-workflow-sidebar .srd-panel-heading h2{font-size:14px}
