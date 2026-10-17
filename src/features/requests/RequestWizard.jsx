@@ -36,6 +36,56 @@ function militarySkipStorageKey(requestId) {
   return "recruit:request:" + String(requestId) + ":military-skipped";
 }
 
+function ensureMilitaryStep(groups = [], template) {
+  if (!Array.isArray(groups) || groups.length === 0 || !template) return groups;
+  if (groups.some((group) => (group.steps || []).some((step) => (
+    step.key === "military" || step.handler_key === "military_v1"
+  )))) return groups;
+
+  const clonedGroups = groups.map((group) => ({
+    ...group,
+    steps: [...(group.steps || [])],
+  }));
+  let targetGroup = clonedGroups.find((group) => group.key === template.group_key);
+  if (!targetGroup) {
+    targetGroup = clonedGroups.find((group) => (group.steps || []).some((step) => (
+      step.key === "personal" || step.handler_key === "personal_v1"
+    )));
+  }
+
+  const step = {
+    ...template,
+    key: "military",
+    handler_key: "military_v1",
+    active: true,
+    required: false,
+  };
+  if (!targetGroup) {
+    clonedGroups.push({
+      key: template.group_key || "identity",
+      title: template.group_title || "هویت و اطلاعات پایه",
+      order: 0,
+      steps: [step],
+    });
+    return clonedGroups;
+  }
+
+  const insertAt = targetGroup.steps.findIndex((item) => (
+    Number(item.order) > Number(step.order)
+  ));
+  if (insertAt >= 0) targetGroup.steps.splice(insertAt, 0, step);
+  else targetGroup.steps.push(step);
+  return clonedGroups;
+}
+
+function getApplicantWorkflowGroups(groups = [], gender, militaryTemplate) {
+  const completeGroups = String(gender || "").trim() === "زن"
+    ? groups
+    : ensureMilitaryStep(groups, militaryTemplate);
+  return filterWorkflowGroupsByGender(completeGroups, gender);
+}
+
+
 function getEditBlockMessage(resume) {
   if (resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE") {
     return "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل این پرونده امکان‌پذیر نیست.";
@@ -98,24 +148,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     }
   };
 
-  const workflowGroups = useMemo(() => {
-    const configuredGroups = workflowDefinition?.groups;
-    if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
-
-    // Keep the applicant-specific route stable while the backend refreshes the
-    // active step after saving gender. Otherwise the military step can briefly
-    // reappear between the completion response and the refreshed workflow.
-    // Gender editing is only possible on the personal step, which is the
-    // first workflow step. Use that visible form selection immediately even
-    // when the server cursor is many steps ahead.
-    const effectiveGender = index === 0 && form?.gender
-      ? form.gender
-      : applicantGender;
-    return filterWorkflowGroupsByGender(configuredGroups, effectiveGender);
-  }, [workflowDefinition, index, form?.gender, applicantGender]);
-
-  const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
-
   const militaryStepTemplate = useMemo(() => {
     for (const group of workflowTemplateGroups) {
       const step = (group.steps || []).find((item) => (
@@ -147,6 +179,26 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       group_title: personalGroup?.title || "هویت و اطلاعات پایه",
     };
   }, [workflowTemplateGroups]);
+
+  const workflowGroups = useMemo(() => {
+    const configuredGroups = workflowDefinition?.groups;
+    if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
+
+    // Keep the applicant-specific route stable while the backend refreshes the
+    // active step after saving gender. Otherwise the military step can briefly
+    // reappear between the completion response and the refreshed workflow.
+    // Gender editing is only possible on the personal step, which is the
+    // first workflow step. Use that visible form selection immediately even
+    // when the server cursor is many steps ahead.
+    const effectiveGender = index === 0 && form?.gender
+      ? form.gender
+      : applicantGender;
+    return filterWorkflowGroupsByGender(configuredGroups, effectiveGender);
+  }, [workflowDefinition, index, form?.gender, applicantGender]);
+
+
+  const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
+
 
   const currentKey = workflowSteps[index] || workflowSteps[0];
   const currentStep = workflowGroups.flatMap((group) => group.steps).find((step) => step.key === currentKey);
