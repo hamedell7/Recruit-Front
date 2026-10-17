@@ -712,7 +712,19 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
 
       await refreshWorkflow();
     } catch (error) {
-      if (error.validationErrors?.length) {
+      if (error.code === "MILITARY_STEP_REQUIRED") {
+        const militaryIndex = workflowSteps.indexOf("military");
+        if (militaryIndex >= 0) {
+          cancelPendingAutosave();
+          setShowMilitaryPlaceholder(false);
+          setIndex(militaryIndex);
+        }
+        onError({
+          type: "error",
+          text: error.message || "برای ثبت نهایی، تکمیل مرحله وضعیت نظام‌وظیفه الزامی است.",
+          requestId: error.requestId,
+        });
+      } else if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
         onError({
           type: "error",
