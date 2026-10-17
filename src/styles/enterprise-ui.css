@@ -17,6 +17,44 @@
   background: rgba(255,255,255,.94);
   box-shadow: 0 3px 14px rgba(22, 43, 68, .025);
 }
+.topbar-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+.sidebar-toggle {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid #dfe7f0;
+  border-radius: 11px;
+  background: #fff;
+  color: #244e7b;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.sidebar-toggle:hover {
+  border-color: #cbd9e9;
+  background: #f6f9fd;
+  box-shadow: 0 3px 9px rgba(33, 73, 119, .07);
+}
+.sidebar-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  transition: transform .24s ease, opacity .16s ease;
+}
+.sidebar-toggle.is-open span:first-child { transform: translateY(6px) rotate(45deg); }
+.sidebar-toggle.is-open span:nth-child(2) { opacity: 0; transform: scaleX(.35); }
+.sidebar-toggle.is-open span:last-child { transform: translateY(-6px) rotate(-45deg); }
 .brand { gap: 11px; }
 .brand-mark {
   border-radius: 12px;
@@ -148,22 +186,6 @@
 .step-item small { margin-bottom: 3px; font-size: 9px; }
 .step-item strong { font-size: 11px; line-height: 1.65; }
 .step-item i { color: #2f6ca8; font-size: 7px; }
-.privacy-card {
-  gap: 10px;
-  margin: 18px 3px 0;
-  padding: 15px 2px 0;
-  border-top-color: #edf1f5;
-}
-.privacy-card > span {
-  width: 31px;
-  height: 31px;
-  border: 1px solid #d4eee2;
-  border-radius: 10px;
-  background: #eef9f4;
-  color: #17825c;
-}
-.privacy-card strong { color: #38526e; font-size: 10px; }
-.privacy-card small { color: #8392a4; font-size: 9px; line-height: 1.9; }
 
 .wizard-content {
   min-width: 0;
@@ -473,7 +495,8 @@
   .wizard-toolbar { align-items: flex-start; flex-direction: column; gap: 9px; }
   .wizard-identity { width: 100%; justify-content: flex-start; }
   .wizard-layout { grid-template-columns: minmax(0, 1fr); gap: 13px; }
-  .wizard-sidebar { position: static; max-height: none; padding: 13px; }
+  .wizard-layout.is-sidebar-closed { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .wizard-sidebar { position: static; max-height: 420px; padding: 13px; }
   .wizard-progress-head { padding: 0 2px 12px; }
   .step-sections {
     display: flex;
