@@ -518,7 +518,8 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   useEffect(() => {
     if (handlerKey !== "personal_v1" || !form?.gender) return;
 
-    setApplicantGender(form.gender);
+    // The selection drives the visible rail immediately, but applicantGender
+    // remains the last persisted value until the completion request succeeds.
     if (form.gender !== "زن") {
       setMilitarySkipped(false);
       try {
@@ -618,9 +619,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       return;
     }
     setValidationErrors({});
-    if (handlerKey === "personal_v1" && form?.gender) {
-      setApplicantGender(form.gender);
-    }
     cancelPendingAutosave();
     setSaving(true);
     try {
@@ -651,6 +649,13 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
+      // The gender is persisted now, so the route can be reconciled against
+      // the new applicant-specific workflow. Until this point, the selection
+      // only controls what the user sees in the rail.
+      if (handlerKey === "personal_v1" && form?.gender) {
+        setApplicantGender(form.gender);
+      }
+
       // Editing a previous step must preserve the server's workflow cursor.
       // After saving, move one step forward locally without submitting the request again.
       if (editingHistorical) {
@@ -804,7 +809,12 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
                       completed={inactivePlaceholder
                         ? militarySkipped
                         : (displayTarget < displayCurrentIndex || (isFinalized && displayTarget <= displayCurrentIndex))}
-                      disabled={inactivePlaceholder}
+                      disabled={inactivePlaceholder || (
+                        step.key === "military" &&
+                        handlerKey === "personal_v1" &&
+                        Boolean(form?.gender) &&
+                        form.gender !== applicantGender
+                      )}
                       onClick={() => {
                         if (!inactivePlaceholder) moveTo(routeTarget);
                       }}
