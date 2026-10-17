@@ -117,10 +117,18 @@ function RequestSettings({ onError }) {
 
       <div className="request-settings-layout">
         <aside className="request-settings-type-panel">
+          <div className="request-settings-sidebar-brand">
+            <span className="request-settings-sidebar-brand-icon" aria-hidden="true">اگ</span>
+            <span className="request-settings-sidebar-brand-copy">
+              <small>سامانه مدیریت پرونده‌ها</small>
+              <strong>استخدام و گزینش</strong>
+            </span>
+            <span className="request-settings-sidebar-brand-status" aria-hidden="true">✓</span>
+          </div>
           <div className="request-settings-panel-heading">
             <span className="eyebrow">پیکربندی</span>
             <h2>انواع درخواست</h2>
-            <p>یک نوع درخواست را برای تنظیم انتخاب کنید.</p>
+            <p>نوع درخواست موردنظر را انتخاب کنید.</p>
           </div>
           {loading ? (
             <div className="request-settings-loading"><span /> در حال دریافت انواع درخواست…</div>
@@ -128,25 +136,35 @@ function RequestSettings({ onError }) {
             <div className="request-settings-empty">نوع درخواستی برای تنظیم پیدا نشد.</div>
           ) : (
             <div className="request-settings-type-list">
-              {requestTypes.map((item) => (
-                <button
-                  key={item.code}
-                  type="button"
-                  className={"request-settings-type-option" + (selectedCode === item.code ? " is-selected" : "")}
-                  onClick={() => setSelectedCode(item.code)}
-                >
-                  <span className="request-settings-type-icon" aria-hidden="true">{item.code === "EMPLOYMENT_SCREENING" ? "ES" : item.code.slice(0, 2)}</span>
-                  <span className="request-settings-type-copy">
-                    <strong>{item.title}</strong>
-                  </span>
-                  <span className={"request-settings-status-dot" + (item.is_active ? " is-active" : "")} title={item.is_active ? "فعال" : "غیرفعال"} />
-                </button>
-              ))}
+              {requestTypes.map((item, index) => {
+                const isSelected = selectedCode === item.code;
+                return (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={"request-settings-type-option" + (isSelected ? " is-selected" : "")}
+                    onClick={() => setSelectedCode(item.code)}
+                    aria-pressed={isSelected}
+                  >
+                    <span className="request-settings-type-icon" aria-hidden="true">
+                      {isSelected ? "✓" : new Intl.NumberFormat("fa-IR").format(index + 1)}
+                    </span>
+                    <span className="request-settings-type-copy">
+                      <small>{isSelected ? "در حال تنظیم" : "نوع درخواست"}</small>
+                      <strong>{item.title}</strong>
+                    </span>
+                    <span className={"request-settings-status-dot" + (item.is_active ? " is-active" : "")} title={item.is_active ? "فعال" : "غیرفعال"} />
+                  </button>
+                );
+              })}
             </div>
           )}
           <div className="request-settings-side-note">
-            <span aria-hidden="true">ⓘ</span>
-            <p>این تنظیمات به‌صورت مستقل برای هر نوع درخواست ذخیره می‌شوند.</p>
+            <span className="request-settings-side-note-icon" aria-hidden="true">✓</span>
+            <div>
+              <strong>تنظیمات مستقل</strong>
+              <p>تنظیمات هر نوع درخواست جداگانه ذخیره می‌شود.</p>
+            </div>
           </div>
         </aside>
 
