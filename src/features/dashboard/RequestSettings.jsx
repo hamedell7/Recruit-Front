@@ -138,7 +138,6 @@ function RequestSettings({ onError }) {
                   <span className="request-settings-type-icon" aria-hidden="true">{item.code === "EMPLOYMENT_SCREENING" ? "ES" : item.code.slice(0, 2)}</span>
                   <span className="request-settings-type-copy">
                     <strong>{item.title}</strong>
-                    <small>{item.code}</small>
                   </span>
                   <span className={"request-settings-status-dot" + (item.is_active ? " is-active" : "")} title={item.is_active ? "فعال" : "غیرفعال"} />
                 </button>
@@ -164,7 +163,6 @@ function RequestSettings({ onError }) {
                 <div>
                   <span className="eyebrow">تنظیمات اختصاصی نوع درخواست</span>
                   <h2>{selectedType.title}</h2>
-                  <p>شناسه نوع درخواست: <code>{selectedType.code}</code></p>
                 </div>
                 <span className={"request-settings-state-pill" + (form.is_active ? " is-active" : " is-inactive")}>
                   {form.is_active ? "فعال برای ثبت" : "غیرفعال"}
