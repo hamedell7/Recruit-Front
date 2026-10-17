@@ -238,12 +238,16 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       setWorkflowTemplateGroups([]);
       setApplicantGender("");
       try {
-        const [requestData, resumeData, stepsData, countriesData, workflowData] = await Promise.all([
+        const [requestData, resumeData, stepsData, countriesData, workflowData, personalData] = await Promise.all([
           api.request(request.id),
           api.resume(request.id),
           api.steps(request.id),
           api.countries(),
           api.requestWorkflow(request.id),
+          // The active step can be far beyond personal after a refresh. Load
+          // persisted gender separately so the inactive military rail item
+          // remains visible for female applicants throughout the workflow.
+          api.stepData(request.id, "personal"),
         ]);
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
           throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
@@ -253,6 +257,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
         setWorkflowTemplateGroups(workflowData.groups);
+        setApplicantGender(String(personalData?.person?.gender || ""));
         setSteps(normalizeList(stepsData));
         setCountries(normalizeList(countriesData));
         const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
