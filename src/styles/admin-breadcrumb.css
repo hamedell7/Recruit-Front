@@ -47,3 +47,18 @@
     white-space: normal;
   }
 }
+
+/* Align the breadcrumb to the same vertical position across admin pages. */
+.srd-page,
+.staff-dashboard-page,
+.request-settings-page {
+  padding-top: 28px !important;
+}
+
+@media (max-width: 820px) {
+  .srd-page,
+  .staff-dashboard-page,
+  .request-settings-page {
+    padding-top: 24px !important;
+  }
+}
