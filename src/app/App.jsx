@@ -7,6 +7,7 @@ import Header from "../components/layout/Header";
 import Dashboard from "../features/dashboard/Dashboard";
 import StaffDashboard from "../features/dashboard/StaffDashboard";
 import RequestWizard from "../features/requests/RequestWizard";
+import StaffRequestDetails from "../features/dashboard/StaffRequestDetails";
 
 const STAFF_ROLES = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"];
 
@@ -17,12 +18,21 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [staffPath, setStaffPath] = useState(() => window.location.pathname);
   const [activeRequest, setActiveRequest] = useState(null);
+  const [activeStaffRequestId, setActiveStaffRequestId] = useState(null);
   const [toast, setToast] = useState(null);
 
   const restoreRoute = async (currentUser) => {
     const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+    const staffDetailMatch = pathname.match(/^\/staff\/requests\/([^/]+)$/);
     const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
     if (STAFF_ROLES.includes(currentUser?.role)) {
+      if (staffDetailMatch && currentUser?.role === "ADMIN") {
+        setStaffPath("/staff/requests");
+        setActiveRequest(null);
+        setActiveStaffRequestId(decodeURIComponent(staffDetailMatch[1]));
+        setView("staff-request-details");
+        return;
+      }
       const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
       const requestedPath = staffRouteMatch ? pathname : "/staff/requests";
       const canonicalPath = adminOnlyRoute && currentUser?.role !== "ADMIN" ? "/staff/requests" : requestedPath;
@@ -31,6 +41,7 @@ function App() {
       }
       setStaffPath(canonicalPath);
       setActiveRequest(null);
+      setActiveStaffRequestId(null);
       setView("dashboard");
       return;
     }
@@ -77,7 +88,23 @@ function App() {
     }
     setStaffPath(path);
     setActiveRequest(null);
+    setActiveStaffRequestId(null);
     setView("dashboard");
+  };
+
+  const openStaffRequestDetails = (requestId) => {
+    if (user?.role !== "ADMIN" || !requestId) return;
+    const path = "/staff/requests/" + encodeURIComponent(requestId);
+    window.history.pushState({ view: "staff-request-details", requestId: String(requestId) }, "", path);
+    setSidebarOpen(true);
+    setStaffPath("/staff/requests");
+    setActiveRequest(null);
+    setActiveStaffRequestId(String(requestId));
+    setView("staff-request-details");
+  };
+
+  const backToStaffRequests = () => {
+    navigateStaffWorkspace("/staff/requests");
   };
 
   useEffect(() => {
@@ -109,8 +136,16 @@ function App() {
     let cancelled = false;
     const onPopState = async () => {
       const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+      const staffDetailMatch = pathname.match(/^\/staff\/requests\/([^/]+)$/);
       const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
       if (STAFF_ROLES.includes(user.role)) {
+        if (staffDetailMatch && user.role === "ADMIN") {
+          setStaffPath("/staff/requests");
+          setActiveRequest(null);
+          setActiveStaffRequestId(decodeURIComponent(staffDetailMatch[1]));
+          setView("staff-request-details");
+          return;
+        }
         const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
         const requestedPath = staffRouteMatch ? pathname : "/staff/requests";
         const canonicalPath = adminOnlyRoute && user.role !== "ADMIN" ? "/staff/requests" : requestedPath;
@@ -119,6 +154,7 @@ function App() {
         }
         setStaffPath(canonicalPath);
         setActiveRequest(null);
+        setActiveStaffRequestId(null);
         setView("dashboard");
         return;
       }
@@ -138,6 +174,7 @@ function App() {
       }
       if (cancelled) return;
       setActiveRequest(null);
+      setActiveStaffRequestId(null);
       setStaffPath("/dashboard");
       setView("dashboard");
       if (window.location.pathname !== "/dashboard") {
@@ -167,6 +204,7 @@ function App() {
     setUser(null);
     setSidebarOpen(true);
     setActiveRequest(null);
+    setActiveStaffRequestId(null);
     setView("dashboard");
     window.history.replaceState({}, "", "/");
   };
@@ -194,9 +232,21 @@ function App() {
             staffPath={staffPath}
             onNavigateStaff={navigateStaffWorkspace}
           />
-          {view === "dashboard" ? (
+          {view === "staff-request-details" && user?.role === "ADMIN" && activeStaffRequestId ? (
+            <StaffRequestDetails
+              key={activeStaffRequestId}
+              requestId={activeStaffRequestId}
+              onBack={backToStaffRequests}
+              onError={setToast}
+            />
+          ) : view === "dashboard" ? (
             STAFF_ROLES.includes(user.role) ? (
-              <StaffDashboard key={staffPath} user={user} onError={setToast} />
+              <StaffDashboard
+                key={staffPath}
+                user={user}
+                onError={setToast}
+                onOpenRequestDetails={openStaffRequestDetails}
+              />
             ) : (
               <Dashboard
                 user={user}
