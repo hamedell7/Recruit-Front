@@ -188,7 +188,7 @@ function App() {
           <Header
             user={user}
             onLogout={logout}
-            showSidebarToggle={view === "wizard"}
+            showSidebarToggle={view === "wizard" && user?.role === "ADMIN"}
             sidebarOpen={sidebarOpen}
             onToggleSidebar={() => setSidebarOpen((open) => !open)}
             staffPath={staffPath}
