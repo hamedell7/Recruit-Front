@@ -23,7 +23,7 @@
 
 .request-settings-hero h1 {
   margin: 9px 0 8px;
-  color: #1b3554;
+  color: #fff;
   font-size: clamp(23px, 2.5vw, 30px);
   line-height: 1.5;
   letter-spacing: -.035em;
@@ -32,9 +32,13 @@
 .request-settings-hero p {
   max-width: 690px;
   margin: 0;
-  color: #718197;
+  color: #c3d2e4;
   font-size: 12px;
   line-height: 2;
+}
+
+.request-settings-hero .eyebrow {
+  color: #b7cce4;
 }
 
 .request-settings-eyebrow-dot {
