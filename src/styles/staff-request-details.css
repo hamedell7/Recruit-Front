@@ -391,3 +391,48 @@
 .srd-workflow-hero::before,
 .srd-workflow-hero::after{border-color:rgba(58,81,108,.045)}
 .srd-workflow-hero-top{gap:0}
+
+/* Improve readability across request details without changing the workflow-step sidebar. */
+.srd-back-button { font-size: 12px; }
+.srd-breadcrumb { font-size: 11px; }
+.srd-overline { font-size: 11px; }
+.srd-hero-meta > span { font-size: 10px; }
+.srd-status-pill { font-size: 11px; }
+.srd-action-button { font-size: 12px; }
+.srd-summary-card small { font-size: 10px; }
+.srd-summary-card strong { font-size: 12px; }
+.srd-summary-card span:not(.srd-summary-icon) { font-size: 10px; }
+.srd-progress-copy strong { font-size: 12px; }
+.srd-progress-copy span { font-size: 11px; }
+.srd-progress-copy p { font-size: 10px; }
+.srd-tab { font-size: 12px; }
+.srd-tab b { font-size: 10px; }
+.srd-panel-kicker { font-size: 10px; }
+.srd-panel-heading p { font-size: 11px; }
+.srd-profile-grid span { font-size: 11px; }
+.srd-profile-grid strong { font-size: 12px; }
+.srd-inline-link { font-size: 11px; }
+.srd-text-button { font-size: 11px; }
+.srd-count-badge { font-size: 11px; }
+.srd-return-reason { font-size: 11px; }
+.srd-decision-choice { font-size: 11px; }
+.srd-decision-form label > span { font-size: 11px; }
+.srd-decision-form select,
+.srd-decision-form textarea { font-size: 12px; }
+.srd-empty-inline strong { font-size: 12px; }
+.srd-empty-inline p { font-size: 11px; }
+.srd-document-number { font-size: 10px; }
+.srd-document-icon { font-size: 10px; }
+.srd-document-main strong { font-size: 12px; }
+.srd-document-main span,
+.srd-document-main small { font-size: 10px; }
+.srd-document-button { font-size: 10px; }
+.srd-field > span { font-size: 11px; }
+.srd-field > strong { font-size: 12px; }
+.srd-nested-section > h4 { font-size: 13px; }
+.srd-repeat-title { font-size: 11px; }
+.srd-inline-error { font-size: 12px; }
+.srd-inline-error button { font-size: 11px; }
+.srd-loading p,
+.srd-error p { font-size: 12px; }
+.srd-page-footer { font-size: 11px; }
