@@ -18,6 +18,28 @@ function buildWorkflowSteps(groups = []) {
     : [];
 }
 
+function getEditBlockMessage(resume) {
+  if (resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE") {
+    return "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل این پرونده امکان‌پذیر نیست.";
+  }
+  if (resume?.edit_block_reason === "REQUEST_REGISTRATION_NOT_STARTED") {
+    return "امکان تکمیل این پرونده از تاریخ " + formatDate(resume.registration_start_date) + " فعال می‌شود.";
+  }
+  if (resume?.edit_block_reason === "REQUEST_REGISTRATION_CLOSED") {
+    return "مهلت تکمیل این پرونده در تاریخ " + formatDate(resume.registration_end_date) + " پایان یافته است؛ اطلاعات فقط برای مشاهده در دسترس است.";
+  }
+  if (resume?.edit_block_reason === "REQUEST_EDIT_DEADLINE_PASSED") {
+    return "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است.";
+  }
+  const editDeadlineClosed = ["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(resume?.status)
+    && resume?.can_edit !== true
+    && Boolean(resume?.edit_until_date);
+  if (editDeadlineClosed) {
+    return "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است.";
+  }
+  return "این پرونده در وضعیت فعلی فقط برای مشاهده در دسترس است.";
+}
+
 function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const [appRequest, setAppRequest] = useState(request);
   const [steps, setSteps] = useState([]);
@@ -93,18 +115,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const isEditingSubmittedRequest = resume?.status === "SUBMITTED" && canEditRequest;
   const isHistoricalStep = index < backendCurrentIndex;
   const readOnly = !canEditRequest || index > backendCurrentIndex;
-  const editDeadlineClosed = ["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(resume?.status)
-    && !canEditRequest
-    && Boolean(resume?.edit_until_date);
-  const readOnlyMessage = resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE"
-    ? "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل این پرونده امکان‌پذیر نیست."
-    : resume?.edit_block_reason === "REQUEST_REGISTRATION_NOT_STARTED"
-      ? "امکان تکمیل این پرونده از تاریخ " + formatDate(resume.registration_start_date) + " فعال می‌شود."
-      : resume?.edit_block_reason === "REQUEST_REGISTRATION_CLOSED"
-        ? "مهلت تکمیل این پرونده در تاریخ " + formatDate(resume.registration_end_date) + " پایان یافته است؛ اطلاعات فقط برای مشاهده در دسترس است."
-        : resume?.edit_block_reason === "REQUEST_EDIT_DEADLINE_PASSED" || editDeadlineClosed
-          ? "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است."
-          : "این پرونده در وضعیت فعلی فقط برای مشاهده در دسترس است.";
+  const readOnlyMessage = getEditBlockMessage(resume);
   const submittedEditMessage = resume?.edit_until_date
     ? "پرونده ثبت نهایی شده است؛ تا " + formatDate(resume.edit_until_date) + " امکان ویرایش اطلاعات وجود دارد."
     : "پرونده ثبت نهایی شده است؛ امکان ویرایش اطلاعات وجود دارد.";
@@ -260,8 +271,21 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
         setDraftStatus("saved");
-      } catch {
-        if (sequence === autosaveSequence.current) setDraftStatus("error");
+      } catch (error) {
+        if (sequence !== autosaveSequence.current) return;
+        setDraftStatus("error");
+        if (error.status === 409) {
+          try {
+            const liveResume = await api.resume(appRequest.id);
+            if (sequence !== autosaveSequence.current) return;
+            setResume(liveResume);
+            if (liveResume.can_edit !== true) {
+              onError({ type: "error", text: getEditBlockMessage(liveResume) });
+            }
+          } catch {
+            // Keep the local draft error visible if availability cannot be refreshed.
+          }
+        }
       } finally {
         if (autosaveController.current === controller) autosaveController.current = null;
       }
@@ -346,7 +370,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         setResume(liveResume);
         if (liveIndex >= 0) setIndex(liveIndex);
         if (liveResume.can_edit !== true) {
-          onError({ type: "error", text: "مهلت ویرایش این پرونده به پایان رسیده یا وضعیت آن اجازه ویرایش نمی‌دهد." });
+          onError({ type: "error", text: getEditBlockMessage(liveResume) });
         }
         return;
       }
