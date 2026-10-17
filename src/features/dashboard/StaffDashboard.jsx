@@ -711,7 +711,7 @@ function StaffRequestsDashboard({ onError, user }) {
       </section>
 
       {selectedRequest && (
-        <Modal title="خلاصه پرونده" onClose={() => setSelectedRequest(null)}>
+        <Modal title="جزئیات پرونده" onClose={() => setSelectedRequest(null)}>
           <div className="staff-detail-header">
             <div className="staff-detail-avatar">{[selectedRequest.applicant?.first_name, selectedRequest.applicant?.last_name].filter(Boolean).map((part) => part.trim()[0]).join("").slice(0, 2) || "؟"}</div>
             <div>
