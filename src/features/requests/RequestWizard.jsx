@@ -519,8 +519,8 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           </div>
 
           {(isFinalized || !canEditRequest) && (
-            <div className="submitted-readonly-banner" role="status">
-              <span className="submitted-readonly-icon" aria-hidden="true">{canEditRequest ? "✎" : "✓"}</span>
+            <div className={"submitted-readonly-banner" + (resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE" ? " is-inactive" : "")} role="status">
+              <span className="submitted-readonly-icon" aria-hidden="true">{resume?.edit_block_reason === "REQUEST_TYPE_INACTIVE" ? "i" : (canEditRequest ? "✎" : "✓")}</span>
               <strong>{isEditingSubmittedRequest ? submittedEditMessage : readOnlyMessage}</strong>
             </div>
           )}
