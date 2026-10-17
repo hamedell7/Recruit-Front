@@ -457,10 +457,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         return;
       }
 
-      if (result?.next_step) {
-        const immediateIndex = workflowSteps.indexOf(result.next_step);
-        if (immediateIndex >= 0) setIndex(immediateIndex);
-      }
+      // The route may change with gender (for example, military can be
+      // removed). Let refreshWorkflow map the server cursor onto the new route
+      // instead of applying next_step to the old, gender-dependent index.
       await refreshWorkflow();
     } catch (error) {
       if (error.validationErrors?.length) {
