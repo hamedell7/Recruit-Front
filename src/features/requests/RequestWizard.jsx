@@ -57,6 +57,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const [draftStatus, setDraftStatus] = useState("idle");
   const [lastDraftSaved, setLastDraftSaved] = useState(null);
   const [hasSpouse, setHasSpouse] = useState(false);
+  const [applicantGender, setApplicantGender] = useState("");
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const validationSummaryRef = useRef(null);
@@ -80,14 +81,15 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const configuredGroups = workflowDefinition?.groups;
     if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
 
-    // Preview the conditional route as soon as gender is selected on the
-    // personal form. The backend still enforces this rule on save and returns
-    // the authoritative, applicant-specific workflow definition afterward.
+    // Keep the applicant-specific route stable while the backend refreshes the
+    // active step after saving gender. Otherwise the military step can briefly
+    // reappear between the completion response and the refreshed workflow.
     const configuredSteps = configuredGroups.flatMap((group) => group.steps || []);
     const activeStep = configuredSteps.find((step) => step.key === resume?.current_step);
-    if (activeStep?.handler_key !== "personal_v1" || form?.gender !== "زن") {
-      return configuredGroups;
-    }
+    const effectiveGender = activeStep?.handler_key === "personal_v1" && form?.gender
+      ? form.gender
+      : applicantGender;
+    if (effectiveGender !== "زن") return configuredGroups;
 
     return configuredGroups
       .map((group) => ({
@@ -95,7 +97,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         steps: (group.steps || []).filter((step) => step.handler_key !== "military_v1"),
       }))
       .filter((group) => group.steps.length > 0);
-  }, [workflowDefinition, resume?.current_step, form?.gender]);
+  }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
 
@@ -147,6 +149,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       setLoading(true);
       setWorkflowLoadError("");
       setHasSpouse(false);
+      setApplicantGender("");
       try {
         const [requestData, resumeData, stepsData, countriesData, workflowData] = await Promise.all([
           api.request(request.id),
@@ -302,6 +305,12 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     };
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
 
+  useEffect(() => {
+    if (handlerKey === "personal_v1" && form?.gender) {
+      setApplicantGender(form.gender);
+    }
+  }, [handlerKey, form?.gender]);
+
   const refreshWorkflow = async () => {
     // The backend resume is authoritative for the active step.
     const resumeData = await api.resume(appRequest.id);
@@ -352,6 +361,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       return;
     }
     setValidationErrors({});
+    if (handlerKey === "personal_v1" && form?.gender) {
+      setApplicantGender(form.gender);
+    }
     cancelPendingAutosave();
     setSaving(true);
     try {
