@@ -421,6 +421,22 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           requestId: error.requestId,
         });
       } else {
+        if (error.status === 409) {
+          try {
+            const liveResume = await api.resume(appRequest.id);
+            setResume(liveResume);
+            if (liveResume.can_edit !== true) {
+              onError({
+                type: "error",
+                text: getEditBlockMessage(liveResume),
+                requestId: error.requestId,
+              });
+              return;
+            }
+          } catch {
+            // Preserve the original save error if the latest policy cannot be loaded.
+          }
+        }
         onError({ type: "error", text: error.message || "ثبت اطلاعات با خطا مواجه شد.", requestId: error.requestId });
       }
     } finally {
