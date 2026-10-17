@@ -358,7 +358,6 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
       <div className="srd-workflow-rail">
         <header className="srd-workflow-hero">
           <div className="srd-workflow-hero-top">
-            <span className="srd-workflow-hero-icon" aria-hidden="true">⌁</span>
             <div className="srd-workflow-hero-copy">
               <small>گردش‌کار پرونده</small>
               <strong>مراحل رسیدگی</strong>
