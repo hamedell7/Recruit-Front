@@ -14,6 +14,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
   const [view, setView] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [staffPath, setStaffPath] = useState(() => window.location.pathname);
   const [activeRequest, setActiveRequest] = useState(null);
   const [toast, setToast] = useState(null);
@@ -38,6 +39,7 @@ function App() {
     if (match && !STAFF_ROLES.includes(currentUser?.role)) {
       try {
         const request = await api.request(decodeURIComponent(match[1]));
+        setSidebarOpen(true);
         setActiveRequest(request);
         setView("wizard");
         return;
@@ -59,6 +61,7 @@ function App() {
     const isStaff = STAFF_ROLES.includes(targetUser?.role);
     const path = isStaff ? "/staff/requests" : "/dashboard";
     const method = replace ? "replaceState" : "pushState";
+    setSidebarOpen(true);
     window.history[method]({ view: "dashboard", workspace: path }, "", path);
     setStaffPath(path);
     setActiveRequest(null);
@@ -125,6 +128,7 @@ function App() {
         try {
           const request = await api.request(decodeURIComponent(match[1]));
           if (cancelled) return;
+          setSidebarOpen(true);
           setActiveRequest(request);
           setView("wizard");
           return;
@@ -161,6 +165,7 @@ function App() {
       await api.logout();
     } catch {}
     setUser(null);
+    setSidebarOpen(true);
     setActiveRequest(null);
     setView("dashboard");
     window.history.replaceState({}, "", "/");
@@ -183,6 +188,9 @@ function App() {
           <Header
             user={user}
             onLogout={logout}
+            showSidebarToggle={view === "wizard"}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={() => setSidebarOpen((open) => !open)}
             staffPath={staffPath}
             onNavigateStaff={navigateStaffWorkspace}
           />
