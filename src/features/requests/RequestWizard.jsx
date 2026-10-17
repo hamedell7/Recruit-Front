@@ -116,14 +116,20 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const personalGroup = workflowTemplateGroups.find((group) => (
       (group.steps || []).some((step) => step.key === "personal" || step.handler_key === "personal_v1")
     )) || workflowTemplateGroups[0];
-    const personalStep = (personalGroup?.steps || []).find((step) => (
+    const personalSteps = personalGroup?.steps || [];
+    const personalStep = personalSteps.find((step) => (
       step.key === "personal" || step.handler_key === "personal_v1"
+    ));
+    const marriageStep = personalSteps.find((step) => (
+      step.key === "marriage" || step.handler_key === "marriage_v1"
     ));
     return {
       key: "military",
       title: "وضعیت نظام وظیفه",
       handler_key: "military_v1",
-      order: Number(personalStep?.order || 1) + 0.5,
+      // Keep the disabled item in its expected position, after marriage and
+      // before later workflow steps, even though the backend omits it.
+      order: Number(marriageStep?.order || personalStep?.order || 1) + 0.5,
       required: false,
       active: false,
       group_key: personalGroup?.key || "identity",
@@ -247,7 +253,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           // The active step can be far beyond personal after a refresh. Load
           // persisted gender separately so the inactive military rail item
           // remains visible for female applicants throughout the workflow.
-          api.stepData(request.id, "personal"),
+          api.stepData(request.id, "personal").catch(() => null),
         ]);
         if (!Array.isArray(workflowData?.groups) || workflowData.groups.length === 0) {
           throw new Error("تعریف گردش‌کار این درخواست از سرور دریافت نشد؛ تنظیمات گردش‌کار را بررسی کنید.");
