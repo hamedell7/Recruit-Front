@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../services/api";
 import { STEP_DESCRIPTIONS } from "../../config/workflow";
+import { formatDate } from "../../utils/date";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
 import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
@@ -88,7 +89,19 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
 
   const finalizedStatuses = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
   const isFinalized = finalizedStatuses.includes(resume?.status);
-  const readOnly = isFinalized || index < backendCurrentIndex;
+  const canEditRequest = resume?.can_edit === true;
+  const isEditingSubmittedRequest = resume?.status === "SUBMITTED" && canEditRequest;
+  const isHistoricalStep = index < backendCurrentIndex;
+  const readOnly = !canEditRequest || index > backendCurrentIndex;
+  const editDeadlineClosed = ["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(resume?.status)
+    && !canEditRequest
+    && Boolean(resume?.edit_until_date);
+  const readOnlyMessage = editDeadlineClosed
+    ? "مهلت ویرایش این پرونده در " + formatDate(resume.edit_until_date) + " به پایان رسیده است؛ اطلاعات فقط برای مشاهده در دسترس است."
+    : "این پرونده در وضعیت فعلی فقط برای مشاهده در دسترس است.";
+  const submittedEditMessage = resume?.edit_until_date
+    ? "پرونده ثبت نهایی شده است؛ تا " + formatDate(resume.edit_until_date) + " امکان ویرایش اطلاعات وجود دارد."
+    : "پرونده ثبت نهایی شده است؛ امکان ویرایش اطلاعات وجود دارد.";
 
   const clearValidationError = (fieldPath) => {
     setValidationErrors((current) => {
@@ -224,7 +237,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       !form ||
       !draftHydrated ||
       !resume?.current_step ||
-      resume.current_step !== currentKey ||
       readOnly ||
       isDocumentsStep
     ) return undefined;
@@ -316,10 +328,20 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       // Re-check the persisted backend state immediately before completion so a
       // stale UI can never submit a step that is no longer current.
       const liveResume = await api.resume(appRequest.id);
-      if (liveResume.current_step !== currentKey) {
+      const liveIndex = workflowSteps.indexOf(liveResume.current_step);
+      const currentTargetIndex = workflowSteps.indexOf(currentKey);
+      const editingHistorical = liveResume.status === "SUBMITTED" || currentTargetIndex < liveIndex;
+
+      if (
+        liveResume.can_edit !== true
+        || currentTargetIndex > liveIndex
+        || (currentTargetIndex !== liveIndex && !editingHistorical)
+      ) {
         setResume(liveResume);
-        const liveIndex = workflowSteps.indexOf(liveResume.current_step);
         if (liveIndex >= 0) setIndex(liveIndex);
+        if (liveResume.can_edit !== true) {
+          onError({ type: "error", text: "مهلت ویرایش این پرونده به پایان رسیده یا وضعیت آن اجازه ویرایش نمی‌دهد." });
+        }
         return;
       }
 
@@ -330,11 +352,19 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
-      // complete_step already persists the submitted data and removes the draft
-      // in the same transaction. Use its committed next_step as the immediate UI target,
-      // then reconcile the persisted workflow state from the backend.
-      // Final declaration closes the request permanently. Show success and
-      // return to the dashboard instead of keeping the user inside the wizard.
+      // Editing a previous step must preserve the server's workflow cursor.
+      // After saving, move one step forward locally without submitting the request again.
+      if (editingHistorical) {
+        setDraftStatus("idle");
+        setLastDraftSaved(null);
+        onError({ type: "success", text: "تغییرات مرحله «" + stepTitle + "» با موفقیت ذخیره شد." });
+        if (currentTargetIndex < liveIndex) {
+          setIndex(Math.min(currentTargetIndex + 1, liveIndex));
+        }
+        return;
+      }
+
+      // Final declaration closes an in-progress request and returns to the dashboard.
       if (isDeclarationStep && !result?.next_step) {
         onError({ type: "success", text: "پرونده با موفقیت ثبت نهایی شد." });
         onBack();
@@ -371,10 +401,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   const movePrevious = () => {
     cancelPendingAutosave();
     setIndex((value) => Math.max(0, value - 1));
-  };
-  const moveNext = () => {
-    cancelPendingAutosave();
-    setIndex((value) => Math.min(backendCurrentIndex, value + 1));
   };
   const moveTo = (target) => {
     if (target <= backendCurrentIndex) {
@@ -446,10 +472,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
             <div className="step-number">{String(index + 1).padStart(2, "0")}</div>
           </div>
 
-          {isFinalized && (
+          {(isFinalized || !canEditRequest) && (
             <div className="submitted-readonly-banner" role="status">
-              <span className="submitted-readonly-icon" aria-hidden="true">✓</span>
-              <strong>این پرونده ثبت نهایی شده و فقط برای مشاهده در دسترس است.</strong>
+              <span className="submitted-readonly-icon" aria-hidden="true">{canEditRequest ? "✎" : "✓"}</span>
+              <strong>{isEditingSubmittedRequest ? submittedEditMessage : readOnlyMessage}</strong>
             </div>
           )}
 
@@ -480,21 +506,23 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
 
           <div className="wizard-footer">
             <div className="footer-left">
-              {!isFinalized && index > 0 ? (
+              {index > 0 ? (
                 <button className="ghost-button" onClick={movePrevious}>مرحله قبل</button>
               ) : null}
             </div>
             <div className="footer-right">
-              {!isFinalized && (index < backendCurrentIndex ? (
-                <button className="primary-button" onClick={moveNext}>
-                  مرحله بعد <span>←</span>
-                </button>
-              ) : (
+              {!readOnly ? (
                 <button className="primary-button" disabled={saving} onClick={complete}>
-                  {saving ? <><span className="button-spinner" /> در حال ثبت…</> : (isDeclarationStep ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه")}
+                  {saving ? <><span className="button-spinner" /> در حال ذخیره…</> : (
+                    isEditingSubmittedRequest
+                      ? (isHistoricalStep ? "ذخیره تغییرات و مرحله بعد" : "ذخیره تغییرات")
+                      : (isHistoricalStep ? "ذخیره تغییرات و مرحله بعد" : (isDeclarationStep ? "تأیید و ثبت نهایی" : "ثبت مرحله و ادامه"))
+                  )}
                   <span>←</span>
                 </button>
-              ))}
+              ) : (
+                <span className="readonly-note">فقط مشاهده</span>
+              )}
             </div>
           </div>
         </section>
