@@ -81,15 +81,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const configuredGroups = workflowDefinition?.groups;
     if (!Array.isArray(configuredGroups) || configuredGroups.length === 0) return [];
 
-    // Keep the applicant-specific route stable while the backend refreshes the
-    // active step after saving gender. Otherwise the military step can briefly
-    // reappear between the completion response and the refreshed workflow.
-    const configuredSteps = configuredGroups.flatMap((group) => group.steps || []);
-    const activeStep = configuredSteps.find((step) => step.key === resume?.current_step);
-    const effectiveGender = activeStep?.handler_key === "personal_v1" && form?.gender
-      ? form.gender
-      : applicantGender;
-    if (effectiveGender !== "زن") return configuredGroups;
+    // Only use the gender persisted by the backend to determine the route.
+    // A form edit is not authoritative until its save request has succeeded.
+    if (applicantGender !== "زن") return configuredGroups;
 
     return configuredGroups
       .map((group) => ({
@@ -309,12 +303,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     };
   }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
 
-  useEffect(() => {
-    if (handlerKey === "personal_v1" && form?.gender) {
-      setApplicantGender(form.gender);
-    }
-  }, [handlerKey, form?.gender]);
-
   const refreshWorkflow = async () => {
     // The backend resume is authoritative for the active step.
     const resumeData = await api.resume(appRequest.id);
@@ -365,9 +353,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       return;
     }
     setValidationErrors({});
-    if (handlerKey === "personal_v1" && form?.gender) {
-      setApplicantGender(form.gender);
-    }
+    const personalGenderChanged = handlerKey === "personal_v1"
+      && Boolean(form?.gender)
+      && form.gender !== applicantGender;
     cancelPendingAutosave();
     setSaving(true);
     try {
@@ -403,10 +391,17 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       if (editingHistorical) {
         setDraftStatus("idle");
         setLastDraftSaved(null);
-        onError({ type: "success", text: "تغییرات مرحله «" + stepTitle + "» با موفقیت ذخیره شد." });
-        if (currentTargetIndex < liveIndex) {
+
+        // A historical personal-data edit can change which steps apply. Refresh
+        // from the backend instead of moving by a stale, gender-dependent index.
+        if (personalGenderChanged) {
+          await refreshWorkflow();
+          setApplicantGender(form.gender);
+        } else if (currentTargetIndex < liveIndex) {
           setIndex(Math.min(currentTargetIndex + 1, liveIndex));
         }
+
+        onError({ type: "success", text: "تغییرات مرحله «" + stepTitle + "» با موفقیت ذخیره شد." });
         return;
       }
 
@@ -422,6 +417,11 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         if (immediateIndex >= 0) setIndex(immediateIndex);
       }
       await refreshWorkflow();
+      // Update the local route only after the server has returned its new
+      // cursor and workflow definition for the saved gender.
+      if (handlerKey === "personal_v1" && form?.gender) {
+        setApplicantGender(form.gender);
+      }
     } catch (error) {
       if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
