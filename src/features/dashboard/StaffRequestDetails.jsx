@@ -285,7 +285,6 @@ function DocumentList({ documents, requestId, compact = false }) {
       <div className="srd-empty-inline">
         <span aria-hidden="true">▤</span>
         <strong>مدرکی برای این پرونده بارگذاری نشده است.</strong>
-        <p>فایل‌های پیوست‌شده، پس از بارگذاری در این بخش نمایش داده می‌شوند.</p>
       </div>
     );
   }
@@ -522,7 +521,6 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
         <div className="srd-loading">
           <span className="srd-spinner" />
           <strong>در حال دریافت اطلاعات کامل پرونده…</strong>
-          <p>اطلاعات مراحل، گردش‌کار و مدارک در حال آماده‌سازی است.</p>
         </div>
       </main>
     );
@@ -594,22 +592,21 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
         </article>
         <article className="srd-summary-card">
           <span className="srd-summary-icon is-teal">◷</span>
-          <div><small>تاریخ ایجاد پرونده</small><strong>{formatDate(request.created_at)}</strong><span>زمان ایجاد درخواست</span></div>
+          <div><small>تاریخ ایجاد پرونده</small><strong>{formatDate(request.created_at)}</strong></div>
         </article>
         <article className="srd-summary-card">
           <span className="srd-summary-icon is-violet">✓</span>
-          <div><small>تاریخ ثبت نهایی</small><strong>{formatDate(request.submitted_at)}</strong><span>{request.completed_at ? "تاریخ تکمیل: " + formatDate(request.completed_at) : "ثبت نهایی، در صورت انجام"}</span></div>
+          <div><small>تاریخ ثبت نهایی</small><strong>{formatDate(request.submitted_at)}</strong>{request.completed_at && <span>تاریخ تکمیل: {formatDate(request.completed_at)}</span>}</div>
         </article>
         <article className="srd-summary-card">
           <span className="srd-summary-icon is-amber">▤</span>
-          <div><small>مدارک پیوست‌شده</small><strong>{numberFormat.format(documents.length)} فایل</strong><span>{documentsError ? "فهرست مدارک دریافت نشد" : "آماده مشاهده و دانلود"}</span></div>
+          <div><small>مدارک پیوست‌شده</small><strong>{numberFormat.format(documents.length)} فایل</strong></div>
         </article>
       </section>
 
       <div className="srd-progress-card">
         <div className="srd-progress-copy">
           <div><strong>پیشرفت گردش‌کار</strong><span>{numberFormat.format(progress)}٪ تکمیل</span></div>
-          <p>نمای کلی مراحل تعریف‌شده برای این نوع درخواست</p>
         </div>
         <div className="srd-progress-track"><span style={{ width: progress + "%" }} /></div>
       </div>
@@ -663,7 +660,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
             {canDecide && (
               <section className="srd-panel srd-decision-panel">
                 <div className="srd-panel-heading">
-                  <div><span className="srd-panel-kicker">اقدام مدیریتی</span><h2>تصمیم درباره پرونده</h2><p>اقدام مناسب را با توجه به نتیجه بررسی انتخاب کنید.</p></div>
+                  <div><span className="srd-panel-kicker">اقدام مدیریتی</span><h2>تصمیم درباره پرونده</h2></div>
                   <span className="srd-panel-symbol">⚖</span>
                 </div>
                 <div className="srd-decision-choices">
@@ -717,10 +714,6 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
                 <button className="srd-inline-link" type="button" onClick={() => setActiveTab("documents")}>رفتن به بخش مدارک <span>←</span></button>
               )}
             </section>
-            <section className="srd-note-card">
-              <span className="srd-note-icon">i</span>
-              <div><strong>دسترسی مدیریتی</strong><p>اطلاعات این پرونده محرمانه است. مشاهده و دریافت فایل‌ها باید در چارچوب دسترسی مدیریتی سامانه انجام شود.</p></div>
-            </section>
           </aside>
         </div>
       )}
@@ -761,7 +754,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <aside className="srd-side-column srd-workflow-sidebar">
             <section className="srd-panel srd-workflow-panel">
               <div className="srd-panel-heading">
-                <div><span className="srd-panel-kicker">مسیر رسیدگی</span><h2>گردش‌کار پرونده</h2><p>وضعیت مرحله‌ها و روند رسیدگی به پرونده</p></div>
+                <div><span className="srd-panel-kicker">مسیر رسیدگی</span><h2>گردش‌کار پرونده</h2></div>
                 <span className="srd-count-badge">{numberFormat.format(steps.length)} مرحله</span>
               </div>
               <StepTimeline steps={steps} />
@@ -773,7 +766,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
       {activeTab === "documents" && (
         <section className="srd-panel srd-documents-page-panel">
           <div className="srd-panel-heading">
-            <div><span className="srd-panel-kicker">بخش مدارک</span><h2>مدارک بارگذاری‌شده</h2><p>فایل‌های پیوست‌شده به این پرونده را جداگانه مشاهده یا دانلود کنید.</p></div>
+            <div><span className="srd-panel-kicker">بخش مدارک</span><h2>مدارک بارگذاری‌شده</h2></div>
             <span className="srd-count-badge">{numberFormat.format(documents.length)} فایل</span>
           </div>
           {documentsError ? (
@@ -781,14 +774,13 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           ) : (
             <DocumentList documents={documents} requestId={requestId} />
           )}
-          <p className="srd-security-note">برای فایل‌های تصویری و پی‌دی‌اف امکان مشاهده در تب جدید فراهم است. فایل اصلی فقط از مسیر امن سامانه دریافت می‌شود.</p>
         </section>
       )}
 
       {activeTab === "workflow" && (
         <section className="srd-panel srd-workflow-panel">
           <div className="srd-panel-heading">
-            <div><span className="srd-panel-kicker">سوابق رسیدگی</span><h2>گردش‌کار پرونده</h2><p>ترتیب مراحل، وضعیت جاری و جزئیات تکمیل یا بازگشت هر مرحله</p></div>
+            <div><span className="srd-panel-kicker">سوابق رسیدگی</span><h2>گردش‌کار پرونده</h2></div>
             <span className="srd-count-badge">{numberFormat.format(steps.length)} مرحله</span>
           </div>
           <StepTimeline steps={steps} />
