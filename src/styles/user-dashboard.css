@@ -325,6 +325,7 @@
 .ud-request-grid .request-code { border: 1px solid #edf1f6; border-radius: 11px; background: #f7f9fc; }
 .ud-request-grid .request-code b { color: #375777; direction: ltr; font-size: 11px; font-variant-numeric: tabular-nums; }
 .ud-request-grid .request-meta { padding-bottom: 16px; }
+.ud-request-grid .request-card-edit-warning { margin: -3px 0 13px; padding: 9px 10px; border: 1px solid #f0dfbc; border-radius: 10px; background: #fffaf0; color: #7d5b25; font-size: 11px; line-height: 1.9; }
 .ud-request-grid .outline-button.wide { min-height: 41px; border-color: #dbe5f1; border-radius: 10px; color: #315e91; font-size: 11px; }
 .ud-request-grid .outline-button.wide:hover { border-color: #b9d0eb; background: #f2f7fd; }
 .ud-request-grid .outline-button.wide span { transition: transform .16s ease; }
