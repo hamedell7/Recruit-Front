@@ -88,7 +88,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     return configuredGroups
       .map((group) => ({
         ...group,
-        steps: (group.steps || []).filter((step) => step.handler_key !== "military_v1"),
+        steps: (group.steps || []).filter((step) => step.key !== "military" && step.handler_key !== "military_v1"),
       }))
       .filter((group) => group.steps.length > 0);
   }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
@@ -386,6 +386,14 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
+
+      // A successful response confirms that gender has been persisted. Reflect
+      // it in the sidebar immediately, then reconcile the active step with the
+      // authoritative server cursor below.
+      if (handlerKey === "personal_v1" && form?.gender) {
+        setApplicantGender(form.gender);
+      }
+
       // Editing a previous step must preserve the server's workflow cursor.
       // After saving, move one step forward locally without submitting the request again.
       if (editingHistorical) {
@@ -396,7 +404,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         // from the backend instead of moving by a stale, gender-dependent index.
         if (personalGenderChanged) {
           await refreshWorkflow();
-          setApplicantGender(form.gender);
         } else if (currentTargetIndex < liveIndex) {
           setIndex(Math.min(currentTargetIndex + 1, liveIndex));
         }
@@ -417,11 +424,6 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         if (immediateIndex >= 0) setIndex(immediateIndex);
       }
       await refreshWorkflow();
-      // Update the local route only after the server has returned its new
-      // cursor and workflow definition for the saved gender.
-      if (handlerKey === "personal_v1" && form?.gender) {
-        setApplicantGender(form.gender);
-      }
     } catch (error) {
       if (error.validationErrors?.length) {
         applyValidationErrors(error.validationErrors);
