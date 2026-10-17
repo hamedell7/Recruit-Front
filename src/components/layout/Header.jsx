@@ -153,157 +153,158 @@ function Header({ user, onLogout, staffPath, onNavigateStaff }) {
 
   return (
     <header className="topbar">
-      {isStaff && (
-        <div className="staff-menu-wrap">
-          <button
-            ref={triggerRef}
-            className={"staff-menu-trigger" + (menuOpen ? " is-open" : "")}
-            type="button"
-            aria-label={menuOpen ? "بستن منوی مدیریت" : "باز کردن منوی مدیریت"}
-            aria-haspopup="dialog"
-            aria-controls="staff-management-drawer"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((current) => !current)}
-          >
-            <span className="staff-hamburger-icon" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-            </span>
-          </button>
-
-          {menuOpen && (
-            <div className="staff-menu-layer" dir="rtl">
-              <button
-                type="button"
-                className="staff-menu-backdrop"
-                aria-label="بستن منوی مدیریت"
-                onClick={closeMenu}
-              />
-
-              <aside
-                id="staff-management-drawer"
-                className="staff-menu-drawer"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="staff-drawer-title"
-              >
-                <div className="staff-drawer-hero">
-                  <div className="staff-drawer-hero-orbit staff-drawer-hero-orbit-one" />
-                  <div className="staff-drawer-hero-orbit staff-drawer-hero-orbit-two" />
-
-                  <div className="staff-drawer-hero-top">
-                    <div className="staff-drawer-brand">
-                      <span className="staff-drawer-brand-mark">R</span>
-                      <span className="staff-drawer-brand-wordmark">
-                        <strong>Recruit</strong>
-                        <small>WORKSPACE</small>
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      ref={closeButtonRef}
-                      className="staff-drawer-close"
-                      aria-label="بستن منو"
-                      onClick={closeMenu}
-                    >
-                      <MenuGlyph name="close" />
-                    </button>
-                  </div>
-
-                  <div className="staff-drawer-title-block">
-                    <span className="staff-drawer-eyebrow">
+      <div className="topbar-leading">
+              <div className="brand">
+                <div className="brand-mark">R</div>
+                <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
+              </div>
+              {isStaff && (
+                <div className="staff-menu-wrap">
+                  <button
+                    ref={triggerRef}
+                    className={"staff-menu-trigger" + (menuOpen ? " is-open" : "")}
+                    type="button"
+                    aria-label={menuOpen ? "بستن منوی مدیریت" : "باز کردن منوی مدیریت"}
+                    aria-haspopup="dialog"
+                    aria-controls="staff-management-drawer"
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuOpen((current) => !current)}
+                  >
+                    <span className="staff-hamburger-icon" aria-hidden="true">
                       <i />
-                      فضای کاری سازمانی
+                      <i />
+                      <i />
                     </span>
-                    <h2 id="staff-drawer-title">مرکز مدیریت</h2>
-                    <p>دسترسی سریع و یکپارچه به ابزارهای مدیریت پرونده‌ها</p>
-                  </div>
-                  <div className="staff-drawer-hero-index" aria-hidden="true">01 / WORKSPACE</div>
-                </div>
-
-                <div className="staff-drawer-profile">
-                  <div className="staff-drawer-profile-avatar">
-                    {(user?.national_id || "ک").slice(-2)}
-                  </div>
-                  <div className="staff-drawer-profile-copy">
-                    <strong>{user?.mobile || "کاربر"}</strong>
-                    <span>{ROLE_LABELS[user?.role] || "حساب کاربری"}</span>
-                  </div>
-                  <span className="staff-drawer-role-chip">حساب سازمانی</span>
-                </div>
-
-                <div className="staff-drawer-content">
-                  <div className="staff-drawer-section-heading">
-                    <div>
-                      <span className="staff-drawer-section-kicker">NAVIGATION</span>
-                      <h3>بخش‌های سامانه</h3>
+                  </button>
+        
+                  {menuOpen && (
+                    <div className="staff-menu-layer" dir="rtl">
+                      <button
+                        type="button"
+                        className="staff-menu-backdrop"
+                        aria-label="بستن منوی مدیریت"
+                        onClick={closeMenu}
+                      />
+        
+                      <aside
+                        id="staff-management-drawer"
+                        className="staff-menu-drawer"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="staff-drawer-title"
+                      >
+                        <div className="staff-drawer-hero">
+                          <div className="staff-drawer-hero-orbit staff-drawer-hero-orbit-one" />
+                          <div className="staff-drawer-hero-orbit staff-drawer-hero-orbit-two" />
+        
+                          <div className="staff-drawer-hero-top">
+                            <div className="staff-drawer-brand">
+                              <span className="staff-drawer-brand-mark">R</span>
+                              <span className="staff-drawer-brand-wordmark">
+                                <strong>Recruit</strong>
+                                <small>WORKSPACE</small>
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              ref={closeButtonRef}
+                              className="staff-drawer-close"
+                              aria-label="بستن منو"
+                              onClick={closeMenu}
+                            >
+                              <MenuGlyph name="close" />
+                            </button>
+                          </div>
+        
+                          <div className="staff-drawer-title-block">
+                            <span className="staff-drawer-eyebrow">
+                              <i />
+                              فضای کاری سازمانی
+                            </span>
+                            <h2 id="staff-drawer-title">مرکز مدیریت</h2>
+                            <p>دسترسی سریع و یکپارچه به ابزارهای مدیریت پرونده‌ها</p>
+                          </div>
+                          <div className="staff-drawer-hero-index" aria-hidden="true">01 / WORKSPACE</div>
+                        </div>
+        
+                        <div className="staff-drawer-profile">
+                          <div className="staff-drawer-profile-avatar">
+                            {(user?.national_id || "ک").slice(-2)}
+                          </div>
+                          <div className="staff-drawer-profile-copy">
+                            <strong>{user?.mobile || "کاربر"}</strong>
+                            <span>{ROLE_LABELS[user?.role] || "حساب کاربری"}</span>
+                          </div>
+                          <span className="staff-drawer-role-chip">حساب سازمانی</span>
+                        </div>
+        
+                        <div className="staff-drawer-content">
+                          <div className="staff-drawer-section-heading">
+                            <div>
+                              <span className="staff-drawer-section-kicker">NAVIGATION</span>
+                              <h3>بخش‌های سامانه</h3>
+                            </div>
+                            <span className="staff-drawer-item-count">
+                              {String(menuItems.length).padStart(2, "0")}
+                              <small>بخش</small>
+                            </span>
+                          </div>
+        
+                          <nav className="staff-drawer-nav" aria-label="بخش‌های مدیریت">
+                            {menuItems.map((item, index) => {
+                              const active = activePath === item.path;
+                              return (
+                                <button
+                                  type="button"
+                                  key={item.path}
+                                  className={"staff-drawer-item" + (active ? " is-active" : "")}
+                                  aria-current={active ? "page" : undefined}
+                                  onClick={() => navigateTo(item.path)}
+                                  style={{ "--drawer-item-index": index }}
+                                >
+                                  <span className="staff-drawer-item-icon">
+                                    <MenuGlyph name={item.icon} />
+                                  </span>
+                                  <span className="staff-drawer-item-copy">
+                                    <span className="staff-drawer-item-category">{item.category}</span>
+                                    <strong>{item.title}</strong>
+                                    <small>{item.description}</small>
+                                  </span>
+                                  <span className="staff-drawer-item-arrow">
+                                    <MenuGlyph name="arrow" />
+                                  </span>
+                                  {active && <span className="staff-drawer-active-bar" aria-hidden="true" />}
+                                </button>
+                              );
+                            })}
+                          </nav>
+        
+                          <div className="staff-drawer-help">
+                            <span className="staff-drawer-help-icon">
+                              <MenuGlyph name="shield" />
+                            </span>
+                            <div>
+                              <strong>فضای مدیریت Recruit</strong>
+                              <span>همه ابزارهای کاری در یک نمای متمرکز</span>
+                            </div>
+                          </div>
+                        </div>
+        
+                        <footer className="staff-drawer-footer">
+                          <div className="staff-drawer-footer-brand">
+                            <span className="staff-drawer-footer-mark">R</span>
+                            <span>
+                              <strong>Recruit</strong>
+                              <small>سامانه یکپارچه درخواست‌ها</small>
+                            </span>
+                          </div>
+                          <span className="staff-drawer-footer-status"><i /> جلسه فعال</span>
+                        </footer>
+                      </aside>
                     </div>
-                    <span className="staff-drawer-item-count">
-                      {String(menuItems.length).padStart(2, "0")}
-                      <small>بخش</small>
-                    </span>
-                  </div>
-
-                  <nav className="staff-drawer-nav" aria-label="بخش‌های مدیریت">
-                    {menuItems.map((item, index) => {
-                      const active = activePath === item.path;
-                      return (
-                        <button
-                          type="button"
-                          key={item.path}
-                          className={"staff-drawer-item" + (active ? " is-active" : "")}
-                          aria-current={active ? "page" : undefined}
-                          onClick={() => navigateTo(item.path)}
-                          style={{ "--drawer-item-index": index }}
-                        >
-                          <span className="staff-drawer-item-icon">
-                            <MenuGlyph name={item.icon} />
-                          </span>
-                          <span className="staff-drawer-item-copy">
-                            <span className="staff-drawer-item-category">{item.category}</span>
-                            <strong>{item.title}</strong>
-                            <small>{item.description}</small>
-                          </span>
-                          <span className="staff-drawer-item-arrow">
-                            <MenuGlyph name="arrow" />
-                          </span>
-                          {active && <span className="staff-drawer-active-bar" aria-hidden="true" />}
-                        </button>
-                      );
-                    })}
-                  </nav>
-
-                  <div className="staff-drawer-help">
-                    <span className="staff-drawer-help-icon">
-                      <MenuGlyph name="shield" />
-                    </span>
-                    <div>
-                      <strong>فضای مدیریت Recruit</strong>
-                      <span>همه ابزارهای کاری در یک نمای متمرکز</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-
-                <footer className="staff-drawer-footer">
-                  <div className="staff-drawer-footer-brand">
-                    <span className="staff-drawer-footer-mark">R</span>
-                    <span>
-                      <strong>Recruit</strong>
-                      <small>سامانه یکپارچه درخواست‌ها</small>
-                    </span>
-                  </div>
-                  <span className="staff-drawer-footer-status"><i /> جلسه فعال</span>
-                </footer>
-              </aside>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="brand">
-        <div className="brand-mark">R</div>
-        <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
+              )}
       </div>
 
       <div className="topbar-actions">
