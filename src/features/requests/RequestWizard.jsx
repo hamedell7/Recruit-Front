@@ -78,10 +78,42 @@ function ensureMilitaryStep(groups = [], template) {
   return clonedGroups;
 }
 
+function deriveMilitaryTemplate(groups = []) {
+  for (const group of groups || []) {
+    const step = (group.steps || []).find((item) => (
+      item.key === "military" || item.handler_key === "military_v1"
+    ));
+    if (step) return { ...step, group_key: group.key, group_title: group.title };
+  }
+
+  const allSteps = (groups || []).flatMap((group) => (
+    (group.steps || []).map((step) => ({ ...step, group_key: group.key, group_title: group.title }))
+  ));
+  const personalGroup = (groups || []).find((group) => (
+    (group.steps || []).some((step) => step.key === "personal" || step.handler_key === "personal_v1")
+  )) || groups?.[0];
+  const personalStep = allSteps.find((step) => step.key === "personal" || step.handler_key === "personal_v1");
+  const marriageStep = allSteps.find((step) => step.key === "marriage" || step.handler_key === "marriage_v1");
+  const militaryGroup = (groups || []).find((group) => (
+    (group.steps || []).some((step) => step.key === "marriage" || step.handler_key === "marriage_v1")
+  )) || personalGroup;
+  return {
+    key: "military",
+    title: "وضعیت نظام وظیفه",
+    handler_key: "military_v1",
+    order: Number(marriageStep?.order || personalStep?.order || 1) + 0.5,
+    required: false,
+    active: false,
+    group_key: militaryGroup?.key || personalGroup?.key || "identity",
+    group_title: militaryGroup?.title || personalGroup?.title || "هویت و اطلاعات پایه",
+  };
+}
+
 function getApplicantWorkflowGroups(groups = [], gender, militaryTemplate) {
+  const template = militaryTemplate || deriveMilitaryTemplate(groups);
   const completeGroups = String(gender || "").trim() === "زن"
     ? groups
-    : ensureMilitaryStep(groups, militaryTemplate);
+    : ensureMilitaryStep(groups, template);
   return filterWorkflowGroupsByGender(completeGroups, gender);
 }
 
@@ -161,13 +193,18 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const personalGroup = workflowTemplateGroups.find((group) => (
       (group.steps || []).some((step) => step.key === "personal" || step.handler_key === "personal_v1")
     )) || workflowTemplateGroups[0];
-    const personalSteps = personalGroup?.steps || [];
-    const personalStep = personalSteps.find((step) => (
+    const allSteps = workflowTemplateGroups.flatMap((group) => (
+      (group.steps || []).map((step) => ({ ...step, group_key: group.key, group_title: group.title }))
+    ));
+    const personalStep = allSteps.find((step) => (
       step.key === "personal" || step.handler_key === "personal_v1"
     ));
-    const marriageStep = personalSteps.find((step) => (
+    const marriageStep = allSteps.find((step) => (
       step.key === "marriage" || step.handler_key === "marriage_v1"
     ));
+    const militaryGroup = workflowTemplateGroups.find((group) => (
+      (group.steps || []).some((step) => step.key === "marriage" || step.handler_key === "marriage_v1")
+    )) || personalGroup;
     return {
       key: "military",
       title: "وضعیت نظام وظیفه",
@@ -175,8 +212,8 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       order: Number(marriageStep?.order || personalStep?.order || 1) + 0.5,
       required: false,
       active: false,
-      group_key: personalGroup?.key || "identity",
-      group_title: personalGroup?.title || "هویت و اطلاعات پایه",
+      group_key: militaryGroup?.key || personalGroup?.key || "identity",
+      group_title: militaryGroup?.title || personalGroup?.title || "هویت و اطلاعات پایه",
     };
   }, [workflowTemplateGroups]);
 
@@ -193,8 +230,8 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const effectiveGender = index === 0 && form?.gender
       ? form.gender
       : applicantGender;
-    return filterWorkflowGroupsByGender(configuredGroups, effectiveGender);
-  }, [workflowDefinition, index, form?.gender, applicantGender]);
+    return getApplicantWorkflowGroups(configuredGroups, effectiveGender, militaryStepTemplate);
+  }, [workflowDefinition, index, form?.gender, applicantGender, militaryStepTemplate]);
 
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
@@ -328,7 +365,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
           // The workflow remains usable if browser storage is unavailable.
         }
         const initialWorkflowSteps = buildWorkflowSteps(
-          filterWorkflowGroupsByGender(workflowData?.groups, savedGender)
+          getApplicantWorkflowGroups(workflowData?.groups, savedGender, deriveMilitaryTemplate(workflowData?.groups))
         );
         setAppRequest(requestData);
         setResume(resumeData);
@@ -514,9 +551,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const effectiveGender = handlerKey === "personal_v1" && form?.gender
       ? form.gender
       : applicantGender;
-    let currentWorkflowGroups = filterWorkflowGroupsByGender(
+    let currentWorkflowGroups = getApplicantWorkflowGroups(
       workflowDefinition?.groups,
-      effectiveGender
+      effectiveGender,
+      militaryStepTemplate
     );
     if (
       workflowResult.status === "fulfilled" &&
@@ -524,9 +562,10 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       workflowResult.value.groups.length > 0
     ) {
       setWorkflowDefinition(workflowResult.value);
-      currentWorkflowGroups = filterWorkflowGroupsByGender(
+      currentWorkflowGroups = getApplicantWorkflowGroups(
         workflowResult.value.groups,
-        effectiveGender
+        effectiveGender,
+        militaryStepTemplate
       );
     }
 
