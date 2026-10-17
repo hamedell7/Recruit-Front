@@ -2,7 +2,7 @@ function StepRailItem({ keyName, title, kicker, active, completed, onClick, orde
   const disabled = forceDisabled || (!completed && !active);
   return (
     <button
-      className={"step-item " + (active ? "active " : "") + (completed ? "completed " : "") + (disabledLabel ? "inactive-step" : "")}
+      className={"step-item " + (active ? "active " : "") + (completed ? "completed " : "") + (disabledLabel === "غیرفعال" ? "inactive-step" : "")}
       onClick={onClick}
       disabled={disabled}
       aria-current={active ? "step" : undefined}
