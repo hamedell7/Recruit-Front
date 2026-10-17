@@ -40,6 +40,85 @@ const DECISION_LABELS = {
   REJECT: "رد درخواست",
 };
 
+const FIELD_WORD_LABELS = {
+  applicant: "متقاضی",
+  person: "فرد",
+  profile: "مشخصات",
+  personal: "فردی",
+  first: "اول",
+  last: "آخر",
+  name: "نام",
+  code: "کد",
+  type: "نوع",
+  number: "شماره",
+  id: "شناسه",
+  status: "وضعیت",
+  date: "تاریخ",
+  time: "زمان",
+  start: "شروع",
+  end: "پایان",
+  current: "فعلی",
+  previous: "قبلی",
+  old: "قبلی",
+  new: "جدید",
+  description: "توضیحات",
+  details: "جزئیات",
+  reason: "علت",
+  result: "نتیجه",
+  address: "نشانی",
+  country: "کشور",
+  province: "استان",
+  city: "شهر",
+  county: "شهرستان",
+  village: "روستا",
+  phone: "تلفن",
+  mobile: "همراه",
+  email: "رایانامه",
+  contact: "تماس",
+  relation: "نسبت",
+  family: "خانواده",
+  spouse: "همسر",
+  relative: "بستگان",
+  child: "فرزند",
+  education: "تحصیلات",
+  employment: "اشتغال",
+  work: "کار",
+  organization: "سازمان",
+  company: "شرکت",
+  file: "فایل",
+  document: "مدرک",
+  size: "حجم",
+  count: "تعداد",
+  amount: "میزان",
+  has: "دارای",
+  is: "وضعیت",
+  accepted: "پذیرش",
+  created: "ایجاد",
+  updated: "به‌روزرسانی",
+  submitted: "ثبت",
+  completed: "تکمیل",
+};
+
+const STEP_KEY_LABELS = {
+  personal: "اطلاعات فردی",
+  identity: "مشخصات هویتی",
+  applicant: "اطلاعات متقاضی",
+  profile: "مشخصات فردی",
+  contact: "راه‌های تماس",
+  contacts: "راه‌های تماس",
+  address: "نشانی",
+  addresses: "نشانی‌ها",
+  education: "سوابق تحصیلی",
+  employment: "سوابق شغلی",
+  work: "اطلاعات شغلی",
+  military: "وضعیت نظام وظیفه",
+  documents: "مدارک پرونده",
+  declaration: "تعهدنامه",
+  relatives: "اطلاعات بستگان",
+  family: "اطلاعات خانواده",
+  review: "بررسی پرونده",
+};
+
 function isEmpty(value) {
   return value === null || value === undefined || value === "" ||
     (Array.isArray(value) && value.length === 0);
@@ -47,9 +126,29 @@ function isEmpty(value) {
 
 function displayFieldLabel(key) {
   const label = labelFor(key);
-  return label === "سایر اطلاعات"
-    ? key.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toLocaleUpperCase())
-    : label;
+  if (label !== "سایر اطلاعات") return label;
+
+  const words = String(key || "")
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  const translated = [...new Set(words.map((word) => FIELD_WORD_LABELS[word]).filter(Boolean))];
+  return translated.length ? translated.join(" ") : "اطلاعات تکمیلی";
+}
+
+function displayStepTitle(step, index = 0) {
+  const title = String(step?.title || "").trim();
+  if (title && /[\u0600-\u06FF]/.test(title)) return title;
+
+  const key = String(step?.key || "").toLowerCase();
+  return STEP_KEY_LABELS[key] || (step?.key ? "مرحله " + numberFormat.format(index + 1) : "—");
+}
+
+function displayGroupTitle(value, step) {
+  const title = String(value || "").trim();
+  if (title && /[\u0600-\u06FF]/.test(title)) return title;
+  return STEP_KEY_LABELS[String(step?.key || "").toLowerCase()] || "اطلاعات پرونده";
 }
 
 function ApplicantData({ value, fieldKey = "value" }) {
@@ -198,7 +297,7 @@ function DocumentList({ documents, requestId, compact = false }) {
         <article className="srd-document-row" key={document.id}>
           <div className="srd-document-number">{numberFormat.format(index + 1)}</div>
           <div className="srd-document-icon" aria-hidden="true">
-            {document.mime_type === "application/pdf" ? "PDF" : "▤"}
+            {document.mime_type === "application/pdf" ? "پی‌دی‌اف" : "▤"}
           </div>
           <div className="srd-document-main">
             <strong title={document.filename}>{document.filename || "فایل بدون نام"}</strong>
@@ -253,10 +352,10 @@ function StepTimeline({ steps }) {
             <span className="srd-timeline-marker">{step.status === "COMPLETED" || step.status === "APPROVED" ? "✓" : numberFormat.format(index + 1)}</span>
             <div className="srd-timeline-copy">
               <div className="srd-timeline-title-row">
-                <strong>{step.title || step.key}</strong>
+                <strong>{displayStepTitle(step, index)}</strong>
                 <span className={"srd-step-status is-" + tone}>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</span>
               </div>
-              <p>{step.group_title || "مرحله گردش‌کار پرونده"}</p>
+              <p>{displayGroupTitle(step.group_title, step)}</p>
               {step.completed_at && <small>تاریخ تکمیل: {formatDate(step.completed_at)}</small>}
               {step.return_reason && <div className="srd-return-reason">علت بازگشت: {step.return_reason}</div>}
             </div>
@@ -355,7 +454,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
     try {
       await printRequestReport(requestId, { staff: true });
     } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "آماده‌سازی گزارش PDF انجام نشد." });
+      onError?.({ type: "error", text: reason.message || "آماده‌سازی گزارش پی‌دی‌اف انجام نشد." });
     } finally {
       setPdfLoading(false);
     }
@@ -480,10 +579,10 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
         </div>
         <div className="srd-hero-actions">
           <button type="button" className="srd-action-button is-secondary" onClick={exportExcel} disabled={excelLoading}>
-            <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "خروجی Excel"}
+            <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "دریافت فایل اکسل"}
           </button>
           <button type="button" className="srd-action-button is-primary" onClick={exportPdf} disabled={pdfLoading}>
-            <span aria-hidden="true">↓</span>{pdfLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF"}
+            <span aria-hidden="true">↓</span>{pdfLoading ? "در حال آماده‌سازی…" : "چاپ / دریافت گزارش"}
           </button>
         </div>
       </section>
@@ -491,7 +590,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
       <section className="srd-summary-grid">
         <article className="srd-summary-card">
           <span className="srd-summary-icon is-blue">⌁</span>
-          <div><small>مرحله فعلی</small><strong>{currentStep?.title || request.current_step_key || "—"}</strong><span>{numberFormat.format(completedSteps)} از {numberFormat.format(steps.length)} مرحله تکمیل شده</span></div>
+          <div><small>مرحله فعلی</small><strong>{displayStepTitle(currentStep || { key: request.current_step_key }, Math.max(0, steps.findIndex((step) => step.key === request.current_step_key)))}</strong><span>{numberFormat.format(completedSteps)} از {numberFormat.format(steps.length)} مرحله تکمیل شده</span></div>
         </article>
         <article className="srd-summary-card">
           <span className="srd-summary-icon is-teal">◷</span>
@@ -536,7 +635,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <div className="srd-primary-column">
             <section className="srd-panel">
               <div className="srd-panel-heading">
-                <div><span className="srd-panel-kicker">Applicant profile</span><h2>مشخصات متقاضی</h2></div>
+                <div><span className="srd-panel-kicker">اطلاعات هویتی</span><h2>مشخصات متقاضی</h2></div>
                 <span className="srd-panel-symbol">◎</span>
               </div>
               <div className="srd-profile-grid">
@@ -552,7 +651,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
 
             <section className="srd-panel">
               <div className="srd-panel-heading">
-                <div><span className="srd-panel-kicker">Workflow overview</span><h2>مسیر بررسی پرونده</h2></div>
+                <div><span className="srd-panel-kicker">خلاصه مراحل</span><h2>مسیر بررسی پرونده</h2></div>
                 <button className="srd-text-button" type="button" onClick={() => setActiveTab("workflow")}>مشاهده گردش‌کار</button>
               </div>
               <StepTimeline steps={steps.slice(0, 5)} />
@@ -564,7 +663,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
             {canDecide && (
               <section className="srd-panel srd-decision-panel">
                 <div className="srd-panel-heading">
-                  <div><span className="srd-panel-kicker">Administrative action</span><h2>تصمیم درباره پرونده</h2><p>اقدام مناسب را با توجه به نتیجه بررسی انتخاب کنید.</p></div>
+                  <div><span className="srd-panel-kicker">اقدام مدیریتی</span><h2>تصمیم درباره پرونده</h2><p>اقدام مناسب را با توجه به نتیجه بررسی انتخاب کنید.</p></div>
                   <span className="srd-panel-symbol">⚖</span>
                 </div>
                 <div className="srd-decision-choices">
@@ -606,7 +705,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <aside className="srd-side-column">
             <section className="srd-panel">
               <div className="srd-panel-heading">
-                <div><span className="srd-panel-kicker">Attached files</span><h2>مدارک پرونده</h2></div>
+                <div><span className="srd-panel-kicker">مدارک پیوست</span><h2>مدارک پرونده</h2></div>
                 <span className="srd-count-badge">{numberFormat.format(documents.length)}</span>
               </div>
               {documentsError ? (
@@ -627,41 +726,54 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
       )}
 
       {activeTab === "information" && (
-        <div className="srd-step-sections">
-          {steps.filter((step) => step.key !== "documents").map((step, index) => {
-            const [stepLabel, stepTone] = statusLabel(step.status);
-            return (
-              <section className="srd-panel srd-step-panel" key={step.key}>
-                <div className="srd-panel-heading">
-                  <div className="srd-step-heading-copy">
-                    <span className="srd-step-number">{numberFormat.format(index + 1)}</span>
-                    <div><span className="srd-panel-kicker">{step.group_title || "اطلاعات پرونده"}</span><h2>{step.title || step.key}</h2></div>
-                  </div>
-                  <span className={"srd-status-pill is-" + (stepTone || "muted")}>{STEP_STATUS_LABELS[step.status] || stepLabel}</span>
-                </div>
-                {step.return_reason && <div className="srd-return-reason">علت بازگشت برای اصلاح: {step.return_reason}</div>}
-                {step.data_source === "not_loaded" ? (
-                  <div className="srd-empty-inline">اطلاعات این مرحله بارگذاری نشده است.</div>
-                ) : step.data === null || step.data === undefined || (typeof step.data === "object" && Object.keys(step.data).length === 0) ? (
-                  <div className="srd-empty-inline">اطلاعاتی برای نمایش در این مرحله ثبت نشده است.</div>
-                ) : (
-                  <ApplicantData value={step.data} />
-                )}
-                <div className="srd-step-footer">
-                  <span>مرحله: {step.key}</span>
-                  {step.completed_at && <span>تاریخ تکمیل: {formatDate(step.completed_at)}</span>}
-                  {step.attempt_no && <span>تعداد تلاش: {numberFormat.format(step.attempt_no)}</span>}
-                </div>
-              </section>
-            );
-          })}
+        <div className="srd-content-grid srd-information-layout">
+          <div className="srd-primary-column">
+            <div className="srd-step-sections">
+              {steps.filter((step) => step.key !== "documents").map((step, index) => {
+                const [stepLabel, stepTone] = statusLabel(step.status);
+                return (
+                  <section className="srd-panel srd-step-panel" key={step.key}>
+                    <div className="srd-panel-heading">
+                      <div className="srd-step-heading-copy">
+                        <span className="srd-step-number">{numberFormat.format(index + 1)}</span>
+                        <div><span className="srd-panel-kicker">{displayGroupTitle(step.group_title, step)}</span><h2>{displayStepTitle(step, index)}</h2></div>
+                      </div>
+                      <span className={"srd-status-pill is-" + (stepTone || "muted")}>{STEP_STATUS_LABELS[step.status] || stepLabel}</span>
+                    </div>
+                    {step.return_reason && <div className="srd-return-reason">علت بازگشت برای اصلاح: {step.return_reason}</div>}
+                    {step.data_source === "not_loaded" ? (
+                      <div className="srd-empty-inline">اطلاعات این مرحله بارگذاری نشده است.</div>
+                    ) : step.data === null || step.data === undefined || (typeof step.data === "object" && Object.keys(step.data).length === 0) ? (
+                      <div className="srd-empty-inline">اطلاعاتی برای نمایش در این مرحله ثبت نشده است.</div>
+                    ) : (
+                      <ApplicantData value={step.data} />
+                    )}
+                    <div className="srd-step-footer">
+                      {step.completed_at && <span>تاریخ تکمیل: {formatDate(step.completed_at)}</span>}
+                      {step.attempt_no && <span>تعداد تلاش: {numberFormat.format(step.attempt_no)}</span>}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </div>
+
+          <aside className="srd-side-column srd-workflow-sidebar">
+            <section className="srd-panel srd-workflow-panel">
+              <div className="srd-panel-heading">
+                <div><span className="srd-panel-kicker">مسیر رسیدگی</span><h2>گردش‌کار پرونده</h2><p>وضعیت مرحله‌ها و روند رسیدگی به پرونده</p></div>
+                <span className="srd-count-badge">{numberFormat.format(steps.length)} مرحله</span>
+              </div>
+              <StepTimeline steps={steps} />
+            </section>
+          </aside>
         </div>
       )}
 
       {activeTab === "documents" && (
         <section className="srd-panel srd-documents-page-panel">
           <div className="srd-panel-heading">
-            <div><span className="srd-panel-kicker">Document center</span><h2>مدارک بارگذاری‌شده</h2><p>فایل‌های پیوست‌شده به این پرونده را جداگانه مشاهده یا دانلود کنید.</p></div>
+            <div><span className="srd-panel-kicker">بخش مدارک</span><h2>مدارک بارگذاری‌شده</h2><p>فایل‌های پیوست‌شده به این پرونده را جداگانه مشاهده یا دانلود کنید.</p></div>
             <span className="srd-count-badge">{numberFormat.format(documents.length)} فایل</span>
           </div>
           {documentsError ? (
@@ -669,14 +781,14 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           ) : (
             <DocumentList documents={documents} requestId={requestId} />
           )}
-          <p className="srd-security-note">برای فایل‌های تصویری و PDF امکان مشاهده در تب جدید فراهم است. فایل اصلی فقط از مسیر امن سامانه دریافت می‌شود.</p>
+          <p className="srd-security-note">برای فایل‌های تصویری و پی‌دی‌اف امکان مشاهده در تب جدید فراهم است. فایل اصلی فقط از مسیر امن سامانه دریافت می‌شود.</p>
         </section>
       )}
 
       {activeTab === "workflow" && (
         <section className="srd-panel srd-workflow-panel">
           <div className="srd-panel-heading">
-            <div><span className="srd-panel-kicker">Workflow history</span><h2>گردش‌کار پرونده</h2><p>ترتیب مراحل، وضعیت جاری و جزئیات تکمیل یا بازگشت هر مرحله</p></div>
+            <div><span className="srd-panel-kicker">سوابق رسیدگی</span><h2>گردش‌کار پرونده</h2><p>ترتیب مراحل، وضعیت جاری و جزئیات تکمیل یا بازگشت هر مرحله</p></div>
             <span className="srd-count-badge">{numberFormat.format(steps.length)} مرحله</span>
           </div>
           <StepTimeline steps={steps} />
