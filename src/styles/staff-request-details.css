@@ -101,7 +101,7 @@
 .srd-step-section-title{display:block;flex:1;min-width:0;overflow:hidden;color:#8190a3;font-size:9px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
 .srd-step-section-count{display:grid;place-items:center;min-width:19px;height:19px;padding:0 4px;border:1px solid #e7edf4;border-radius:6px;background:#fff;color:#9aa7b7;font-size:8px;font-weight:800}
 .srd-step-rail{display:flex;flex-direction:column;gap:3px}
-.srd-step-item{position:relative;display:grid;grid-template-columns:33px minmax(0,1fr) 10px;align-items:center;gap:8px;width:100%;min-width:0;padding:8px 7px;border:1px solid transparent;border-radius:12px;background:transparent;color:#8795a7;text-align:right;font-family:inherit;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease}
+.srd-step-item{position:relative;display:grid;grid-template-columns:33px minmax(0,1fr);align-items:center;gap:8px;width:100%;min-width:0;padding:8px 7px;border:1px solid transparent;border-radius:12px;background:transparent;color:#8795a7;text-align:right;font-family:inherit;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease}
 .srd-step-item:hover{border-color:#e2eaf4;background:#fff;color:#415a78}
 .srd-step-item:active{transform:scale(.992)}
 .srd-step-item:focus-visible{outline:3px solid rgba(60,126,198,.3);outline-offset:2px}

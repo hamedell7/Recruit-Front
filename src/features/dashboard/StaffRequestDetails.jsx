@@ -393,7 +393,6 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
                 <div className="srd-step-section-heading">
                   <span className="srd-step-section-indicator" aria-hidden="true" />
                   <span className="srd-step-section-title">{group.title}</span>
-                  <span className="srd-step-section-count">{numberFormat.format(group.steps.length)}</span>
                 </div>
                 <div className="srd-step-rail">
                   {group.steps.map(({ step, index }) => {
@@ -418,7 +417,7 @@ function StepTimeline({ steps, selectedStepKey, onSelectStep }) {
                           <strong>{displayStepTitle(step, index)}</strong>
                           <small>{STEP_STATUS_LABELS[step.status] || statusLabel(step.status)[0]}</small>
                         </span>
-                        {isSelected && <i aria-hidden="true">‹</i>}
+
                       </button>
                     );
                   })}
