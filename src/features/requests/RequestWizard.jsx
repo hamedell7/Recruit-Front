@@ -18,6 +18,20 @@ function buildWorkflowSteps(groups = []) {
     : [];
 }
 
+function filterWorkflowGroupsByGender(groups = [], gender) {
+  if (!Array.isArray(groups) || groups.length === 0) return [];
+  if (String(gender || "").trim() !== "زن") return groups;
+
+  return groups
+    .map((group) => ({
+      ...group,
+      steps: (group.steps || []).filter((step) => (
+        step.key !== "military" && step.handler_key !== "military_v1"
+      )),
+    }))
+    .filter((group) => group.steps.length > 0);
+}
+
 function militarySkipStorageKey(requestId) {
   return "recruit:request:" + String(requestId) + ":military-skipped";
 }
@@ -96,14 +110,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     const effectiveGender = activeStep?.handler_key === "personal_v1" && form?.gender
       ? form.gender
       : applicantGender;
-    if (effectiveGender !== "زن") return configuredGroups;
-
-    return configuredGroups
-      .map((group) => ({
-        ...group,
-        steps: (group.steps || []).filter((step) => step.handler_key !== "military_v1"),
-      }))
-      .filter((group) => group.steps.length > 0);
+    return filterWorkflowGroupsByGender(configuredGroups, effectiveGender);
   }, [workflowDefinition, resume?.current_step, form?.gender, applicantGender]);
 
   const workflowSteps = useMemo(() => buildWorkflowSteps(workflowGroups), [workflowGroups]);
@@ -267,7 +274,9 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         } catch {
           // The workflow remains usable if browser storage is unavailable.
         }
-        const initialWorkflowSteps = buildWorkflowSteps(workflowData?.groups);
+        const initialWorkflowSteps = buildWorkflowSteps(
+          filterWorkflowGroupsByGender(workflowData?.groups, savedGender)
+        );
         setAppRequest(requestData);
         setResume(resumeData);
         setWorkflowDefinition(workflowData);
@@ -449,19 +458,26 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       api.requestWorkflow(appRequest.id),
     ]);
 
-    let currentWorkflowSteps = workflowSteps;
+    const effectiveGender = handlerKey === "personal_v1" && form?.gender
+      ? form.gender
+      : applicantGender;
+    let currentWorkflowGroups = filterWorkflowGroupsByGender(
+      workflowDefinition?.groups,
+      effectiveGender
+    );
     if (
       workflowResult.status === "fulfilled" &&
       Array.isArray(workflowResult.value?.groups) &&
       workflowResult.value.groups.length > 0
     ) {
-      const refreshedSteps = buildWorkflowSteps(workflowResult.value.groups);
-      if (refreshedSteps.includes(resumeData.current_step)) {
-        setWorkflowDefinition(workflowResult.value);
-        currentWorkflowSteps = refreshedSteps;
-      }
+      setWorkflowDefinition(workflowResult.value);
+      currentWorkflowGroups = filterWorkflowGroupsByGender(
+        workflowResult.value.groups,
+        effectiveGender
+      );
     }
 
+    const currentWorkflowSteps = buildWorkflowSteps(currentWorkflowGroups);
     const serverIndex = currentWorkflowSteps.indexOf(resumeData.current_step);
     if (serverIndex >= 0 && !preserveIndex) setIndex(serverIndex);
 
