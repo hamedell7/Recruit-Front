@@ -82,7 +82,7 @@ function MenuGlyph({ name, className }) {
   );
 }
 
-function Header({ user, onLogout, staffPath, onNavigateStaff }) {
+function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle = false, sidebarOpen = true, onToggleSidebar }) {
   const isStaff = STAFF_ROLES.includes(user?.role);
   const isAdmin = user?.role === "ADMIN";
   const [menuOpen, setMenuOpen] = useState(false);
@@ -154,11 +154,28 @@ function Header({ user, onLogout, staffPath, onNavigateStaff }) {
   return (
     <header className="topbar">
       <div className="topbar-leading">
-              <div className="brand">
-                <div className="brand-mark">R</div>
-                <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
-              </div>
-              {isStaff && (
+        <div className="topbar-brand-group">
+          {showSidebarToggle && (
+            <button
+              className={"sidebar-toggle" + (sidebarOpen ? " is-open" : "")}
+              type="button"
+              onClick={onToggleSidebar}
+              aria-label={sidebarOpen ? "بستن منوی مراحل" : "باز کردن منوی مراحل"}
+              aria-expanded={sidebarOpen}
+              aria-controls="request-step-sidebar"
+              title={sidebarOpen ? "بستن منوی مراحل" : "باز کردن منوی مراحل"}
+            >
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+            </button>
+          )}
+          <div className="brand">
+            <div className="brand-mark">R</div>
+            <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
+          </div>
+        </div>
+        {isStaff && (
                 <div className="staff-menu-wrap">
                   <button
                     ref={triggerRef}
