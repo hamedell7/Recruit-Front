@@ -46,6 +46,28 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
+function documentTypeLabel(value) {
+  const labels = {
+    identity: "مدرک هویتی",
+    education: "مدرک تحصیلی",
+    employment: "مدرک شغلی",
+    other: "سایر مدارک",
+  };
+  return labels[value] || value || "مدرک";
+}
+
+function documentSizeLabel(value) {
+  const size = Number(value) || 0;
+  if (size >= 1024 * 1024) {
+    return numberFormat.format(Number((size / (1024 * 1024)).toFixed(1))) + " مگابایت";
+  }
+  return numberFormat.format(Math.max(1, Math.round(size / 1024))) + " کیلوبایت";
+}
+
+function canPreviewDocument(document) {
+  return document?.mime_type === "application/pdf" || String(document?.mime_type || "").startsWith("image/");
+}
+
 function saveDownloadedWorkbook(file) {
   const url = window.URL.createObjectURL(file.blob);
   const anchor = document.createElement("a");
@@ -80,6 +102,9 @@ function StaffRequestsDashboard({ onError, user }) {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [staffDocuments, setStaffDocuments] = useState([]);
+  const [staffDocumentsLoading, setStaffDocumentsLoading] = useState(false);
+  const [staffDocumentsError, setStaffDocumentsError] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
   const [excelExportLoading, setExcelExportLoading] = useState(false);
   const [singleExcelLoading, setSingleExcelLoading] = useState(false);
@@ -252,6 +277,33 @@ function StaffRequestsDashboard({ onError, user }) {
       });
     return () => { cancelled = true; };
   }, [selectedRequest?.id, selectedRequest?.status]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStaffDocuments([]);
+    setStaffDocumentsError("");
+
+    if (!selectedRequest || user?.role !== "ADMIN") {
+      setStaffDocumentsLoading(false);
+      return () => { cancelled = true; };
+    }
+
+    setStaffDocumentsLoading(true);
+    api.staffRequestDocuments(selectedRequest.id)
+      .then((result) => {
+        if (!cancelled) setStaffDocuments(normalizeList(result));
+      })
+      .catch((reason) => {
+        if (!cancelled) {
+          setStaffDocumentsError(reason.message || "دریافت مدارک پرونده انجام نشد.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setStaffDocumentsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [selectedRequest?.id, user?.role]);
 
   const submitDecision = async () => {
     if (!selectedRequest || !decisionMode || decisionBusy) return;
@@ -680,6 +732,52 @@ function StaffRequestsDashboard({ onError, user }) {
             <div><span>آخرین به‌روزرسانی</span><strong>{formatDate(selectedRequest.updated_at)}</strong></div>
             <div><span>تاریخ ثبت نهایی</span><strong>{formatDate(selectedRequest.submitted_at)}</strong></div>
           </div>
+          {canExportReport && (
+            <section className="staff-documents-panel">
+              <div className="staff-documents-heading">
+                <div>
+                  <h4>مدارک بارگذاری‌شده</h4>
+                  <p>مشاهده یا دانلود فایل‌های ضمیمه این پرونده</p>
+                </div>
+                {!staffDocumentsLoading && !staffDocumentsError && (
+                  <span>{numberFormat.format(staffDocuments.length)} فایل</span>
+                )}
+              </div>
+              {staffDocumentsLoading ? (
+                <div className="staff-documents-state">در حال دریافت مدارک…</div>
+              ) : staffDocumentsError ? (
+                <div className="staff-documents-state is-error">{staffDocumentsError}</div>
+              ) : staffDocuments.length === 0 ? (
+                <div className="staff-documents-state">مدرکی برای این پرونده بارگذاری نشده است.</div>
+              ) : (
+                <div className="staff-document-list">
+                  {staffDocuments.map((document) => (
+                    <div className="staff-document-row" key={document.id}>
+                      <span className="staff-document-icon" aria-hidden="true">▤</span>
+                      <div className="staff-document-copy">
+                        <strong title={document.filename}>{document.filename}</strong>
+                        <span>{documentTypeLabel(document.document_type)} · {documentSizeLabel(document.size_bytes)}</span>
+                      </div>
+                      <div className="staff-document-actions">
+                        {canPreviewDocument(document) && (
+                          <a
+                            className="staff-document-link is-preview"
+                            href={api.staffRequestDocumentUrl(selectedRequest.id, document.id, false)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >مشاهده</a>
+                        )}
+                        <a
+                          className="staff-document-link is-download"
+                          href={api.staffRequestDocumentUrl(selectedRequest.id, document.id, true)}
+                        >دانلود</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
           {["SUBMITTED", "UNDER_REVIEW"].includes(selectedRequest.status) && (
             <section className="staff-decision-panel">
               <div className="staff-decision-heading">
