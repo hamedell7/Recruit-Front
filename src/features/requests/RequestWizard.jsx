@@ -272,6 +272,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
   }, [request.id]);
 
   useEffect(() => {
+    if (showMilitaryPlaceholder) return undefined;
     if (!bootstrapped || !resume?.current_step || !appRequest || !currentKey) return;
     let cancelled = false;
     const load = async () => {
@@ -337,10 +338,11 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     };
     load();
     return () => { cancelled = true; };
-  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user, isDocumentsStep]);
+  }, [bootstrapped, resume?.current_step, appRequest, currentKey, user, isDocumentsStep, showMilitaryPlaceholder]);
 
   useEffect(() => {
     if (
+      showMilitaryPlaceholder ||
       !appRequest ||
       !form ||
       !draftHydrated ||
@@ -391,7 +393,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
         autosaveController.current = null;
       }
     };
-  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep]);
+  }, [appRequest?.id, currentKey, form, draftHydrated, resume?.current_step, readOnly, isDocumentsStep, showMilitaryPlaceholder]);
 
   useEffect(() => {
     if (handlerKey === "personal_v1" && form?.gender) {
