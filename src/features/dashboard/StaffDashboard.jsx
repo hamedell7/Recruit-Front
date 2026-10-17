@@ -23,12 +23,12 @@ const STATUS_OPTIONS = [
 ];
 
 const METRICS = [
-  { key: "total", label: "کل درخواست‌ها", icon: "▦", tone: "blue" },
-  { key: "in_progress", label: "در حال تکمیل", icon: "◷", tone: "blue" },
-  { key: "submitted", label: "ثبت نهایی شده", icon: "✓", tone: "green" },
-  { key: "under_review", label: "در حال بررسی", icon: "⌕", tone: "violet" },
-  { key: "returned", label: "برگشت داده شده", icon: "↶", tone: "amber" },
-  { key: "closed", label: "مختومه", icon: "▣", tone: "slate" },
+  { key: "total", label: "کل درخواست‌ها", icon: "▦" },
+  { key: "in_progress", label: "در حال تکمیل", icon: "◷" },
+  { key: "submitted", label: "ثبت نهایی شده", icon: "✓" },
+  { key: "under_review", label: "در حال بررسی", icon: "⌕" },
+  { key: "returned", label: "برگشت داده شده", icon: "↶" },
+  { key: "closed", label: "مختومه", icon: "▣" },
 ];
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
@@ -415,7 +415,7 @@ function StaffRequestsDashboard({ onError, user }) {
 
       <section className="staff-metrics-grid" aria-label="آمار درخواست‌ها">
         {metricCards.map((metric) => (
-          <article className={`staff-metric-card tone-${metric.tone}`} key={metric.key}>
+          <article className="staff-metric-card tone-blue" key={metric.key}>
             <div className="staff-metric-top">
               <span className="staff-metric-icon" aria-hidden="true">{metric.icon}</span>
               <span className="staff-metric-caption">{metric.label}</span>
