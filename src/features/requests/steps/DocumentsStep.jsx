@@ -17,7 +17,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
     if (!isAllowedDocumentFile(file)) {
       onError({
         type: "error",
-        text: "فایل باید PDF، PNG یا JPG/JPEG باشد و حجم آن از ۲ مگابایت بیشتر نباشد.",
+        text: "فایل باید PDF، DOCX، PNG یا JPG/JPEG باشد و حجم آن از ۲ مگابایت بیشتر نباشد.",
       });
       return;
     }
@@ -41,7 +41,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
             <input type="file" accept={DOCUMENT_ACCEPT_ATTRIBUTE} onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={readOnly} />
             <div className="upload-icon">↑</div>
             <strong>{file ? file.name : "فایل را انتخاب کنید"}</strong>
-            <span>PDF, PNG, JPG/JPEG · حداکثر ۲MB</span>
+            <span>PDF, DOCX, PNG, JPG/JPEG · حداکثر ۲MB</span>
           </label>
           <div className="upload-side">
             <SelectField label="نوع مدرک" value={documentType} onChange={setDocumentType} options={[
@@ -60,7 +60,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
         ) : (
           <div className="document-list">{documents.map((doc) => (
             <div className="document-row" key={doc.id}>
-              <div className="doc-icon">PDF</div>
+              <div className="doc-icon">{(doc.filename?.split(".").pop() || "FILE").slice(0, 4).toUpperCase()}</div>
               <div><strong>{doc.filename}</strong><span>{doc.document_type} · {(Number(doc.size_bytes || 0) / 1024 / 1024).toFixed(1)} MB</span></div>
               <a href={api.downloadDocumentUrl(doc.id)} rel="noreferrer">دریافت فایل</a>
             </div>

@@ -8,7 +8,7 @@ import {
 } from "../src/features/requests/steps/documentUploadPolicy.js";
 
 test("matches the supported backend extensions", () => {
-  for (const name of ["identity.pdf", "scan.png", "passport.jpg", "photo.JPEG"]) {
+  for (const name of ["identity.pdf", "resume.docx", "scan.png", "passport.jpg", "photo.JPEG"]) {
     assert.equal(isAllowedDocumentFile({ name, size: 100 }), true, name);
   }
 });
@@ -23,11 +23,11 @@ test("accepts a document exactly at the server-side size limit", () => {
   );
 });
 
-test("rejects unsupported extensions, including DOCX until backend support exists", () => {
-  for (const name of ["document.docx", "archive.zip", "program.exe", "no-extension"]) {
+test("rejects unsupported extensions while allowing newly supported DOCX packages", () => {
+  for (const name of ["archive.zip", "program.exe", "no-extension"]) {
     assert.equal(isAllowedDocumentFile({ name, size: 100 }), false, name);
   }
-  assert.equal(DOCUMENT_ACCEPT_ATTRIBUTE.includes("docx"), false);
+  assert.equal(DOCUMENT_ACCEPT_ATTRIBUTE.includes("docx"), true);
 });
 
 test("rejects uploads above the server-side size limit", () => {
