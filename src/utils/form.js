@@ -1,6 +1,6 @@
-import { RECORDS } from "../config/workflow";
-import { normalizeList } from "./collections";
-import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
+import { RECORDS } from "../config/workflow.js";
+import { normalizeList } from "./collections.js";
+import { gregorianToJalaliString, jalaliToGregorianString } from "./date.js";
 
 export function withSpouseAvailability(options = [], hasSpouse = false) {
   return (Array.isArray(options) ? options : []).map((option) => {
