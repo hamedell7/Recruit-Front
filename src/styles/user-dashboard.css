@@ -410,32 +410,26 @@
   background:linear-gradient(145deg,#fff 0%,#f0f6ff 100%);
 }
 
-/* Request cards use the same admin palette at a softer intensity */
-.ud-request-grid .request-card:nth-child(4n+1){
-  border-color:#d9e5f3;
-  background:linear-gradient(145deg,#fff 0%,#f0f6ff 100%);
+/* All request cards use one consistent primary-brand palette. */
+.ud-request-grid .request-card,
+.ud-request-grid .request-card:nth-child(4n+1),
+.ud-request-grid .request-card:nth-child(4n+2),
+.ud-request-grid .request-card:nth-child(4n+3),
+.ud-request-grid .request-card:nth-child(4n) {
+  border-color: var(--brand-soft);
+  background: linear-gradient(145deg, #fff 0%, var(--brand-soft) 100%);
 }
-.ud-request-grid .request-card:nth-child(4n+1)::before{background:#568bd0}
-.ud-request-grid .request-card:nth-child(4n+2){
-  border-color:#d8eae2;
-  background:linear-gradient(145deg,#fff 0%,#ecf9f4 100%);
+.ud-request-grid .request-card::before {
+  background: var(--brand);
 }
-.ud-request-grid .request-card:nth-child(4n+2)::before{background:#568bd0}
-.ud-request-grid .request-card:nth-child(4n+3){
-  border-color:#e3def4;
-  background:linear-gradient(145deg,#fff 0%,#f4f1ff 100%);
+.ud-request-grid .request-card:hover,
+.ud-request-grid .request-card:nth-child(4n+1):hover,
+.ud-request-grid .request-card:nth-child(4n+2):hover,
+.ud-request-grid .request-card:nth-child(4n+3):hover,
+.ud-request-grid .request-card:nth-child(4n):hover {
+  border-color: var(--brand-2);
+  box-shadow: 0 13px 27px rgba(20, 46, 78, .075);
 }
-.ud-request-grid .request-card:nth-child(4n+3)::before{background:#568bd0}
-.ud-request-grid .request-card:nth-child(4n){
-  border-color:#eee3cf;
-  background:linear-gradient(145deg,#fff 0%,#fff7e9 100%);
-}
-.ud-request-grid .request-card:nth-child(4n)::before{background:#568bd0}
-.ud-request-grid .request-card:hover{box-shadow:0 13px 27px rgba(20,46,78,.075)}
-.ud-request-grid .request-card:nth-child(4n+1):hover{border-color:#c2d6ed}
-.ud-request-grid .request-card:nth-child(4n+2):hover{border-color:#bfe2d5}
-.ud-request-grid .request-card:nth-child(4n+3):hover{border-color:#d4caef}
-.ud-request-grid .request-card:nth-child(4n):hover{border-color:#e8d2a9}
 
 /* User dashboard metric icons: use the first card's blue palette */
 .ud-dashboard-page .ud-stats-grid .stat-icon {
