@@ -1,4 +1,5 @@
 import { normalizeList } from "../../../utils/collections";
+import { normalizeDigits } from "../../../utils/form";
 import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
@@ -8,6 +9,11 @@ import GeoFields from "../../../components/form/GeoFields";
 const OWNERSHIP_OPTIONS = [
   { value: "OWNER", label: "مالک" },
   { value: "OPERATOR", label: "بهره‌بردار" },
+];
+
+const CONTACT_TYPE_OPTIONS = [
+  { value: "موبایل", label: "موبایل" },
+  { value: "تلفن ثابت", label: "تلفن ثابت" },
 ];
 
 const SOCIAL_NETWORKS = [
@@ -187,18 +193,35 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         empty={() => ({ contact_type: "موبایل", value: "", owner_type: "OWNER", owner_name: "" })}
         render={(item, setItem, index) => (
           <div className="mini-grid">
-            <TextField
+            <SelectField
               label="نوع تماس"
               value={item.contact_type}
-              onChange={(v) => updateRegularContact(index, "contact_type", v)}
+              onChange={(v) => {
+                updateRegularContact(index, "contact_type", v);
+                if (v === "موبایل") {
+                  const mobile = normalizeDigits(String(item.value || "")).replace(/\D/g, "").slice(0, 11);
+                  updateRegularContact(index, "value", mobile);
+                }
+                clearValidationError(`contacts.${index}.value`);
+              }}
               error={getFieldError(errors, `contacts.${index}.contact_type`)}
+              options={CONTACT_TYPE_OPTIONS}
+              required
               readOnly={readOnly}
             />
             <TextField
               label="شماره تماس"
               value={item.value}
-              onChange={(v) => updateRegularContact(index, "value", v)}
+              onChange={(v) => {
+                const normalized = normalizeDigits(v);
+                const nextValue = item.contact_type === "موبایل"
+                  ? normalized.replace(/\D/g, "").slice(0, 11)
+                  : normalized;
+                updateRegularContact(index, "value", nextValue);
+              }}
               error={getFieldError(errors, `contacts.${index}.value`)}
+              inputMode={item.contact_type === "موبایل" ? "numeric" : "tel"}
+              maxLength={item.contact_type === "موبایل" ? 11 : undefined}
               readOnly={readOnly}
             />
             <SelectField

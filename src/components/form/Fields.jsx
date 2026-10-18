@@ -1,7 +1,7 @@
 import FieldError from "./FieldError";
 import PersianDateField from "./PersianDateField";
 
-function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error }) {
+function TextField({ label, value, onChange, type = "text", required, readOnly, inputMode, error, maxLength }) {
   if (type === "date") {
     return <PersianDateField label={label} value={value} onChange={onChange} error={error} required={required} readOnly={readOnly} />;
   }
@@ -16,6 +16,7 @@ function TextField({ label, value, onChange, type = "text", required, readOnly, 
         required={required && !readOnly}
         readOnly={readOnly}
         inputMode={inputMode}
+        maxLength={maxLength}
         aria-invalid={error ? "true" : undefined}
       />
       <FieldError error={error} />

@@ -1,11 +1,18 @@
-import { STEP_META } from "../../config/workflow";
-
-function StepRailItem({ keyName, active, completed, onClick, order }) {
-  const meta = STEP_META[keyName] || { title: keyName };
+function StepRailItem({ keyName, title, kicker, active, completed, onClick, order, disabledLabel = "", disabled: forceDisabled = false }) {
+  const disabled = forceDisabled || (!completed && !active);
   return (
-    <button className={"step-item " + (active ? "active" : "") + " " + (completed ? "completed" : "")} onClick={onClick} disabled={!completed && !active} aria-current={active ? "step" : undefined}>
-      <span className="step-dot">{completed ? "✓" : order}</span>
-      <span><small>{meta.kicker}</small><strong>{meta.title}</strong></span>
+    <button
+      className={"step-item " + (active ? "active " : "") + (completed ? "completed " : "") + (disabledLabel === "غیرفعال" ? "inactive-step" : "")}
+      onClick={onClick}
+      disabled={disabled}
+      aria-current={active ? "step" : undefined}
+      aria-label={disabledLabel ? (title || keyName) + "، " + disabledLabel : undefined}
+    >
+      <span className="step-dot">{completed ? "✓" : disabledLabel ? "—" : order}</span>
+      <span>
+        <small>{disabledLabel || kicker || ""}</small>
+        <strong>{title || keyName}</strong>
+      </span>
       {active && <i>●</i>}
     </button>
   );

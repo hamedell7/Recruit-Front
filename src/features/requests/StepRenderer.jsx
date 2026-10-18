@@ -13,22 +13,82 @@ import AccommodationStep from "./steps/AccommodationStep";
 import PassportStep from "./steps/PassportStep";
 import TextareaStep from "./steps/TextareaStep";
 
-function StepRenderer({ stepKey, form, setForm, data, countries, readOnly, errors, clearValidationError, hasSpouse = false }) {
-  if (!form && stepKey !== "additional") return <div className="loading-inline">در حال آماده‌سازی فرم…</div>;
-  if (stepKey === "personal") return <PersonalStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "military") return <MilitaryStep form={form} setForm={setForm} data={data} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "veteran") return <VeteranStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "travel") return <TravelStep form={form} setForm={setForm} hasSpouse={hasSpouse} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "marriage") return <MarriageStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "family") return <PeopleStep kind="family" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "social_relations") return <PeopleStep kind="social" form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "residence") return <ResidenceStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "passport") return <PassportStep form={form} setForm={setForm} countries={countries} hasSpouse={hasSpouse} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "education" || stepKey === "employment") return <EducationEmploymentStep stepKey={stepKey} form={form} setForm={setForm} countries={countries} hasSpouse={hasSpouse} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "accommodation") return <AccommodationStep form={form} setForm={setForm} countries={countries} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  if (stepKey === "additional") return <TextareaStep value={form?.details || ""} onChange={(value) => { clearValidationError("details"); setForm({ details: value }); }} readOnly={readOnly} error={errors.details} />;
-  if (stepKey === "declaration") return <DeclarationStep form={form} setForm={setForm} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
-  return <RecordStep fields={RECORDS[stepKey] || []} form={form || { records: [] }} setForm={setForm} countries={countries} hasSpouse={hasSpouse} readOnly={readOnly} errors={errors} clearValidationError={clearValidationError} />;
+const sharedRecordProps = (props) => ({
+  form: props.form,
+  setForm: props.setForm,
+  countries: props.countries,
+  hasSpouse: props.hasSpouse,
+  readOnly: props.readOnly,
+  errors: props.errors,
+  clearValidationError: props.clearValidationError,
+});
+
+const HANDLER_RENDERERS = {
+  personal_v1: (props) => <PersonalStep {...sharedRecordProps(props)} />,
+  marriage_v1: (props) => <MarriageStep {...sharedRecordProps(props)} />,
+  military_v1: (props) => <MilitaryStep {...sharedRecordProps(props)} data={props.data} />,
+  veteran_v1: (props) => <VeteranStep {...sharedRecordProps(props)} />,
+  travel_v1: (props) => <TravelStep {...sharedRecordProps(props)} />,
+  family_v1: (props) => <PeopleStep {...sharedRecordProps(props)} kind="family" />,
+  social_relations_v1: (props) => <PeopleStep {...sharedRecordProps(props)} kind="social" />,
+  residence_v1: (props) => <ResidenceStep {...sharedRecordProps(props)} />,
+  passport_v1: (props) => <PassportStep {...sharedRecordProps(props)} />,
+  education_records_v1: (props) => <EducationEmploymentStep {...sharedRecordProps(props)} stepKey="education" />,
+  employment_records_v1: (props) => <EducationEmploymentStep {...sharedRecordProps(props)} stepKey="employment" />,
+  accommodation_records_v1: (props) => <AccommodationStep {...sharedRecordProps(props)} />,
+  additional_v1: (props) => (
+    <TextareaStep
+      value={props.form?.details || ""}
+      onChange={(value) => {
+        props.clearValidationError("details");
+        props.setForm({ details: value });
+      }}
+      readOnly={props.readOnly}
+      error={props.errors?.details}
+    />
+  ),
+  declaration_v1: (props) => <DeclarationStep {...sharedRecordProps(props)} />,
+};
+
+const RECORD_HANDLER_KEYS = new Set([
+  "foreign_contacts_v1",
+  "screening_history_v1",
+  "legal_incidents_v1",
+  "migration_v1",
+  "affiliations_v1",
+  "addiction_v1",
+  "foreign_company_relations_v1",
+  "embassy_relations_v1",
+  "exit_restrictions_v1",
+  "activities_v1",
+  "weapons_v1",
+]);
+
+function StepRenderer({ stepKey, handlerKey, form, setForm, data, countries, readOnly, errors, clearValidationError, hasSpouse = false }) {
+  if (!form && handlerKey !== "additional_v1") {
+    return <div className="loading-inline">در حال آماده‌سازی فرم…</div>;
+  }
+
+  const props = { stepKey, form, setForm, data, countries, readOnly, errors, clearValidationError, hasSpouse };
+  const Renderer = HANDLER_RENDERERS[handlerKey];
+  if (Renderer) return Renderer(props);
+
+  if (RECORD_HANDLER_KEYS.has(handlerKey)) {
+    return (
+      <RecordStep
+        {...sharedRecordProps(props)}
+        fields={RECORDS[stepKey] || []}
+        form={form || { records: [] }}
+      />
+    );
+  }
+
+  return (
+    <section className="workflow-load-error" role="alert">
+      <h2>پردازشگر این مرحله در رابط کاربری ثبت نشده است</h2>
+      <p>برای فعال‌سازی این مرحله باید یک renderer تأییدشده برای پردازشگر «{handlerKey || "نامشخص"}» اضافه شود.</p>
+    </section>
+  );
 }
 
 export default StepRenderer;

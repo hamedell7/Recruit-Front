@@ -679,30 +679,10 @@
 .staff-dashboard-page .staff-metric-icon {
   width: 39px;
   height: 39px;
-  border: 1px solid #dce9fb;
+  border: 1px solid #d2e3f7;
   border-radius: 13px;
-  background: #edf4ff;
+  background: linear-gradient(145deg, #e4f0ff, #d9eafb);
   color: #316eae;
-}
-.staff-dashboard-page .staff-metric-card.tone-green .staff-metric-icon {
-  border: 1px solid #d5efe8;
-  background: #eaf8f3;
-  color: #16866e;
-}
-.staff-dashboard-page .staff-metric-card.tone-violet .staff-metric-icon {
-  border: 1px solid #e3def7;
-  background: #f2efff;
-  color: #6b57b4;
-}
-.staff-dashboard-page .staff-metric-card.tone-amber .staff-metric-icon {
-  border: 1px solid #f5e5c5;
-  background: #fff6e6;
-  color: #a8731c;
-}
-.staff-dashboard-page .staff-metric-card.tone-slate .staff-metric-icon {
-  border: 1px solid #e1e8f0;
-  background: #f1f5f9;
-  color: #526b86;
 }
 .staff-dashboard-page .staff-metric-caption { color: #7a899c; }
 .staff-dashboard-page .staff-metric-value { color: #1c3554; }
@@ -783,11 +763,181 @@
   color: #537ba7;
 }
 .staff-dashboard-page .staff-detail-header {
-  border-color: #dbe6f1;
-  background: linear-gradient(135deg, #fbfdff, #f6f9fd);
+  border-color: #e1e8f0;
+  background: #fafcff;
 }
 .staff-dashboard-page .staff-detail-avatar {
-  border: 1px solid #dce9fb;
-  background: linear-gradient(145deg, #eef5ff, #e2edfc);
-  color: #2e68a4;
+  border: 0;
+  background: #eaf2fc;
+  color: #315f9e;
+}
+
+
+/* Admin workspace palette refresh: richer surfaces without sacrificing legibility. */
+.staff-dashboard-page {
+  background:
+    radial-gradient(ellipse at 3% 14%, rgba(67, 128, 191, .075), transparent 28%),
+    radial-gradient(ellipse at 97% 48%, rgba(57, 183, 163, .065), transparent 25%),
+    linear-gradient(180deg, #f1f5fa 0%, #f6f8fb 48%, #eef3f8 100%);
+  border-radius: 28px;
+}
+.staff-dashboard-page .staff-workspace-tabs {
+  border-color: #dce6f1;
+  background: linear-gradient(110deg, #f4f8fd, #f0f8f7);
+  box-shadow: 0 4px 15px rgba(27, 57, 88, .035);
+}
+.staff-dashboard-page .staff-workspace-tabs button { transition: all .16s ease; }
+.staff-dashboard-page .staff-workspace-tabs button:hover { background: #e8f1fa; }
+.staff-dashboard-page .staff-workspace-tabs button.is-active {
+  border-color: #c6dcee;
+  background: linear-gradient(125deg, #e6f0fc, #e6f7f4);
+  color: #215681;
+  box-shadow: inset 0 -2px 0 #3d91ad;
+}
+.staff-dashboard-page .staff-metric-card {
+  border-top-width: 3px;
+  border-top-color: #568bd0;
+  background: linear-gradient(145deg, #fff 0%, #f0f6ff 100%);
+}
+.staff-dashboard-page .staff-metric-card::after {
+  border-color: rgba(107, 156, 208, .15);
+  background: radial-gradient(circle, rgba(107, 156, 208, .055), transparent 68%);
+}
+.staff-dashboard-page .staff-filter-panel {
+  border-color: #d8e5f1;
+  background: linear-gradient(135deg, #f4f8fd 0%, #f9fcff 52%, #f0f8f7 100%);
+}
+.staff-dashboard-page .staff-filter-panel-head {
+  padding-bottom: 11px;
+  border-bottom: 1px solid rgba(202, 219, 235, .65);
+}
+.staff-dashboard-page .staff-filter-title > span {
+  background: linear-gradient(145deg, #e1f4ef, #e9f1fd);
+  color: #267e7a;
+}
+.staff-dashboard-page .staff-filter-grid select,
+.staff-dashboard-page .staff-search-control {
+  border-color: #d7e2ed;
+  background: rgba(255,255,255,.88);
+}
+.staff-dashboard-page .staff-filter-footnote {
+  border-top-color: #e1eaf2;
+  color: #74889b;
+}
+.staff-dashboard-page .staff-table-card {
+  border-color: #d9e4ef;
+  background: linear-gradient(145deg, #fff 0%, #fbfdff 100%);
+}
+.staff-dashboard-page .staff-table-topline {
+  border-bottom-color: #dfe9f3;
+  background: linear-gradient(105deg, #edf4fc 0%, #f2f8fb 58%, #edf8f5 100%);
+}
+.staff-dashboard-page .staff-requests-table thead th {
+  background: linear-gradient(90deg, #e9f1fa, #edf6f7);
+  color: #506d89;
+}
+.staff-dashboard-page .staff-requests-table tbody td {
+  border-bottom-color: #e8eef4;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:nth-child(even) {
+  background: #f4f8fc;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:nth-child(4n+3) {
+  background: #f4faf8;
+}
+.staff-dashboard-page .staff-requests-table tbody tr:hover {
+  background: #eaf4fc;
+}
+.staff-dashboard-page .staff-applicant-avatar {
+  background: linear-gradient(140deg, #dfeeff, #dff5ef);
+}
+.staff-dashboard-page .staff-row-action {
+  background: linear-gradient(135deg, #fff, #f0f6fd);
+}
+.staff-dashboard-page .staff-row-action:hover {
+  background: linear-gradient(135deg, #eaf3fd, #e7f7f3);
+}
+.staff-dashboard-page .staff-pagination {
+  border-top-color: #dfe9f2;
+  background: linear-gradient(105deg, #edf4fc, #f1f8f8);
+}
+/* Restore the neutral case-summary cards. */
+.staff-dashboard-page .staff-detail-grid > div,
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+1),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+2),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n+3),
+.staff-dashboard-page .staff-detail-grid > div:nth-child(4n) {
+  background: #fff;
+  border-color: #e9edf2;
+}
+
+
+/* Larger and more comfortable type for staff/admin workspaces. */
+.staff-dashboard-page .staff-workspace-tabs button {
+  font-size: 13px;
+  min-height: 42px;
+}
+.staff-dashboard-page .staff-live-indicator { font-size: 12px; }
+.staff-dashboard-page .staff-dashboard-meta-note { font-size: 13px; }
+.staff-dashboard-page .staff-metric-caption { font-size: 13px; line-height: 1.8; }
+.staff-dashboard-page .staff-metric-value { font-size: 29px; }
+.staff-dashboard-page .staff-metric-foot {
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.75;
+}
+.staff-dashboard-page .staff-list-heading p { font-size: 13px; }
+.staff-dashboard-page .staff-data-chip { font-size: 13px; }
+.staff-dashboard-page .staff-refresh-button { font-size: 13px; }
+.staff-dashboard-page .staff-filter-title strong { font-size: 15px; }
+.staff-dashboard-page .staff-search-field>span,
+.staff-dashboard-page .staff-filter-field>span { font-size: 13px; }
+.staff-dashboard-page .staff-search-control input,
+.staff-dashboard-page .staff-filter-field select { font-size: 13px; }
+.staff-dashboard-page .staff-filter-footnote { font-size: 12px; line-height: 2; }
+.staff-dashboard-page .staff-inline-warning { font-size: 13px; }
+.staff-dashboard-page .staff-table-topline strong { font-size: 15px; }
+.staff-dashboard-page .staff-table-topline>div>span,
+.staff-dashboard-page .staff-table-page-size { font-size: 12px; }
+.staff-dashboard-page .staff-requests-table thead th { font-size: 12px; padding-top: 14px; padding-bottom: 14px; }
+.staff-dashboard-page .staff-requests-table tbody td { font-size: 13px; line-height: 1.8; }
+.staff-dashboard-page .staff-applicant-copy small,
+.staff-dashboard-page .staff-cell-subline { font-size: 12px; }
+.staff-dashboard-page .staff-tracking-code,
+.staff-dashboard-page .staff-type-name,
+.staff-dashboard-page .staff-location-main,
+.staff-dashboard-page .staff-updated-date { font-size: 13px; }
+.staff-dashboard-page .staff-step-name { font-size: 12px; line-height: 1.9; }
+.staff-dashboard-page .staff-row-action { font-size: 12px; padding: 9px 10px; }
+.staff-dashboard-page .staff-pagination { font-size: 13px; }
+.staff-dashboard-page .staff-page-button { font-size: 13px; }
+.staff-dashboard-page .staff-state-panel strong { font-size: 15px; }
+.staff-dashboard-page .staff-state-panel p { font-size: 13px; line-height: 2; }
+.staff-dashboard-page .staff-detail-grid span { font-size: 12px; }
+.staff-dashboard-page .staff-detail-grid strong { font-size: 13px; }
+.staff-dashboard-page .staff-detail-footer>span { font-size: 12px; }
+.staff-dashboard-page .staff-detail-actions .primary-button,
+.staff-dashboard-page .staff-detail-actions .ghost-button { font-size: 12px; }
+.staff-decision-heading>span { font-size: 12px; }
+.staff-decision-choices button { font-size: 12px; min-height: 40px; }
+.staff-decision-form label>span { font-size: 12px; }
+.staff-decision-form select,
+.staff-decision-form textarea { font-size: 13px; }
+@media(max-width:620px) {
+  .staff-dashboard-page .staff-dashboard-heading p { font-size: 12px; }
+  .staff-dashboard-page .staff-metric-foot { font-size: 11px; }
+  .staff-dashboard-page .staff-requests-table tbody td { font-size: 12px; }
+  .staff-dashboard-page .staff-filter-footnote { font-size: 11px; }
+}
+
+
+/* Neutral action for moving a submitted request into the review queue. */
+.staff-decision-choices .staff-decision-review {
+  border-color: #dce5ed;
+  background: #f8fafc;
+  color: #45647f;
+}
+.staff-decision-choices .staff-decision-review:hover:not(:disabled) {
+  border-color: #bfd0df;
+  background: #edf3f8;
 }

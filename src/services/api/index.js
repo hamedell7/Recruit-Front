@@ -1,4 +1,4 @@
-import { apiFetch, API_BASE_URL } from "./httpClient";
+import { apiDownload, apiFetch, API_BASE_URL } from "./httpClient";
 
 const path = (value) => encodeURIComponent(value);
 
@@ -19,7 +19,33 @@ const api = {
   }),
   resume: (id) => apiFetch("/requests/" + path(id) + "/resume"),
   steps: (id) => apiFetch("/requests/" + path(id) + "/steps"),
+  staffRequestWorkflow: (id) => apiFetch("/staff/requests/" + path(id) + "/workflow"),
+  staffRequestDocuments: (id) => apiFetch("/staff/requests/" + path(id) + "/documents"),
+  staffRequestDocumentUrl: (requestId, fileId, download = true) => API_BASE_URL + "/staff/requests/" + path(requestId) + "/documents/" + path(fileId) + "/download?download=" + (download ? "true" : "false"),
+  decideStaffRequest: (id, payload) => apiFetch("/staff/requests/" + path(id) + "/decision", { method: "POST", body: payload }),
+  requestWorkflow: (id) => apiFetch("/requests/" + path(id) + "/workflow"),
+  workflowDetail: (key) => apiFetch("/staff/workflows/" + path(key)),
+  saveWorkflowDraft: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/draft", { method: "PUT", body: payload }),
+  publishWorkflow: (key, payload) => apiFetch("/staff/workflows/" + path(key) + "/publish", { method: "POST", body: payload }),
+  workflows: () => apiFetch("/staff/workflows"),
+  createWorkflow: (payload) => apiFetch("/staff/workflows", { method: "POST", body: payload }),
+  staffRequestTypes: () => apiFetch("/staff/request-types"),
+  createRequestType: (payload) => apiFetch("/staff/request-types", { method: "POST", body: payload }),
+  updateRequestTypeSettings: (code, payload) => apiFetch("/staff/request-types/" + path(code) + "/settings", {
+    method: "PUT",
+    body: payload,
+  }),
   staffRequestReport: (id) => apiFetch("/staff/requests/" + path(id) + "/report"),
+  staffExcelExportSheets: () => apiFetch("/staff/requests/export.xlsx/sheets"),
+  exportStaffRequestsExcel: (payload, downloadOptions = {}) => apiDownload(
+    "/staff/requests/export.xlsx",
+    {
+      method: "POST",
+      body: payload,
+    },
+    downloadOptions,
+  ),
+  exportStaffRequestExcel: (id) => apiDownload("/staff/requests/" + path(id) + "/export.xlsx"),
   staffDashboard: (filters = {}, signal) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {

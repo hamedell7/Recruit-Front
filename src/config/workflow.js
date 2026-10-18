@@ -1,33 +1,3 @@
-const STEP_META = {
-  personal: { title: "مشخصات فردی", kicker: "هویت و اطلاعات تماس" },
-  marriage: { title: "سوابق ازدواج", kicker: "وضعیت خانوادگی" },
-  military: { title: "وضعیت نظام وظیفه", kicker: "خدمت و معافیت" },
-  education: { title: "سوابق تحصیلی", kicker: "مدارک دانشگاهی و حوزوی" },
-  employment: { title: "سوابق شغلی", kicker: "تجربه و محل‌های کار" },
-  accommodation: { title: "اقامت و اسکان", kicker: "خوابگاه و پانسیون" },
-  passport: { title: "سوابق گذرنامه", kicker: "ارتباطات و سوابق" },
-  foreign_contacts: { title: "ارتباطات خارج از کشور", kicker: "مکاتبه، تماس و ارتباطات مجازی" },
-  screening_history: { title: "سوابق گزینش", kicker: "پرونده‌های قبلی" },
-  veteran: { title: "سوابق ایثارگری", kicker: "رزمندگی، جانبازی و شهادت" },
-  travel: { title: "سفر و اقامت خارج از کشور", kicker: "مسافرت و اقامت" },
-  legal_incidents: { title: "سوابق قضایی و انتظامی", kicker: "احضار، بازداشت و دستگیری" },
-  migration: { title: "مهاجرت و پناهندگی", kicker: "وضعیت مهاجرت و بازگشت" },
-  affiliations: { title: "ارتباط و همکاری", kicker: "اشخاص، تشکل‌ها و گروه‌ها" },
-  addiction: { title: "سوابق اعتیاد", kicker: "اطلاعات اعلامی" },
-  foreign_company_relations: { title: "شرکت‌ها و مؤسسات خارجی", kicker: "همکاری و اشتغال" },
-  embassy_relations: { title: "سفارتخانه و کنسولگری", kicker: "اشتغال و ارتباطات" },
-  exit_restrictions: { title: "ممنوع‌الخروجی", kicker: "سوابق و نتایج" },
-  activities: { title: "فعالیت‌های اجتماعی و فرهنگی", kicker: "سیاسی، فرهنگی، جهادی و اجتماعی" },
-  weapons: { title: "سوابق سلاح", kicker: "سلاح و مجوز" },
-  family: { title: "خانواده", kicker: "والدین، خواهر و برادر، همسر و فرزندان" },
-  social_relations: { title: "معرفین، دوستان و همسایگان", kicker: "منابع شناخت" },
-  residence: { title: "سوابق سکونت ده سال اخیر", kicker: "نشانی‌های محل سکونت" },
-  additional: { title: "توضیحات تکمیلی", kicker: "موارد و سوابق تکمیلی" },
-  declaration: { title: "تعهد نهایی", kicker: "تأیید و ثبت نهایی پرونده" },
-  documents: { title: "مدارک", kicker: "بارگذاری مستندات" },
-  review: { title: "مرور نهایی", kicker: "کنترل اطلاعات پیش از ثبت" },
-};
-
 const RECORDS = {
   education: [
     { key: "degree_level", label: "مقطع تحصیلی / سطح", type: "text", required: true },
@@ -295,15 +265,6 @@ const RECORDS = {
   ],
 };
 
-const FLOW_SECTIONS = [
-  ["هویت و اطلاعات پایه", ["personal", "marriage", "military"]],
-  ["تحصیل و اشتغال", ["education", "employment", "accommodation"]],
-  ["ارتباطات و سوابق", ["foreign_contacts", "screening_history", "veteran", "travel", "legal_incidents", "migration", "passport"]],
-  ["ارتباطات تکمیلی", ["affiliations", "addiction", "foreign_company_relations", "embassy_relations", "exit_restrictions", "activities", "weapons"]],
-  ["خانواده و منابع شناخت", ["family", "social_relations", "residence"]],
-  ["جمع‌بندی", ["additional", "declaration"]],
-];
-
 const STATUS = {
   IN_PROGRESS: ["در حال تکمیل", "progress"],
   RETURNED: ["برگشت داده شده", "returned"],
@@ -354,4 +315,4 @@ const STEP_DESCRIPTIONS = {
   review: "پیش از ثبت نهایی، تمامی اطلاعات و سوابق ثبت‌شده را به دقت مرور کرده و در صورت وجود مغایرت، به مرحله مربوطه بازگردید و اصلاح نمایید.",
 };
 
-export { STEP_META, RECORDS, FLOW_SECTIONS, STATUS, STEP_DESCRIPTIONS, emptyRecord };
+export { RECORDS, STATUS, STEP_DESCRIPTIONS, emptyRecord };

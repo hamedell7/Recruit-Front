@@ -5,3 +5,31 @@
 
 
 .validation-summary-field{font-weight:700;color:#344054;white-space:nowrap}.validation-summary-message{font-weight:700;color:#b42318;margin-right:7px;line-height:1.8}
+
+
+/* Request-type eligibility feedback */
+.request-type.is-unavailable,
+.request-type.is-unavailable:hover {
+  border-color: #e7eaf0;
+  background: #f7f8fa;
+  cursor: pointer;
+}
+.request-type.is-unavailable.selected {
+  border-color: #d9a68d;
+  background: #fffaf7;
+}
+.request-type.is-unavailable .type-icon {
+  background: #edf0f4;
+  color: #929eac;
+}
+.request-type-copy { min-width: 0; }
+.request-type-copy strong { line-height: 1.7; }
+.request-type-copy > span { line-height: 1.6; }
+.request-type-copy .request-type-limit {
+  color: #278267;
+  font-size: 9px;
+  line-height: 1.7;
+  white-space: normal;
+}
+.request-type-copy .request-type-limit.is-blocked { color: #a35b41; }
+.request-type.is-unavailable .type-arrow { color: #a6afbb !important; }

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { api } from "../../services/api";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import { getFieldError } from "../../utils/validation";
+import { normalizeDigits } from "../../utils/form";
 import FieldError from "../../components/form/FieldError";
 
 function Login({ onLogin }) {
@@ -136,14 +137,14 @@ function Login({ onLogin }) {
             <label className={"field " + (getFieldError(validationErrors, "mobile") ? "has-error" : "")}>
               <span>شماره موبایل</span>
               <input
-                inputMode="tel"
+                inputMode="numeric"
                 autoComplete="tel"
-                maxLength={13}
+                maxLength={11}
                 value={mobile}
                 onChange={(e) => {
                   clearLoginValidationError("mobile");
                   clearAuthError();
-                  setMobile(e.target.value);
+                  setMobile(normalizeDigits(e.target.value).replace(/\D/g, "").slice(0, 11));
                 }}
                 placeholder="۰۹۱۲…"
                 required

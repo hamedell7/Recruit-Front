@@ -1,4 +1,4 @@
-import { STEP_META, STATUS } from "../config/workflow";
+import { STATUS } from "../config/workflow";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
@@ -263,7 +263,7 @@ function stepStatusClass(value) {
 
 function renderStep(step) {
   if (step.data === null || step.data === undefined) return "";
-  const meta = STEP_META[step.key] || { title: step.key, kicker: "" };
+  const meta = { title: step.title || step.key, kicker: step.group_title || "" };
   const body = renderObject(step.data);
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
   return `<section class="report-section">
@@ -284,7 +284,6 @@ function renderDocumentList(documents = []) {
     <div class="document-list">${documents.map((file, index) => `<div class="document-row">
       <span class="document-index">${new Intl.NumberFormat("fa-IR").format(index + 1)}</span>
       <div class="document-main"><strong>${escapeHtml(file.filename || "بدون نام")}</strong><small>${escapeHtml(file.document_type || "نوع مدرک مشخص نشده")}</small></div>
-      <span class="document-status">${escapeHtml(statusLabel(file.status))}</span>
       <span class="document-size">${escapeHtml(formatBytes(file.size_bytes))}</span>
     </div>`).join("")}</div>
     <p class="document-note">فایل‌های پیوست به‌صورت فهرست در این گزارش درج شده‌اند؛ محتوای خود فایل‌ها داخل PDF ادغام نشده است.</p>
@@ -313,7 +312,7 @@ function renderHtml(report) {
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
   const title = `گزارش پرونده - ${safeTracking}`;
   const progress = steps.map((step) => {
-    const meta = STEP_META[step.key] || { title: step.key };
+    const meta = { title: step.title || step.key };
     return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;
   }).join("");
   const summaryFields = [
@@ -409,7 +408,6 @@ body{padding:0}
 .document-main{display:flex;flex:1;min-width:0;flex-direction:column}
 .document-main strong{color:#263b56;overflow-wrap:anywhere;font-size:9pt}
 .document-main small,.document-size{color:var(--muted);font-size:8pt}
-.document-status{font-size:8pt;color:#4d6380;white-space:nowrap}
 .document-note{margin:9px 0 0;color:#7a8798;font-size:8pt}
 .report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
@@ -483,6 +481,8 @@ function errorHtml(message) {
   <body style="font-family:Tahoma,sans-serif;background:#f8fafc;color:#9b2c2c;padding:42px;line-height:2;text-align:center">
   <h2>تهیه گزارش انجام نشد</h2><p>${escapeHtml(message)}</p><button id="report-close" type="button">بستن پنجره</button></body></html>`;
 }
+
+export { FIELD_LABELS, VALUE_LABELS, isInternalKey, labelFor, valueFor };
 
 export async function printRequestReport(requestId, { staff = false } = {}) {
   const popup = window.open("", "_blank");
