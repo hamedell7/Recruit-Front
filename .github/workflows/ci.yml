@@ -25,6 +25,9 @@ jobs:
       - name: Build
         if: ${{ steps.install.outcome == 'success' }}
         run: npm run build
+      - name: Unit tests
+        if: ${{ steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: npm test
       - name: Dependency audit
         if: ${{ always() && steps.install.outcome == 'success' }}
         run: npm audit --audit-level=high
