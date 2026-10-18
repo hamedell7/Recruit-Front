@@ -62,7 +62,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
             <div className="document-row" key={doc.id}>
               <div className="doc-icon">PDF</div>
               <div><strong>{doc.filename}</strong><span>{doc.document_type} · {(Number(doc.size_bytes || 0) / 1024 / 1024).toFixed(1)} MB</span></div>
-              <a href={api.downloadDocumentUrl(doc.id)} rel="noreferrer">مشاهده</a>
+              <a href={api.downloadDocumentUrl(doc.id)} rel="noreferrer">دریافت فایل</a>
             </div>
           ))}</div>
         )}
