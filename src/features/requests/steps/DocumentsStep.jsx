@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api } from "../../../services/api";
 import FormSection from "../../../components/form/FormSection";
 import { SelectField } from "../../../components/form/Fields";
@@ -9,6 +9,7 @@ import {
 
 function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) {
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [documentType, setDocumentType] = useState("identity");
   const [busy, setBusy] = useState(false);
 
@@ -26,6 +27,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
       const doc = await api.uploadDocument(requestId, file, documentType, "documents");
       onUploaded(doc);
       setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       onError({ type: "error", text: error.message, requestId: error.requestId });
     } finally {
@@ -38,7 +40,7 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
       <FormSection title="بارگذاری مدارک" hint="نوع مدرک را مشخص کنید و سپس فایل را انتخاب نمایید.">
         <div className="upload-grid">
           <label className="upload-zone">
-            <input type="file" accept={DOCUMENT_ACCEPT_ATTRIBUTE} onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={readOnly} />
+            <input ref={fileInputRef} type="file" accept={DOCUMENT_ACCEPT_ATTRIBUTE} onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={readOnly} />
             <div className="upload-icon">↑</div>
             <strong>{file ? file.name : "فایل را انتخاب کنید"}</strong>
             <span>PDF, DOCX, PNG, JPG/JPEG · حداکثر ۲MB</span>
