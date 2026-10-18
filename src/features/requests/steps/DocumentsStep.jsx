@@ -2,6 +2,11 @@ import { useState } from "react";
 import { api } from "../../../services/api";
 import FormSection from "../../../components/form/FormSection";
 import { SelectField } from "../../../components/form/Fields";
+import {
+  DOCUMENT_ACCEPT_ATTRIBUTE,
+  MAX_DOCUMENT_UPLOAD_BYTES,
+  isAllowedDocumentFile,
+} from "./documentUploadPolicy.js";
 
 function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) {
   const [file, setFile] = useState(null);
@@ -10,9 +15,11 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
 
   const submit = async () => {
     if (!file) return;
-    const maxSize = 20 * 1024 * 1024;
-    if (file.size > maxSize) {
-      onError({ type: "error", text: "حجم فایل نباید بیشتر از ۲۰ مگابایت باشد." });
+    if (!isAllowedDocumentFile(file)) {
+      onError({
+        type: "error",
+        text: "فایل باید PDF، PNG یا JPG/JPEG باشد و حجم آن از ۲ مگابایت بیشتر نباشد.",
+      });
       return;
     }
     setBusy(true);
@@ -32,10 +39,10 @@ function DocumentsStep({ documents, requestId, onUploaded, onError, readOnly }) 
       <FormSection title="بارگذاری مدارک" hint="نوع مدرک را مشخص کنید و سپس فایل را انتخاب نمایید.">
         <div className="upload-grid">
           <label className="upload-zone">
-            <input type="file" accept=".pdf,.png,.jpg,.jpeg,.docx" onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={readOnly} />
+            <input type="file" accept={DOCUMENT_ACCEPT_ATTRIBUTE} onChange={(e) => setFile(e.target.files?.[0] || null)} disabled={readOnly} />
             <div className="upload-icon">↑</div>
             <strong>{file ? file.name : "فایل را انتخاب کنید"}</strong>
-            <span>PDF, PNG, JPG, DOCX · حداکثر ۲۰MB</span>
+            <span>PDF, PNG, JPG/JPEG · حداکثر ۲MB</span>
           </label>
           <div className="upload-side">
             <SelectField label="نوع مدرک" value={documentType} onChange={setDocumentType} options={[
