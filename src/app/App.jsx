@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { api } from "../services/api";
 import LoadingScreen from "../components/common/LoadingScreen";
 import Toast from "../components/common/Toast";
-import Login from "../features/auth/Login";
 import Header from "../components/layout/Header";
-import Dashboard from "../features/dashboard/Dashboard";
-import StaffDashboard from "../features/dashboard/StaffDashboard";
-import RequestWizard from "../features/requests/RequestWizard";
-import StaffRequestDetails from "../features/dashboard/StaffRequestDetails";
+
+const Login = lazy(() => import("../features/auth/Login"));
+const Dashboard = lazy(() => import("../features/dashboard/Dashboard"));
+const StaffDashboard = lazy(() => import("../features/dashboard/StaffDashboard"));
+const StaffRequestDetails = lazy(() => import("../features/dashboard/StaffRequestDetails"));
+const RequestWizard = lazy(() => import("../features/requests/RequestWizard"));
 
 const STAFF_ROLES = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"];
 
@@ -199,7 +200,8 @@ function App() {
   };
 
   return (
-    <div className="app-shell">
+    <Suspense fallback={<LoadingScreen />}>
+      <div className="app-shell">
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
 
       {!user ? (
@@ -256,7 +258,8 @@ function App() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </Suspense>
   );
 }
 

@@ -1,4 +1,5 @@
 import { STATUS } from "../config/workflow";
+import { api } from "../services/api";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
@@ -492,7 +493,6 @@ export async function printRequestReport(requestId, { staff = false } = {}) {
     popup.document.write(loadingHtml());
     popup.document.close();
     popup.opener = null;
-    const { api } = await import("../services/api");
     const report = staff ? await api.staffRequestReport(requestId) : await api.requestReport(requestId);
     popup.document.open();
     popup.document.write(renderHtml(report));
