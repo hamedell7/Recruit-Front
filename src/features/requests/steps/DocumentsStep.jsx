@@ -4,7 +4,6 @@ import FormSection from "../../../components/form/FormSection";
 import { SelectField } from "../../../components/form/Fields";
 import {
   DOCUMENT_ACCEPT_ATTRIBUTE,
-  MAX_DOCUMENT_UPLOAD_BYTES,
   isAllowedDocumentFile,
 } from "./documentUploadPolicy.js";
 
