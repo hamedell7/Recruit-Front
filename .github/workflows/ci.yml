@@ -23,6 +23,7 @@ jobs:
         id: install
         run: npm ci --no-audit --no-fund
       - name: Build
+        id: build
         if: ${{ steps.install.outcome == 'success' }}
         run: npm run build
       - name: Unit tests
