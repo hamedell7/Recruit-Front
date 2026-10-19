@@ -77,3 +77,33 @@ test("uses the operation-specific fallback for plain-text errors", () => {
   assert.equal(error.message, "خطا در دریافت فایل");
   assert.equal(error.status, 503);
 });
+
+test("prefers specific email and numeric messages over generic input validation", () => {
+  const errors = normalizeValidationErrors({
+    details: [
+      {
+        loc: ["body", "email"],
+        msg: "Input should be a valid email address",
+        type: "value_error",
+      },
+      {
+        loc: ["body", "age"],
+        msg: "Input should be a valid integer",
+        type: "int_parsing",
+      },
+    ],
+  });
+
+  assert.deepEqual(errors, [
+    {
+      path: "email",
+      message: "ایمیل واردشده معتبر نیست.",
+      type: "value_error",
+    },
+    {
+      path: "age",
+      message: "مقدار این فیلد باید عدد صحیح باشد.",
+      type: "int_parsing",
+    },
+  ]);
+});
