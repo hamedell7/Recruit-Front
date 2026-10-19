@@ -1,7 +1,8 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
+const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || "recruit_csrf";
 
 function getCookie(name) {
-  const cookies = document.cookie ? document.cookie.split("; ") : [];
+  const cookies = document.cookie ? document.cookie.split(/;\s*/) : [];
   const item = cookies.find((cookie) => cookie.startsWith(name + "="));
   return item ? decodeURIComponent(item.slice(name.length + 1)) : null;
 }
@@ -113,7 +114,7 @@ async function apiFetch(path, options = {}) {
   }
 
   if (stateChanging) {
-    const csrf = getCookie("recruit_csrf");
+    const csrf = getCookie(CSRF_COOKIE_NAME);
     if (csrf) headers["X-CSRF-Token"] = csrf;
   }
 
@@ -228,7 +229,7 @@ async function apiDownload(path, options = {}, downloadOptions = {}) {
     headers["Content-Type"] = "application/json";
   }
   if (stateChanging) {
-    const csrf = getCookie("recruit_csrf");
+    const csrf = getCookie(CSRF_COOKIE_NAME);
     if (csrf) headers["X-CSRF-Token"] = csrf;
   }
 
