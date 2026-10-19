@@ -11,16 +11,10 @@ import {
 } from "../../utils/requestPdf";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 import ExcelExportModal from "./ExcelExportModal";
+import { canPreviewDocument, documentTypeLabel, saveBlobDownload } from "./documentUtils";
 import "../../styles/staff-request-details.css";
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
-
-const DOCUMENT_TYPE_LABELS = {
-  identity: "مدرک هویتی",
-  education: "مدرک تحصیلی",
-  employment: "مدرک شغلی",
-  other: "سایر مدارک",
-};
 
 const STEP_STATUS_LABELS = {
   COMPLETED: "تکمیل‌شده",
@@ -224,26 +218,6 @@ function formatBytes(value) {
     return numberFormat.format(Math.max(1, Math.round(bytes / 1024))) + " کیلوبایت";
   }
   return numberFormat.format(Number((bytes / (1024 * 1024)).toFixed(1))) + " مگابایت";
-}
-
-function documentTypeLabel(value) {
-  return DOCUMENT_TYPE_LABELS[value] || value || "مدرک";
-}
-
-function canPreviewDocument(document) {
-  return document?.mime_type === "application/pdf" ||
-    String(document?.mime_type || "").startsWith("image/");
-}
-
-function saveDownloadedFile(file) {
-  const url = window.URL.createObjectURL(file.blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = file.filename || "request.xlsx";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
 
 function findApplicantProfile(value) {
@@ -576,7 +550,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
         request_ids: [String(requestId)],
         sheets,
       });
-      if (!file.savedToDisk) saveDownloadedFile(file);
+      if (!file.savedToDisk) saveBlobDownload(file, "request.xlsx");
       setExcelExportModal(null);
       onError?.({ type: "success", text: "فایل اکسل جزئیات پرونده آماده شد." });
     } catch (reason) {
