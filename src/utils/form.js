@@ -139,6 +139,21 @@ export function cleanMilitaryPayload(value) {
   return cleaned;
 }
 
+export function cleanStepPayload(handlerKey, value) {
+  const payload = value || {};
+
+  switch (handlerKey) {
+    case "military_v1":
+      return cleanMilitaryPayload(payload);
+    case "marriage_v1":
+      return cleanMarriagePayload(payload);
+    case "legal_incidents_v1":
+      return cleanLegalIncidentPayload(payload);
+    default:
+      return cleanPayload(payload);
+  }
+}
+
 export function mergeDraft(base, draft, stepKey) {
   const hydratedBase = hydrateDateFields(base);
   const hydratedDraft = draft && typeof draft === "object" ? hydrateDateFields(draft) : null;

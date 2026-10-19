@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   cleanMilitaryPayload,
   cleanPayload,
+  cleanStepPayload,
   mergeDraft,
   normalizeDigits,
   sanitizeMarriageForm,
@@ -166,4 +167,40 @@ test("validateStep accepts complete personal fields and rejects invalid contact 
   });
   assert.equal(Object.hasOwn(errors, "contacts.0.value"), true);
   assert.equal(Object.hasOwn(errors, "contacts.0.owner_name"), true);
+});
+
+test("cleanStepPayload dispatches each specialized form through its canonical sanitizer", () => {
+  const military = cleanStepPayload("military_v1", {
+    status: "exempt",
+    exemption_type: "medical",
+    organization_name: "not applicable",
+    service_province_id: 8,
+  });
+  assert.equal(military.status, "exempt");
+  assert.equal(military.exemption_type, "medical");
+  assert.equal(military.organization_name, null);
+  assert.equal(Object.hasOwn(military, "service_province_id"), false);
+
+  const marriage = cleanStepPayload("marriage_v1", {
+    marriages: [{
+      status: "current",
+      end_date: "1402/01/01",
+      end_reason: "other",
+      spouse: { first_name: "نمونه" },
+    }],
+  });
+  assert.equal(marriage.marriages[0].end_date, null);
+  assert.equal(marriage.marriages[0].end_reason, null);
+
+  const legal = cleanStepPayload("legal_incidents_v1", {
+    records: [{ person_role: "SELF", incident_date: "1402/01/02", description: "" }],
+  });
+  assert.equal(Object.hasOwn(legal.records[0], "person_role"), false);
+  assert.equal(legal.records[0].incident_date, "2023-03-22");
+  assert.equal(legal.records[0].description, null);
+
+  assert.deepEqual(cleanStepPayload("generic_v1", { description: "", count: 0 }), {
+    description: null,
+    count: 0,
+  });
 });
