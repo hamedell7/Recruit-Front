@@ -4,7 +4,7 @@ import { STEP_DESCRIPTIONS } from "../../config/workflow";
 import { formatDate } from "../../utils/date";
 import { statusLabel } from "../../utils/status";
 import { normalizeList } from "../../utils/collections";
-import { cleanLegalIncidentPayload, cleanMarriagePayload, cleanMilitaryPayload, cleanPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
+import { cleanStepPayload, makeForm, mergeDraft, sanitizeMarriageForm, sanitizeMilitaryForm, validateStep } from "../../utils/form";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import DraftStatus from "../../components/form/DraftStatus";
 import DocumentsStep from "./steps/DocumentsStep";
@@ -479,7 +479,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       const controller = new AbortController();
       autosaveController.current = controller;
       try {
-        const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form) : cleanPayload(form);
+        const payload = cleanStepPayload(handlerKey, form);
         const result = await api.saveDraft(appRequest.id, currentKey, payload, controller.signal);
         if (sequence !== autosaveSequence.current) return;
         setLastDraftSaved(result.updated_at);
@@ -662,7 +662,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
       if (isDocumentsStep) {
         result = await api.completeGeneric(appRequest.id, currentKey);
       } else {
-        const payload = handlerKey === "military_v1" ? cleanMilitaryPayload(form || {}) : handlerKey === "marriage_v1" ? cleanMarriagePayload(form || {}) : handlerKey === "legal_incidents_v1" ? cleanLegalIncidentPayload(form || {}) : cleanPayload(form || {});
+        const payload = cleanStepPayload(handlerKey, form);
         result = await api.completeStep(appRequest.id, currentKey, payload);
       }
       // The gender is persisted now, so the route can be reconciled against

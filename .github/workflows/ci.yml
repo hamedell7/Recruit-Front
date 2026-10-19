@@ -20,6 +20,15 @@ jobs:
         with:
           node-version: 22
       - name: Install
-        run: npm install --no-audit --no-fund
+        id: install
+        run: npm ci --no-audit --no-fund
       - name: Build
+        id: build
+        if: ${{ steps.install.outcome == 'success' }}
         run: npm run build
+      - name: Unit tests
+        if: ${{ steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
+        run: npm test
+      - name: Dependency audit
+        if: ${{ always() && steps.install.outcome == 'success' }}
+        run: npm audit --audit-level=high

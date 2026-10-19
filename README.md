@@ -43,6 +43,7 @@ Endpointهای دامنه‌ای در `src/services/api/index.js` نگهداری
 - احراز هویت بر اساس session cookie فعلی Backend و بدون نگهداری access token در localStorage.
 - ارسال credentials در تمام درخواست‌ها.
 - ارسال X-CSRF-Token از cookie غیر HttpOnly به header برای درخواست‌های state-changing.
+- نام کوکی CSRF در فرانت‌اند از `VITE_CSRF_COOKIE_NAME` خوانده می‌شود و باید با `CSRF_COOKIE_NAME` بک‌اند یکسان باشد.
 - X-Request-ID برای correlation.
 - عدم استفاده از dangerouslySetInnerHTML.
 - کنترل حجم فایل سمت رابط کاربری، در کنار validation سمت Backend.
@@ -55,10 +56,19 @@ npm install
 npm run dev
 ```
 
-برای Backend URL می‌توان مقدار `VITE_API_BASE_URL` را در `.env` تنظیم کرد.
+برای اجرای محلی، فایل نمونه را به `.env` کپی کنید:
 
-پیش‌فرض API محلی:
-`http://localhost:8000/api/v1`
+```bash
+cp .env.example .env
+npm install
+npm run dev
+```
+
+پیش‌فرض `VITE_API_BASE_URL=/api/v1` است و Vite درخواست‌های `/api/*` را از طریق پراکسی توسعه به بک‌اند هدایت می‌کند. مقصد پراکسی با `VITE_DEV_API_PROXY_TARGET` تنظیم می‌شود و به‌صورت پیش‌فرض `http://localhost:8000` است.
+
+اگر نام کوکی CSRF در بک‌اند را تغییر می‌دهید، مقدار `VITE_CSRF_COOKIE_NAME` را نیز دقیقاً با `CSRF_COOKIE_NAME` بک‌اند هماهنگ کنید.
+
+برای production، مقدار `VITE_API_BASE_URL` را به آدرس API محیط مقصد تنظیم کنید؛ پراکسی تعریف‌شده در Vite فقط برای سرور توسعه است.
 
 برای production:
 

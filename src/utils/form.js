@@ -1,6 +1,6 @@
-import { RECORDS } from "../config/workflow";
-import { normalizeList } from "./collections";
-import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
+import { RECORDS } from "../config/workflow.js";
+import { normalizeList } from "./collections.js";
+import { gregorianToJalaliString, jalaliToGregorianString } from "./date.js";
 
 export function withSpouseAvailability(options = [], hasSpouse = false) {
   return (Array.isArray(options) ? options : []).map((option) => {
@@ -137,6 +137,21 @@ export function cleanMilitaryPayload(value) {
   const cleaned = cleanPayload(sanitizeMilitaryForm(value || {}));
   delete cleaned.service_province_id;
   return cleaned;
+}
+
+export function cleanStepPayload(handlerKey, value) {
+  const payload = value || {};
+
+  switch (handlerKey) {
+    case "military_v1":
+      return cleanMilitaryPayload(payload);
+    case "marriage_v1":
+      return cleanMarriagePayload(payload);
+    case "legal_incidents_v1":
+      return cleanLegalIncidentPayload(payload);
+    default:
+      return cleanPayload(payload);
+  }
 }
 
 export function mergeDraft(base, draft, stepKey) {

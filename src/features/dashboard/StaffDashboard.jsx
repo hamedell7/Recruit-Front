@@ -10,6 +10,7 @@ import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
 import RequestSettings from "./RequestSettings";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
+import { canPreviewDocument, documentTypeLabel, saveBlobDownload } from "./documentUtils";
 
 const PAGE_SIZE = 10;
 
@@ -47,37 +48,12 @@ function fullName(applicant) {
   return value || "مشخصات فردی تکمیل نشده";
 }
 
-function documentTypeLabel(value) {
-  const labels = {
-    identity: "مدرک هویتی",
-    education: "مدرک تحصیلی",
-    employment: "مدرک شغلی",
-    other: "سایر مدارک",
-  };
-  return labels[value] || value || "مدرک";
-}
-
 function documentSizeLabel(value) {
   const size = Number(value) || 0;
   if (size >= 1024 * 1024) {
     return numberFormat.format(Number((size / (1024 * 1024)).toFixed(1))) + " مگابایت";
   }
   return numberFormat.format(Math.max(1, Math.round(size / 1024))) + " کیلوبایت";
-}
-
-function canPreviewDocument(document) {
-  return document?.mime_type === "application/pdf" || String(document?.mime_type || "").startsWith("image/");
-}
-
-function saveDownloadedWorkbook(file) {
-  const url = window.URL.createObjectURL(file.blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = file.filename || "e" + Date.now() + ".xlsx";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 }
 
 function StaffRequestsDashboard({ onError, user }) {
@@ -417,7 +393,7 @@ function StaffRequestsDashboard({ onError, user }) {
       const streamThreshold = selectedDetailSheets ? 1000 : 10000;
       const streamToDisk = (scope.requestCount || 0) >= streamThreshold;
       const file = await api.exportStaffRequestsExcel(payload, { streamToDisk });
-      if (!file.savedToDisk) saveDownloadedWorkbook(file);
+      if (!file.savedToDisk) saveBlobDownload(file, "e" + Date.now() + ".xlsx");
       setExcelExportModal(null);
 
       if (scope.singleRequest) {
