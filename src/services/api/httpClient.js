@@ -1,4 +1,5 @@
 import { createApiError } from "./errors.js";
+import { buildFetchOptions } from "./requestOptions.js";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/$/, "");
 const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || "recruit_csrf";
@@ -14,32 +15,14 @@ function requestId() {
 }
 
 async function apiFetch(path, options = {}) {
-  const method = (options.method || "GET").toUpperCase();
-  const stateChanging = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
-  const body = options.body;
-
-  const headers = {
-    Accept: "application/json",
-    "X-Request-ID": requestId(),
-    ...(options.headers || {}),
-  };
-
-  if (body !== undefined && !(body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  if (stateChanging) {
-    const csrf = getCookie(CSRF_COOKIE_NAME);
-    if (csrf) headers["X-CSRF-Token"] = csrf;
-  }
-
-  const response = await fetch(API_BASE_URL + path, {
-    ...options,
-    method,
-    credentials: "include",
-    body: body instanceof FormData || body === undefined ? body : JSON.stringify(body),
-    headers,
-  });
+  const response = await fetch(
+    API_BASE_URL + path,
+    buildFetchOptions(options, {
+      accept: "application/json",
+      requestId: requestId(),
+      getCsrfToken: () => getCookie(CSRF_COOKIE_NAME),
+    }),
+  );
 
   if (response.status === 204) return null;
 
@@ -87,9 +70,6 @@ async function writeResponseToFile(response, fileHandle) {
 }
 
 async function apiDownload(path, options = {}, downloadOptions = {}) {
-  const method = (options.method || "GET").toUpperCase();
-  const stateChanging = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
-  const body = options.body;
   let fileHandle = null;
 
   // On Chromium browsers, large exports can stream straight to disk instead of
@@ -119,27 +99,14 @@ async function apiDownload(path, options = {}, downloadOptions = {}) {
     }
   }
 
-  const headers = {
-    Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json",
-    "X-Request-ID": requestId(),
-    ...(options.headers || {}),
-  };
-
-  if (body !== undefined && !(body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
-  if (stateChanging) {
-    const csrf = getCookie(CSRF_COOKIE_NAME);
-    if (csrf) headers["X-CSRF-Token"] = csrf;
-  }
-
-  const response = await fetch(API_BASE_URL + path, {
-    ...options,
-    method,
-    credentials: "include",
-    body: body instanceof FormData || body === undefined ? body : JSON.stringify(body),
-    headers,
-  });
+  const response = await fetch(
+    API_BASE_URL + path,
+    buildFetchOptions(options, {
+      accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/json",
+      requestId: requestId(),
+      getCsrfToken: () => getCookie(CSRF_COOKIE_NAME),
+    }),
+  );
 
   if (!response.ok) {
     const contentType = response.headers.get("content-type") || "";
