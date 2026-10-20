@@ -11,6 +11,16 @@ const api = {
   logout: () => apiFetch("/auth/logout", { method: "POST" }),
   requestTypes: () => apiFetch("/requests/types"),
   requests: () => apiFetch("/requests"),
+  requestDashboard: (filters = {}, signal) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        params.set(key, String(value));
+      }
+    });
+    const query = params.toString();
+    return apiFetch("/requests/dashboard" + (query ? "?" + query : ""), { signal });
+  },
   request: (id) => apiFetch("/requests/" + path(id)),
   requestReport: (id) => apiFetch("/requests/" + path(id) + "/report"),
   createRequest: (requestType) => apiFetch("/requests", {

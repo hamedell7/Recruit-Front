@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
 import { formatDate } from "../../utils/date";
@@ -9,8 +9,16 @@ import EmptyState from "./cards/EmptyState";
 import SkeletonCard from "./cards/SkeletonCard";
 import "../../styles/user-dashboard.css";
 
-const ACTIVE_STATUSES = ["IN_PROGRESS", "DRAFT"];
-const FINAL_STATUSES = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"];
+const PAGE_SIZE = 12;
+const EMPTY_STATS = {
+  total: 0,
+  in_progress: 0,
+  returned: 0,
+  submitted: 0,
+  under_review: 0,
+  closed: 0,
+  finalized: 0,
+};
 
 function tehranToday() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -23,8 +31,8 @@ function tehranToday() {
   return values.year + "-" + values.month + "-" + values.day;
 }
 
-function requestTypeAvailability(type, requests, today = tehranToday()) {
-  const used = requests.filter((request) => request.request_type_code === type.code).length;
+function requestTypeAvailability(type, requestTypeCounts, today = tehranToday()) {
+  const used = Number(requestTypeCounts?.[type.code] || 0);
 
   if (type.is_active === false) {
     return { available: false, message: "ثبت این نوع درخواست در حال حاضر غیرفعال است." };
@@ -47,10 +55,10 @@ function requestTypeAvailability(type, requests, today = tehranToday()) {
 }
 
 function requestEditBlockedMessage(type, request, today = tehranToday()) {
-  if (!type || !["IN_PROGRESS", "RETURNED"].includes(request.status)) return "";
+  if (!type || !["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(request.status)) return "";
 
   if (type.is_active === false) {
-    return "نوع این درخواست غیرفعال شده است؛ ادامه تکمیل پرونده متوقف است.";
+    return "نوع این درخواست غیرفعال شده است؛ این پرونده فقط برای مشاهده در دسترس است.";
   }
   if (type.registration_start_date && today < type.registration_start_date) {
     return "تکمیل این پرونده از " + formatDate(type.registration_start_date) + " امکان‌پذیر است.";
@@ -65,25 +73,77 @@ function requestEditBlockedMessage(type, request, today = tehranToday()) {
 function Dashboard({ user, onOpenRequest, onCreated, onError }) {
   const [requests, setRequests] = useState([]);
   const [types, setTypes] = useState([]);
+  const [stats, setStats] = useState(EMPTY_STATS);
+  const [requestTypeCounts, setRequestTypeCounts] = useState({});
+  const [pagination, setPagination] = useState({
+    page: 1,
+    page_size: PAGE_SIZE,
+    total_items: 0,
+    total_pages: 1,
+  });
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const load = async () => {
-    try {
-      const [reqs, requestTypes] = await Promise.all([api.requests(), api.requestTypes()]);
-      setRequests(normalizeList(reqs));
-      setTypes(normalizeList(requestTypes));
-    } catch (error) {
-      onError({ type: "error", text: error.message, requestId: error.requestId });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    let cancelled = false;
+    api.requestTypes()
+      .then((result) => {
+        if (!cancelled) setTypes(normalizeList(result));
+      })
+      .catch((error) => {
+        if (!cancelled) onError({ type: "error", text: error.message, requestId: error.requestId });
+      });
+    return () => { cancelled = true; };
+  }, [onError]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let cancelled = false;
+    setLoading(true);
+    api.requestDashboard({
+      page,
+      page_size: PAGE_SIZE,
+      search: debouncedSearchQuery,
+      status_filter: activeFilter,
+    }, controller.signal)
+      .then((result) => {
+        if (cancelled) return;
+        setRequests(Array.isArray(result?.items) ? result.items : []);
+        setStats({ ...EMPTY_STATS, ...(result?.stats || {}) });
+        setRequestTypeCounts(result?.request_type_counts || {});
+        setPagination({
+          page: Number(result?.pagination?.page) || page,
+          page_size: Number(result?.pagination?.page_size) || PAGE_SIZE,
+          total_items: Number(result?.pagination?.total_items) || 0,
+          total_pages: Math.max(1, Number(result?.pagination?.total_pages) || 1),
+        });
+      })
+      .catch((error) => {
+        if (!cancelled && error.name !== "AbortError") {
+          onError({ type: "error", text: error.message, requestId: error.requestId });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [page, debouncedSearchQuery, activeFilter, onError]);
 
   const createRequest = async () => {
     if (!selectedType) return;
@@ -99,48 +159,27 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
     }
   };
 
-  const inProgress = requests.filter((item) => ACTIVE_STATUSES.includes(item.status));
-  const returned = requests.filter((item) => item.status === "RETURNED");
-  const finalized = requests.filter((item) => FINAL_STATUSES.includes(item.status));
-
+  const inProgress = Number(stats.in_progress || 0);
+  const returned = Number(stats.returned || 0);
+  const finalized = Number(stats.finalized || 0);
   const filters = [
-    { id: "all", label: "همه پرونده‌ها", count: requests.length },
-    { id: "in-progress", label: "در حال تکمیل", count: inProgress.length },
-    { id: "returned", label: "نیازمند اصلاح", count: returned.length },
-    { id: "finalized", label: "ثبت‌شده", count: finalized.length },
+    { id: "all", label: "همه پرونده‌ها", count: Number(stats.total || 0) },
+    { id: "in-progress", label: "در حال تکمیل", count: inProgress },
+    { id: "returned", label: "نیازمند اصلاح", count: returned },
+    { id: "finalized", label: "ثبت‌شده", count: finalized },
   ];
 
-  const visibleRequests = useMemo(() => {
-    const query = searchQuery.trim().toLocaleLowerCase();
-    return requests.filter((request) => {
-      const statusMatches =
-        activeFilter === "all" ||
-        (activeFilter === "in-progress" && ACTIVE_STATUSES.includes(request.status)) ||
-        (activeFilter === "returned" && request.status === "RETURNED") ||
-        (activeFilter === "finalized" && FINAL_STATUSES.includes(request.status));
-
-      if (!statusMatches) return false;
-      if (!query) return true;
-
-      const searchable = [
-        request.tracking_code,
-        request.id,
-        request.current_step_title || request.current_step_key,
-        request.request_type_title || request.request_type_code || request.workflow_key,
-      ].filter(Boolean).join(" ").toLocaleLowerCase();
-
-      return searchable.includes(query);
-    });
-  }, [requests, searchQuery, activeFilter]);
+  const visibleRequests = requests;
+  const hasRequests = Number(stats.total || 0) > 0;
 
   const openNewRequest = () => {
-    const firstAvailable = types.find((item) => requestTypeAvailability(item, requests).available);
+    const firstAvailable = types.find((item) => requestTypeAvailability(item, requestTypeCounts).available);
     setSelectedType(firstAvailable?.code || types[0]?.code || null);
   };
 
   const selectedTypeItem = types.find((item) => item.code === selectedType);
   const selectedTypeAvailability = selectedTypeItem
-    ? requestTypeAvailability(selectedTypeItem, requests)
+    ? requestTypeAvailability(selectedTypeItem, requestTypeCounts)
     : { available: false, message: "" };
 
   return (
@@ -180,10 +219,10 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
       </section>
 
       <section className="stats-grid ud-stats-grid" aria-label="خلاصه درخواست‌ها">
-        <StatCard label="کل پرونده‌ها" value={requests.length} icon="▤" />
-        <StatCard label="در حال تکمیل" value={inProgress.length} icon="◷" />
-        <StatCard label="نیازمند اصلاح" value={returned.length} icon="↺" />
-        <StatCard label="ثبت نهایی‌شده" value={finalized.length} icon="✓" />
+        <StatCard label="کل پرونده‌ها" value={Number(stats.total || 0)} icon="▤" />
+        <StatCard label="در حال تکمیل" value={inProgress} icon="◷" />
+        <StatCard label="نیازمند اصلاح" value={returned} icon="↺" />
+        <StatCard label="ثبت نهایی‌شده" value={finalized} icon="✓" />
       </section>
 
       <section className="dashboard-section ud-requests-section">
@@ -193,10 +232,10 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
             <h2>پرونده‌های من</h2>
             <p>برای مشاهده جزئیات یا ادامه تکمیل، پرونده موردنظر را انتخاب کنید.</p>
           </div>
-          {!loading && <span className="ud-result-count">{visibleRequests.length} <small>از</small> {requests.length} پرونده</span>}
+          {!loading && <span className="ud-result-count">{visibleRequests.length} <small>از</small> {pagination.total_items} پرونده</span>}
         </div>
 
-        {!loading && requests.length > 0 && (
+        {!loading && hasRequests && (
           <div className="ud-tools">
             <label className="ud-search">
               <span className="ud-search-icon" aria-hidden="true">⌕</span>
@@ -215,7 +254,10 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
                   type="button"
                   key={filter.id}
                   className={"ud-filter-tab" + (activeFilter === filter.id ? " is-active" : "")}
-                  onClick={() => setActiveFilter(filter.id)}
+                  onClick={() => {
+                    setActiveFilter(filter.id);
+                    setPage(1);
+                  }}
                   aria-pressed={activeFilter === filter.id}
                 >
                   <span>{filter.label}</span><b>{filter.count}</b>
@@ -227,14 +269,14 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
 
         {loading ? (
           <div className="skeleton-list ud-skeleton-list"><SkeletonCard /><SkeletonCard /></div>
-        ) : requests.length === 0 ? (
+        ) : !hasRequests ? (
           <EmptyState onCreate={openNewRequest} />
         ) : visibleRequests.length === 0 ? (
           <div className="ud-no-results">
             <span className="ud-no-results-icon">⌕</span>
             <h3>پرونده‌ای با این مشخصات پیدا نشد</h3>
             <p>عبارت جست‌وجو یا فیلتر انتخاب‌شده را تغییر دهید.</p>
-            <button type="button" className="outline-button" onClick={() => { setSearchQuery(""); setActiveFilter("all"); }}>نمایش همه پرونده‌ها</button>
+            <button type="button" className="outline-button" onClick={() => { setSearchQuery(""); setActiveFilter("all"); setPage(1); }}>نمایش همه پرونده‌ها</button>
           </div>
         ) : (
           <div className="request-grid ud-request-grid">
@@ -251,6 +293,28 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
             ))}
           </div>
         )}
+        {!loading && hasRequests && pagination.total_pages > 1 && (
+          <div className="ud-pagination">
+            <span>
+              صفحه {pagination.page} از {pagination.total_pages} ·
+              {" "}{pagination.total_items} پرونده
+            </span>
+            <div>
+              <button
+                type="button"
+                className="outline-button"
+                disabled={loading || page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+              >قبلی</button>
+              <button
+                type="button"
+                className="outline-button"
+                disabled={loading || page >= pagination.total_pages}
+                onClick={() => setPage((current) => Math.min(pagination.total_pages, current + 1))}
+              >بعدی</button>
+            </div>
+          </div>
+        )}
       </section>
 
       {selectedType && (
@@ -262,7 +326,7 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
           </div>
           <div className="request-type-list">
             {types.map((item) => {
-              const availability = requestTypeAvailability(item, requests);
+              const availability = requestTypeAvailability(item, requestTypeCounts);
               return (
                 <button
                   key={item.code}
