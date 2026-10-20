@@ -55,11 +55,21 @@ function requestTypeAvailability(type, requestTypeCounts, today = tehranToday())
 }
 
 function requestEditBlockedMessage(type, request, today = tehranToday()) {
-  if (!type || !["IN_PROGRESS", "RETURNED", "SUBMITTED"].includes(request.status)) return "";
+  if (!type) return "";
+
+  const status = request.status;
+  const editableStatuses = ["IN_PROGRESS", "RETURNED", "SUBMITTED"];
+  if (!editableStatuses.includes(status)) return "";
 
   if (type.is_active === false) {
     return "نوع این درخواست غیرفعال شده است؛ این پرونده فقط برای مشاهده در دسترس است.";
   }
+  if (type.edit_until_date && today > type.edit_until_date) {
+    return "مهلت ویرایش این پرونده در " + formatDate(type.edit_until_date) + " پایان یافته است؛ اطلاعات فقط برای مشاهده در دسترس است.";
+  }
+
+  // Registration windows affect unfinished/returned requests, not a submitted request.
+  if (status === "SUBMITTED") return "";
   if (type.registration_start_date && today < type.registration_start_date) {
     return "تکمیل این پرونده از " + formatDate(type.registration_start_date) + " امکان‌پذیر است.";
   }
