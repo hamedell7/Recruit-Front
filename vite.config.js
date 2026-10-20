@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
         parsedHosts = JSON.parse(rawAllowedHosts);
       } catch {
         throw new Error(
-          "APP_ALLOWED_HOSTS must be a valid JSON array, e.g. [\\"selection.esata.ir\\", \\"admin.example.com\\"]",
+          "APP_ALLOWED_HOSTS must be a valid JSON array of hostnames.",
         );
       }
 
