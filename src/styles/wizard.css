@@ -71,12 +71,85 @@
 .social-network-item .field{width:100%}
 .social-network-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid #edf0f4}
 .social-network-actions p{margin:0;color:var(--muted);font-size:10px;line-height:1.8}
-.social-other-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
-.social-other-card{min-width:0;border:1px solid #e3e8ef;background:#fbfcfe;border-radius:14px;padding:14px}
-.social-other-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.social-other-card-head strong{font-size:11px;color:var(--ink)}
-.social-other-card-head p{margin:3px 0 0;color:var(--muted);font-size:9px;line-height:1.7}
-.social-other-card-head .remove-button{margin:0;flex:0 0 auto}
+.social-other-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px;align-items:stretch}
+.social-other-card{
+  position:relative;
+  min-width:0;
+  overflow:hidden;
+  padding:16px;
+  border:1px solid #e1e8f1;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+  box-shadow:0 4px 14px rgba(29,55,86,.035);
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.social-other-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  right:16px;
+  left:16px;
+  height:2px;
+  border-radius:0 0 3px 3px;
+  background:linear-gradient(90deg,rgba(39,93,151,0),rgba(39,93,151,.38),rgba(39,93,151,0));
+}
+.social-other-card:hover{border-color:#cbd9e8;box-shadow:0 8px 22px rgba(29,55,86,.065);transform:translateY(-1px)}
+.social-other-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.social-other-card-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.social-other-card-icon{
+  display:grid;
+  place-items:center;
+  flex:0 0 38px;
+  width:38px;
+  height:38px;
+  border:1px solid #dce8f6;
+  border-radius:12px;
+  background:linear-gradient(145deg,#f1f7ff,#e8f1fc);
+  color:#315d91;
+  font-size:17px;
+  font-weight:800;
+}
+.social-other-card-copy{min-width:0}
+.social-other-card-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.social-other-card-title-row strong{font-size:11px;font-weight:800;line-height:1.8;color:#2b4563}
+.social-other-card-index{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:21px;
+  padding:0 6px;
+  border:1px solid #e0e8f1;
+  border-radius:7px;
+  background:#f7f9fc;
+  color:#718198;
+  font-size:9px;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.social-other-card-head p{margin:3px 0 0;color:#8291a3;font-size:9px;line-height:1.8}
+.social-other-remove{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  flex:0 0 auto;
+  min-height:30px;
+  padding:5px 8px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:#9a6262;
+  font:inherit;
+  font-size:9px;
+  transition:background .16s ease,border-color .16s ease,color .16s ease;
+}
+.social-other-remove span{font-size:16px;line-height:1;font-weight:400}
+.social-other-remove:hover{border-color:#f0dada;background:#fff5f5;color:#a23e3e}
+.social-other-card-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.social-other-card-fields .field{min-width:0}
+.social-other-card-fields .field>span{font-size:10px}
+.social-other-card-fields .field input{width:100%;box-sizing:border-box}
 .address-current-grid .geo-block{grid-column:1 / -1}
 .choice-field{grid-column:1 / -1}
 .choice-label{font-size:11px;font-weight:700;color:#344054;margin-bottom:9px}.choice-label em{font-style:normal;color:var(--danger);margin-right:3px}
@@ -115,7 +188,8 @@
 .calendar-footer span{margin-right:auto;color:#98a2b3;font-size:8px}
 .danger-text{color:var(--danger)}
 @media (max-width:900px){.social-network-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:560px){.social-network-grid{grid-template-columns:1fr 1fr}.social-other-list{grid-template-columns:1fr}.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
+@media (max-width:760px){.social-other-list{grid-template-columns:1fr}.social-other-card-fields{grid-template-columns:1fr}}
+@media (max-width:560px){.social-network-grid{grid-template-columns:1fr 1fr}.social-other-list{grid-template-columns:1fr}.social-other-card{padding:13px}.social-other-card-head{align-items:flex-start;gap:7px}.social-other-card-heading{gap:8px}.social-other-card-icon{width:34px;height:34px;flex-basis:34px;border-radius:10px}.social-other-remove{padding:5px 6px}.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
 
 
 /* Professional Persian date picker */

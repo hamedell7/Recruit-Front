@@ -316,14 +316,21 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
               return (
                 <div className="social-other-card" key={`social-other-${itemIndex}`}>
                   <div className="social-other-card-head">
-                    <div>
-                      <strong>شبکه اجتماعی دیگر {index + 1}</strong>
-                      <p>نام پلتفرم و شناسه اکانت را وارد کنید.</p>
+                    <div className="social-other-card-heading">
+                      <span className="social-other-card-icon" aria-hidden="true">@</span>
+                      <div className="social-other-card-copy">
+                        <div className="social-other-card-title-row">
+                          <strong>شبکه اجتماعی دیگر</strong>
+                          <span className="social-other-card-index">{index + 1}</span>
+                        </div>
+                        <p>نام پلتفرم و شناسه حساب را وارد کنید.</p>
+                      </div>
                     </div>
                     {!readOnly && (
                       <button
                         type="button"
-                        className="remove-button"
+                        className="social-other-remove"
+                        aria-label={`حذف شبکه اجتماعی دیگر ${index + 1}`}
                         onClick={() => {
                           clearValidationError(prefix);
                           setForm((current) => ({
@@ -332,11 +339,12 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
                           }));
                         }}
                       >
+                        <span aria-hidden="true">×</span>
                         حذف
                       </button>
                     )}
                   </div>
-                  <div className="mini-grid">
+                  <div className="social-other-card-fields">
                     <TextField
                       label="نام شبکه اجتماعی / پیام‌رسان"
                       value={item.custom_label || ""}
