@@ -228,7 +228,7 @@
   margin-bottom: 17px;
 }
 .form-section-head h3 { color: #2b4563; font-size: 13px; font-weight: 800; line-height: 1.8; }
-.form-section-head p { color: #8291a3; font-size: 10px; line-height: 1.9; }
+.form-section-head p { color: #8291a3; font-size: 12px; line-height: 1.9; }
 .form-section-head .add-button {
   flex: 0 0 auto;
   min-height: 35px;
