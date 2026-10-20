@@ -153,7 +153,7 @@ const VALUE_LABELS = {
   medical: "پزشکی", education: "تحصیلی", guardianship: "کفالت",
   veteran: "ایثارگری", age: "سنی", ordinary: "عادی", special: "ویژه",
   Instagram: "اینستاگرام", Telegram: "تلگرام", Twitter: "توییتر",
-  Eitaa: "ایتا", Bale: "بله", OTHER_SOCIAL: "سایر شبکه‌های اجتماعی", email: "رایانامه",
+  Eitaa: "ایتا", Bale: "بله", email: "رایانامه",
   "O+": "O مثبت", "A+": "A مثبت", "B+": "B مثبت", "AB+": "AB مثبت",
 };
 

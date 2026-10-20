@@ -25,6 +25,96 @@ export function normalizeDigits(value) {
 
 const DATE_FIELD_PATTERN = /(^|_)(date)$/;
 
+const NUMERIC_ONLY_TEXT_ALLOWED_KEYS = new Set([
+  // These are textual input controls whose meaning legitimately permits digits alone.
+  "passport_number",
+  "body_number",
+  "license_number",
+  "service_number",
+  "model",
+  "caliber",
+  "duration",
+]);
+
+const NON_NUMERIC_ONLY_FIELD_LABELS = {
+  first_name: "نام",
+  last_name: "نام خانوادگی",
+  father_name: "نام پدر",
+  previous_last_name: "نام خانوادگی قبلی",
+  alias_first_name: "نام مستعار",
+  alias_last_name: "نام خانوادگی مستعار",
+  first_name_child: "نام",
+  last_name_child: "نام خانوادگی",
+  relative_first_name: "نام شخص",
+  relative_last_name: "نام خانوادگی شخص",
+  friend_first_name: "نام دوست",
+  friend_last_name: "نام خانوادگی دوست",
+  occupation: "شغل",
+  nationality: "تابعیت",
+  religion: "دین",
+  sect: "مذهب",
+  physical_status: "وضعیت جسمانی",
+  disease_description: "شرح بیماری",
+  disability_description: "شرح معلولیت",
+  distinguishing_marks: "علائم مشخصه",
+  birth_certificate_issue_location: "محل صدور شناسنامه",
+  current_address_line: "نشانی محل سکونت",
+  address_line: "نشانی",
+  address: "نشانی",
+  spouse_family_residence_address: "نشانی محل سکونت خانواده همسر",
+  custom_label: "نام شبکه اجتماعی یا پیام‌رسان",
+  owner_name: "نام مالک",
+  organization_name: "نام سازمان یا محل کار",
+  unit_name: "یگان خدمتی",
+  manager_name: "نام مسئول",
+  day_manager_name: "نام مسئول روز",
+  night_manager_name: "نام مسئول شب",
+  name: "نام محل",
+  country_name: "نام کشور",
+  entity_name: "نام فرد یا مؤسسه",
+  contact_type: "نوع ارتباط",
+  reason: "علت یا توضیحات",
+  result: "نتیجه",
+  notes: "توضیحات",
+  current_status: "وضعیت فعلی",
+  rejection_reason: "علت عدم پذیرش",
+  responsibility: "مسئولیت یا نوع فعالیت",
+  motivation: "علت یا انگیزه فعالیت",
+  acquaintance_method: "نحوه آشنایی",
+  use_reason: "علت استفاده",
+  statement_text: "متن تعهدنامه",
+};
+
+function isNumericOnlyText(value) {
+  if (typeof value !== "string" && typeof value !== "number") return false;
+  const normalized = normalizeDigits(String(value)).trim();
+  if (!normalized) return false;
+
+  // Ignore common numeric formatting characters, but preserve any real letter.
+  const compact = normalized.replace(/[\s.,،٬٫/\\\-+()]+/g, "");
+  return compact.length > 0 && /^\d+$/.test(compact);
+}
+
+function validateNonNumericTextFields(value, path, add) {
+  if (!value || typeof value !== "object") return;
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      validateNonNumericTextFields(item, path ? path + "." + index : String(index), add);
+    });
+    return;
+  }
+
+  for (const [key, item] of Object.entries(value)) {
+    const fieldPath = path ? path + "." + key : key;
+    const label = NON_NUMERIC_ONLY_FIELD_LABELS[key];
+    if (label && isNumericOnlyText(item)) {
+      add(fieldPath, "«" + label + "» نمی‌تواند فقط عدد باشد؛ لطفاً متن معتبر وارد کنید.");
+    }
+    validateNonNumericTextFields(item, fieldPath, add);
+  }
+}
+
 export function cleanPayload(value, key = "") {
   if (Array.isArray(value)) return value.map((entry) => cleanPayload(entry, key));
   if (value && typeof value === "object") {
@@ -514,10 +604,18 @@ export function validateStep(stepKey, form) {
             if (field.min !== undefined && numeric < field.min) add(path, "مقدار نباید کمتر از " + field.min + " باشد.");
             if (field.max !== undefined && numeric > field.max) add(path, "مقدار نباید بیشتر از " + field.max + " باشد.");
           }
+        } else if (
+          (field.type === "text" || field.type === "textarea") &&
+          !NUMERIC_ONLY_TEXT_ALLOWED_KEYS.has(field.key) &&
+          isNumericOnlyText(value)
+        ) {
+          add(path, "«" + field.label + "» نمی‌تواند فقط عدد باشد؛ لطفاً متن معتبر وارد کنید.");
         }
       }
     }
   }
+
+  validateNonNumericTextFields(form, "", add);
 
   return errors;
 }
