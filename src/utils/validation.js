@@ -33,6 +33,11 @@ function formatErrorPath(path) {
     email: "ایمیل",
     status: "وضعیت",
     accepted: "تأیید تعهدنامه",
+    records: "سوابق",
+    people: "افراد",
+    contacts: "راه‌های تماس",
+    addresses: "نشانی‌ها",
+    current_address: "نشانی فعلی",
     country_id: "کشور",
     province_id: "استان",
     county_id: "شهرستان",
@@ -63,13 +68,10 @@ function formatErrorPath(path) {
     occupation: "شغل",
     current_address_line: "نشانی محل سکونت",
     address: "نشانی",
-
     spouse_family_residence_address: "نشانی محل سکونت خانواده همسر",
-
     owner_name: "نام مالک",
     institution_type: "نوع مرکز آموزشی",
     membership_type: "نوع عضویت",
-
     termination_reason: "علت پایان همکاری",
     work_address: "نشانی محل کار",
     manager_name: "نام مسئول",
@@ -101,9 +103,6 @@ function formatErrorPath(path) {
     weapon_type: "نوع سلاح",
     manufacturer_country_name: "کشور سازنده",
     license_authority: "مرجع صدور مجوز",
-
-
-
     relative_first_name: "نام شخص",
     relative_last_name: "نام خانوادگی شخص",
     friend_first_name: "نام دوست",
