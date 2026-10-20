@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { api } from "../services/api";
 import LoadingScreen from "../components/common/LoadingScreen";
 import Toast from "../components/common/Toast";
 import Login from "../features/auth/Login";
 import Header from "../components/layout/Header";
-import Dashboard from "../features/dashboard/Dashboard";
-import StaffDashboard from "../features/dashboard/StaffDashboard";
-import RequestWizard from "../features/requests/RequestWizard";
-import StaffRequestDetails from "../features/dashboard/StaffRequestDetails";
+const Dashboard = lazy(() => import("../features/dashboard/Dashboard"));
+const StaffDashboard = lazy(() => import("../features/dashboard/StaffDashboard"));
+const RequestWizard = lazy(() => import("../features/requests/RequestWizard"));
+const StaffRequestDetails = lazy(() => import("../features/dashboard/StaffRequestDetails"));
 
 const STAFF_ROLES = ["OFFICER", "REVIEWER", "SUPERVISOR", "ADMIN"];
 
@@ -189,7 +189,14 @@ function App() {
   const logout = async () => {
     try {
       await api.logout();
-    } catch {}
+    } catch (error) {
+      setToast({
+        type: "error",
+        text: error.message || "خروج از حساب انجام نشد؛ اتصال را بررسی کرده و دوباره تلاش کنید.",
+        requestId: error.requestId,
+      });
+      return;
+    }
     setUser(null);
     setSidebarOpen(true);
     setActiveRequest(null);
@@ -221,6 +228,7 @@ function App() {
             staffPath={staffPath}
             onNavigateStaff={navigateStaffWorkspace}
           />
+          <Suspense fallback={<LoadingScreen />}>
           {view === "staff-request-details" && user?.role === "ADMIN" && activeStaffRequestId ? (
             <StaffRequestDetails
               key={activeStaffRequestId}
@@ -254,6 +262,7 @@ function App() {
           ) : (
             <LoadingScreen />
           )}
+          </Suspense>
         </>
       )}
     </div>

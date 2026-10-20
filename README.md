@@ -80,6 +80,6 @@ npm run preview
 
 ## کیفیت کد
 
-هر تغییر روی branch اصلی از طریق GitHub Actions با `npm install` و `npm run build` بررسی می‌شود.
+هر تغییر روی branch اصلی از طریق GitHub Actions با `npm ci` و `npm run build` بررسی می‌شود. صفحه‌های داشبورد مدیریت، جزئیات staff و ویزارد درخواست به‌صورت lazy load می‌شوند تا bundle اولیهٔ ورود سبک‌تر بماند.
 
 فونت اصلی پروژه Iran Yekan است و فایل‌های فونت قدیمی Vazir حذف شده‌اند.

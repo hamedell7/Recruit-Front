@@ -20,6 +20,6 @@ jobs:
         with:
           node-version: 22
       - name: Install
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Build
         run: npm run build
