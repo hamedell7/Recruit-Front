@@ -13,6 +13,7 @@ function formatErrorPath(path) {
     mobile: "شماره موبایل",
     birth_date: "تاریخ تولد",
     gender: "جنسیت",
+    marital_status: "وضعیت تأهل",
     previous_last_name: "نام خانوادگی قبلی",
     birth_certificate_no: "شماره شناسنامه",
     birth_province_id: "استان محل تولد",

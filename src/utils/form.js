@@ -230,6 +230,8 @@ export function validateStep(stepKey, form) {
   if (stepKey === "personal") {
     if (empty(form?.first_name)) add("first_name", "نام را وارد کنید.");
     if (empty(form?.last_name)) add("last_name", "نام خانوادگی را وارد کنید.");
+    if (!["مرد", "زن"].includes(String(form?.gender || ""))) add("gender", "جنسیت را انتخاب کنید.");
+    if (!["single", "married"].includes(String(form?.marital_status || ""))) add("marital_status", "وضعیت تأهل را انتخاب کنید.");
     const nid = normalizeDigits(String(form?.national_id || "")).replace(/[-\s]/g, "");
     if (!/^\d{10}$/.test(nid)) add("national_id", "کد ملی باید ۱۰ رقم باشد.");
     for (const [key, label, maximum] of [
@@ -242,6 +244,9 @@ export function validateStep(stepKey, form) {
         if (!/^\d+(?:\.\d+)?$/.test(normalized)) add(key, `${label} باید عددی باشد.`);
         else if (Number(normalized) < 0 || Number(normalized) > maximum) add(key, `${label} باید بین ۰ و ${maximum} باشد.`);
       }
+    }
+    if (!empty(form?.blood_type) && !["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].includes(String(form.blood_type))) {
+      add("blood_type", "گروه خونی را از فهرست انتخاب کنید.");
     }
     if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) add("email", "ایمیل واردشده معتبر نیست.");
 
@@ -532,6 +537,7 @@ export function makeForm(stepKey, data, user) {
       national_id: person.national_id || user?.national_id || "",
       birth_date: person.birth_date || "",
       gender: person.gender || "",
+      marital_status: profile.marital_status || "",
       previous_last_name: profile.previous_last_name || "",
       alias_first_name: profile.alias_first_name || "",
       alias_last_name: profile.alias_last_name || "",

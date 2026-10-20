@@ -153,7 +153,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           <TextField label="محل صدور شناسنامه" value={form.birth_certificate_issue_location} onChange={(v) => update("birth_certificate_issue_location", v)} error={getFieldError(errors, "birth_certificate_issue_location")} readOnly={readOnly} />
           <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} error={getFieldError(errors, "previous_last_name")} readOnly={readOnly} />
           <TextField label="تاریخ تولد" type="date" value={form.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, "birth_date")} readOnly={readOnly} />
-          <SelectField label="جنسیت" value={form.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, "gender")} options={["مرد", "زن"]} readOnly={readOnly} />
+          <SelectField label="جنسیت" value={form.gender} onChange={(v) => update("gender", v)} error={getFieldError(errors, "gender")} options={["مرد", "زن"]} required readOnly={readOnly} />
+          <SelectField label="وضعیت تأهل" value={form.marital_status} onChange={(v) => update("marital_status", v)} error={getFieldError(errors, "marital_status")} options={[{ value: "single", label: "مجرد" }, { value: "married", label: "متأهل" }]} required readOnly={readOnly} />
           <TextField label="ملیت" value={form.nationality} onChange={(v) => update("nationality", v)} error={getFieldError(errors, "nationality")} readOnly={readOnly} />
           <TextField label="دین" value={form.religion} onChange={(v) => update("religion", v)} error={getFieldError(errors, "religion")} readOnly={readOnly} />
           <TextField label="مذهب" value={form.sect} onChange={(v) => update("sect", v)} error={getFieldError(errors, "sect")} readOnly={readOnly} />
@@ -173,7 +174,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           />
           <TextField label="وزن (کیلوگرم)" type="number" value={form.weight_kg} onChange={(v) => update("weight_kg", v)} error={getFieldError(errors, "weight_kg")} readOnly={readOnly} />
           <TextField label="قد (سانتی‌متر)" type="number" value={form.height_cm} onChange={(v) => update("height_cm", v)} error={getFieldError(errors, "height_cm")} readOnly={readOnly} />
-          <SelectField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} options={form.blood_type && !BLOOD_TYPE_OPTIONS.includes(form.blood_type) ? [...BLOOD_TYPE_OPTIONS, form.blood_type] : BLOOD_TYPE_OPTIONS} readOnly={readOnly} />
+          <SelectField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} options={BLOOD_TYPE_OPTIONS} readOnly={readOnly} />
 
           {form.physical_status === "بیمار" && (
             <>
@@ -282,55 +283,85 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
             );
           })}
         </div>
-      </FormSection>
 
-      <ListEditor
-        title="سایر شبکه‌های اجتماعی"
-        hint="برای هر شبکه یا پیام‌رسانی که در فهرست بالا نیست، نام شبکه و شناسه اکانت را اضافه کنید."
-        readOnly={readOnly}
-        items={otherSocialContacts}
-        setItems={(items) => setForm((current) => ({
-          ...current,
-          contacts: [
-            ...normalizeList(current.contacts).filter((contact) => contact.contact_type !== "OTHER_SOCIAL"),
-            ...normalizeList(items),
-          ],
-        }))}
-        clearValidationError={clearValidationError}
-        errorPrefix="contacts"
-        addLabel="افزودن اکانت دیگر"
-        empty={() => ({ contact_type: "OTHER_SOCIAL", custom_label: "", value: "", owner_type: "OWNER", owner_name: null })}
-        render={(item, setItem, index) => {
-          const itemIndex = allContacts.indexOf(item);
-          const prefix = `contacts.${itemIndex >= 0 ? itemIndex : index}`;
-          const updateOther = (key, value) => {
-            clearValidationError(`${prefix}.${key}`);
-            setItem({ ...item, [key]: value });
-          };
-          return (
-            <div className="mini-grid">
-              <TextField
-                label="نام شبکه اجتماعی / پیام‌رسان"
-                value={item.custom_label}
-                onChange={(value) => updateOther("custom_label", value)}
-                error={getFieldError(errors, `${prefix}.custom_label`)}
-                placeholder="مثلاً واتساپ، لینکدین، روبیکا"
-                required
-                readOnly={readOnly}
-              />
-              <TextField
-                label="شناسه / اکانت"
-                value={item.value}
-                onChange={(value) => updateOther("value", value)}
-                error={getFieldError(errors, `${prefix}.value`)}
-                placeholder="@username یا شماره / شناسه حساب"
-                required
-                readOnly={readOnly}
-              />
-            </div>
-          );
-        }}
-      />
+        <div className="social-network-actions">
+          <p>شبکه یا پیام‌رسان دیگری دارید؟ نام و شناسه حساب آن را اضافه کنید.</p>
+          {!readOnly && (
+            <button
+              type="button"
+              className="add-button"
+              onClick={() => {
+                clearValidationError("contacts");
+                setForm((current) => ({
+                  ...current,
+                  contacts: [
+                    ...normalizeList(current.contacts),
+                    { contact_type: "OTHER_SOCIAL", custom_label: "", value: "", owner_type: "OWNER", owner_name: null },
+                  ],
+                }));
+              }}
+            >
+              + افزودن شبکه دیگر
+            </button>
+          )}
+        </div>
+
+        {otherSocialContacts.length > 0 && (
+          <div className="social-other-list">
+            {otherSocialContacts.map((item, index) => {
+              const itemIndex = allContacts.indexOf(item);
+              const prefix = `contacts.${itemIndex}`;
+              const updateOther = (key, value) => updateContact(itemIndex, key, value);
+
+              return (
+                <div className="social-other-card" key={`social-other-${itemIndex}`}>
+                  <div className="social-other-card-head">
+                    <div>
+                      <strong>شبکه اجتماعی دیگر {index + 1}</strong>
+                      <p>نام پلتفرم و شناسه اکانت را وارد کنید.</p>
+                    </div>
+                    {!readOnly && (
+                      <button
+                        type="button"
+                        className="remove-button"
+                        onClick={() => {
+                          clearValidationError(prefix);
+                          setForm((current) => ({
+                            ...current,
+                            contacts: normalizeList(current.contacts).filter((_, contactIndex) => contactIndex !== itemIndex),
+                          }));
+                        }}
+                      >
+                        حذف
+                      </button>
+                    )}
+                  </div>
+                  <div className="mini-grid">
+                    <TextField
+                      label="نام شبکه اجتماعی / پیام‌رسان"
+                      value={item.custom_label || ""}
+                      onChange={(value) => updateOther("custom_label", value)}
+                      error={getFieldError(errors, `${prefix}.custom_label`)}
+                      placeholder="مثلاً واتساپ، لینکدین، روبیکا"
+                      required
+                      readOnly={readOnly}
+                    />
+                    <TextField
+                      label="شناسه / اکانت"
+                      value={item.value || ""}
+                      onChange={(value) => updateOther("value", value)}
+                      error={getFieldError(errors, `${prefix}.value`)}
+                      placeholder="@username یا شماره / شناسه حساب"
+                      required
+                      readOnly={readOnly}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </FormSection>
 
       <FormSection title="نشانی محل سکونت" hint="آدرس محل سکونت فعلی خود را وارد کنید. فقط یک نشانی در این مرحله ثبت می‌شود.">
         <div className="field-grid address-current-grid">

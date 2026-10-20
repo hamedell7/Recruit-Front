@@ -69,6 +69,14 @@
 .social-network-check input{width:17px;height:17px;margin:0;accent-color:var(--brand);flex:0 0 auto}
 .social-network-check span{font-size:var(--form-label-size);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .social-network-item .field{width:100%}
+.social-network-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid #edf0f4}
+.social-network-actions p{margin:0;color:var(--muted);font-size:10px;line-height:1.8}
+.social-other-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.social-other-card{min-width:0;border:1px solid #e3e8ef;background:#fbfcfe;border-radius:14px;padding:14px}
+.social-other-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.social-other-card-head strong{font-size:11px;color:var(--ink)}
+.social-other-card-head p{margin:3px 0 0;color:var(--muted);font-size:9px;line-height:1.7}
+.social-other-card-head .remove-button{margin:0;flex:0 0 auto}
 .address-current-grid .geo-block{grid-column:1 / -1}
 .choice-field{grid-column:1 / -1}
 .choice-label{font-size:11px;font-weight:700;color:#344054;margin-bottom:9px}.choice-label em{font-style:normal;color:var(--danger);margin-right:3px}
@@ -107,7 +115,7 @@
 .calendar-footer span{margin-right:auto;color:#98a2b3;font-size:8px}
 .danger-text{color:var(--danger)}
 @media (max-width:900px){.social-network-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:560px){.social-network-grid{grid-template-columns:1fr 1fr}.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
+@media (max-width:560px){.social-network-grid{grid-template-columns:1fr 1fr}.social-other-list{grid-template-columns:1fr}.persian-calendar{width:min(310px,calc(100vw - 48px));right:auto;left:0}}
 
 
 /* Professional Persian date picker */
