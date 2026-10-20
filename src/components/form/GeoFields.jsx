@@ -139,6 +139,8 @@ function GeoFields({
             />
             <TextField
               label="کد پستی"
+              type="digits"
+              maxLength={10}
               value={record?.postal_code || ""}
               onChange={(value) => setValue("postal_code", value)}
               error={getFieldError(errors, pathFor("postal_code"))}
@@ -146,6 +148,8 @@ function GeoFields({
             />
             <TextField
               label="تلفن"
+              type="phone"
+              placeholder="02112345678"
               value={record?.phone || ""}
               onChange={(value) => setValue("phone", value)}
               error={getFieldError(errors, pathFor("phone"))}

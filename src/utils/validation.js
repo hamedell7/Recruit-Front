@@ -39,6 +39,8 @@ function formatErrorPath(path) {
     village_id: "روستا",
     address_line: "نشانی",
     phone: "تلفن",
+    postal_code: "کد پستی",
+    custom_label: "نام شبکه اجتماعی / پیام‌رسان",
     first_name_child: "نام",
     last_name_child: "نام خانوادگی",
     degree_level: "مقطع تحصیلی",

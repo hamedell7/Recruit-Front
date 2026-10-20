@@ -4,6 +4,11 @@ import TextField, { TextArea, SelectField } from "../../../components/form/Field
 import ListEditor from "../../../components/form/ListEditor";
 import FormSection from "../../../components/form/FormSection";
 import AddressFields from "./AddressFields";
+import { EDUCATION_LEVEL_OPTIONS } from "../../../config/workflow";
+
+function withCurrentOption(options, currentValue) {
+  return currentValue && !options.includes(currentValue) ? [...options, currentValue] : options;
+}
 
 function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const people = normalizeList(form?.people);
@@ -48,7 +53,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
               <TextField label="نام خانوادگی" value={item.last_name} onChange={(v) => update("last_name", v)} error={getFieldError(errors, `${prefix}.last_name`)} readOnly={readOnly} />
               {!isFamily && <TextField label="نام پدر" value={item.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, `${prefix}.father_name`)} readOnly={readOnly} />}
               <TextField label="تاریخ تولد" type="date" value={item.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, `${prefix}.birth_date`)} readOnly={readOnly} />
-              <TextField label="تحصیلات" value={item.education} onChange={(v) => update("education", v)} error={getFieldError(errors, `${prefix}.education`)} readOnly={readOnly} />
+              <SelectField label="تحصیلات" value={item.education} onChange={(v) => update("education", v)} error={getFieldError(errors, `${prefix}.education`)} options={withCurrentOption(EDUCATION_LEVEL_OPTIONS, item.education)} readOnly={readOnly} />
               <TextField label="شغل" value={item.occupation} onChange={(v) => update("occupation", v)} error={getFieldError(errors, `${prefix}.occupation`)} readOnly={readOnly} />
               {isFamily && <SelectField label="وضعیت حیات" value={item.alive_status} onChange={(v) => update("alive_status", v)} error={getFieldError(errors, `${prefix}.alive_status`)} options={["زنده", "فوت شده"]} readOnly={readOnly} />}
               <TextArea label="توضیحات" value={item.notes} onChange={(v) => update("notes", v)} error={getFieldError(errors, `${prefix}.notes`)} full readOnly={readOnly} />

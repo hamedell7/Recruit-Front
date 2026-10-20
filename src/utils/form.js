@@ -232,6 +232,17 @@ export function validateStep(stepKey, form) {
     if (empty(form?.last_name)) add("last_name", "نام خانوادگی را وارد کنید.");
     const nid = normalizeDigits(String(form?.national_id || "")).replace(/[-\s]/g, "");
     if (!/^\d{10}$/.test(nid)) add("national_id", "کد ملی باید ۱۰ رقم باشد.");
+    for (const [key, label, maximum] of [
+      ["weight_kg", "وزن", 500],
+      ["height_cm", "قد", 300],
+    ]) {
+      const value = form?.[key];
+      if (!empty(value)) {
+        const normalized = normalizeDigits(String(value)).trim();
+        if (!/^\d+(?:\.\d+)?$/.test(normalized)) add(key, `${label} باید عددی باشد.`);
+        else if (Number(normalized) < 0 || Number(normalized) > maximum) add(key, `${label} باید بین ۰ و ${maximum} باشد.`);
+      }
+    }
     if (form?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) add("email", "ایمیل واردشده معتبر نیست.");
 
     if (!form?.current_address || empty(form.current_address.address_line)) {
@@ -253,7 +264,17 @@ export function validateStep(stepKey, form) {
       Telegram: "تلگرام",
       Eitaa: "ایتا",
       Bale: "بله",
+      OTHER_SOCIAL: "سایر شبکه‌های اجتماعی",
     };
+    if (!empty(form?.current_address?.postal_code)) {
+      const postalCode = normalizeDigits(String(form.current_address.postal_code));
+      if (!/^\d{10}$/.test(postalCode)) add("current_address.postal_code", "کد پستی باید دقیقاً ۱۰ رقم باشد.");
+    }
+    if (!empty(form?.current_address?.phone)) {
+      const phone = normalizeDigits(String(form.current_address.phone));
+      if (!/^\d{11}$/.test(phone)) add("current_address.phone", "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
+    }
+
     for (let i = 0; i < (form?.contacts || []).length; i += 1) {
       const contact = form.contacts[i];
       const prefix = "contacts." + i;
@@ -262,12 +283,21 @@ export function validateStep(stepKey, form) {
       if (!isSocialNetwork && !allowedContactTypes.includes(contact?.contact_type)) {
         add(prefix + ".contact_type", "نوع تماس را از فهرست انتخاب کنید.");
       }
-      if (!isSocialNetwork && empty(contact?.value)) {
+      if (contact?.contact_type === "OTHER_SOCIAL") {
+        if (empty(contact?.custom_label)) add(prefix + ".custom_label", "نام شبکه اجتماعی یا پیام‌رسان را وارد کنید.");
+        if (empty(contact?.value)) add(prefix + ".value", "شناسه اکانت را وارد کنید.");
+      } else if (isSocialNetwork) {
+        if (!empty(contact?.value) && String(contact.value).trim().length > 500) {
+          add(prefix + ".value", "شناسه اکانت بیش از حد مجاز است.");
+        }
+      } else if (empty(contact?.value)) {
         add(prefix + ".value", "شماره تماس را وارد کنید.");
-      } else if (!isSocialNetwork && contact?.contact_type === "موبایل") {
-        const mobile = normalizeDigits(String(contact.value)).replace(/\s+/g, "");
-        if (!/^09\d{9}$/.test(mobile)) {
+      } else {
+        const phone = normalizeDigits(String(contact.value)).replace(/\s+/g, "");
+        if (contact?.contact_type === "موبایل" && !/^09\d{9}$/.test(phone)) {
           add(prefix + ".value", "شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.");
+        } else if (contact?.contact_type === "تلفن ثابت" && !/^\d{11}$/.test(phone)) {
+          add(prefix + ".value", "تلفن ثابت باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
         }
       }
       if (empty(contact?.owner_type)) add(prefix + ".owner_type", "نوع مالکیت را انتخاب کنید.");
@@ -318,6 +348,9 @@ export function validateStep(stepKey, form) {
       if (empty(marriage?.status)) add(prefix + ".status", "وضعیت این ازدواج را انتخاب کنید.");
       if (empty(marriage?.spouse?.first_name)) add(prefix + ".spouse.first_name", "نام همسر را وارد کنید.");
       if (empty(marriage?.spouse?.last_name)) add(prefix + ".spouse.last_name", "نام خانوادگی همسر را وارد کنید.");
+      if (!empty(marriage?.spouse?.national_id) && !/^\d{10}$/.test(normalizeDigits(String(marriage.spouse.national_id)))) {
+        add(prefix + ".spouse.national_id", "کد ملی همسر باید ۱۰ رقم باشد.");
+      }
       if (empty(marriage?.marriage_date)) add(prefix + ".marriage_date", "تاریخ ازدواج را وارد کنید.");
 
       if (empty(marriage?.spouse?.physical_status)) add(prefix + ".spouse.physical_status", "وضعیت جسمانی همسر را انتخاب کنید.");
@@ -427,6 +460,12 @@ export function validateStep(stepKey, form) {
       const person = form.people[i];
       if (empty(person.first_name)) add("people." + i + ".first_name", "نام را وارد کنید.");
       if (empty(person.last_name)) add("people." + i + ".last_name", "نام خانوادگی را وارد کنید.");
+      for (let addressIndex = 0; addressIndex < (person.addresses || []).length; addressIndex += 1) {
+        const address = person.addresses[addressIndex];
+        if (!empty(address.phone) && !/^\d{11}$/.test(normalizeDigits(String(address.phone)))) {
+          add("people." + i + ".addresses." + addressIndex + ".phone", "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
+        }
+      }
     }
   }
 
@@ -437,6 +476,12 @@ export function validateStep(stepKey, form) {
       if (empty(address.province_id)) add("addresses." + i + ".province_id", "استان را انتخاب کنید.");
       if (empty(address.city_id)) add("addresses." + i + ".city_id", "شهر را انتخاب کنید.");
       if (empty(address.address_line)) add("addresses." + i + ".address_line", "آدرس دقیق را وارد کنید.");
+      if (!empty(address.postal_code) && !/^\d{10}$/.test(normalizeDigits(String(address.postal_code)))) {
+        add("addresses." + i + ".postal_code", "کد پستی باید دقیقاً ۱۰ رقم باشد.");
+      }
+      if (!empty(address.phone) && !/^\d{11}$/.test(normalizeDigits(String(address.phone)))) {
+        add("addresses." + i + ".phone", "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
+      }
     }
   }
 
@@ -444,8 +489,27 @@ export function validateStep(stepKey, form) {
   if (fields && Array.isArray(form?.records)) {
     for (let i = 0; i < form.records.length; i += 1) {
       for (const field of fields) {
-        if (!field.required || (field.visibleWhen && !field.visibleWhen(form.records[i]))) continue;
-        if (empty(form.records[i]?.[field.key])) add("records." + i + "." + field.key, "«" + field.label + "» در این ردیف الزامی است.");
+        const value = form.records[i]?.[field.key];
+        const path = "records." + i + "." + field.key;
+        if (field.required && !(field.visibleWhen && !field.visibleWhen(form.records[i])) && empty(value)) {
+          add(path, "«" + field.label + "» در این ردیف الزامی است.");
+          continue;
+        }
+        if (empty(value) || (field.visibleWhen && !field.visibleWhen(form.records[i]))) continue;
+        if (field.type === "phone") {
+          if (!/^\d{11}$/.test(normalizeDigits(String(value)))) {
+            add(path, "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
+          }
+        } else if (field.type === "number") {
+          const normalized = normalizeDigits(String(value)).trim();
+          if (!/^\d+(?:\.\d+)?$/.test(normalized)) {
+            add(path, "فقط عدد معتبر وارد کنید.");
+          } else {
+            const numeric = Number(normalized);
+            if (field.min !== undefined && numeric < field.min) add(path, "مقدار نباید کمتر از " + field.min + " باشد.");
+            if (field.max !== undefined && numeric > field.max) add(path, "مقدار نباید بیشتر از " + field.max + " باشد.");
+          }
+        }
       }
     }
   }

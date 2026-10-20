@@ -1,4 +1,6 @@
 import { getFieldError } from "../../../utils/validation";
+import { normalizeDigits } from "../../../utils/form";
+import { EDUCATION_LEVEL_OPTIONS } from "../../../config/workflow";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
 import ListEditor from "../../../components/form/ListEditor";
@@ -181,10 +183,10 @@ function MarriageStep({ form, setForm, readOnly, errors, clearValidationError })
                 <TextField label="نام" value={spouse.first_name} onChange={(value) => updateSpouse(index, "first_name", value)} error={getFieldError(errors, `${prefix}.spouse.first_name`)} readOnly={readOnly} required />
                 <TextField label="نام خانوادگی" value={spouse.last_name} onChange={(value) => updateSpouse(index, "last_name", value)} error={getFieldError(errors, `${prefix}.spouse.last_name`)} readOnly={readOnly} required />
                 <TextField label="نام پدر" value={spouse.father_name} onChange={(value) => updateSpouse(index, "father_name", value)} error={getFieldError(errors, `${prefix}.spouse.father_name`)} readOnly={readOnly} />
-                <TextField label="کد ملی" value={spouse.national_id} onChange={(value) => updateSpouse(index, "national_id", value)} error={getFieldError(errors, `${prefix}.spouse.national_id`)} readOnly={readOnly} inputMode="numeric" />
+                <TextField label="کد ملی" type="digits" maxLength={10} value={spouse.national_id} onChange={(value) => updateSpouse(index, "national_id", normalizeDigits(value).slice(0, 10))} error={getFieldError(errors, `${prefix}.spouse.national_id`)} readOnly={readOnly} inputMode="numeric" />
                 <TextField label="تاریخ تولد" type="date" value={spouse.birth_date} onChange={(value) => updateSpouse(index, "birth_date", value)} error={getFieldError(errors, `${prefix}.spouse.birth_date`)} readOnly={readOnly} />
                 <TextField label="شغل" value={spouse.occupation} onChange={(value) => updateSpouse(index, "occupation", value)} error={getFieldError(errors, `${prefix}.spouse.occupation`)} readOnly={readOnly} />
-                <TextField label="تحصیلات" value={spouse.education} onChange={(value) => updateSpouse(index, "education", value)} error={getFieldError(errors, prefix + ".spouse.education")} readOnly={readOnly} />
+                <SelectField label="تحصیلات" value={spouse.education || ""} onChange={(value) => updateSpouse(index, "education", value)} error={getFieldError(errors, prefix + ".spouse.education")} options={spouse.education && !EDUCATION_LEVEL_OPTIONS.includes(spouse.education) ? [...EDUCATION_LEVEL_OPTIONS, spouse.education] : EDUCATION_LEVEL_OPTIONS} readOnly={readOnly} />
                 <SelectField
                   label="وضعیت جسمانی"
                   value={spouse.physical_status || ""}

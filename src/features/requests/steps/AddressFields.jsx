@@ -42,8 +42,8 @@ function AddressFields({ item, setItem, countries, readOnly, residence, family =
     <div className="field-grid">
       <SelectField label="نوع نشانی" value={item.address_type} onChange={(v) => update("address_type", v)} error={getFieldError(errors, fieldPath("address_type"))} options={residence ? ["RESIDENCE", "PREVIOUS_RESIDENCE"] : simple ? [{ value: "CURRENT", label: "نشانی منزل" }, { value: "WORK", label: "نشانی محل کار" }] : ["CURRENT", "FAMILY", "WORK"]} readOnly={readOnly} />
       {!simple && !residence && <SelectField label="کشور" value={item.country_id} onChange={(v) => update("country_id", v)} error={getFieldError(errors, fieldPath("country_id"))} options={countries.map((c) => ({ value: c.id, label: c.name }))} readOnly={readOnly} />}
-      {!simple && !residence && <TextField label="کد پستی" value={item.postal_code} onChange={(v) => update("postal_code", v)} error={getFieldError(errors, fieldPath("postal_code"))} readOnly={readOnly} />}
-      {!residence && <TextField label="تلفن" value={item.phone} onChange={(v) => update("phone", v)} error={getFieldError(errors, fieldPath("phone"))} readOnly={readOnly} />}
+      {!simple && !residence && <TextField label="کد پستی" type="digits" maxLength={10} value={item.postal_code} onChange={(v) => update("postal_code", v)} error={getFieldError(errors, fieldPath("postal_code"))} readOnly={readOnly} />}
+      {!residence && <TextField label="تلفن" type="phone" placeholder="02112345678" value={item.phone} onChange={(v) => update("phone", v)} error={getFieldError(errors, fieldPath("phone"))} readOnly={readOnly} />}
       {!residence && <TextArea label="آدرس دقیق" value={item.address_line} onChange={(v) => update("address_line", v)} error={getFieldError(errors, fieldPath("address_line"))} full readOnly={readOnly} /> }
     </div>
   );

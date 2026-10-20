@@ -1,5 +1,6 @@
 import { normalizeList } from "../../../utils/collections";
 import { normalizeDigits } from "../../../utils/form";
+import { BLOOD_TYPE_OPTIONS } from "../../../config/workflow";
 import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import FormSection from "../../../components/form/FormSection";
@@ -85,7 +86,9 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
 
   const allContacts = normalizeList(form?.contacts);
   const socialNetworkValues = new Set(SOCIAL_NETWORKS.map((network) => network.value));
-  const contacts = allContacts.filter((contact) => !socialNetworkValues.has(contact.contact_type));
+  const isSocialContact = (contact) => socialNetworkValues.has(contact.contact_type) || contact.contact_type === "OTHER_SOCIAL";
+  const contacts = allContacts.filter((contact) => !isSocialContact(contact));
+  const otherSocialContacts = allContacts.filter((contact) => contact.contact_type === "OTHER_SOCIAL");
 
   const updateRegularContact = (index, key, value) => {
     const item = contacts[index];
@@ -94,7 +97,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
   };
 
   const setRegularContacts = (items) => {
-    const socialContacts = allContacts.filter((contact) => socialNetworkValues.has(contact.contact_type));
+    const socialContacts = allContacts.filter(isSocialContact);
     setForm((current) => ({
       ...current,
       contacts: [...normalizeList(items), ...socialContacts],
@@ -146,7 +149,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           <TextField label="نام خانوادگی مستعار" value={form.alias_last_name} onChange={(v) => update("alias_last_name", v)} error={getFieldError(errors, "alias_last_name")} readOnly={readOnly} />
           <TextField label="نام پدر" value={form.father_name} onChange={(v) => update("father_name", v)} error={getFieldError(errors, "father_name")} readOnly={readOnly} />
           <TextField label="کد ملی" value={form.national_id} error={getFieldError(errors, "national_id")} required inputMode="numeric" readOnly />
-          <TextField label="شماره شناسنامه" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
+          <TextField label="شماره شناسنامه" type="digits" value={form.birth_certificate_no} onChange={(v) => update("birth_certificate_no", v)} error={getFieldError(errors, "birth_certificate_no")} readOnly={readOnly} />
           <TextField label="محل صدور شناسنامه" value={form.birth_certificate_issue_location} onChange={(v) => update("birth_certificate_issue_location", v)} error={getFieldError(errors, "birth_certificate_issue_location")} readOnly={readOnly} />
           <TextField label="نام خانوادگی قبلی" value={form.previous_last_name} onChange={(v) => update("previous_last_name", v)} error={getFieldError(errors, "previous_last_name")} readOnly={readOnly} />
           <TextField label="تاریخ تولد" type="date" value={form.birth_date} onChange={(v) => update("birth_date", v)} error={getFieldError(errors, "birth_date")} readOnly={readOnly} />
@@ -170,7 +173,7 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           />
           <TextField label="وزن (کیلوگرم)" type="number" value={form.weight_kg} onChange={(v) => update("weight_kg", v)} error={getFieldError(errors, "weight_kg")} readOnly={readOnly} />
           <TextField label="قد (سانتی‌متر)" type="number" value={form.height_cm} onChange={(v) => update("height_cm", v)} error={getFieldError(errors, "height_cm")} readOnly={readOnly} />
-          <TextField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} readOnly={readOnly} />
+          <SelectField label="گروه خون" value={form.blood_type} onChange={(v) => update("blood_type", v)} error={getFieldError(errors, "blood_type")} options={form.blood_type && !BLOOD_TYPE_OPTIONS.includes(form.blood_type) ? [...BLOOD_TYPE_OPTIONS, form.blood_type] : BLOOD_TYPE_OPTIONS} readOnly={readOnly} />
 
           {form.physical_status === "بیمار" && (
             <>
@@ -214,14 +217,14 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
               value={item.value}
               onChange={(v) => {
                 const normalized = normalizeDigits(v);
-                const nextValue = item.contact_type === "موبایل"
-                  ? normalized.replace(/\D/g, "").slice(0, 11)
-                  : normalized;
+                const nextValue = normalized.replace(/\D/g, "").slice(0, 11);
                 updateRegularContact(index, "value", nextValue);
               }}
               error={getFieldError(errors, `contacts.${index}.value`)}
-              inputMode={item.contact_type === "موبایل" ? "numeric" : "tel"}
-              maxLength={item.contact_type === "موبایل" ? 11 : undefined}
+              type="digits"
+              inputMode="numeric"
+              maxLength={11}
+              placeholder={item.contact_type === "موبایل" ? "09123456789" : "02112345678"}
               readOnly={readOnly}
             />
             <SelectField
@@ -249,10 +252,11 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
         )}
       />
 
-      <FormSection title="شبکه‌های اجتماعی" hint="شبکه‌های اجتماعی مورد استفاده خود را فقط انتخاب کنید.">
+      <FormSection title="شبکه‌های اجتماعی" hint="شبکه‌های مورد استفاده را انتخاب کنید و در صورت تمایل شناسه اکانت را وارد نمایید.">
         <div className="social-network-grid">
           {SOCIAL_NETWORKS.map((network) => {
-            const selected = allContacts.some((item) => item.contact_type === network.value);
+            const socialContactIndex = allContacts.findIndex((item) => item.contact_type === network.value);
+            const selected = socialContactIndex >= 0;
 
             return (
               <div key={network.value} className={"social-network-item " + (selected ? "selected" : "")}>
@@ -265,11 +269,68 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
                   />
                   <span>{network.label}</span>
                 </label>
+                {selected && (
+                  <TextField
+                    label={`شناسه / اکانت ${network.label}`}
+                    value={allContacts[socialContactIndex]?.value || ""}
+                    onChange={(value) => updateContact(socialContactIndex, "value", value)}
+                    placeholder="@username یا شناسه حساب"
+                    readOnly={readOnly}
+                  />
+                )}
               </div>
             );
           })}
         </div>
       </FormSection>
+
+      <ListEditor
+        title="سایر شبکه‌های اجتماعی"
+        hint="برای هر شبکه یا پیام‌رسانی که در فهرست بالا نیست، نام شبکه و شناسه اکانت را اضافه کنید."
+        readOnly={readOnly}
+        items={otherSocialContacts}
+        setItems={(items) => setForm((current) => ({
+          ...current,
+          contacts: [
+            ...normalizeList(current.contacts).filter((contact) => contact.contact_type !== "OTHER_SOCIAL"),
+            ...normalizeList(items),
+          ],
+        }))}
+        clearValidationError={clearValidationError}
+        errorPrefix="contacts"
+        addLabel="افزودن اکانت دیگر"
+        empty={() => ({ contact_type: "OTHER_SOCIAL", custom_label: "", value: "", owner_type: "OWNER", owner_name: null })}
+        render={(item, setItem, index) => {
+          const itemIndex = allContacts.indexOf(item);
+          const prefix = `contacts.${itemIndex >= 0 ? itemIndex : index}`;
+          const updateOther = (key, value) => {
+            clearValidationError(`${prefix}.${key}`);
+            setItem({ ...item, [key]: value });
+          };
+          return (
+            <div className="mini-grid">
+              <TextField
+                label="نام شبکه اجتماعی / پیام‌رسان"
+                value={item.custom_label}
+                onChange={(value) => updateOther("custom_label", value)}
+                error={getFieldError(errors, `${prefix}.custom_label`)}
+                placeholder="مثلاً واتساپ، لینکدین، روبیکا"
+                required
+                readOnly={readOnly}
+              />
+              <TextField
+                label="شناسه / اکانت"
+                value={item.value}
+                onChange={(value) => updateOther("value", value)}
+                error={getFieldError(errors, `${prefix}.value`)}
+                placeholder="@username یا شماره / شناسه حساب"
+                required
+                readOnly={readOnly}
+              />
+            </div>
+          );
+        }}
+      />
 
       <FormSection title="نشانی محل سکونت" hint="آدرس محل سکونت فعلی خود را وارد کنید. فقط یک نشانی در این مرحله ثبت می‌شود.">
         <div className="field-grid address-current-grid">
@@ -297,6 +358,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           />
           <TextField
             label="کد پستی"
+            type="digits"
+            maxLength={10}
             value={currentAddress.postal_code}
             onChange={(v) => updateCurrentAddress("postal_code", v)}
             error={getFieldError(errors, "current_address.postal_code")}
@@ -304,6 +367,8 @@ function PersonalStep({ form, setForm, countries, readOnly, errors, clearValidat
           />
           <TextField
             label="تلفن"
+            type="phone"
+            placeholder="02112345678"
             value={currentAddress.phone}
             onChange={(v) => updateCurrentAddress("phone", v)}
             error={getFieldError(errors, "current_address.phone")}

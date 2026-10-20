@@ -1,15 +1,31 @@
+export const EDUCATION_LEVEL_OPTIONS = [
+  "بی‌سواد",
+  "ابتدایی",
+  "متوسطه اول / سیکل",
+  "دیپلم",
+  "کاردانی / فوق دیپلم",
+  "کارشناسی",
+  "کارشناسی ارشد",
+  "دکتری حرفه‌ای",
+  "دکتری تخصصی",
+  "حوزوی",
+  "سایر",
+];
+
+export const BLOOD_TYPE_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
 const RECORDS = {
   education: [
-    { key: "degree_level", label: "مقطع تحصیلی / سطح", type: "text", required: true },
+    { key: "degree_level", label: "مقطع تحصیلی / سطح", type: "select", options: EDUCATION_LEVEL_OPTIONS, required: true },
     { key: "institution_name", label: "نام دانشگاه / حوزه", type: "text", required: true },
     { key: "institution_type", label: "نوع دانشگاه", type: "text" },
     { key: "field_of_study", label: "رشته / گرایش", type: "text", required: true },
-    { key: "gpa", label: "معدل", type: "number" },
+    { key: "gpa", label: "معدل", type: "number", min: 0, max: 20 },
     { key: "start_date", label: "تاریخ شروع", type: "date" },
     { key: "end_date", label: "تاریخ پایان", type: "date" },
     { key: "is_current", label: "در حال تحصیل هستم", type: "boolean" },
     { key: "address_line", label: "نشانی محل تحصیل", type: "textarea", full: true },
-    { key: "phone", label: "تلفن محل تحصیل", type: "text" },
+    { key: "phone", label: "تلفن محل تحصیل", type: "phone" },
   ],
   employment: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "متقاضی" }, { value: "SPOUSE", label: "همسر" }] },
@@ -21,8 +37,8 @@ const RECORDS = {
     { key: "termination_reason", label: "علت ترک خدمت (استعفا، بازنشستگی و ...)", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
     { key: "work_address", label: "نشانی محل کار", type: "textarea", full: true },
     { key: "manager_name", label: "نام مسئول", type: "text" },
-    { key: "manager_phone", label: "تلفن مسئول", type: "text" },
-    { key: "work_phone", label: "تلفن محل کار", type: "text" },
+    { key: "manager_phone", label: "تلفن مسئول", type: "phone" },
+    { key: "work_phone", label: "تلفن محل کار", type: "phone" },
   ],
   passport: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "متقاضی" }, { value: "SPOUSE", label: "همسر" }] },
@@ -50,17 +66,17 @@ const RECORDS = {
     { key: "end_date", label: "تاریخ پایان اسکان", type: "date" },
     { key: "address_line", label: "آدرس خوابگاه", type: "textarea", full: true },
     { key: "day_manager_name", label: "مسئول روز", type: "text" },
-    { key: "day_manager_phone", label: "تلفن مسئول روز", type: "text" },
+    { key: "day_manager_phone", label: "تلفن مسئول روز", type: "phone" },
     { key: "night_manager_name", label: "مسئول شب", type: "text" },
-    { key: "night_manager_phone", label: "تلفن مسئول شب", type: "text" },
+    { key: "night_manager_phone", label: "تلفن مسئول شب", type: "phone" },
   ],
   screening_history: [
     { key: "organization_name", label: "نام سازمان / اداره", type: "text", required: true },
     { key: "screening_date", label: "تاریخ گزینش", type: "date" },
-    { key: "result", label: "نتیجه گزینش", type: "text", required: true },
+    { key: "result", label: "نتیجه گزینش", type: "select", options: ["در انتظار نتیجه", "پذیرفته شده", "رد شده", "عدم پذیرش", "انصراف داده"], required: true },
     { key: "rejection_reason", label: "علت عدم پذیرش", type: "textarea", full: true, visibleWhen: (record) => /رد|عدم پذیرش|نپذیرفته/.test(record.result || "") },
     { key: "address", label: "نشانی محل گزینش", type: "textarea", full: true },
-    { key: "phone", label: "تلفن محل گزینش", type: "text" },
+    { key: "phone", label: "تلفن محل گزینش", type: "phone" },
   ],
   veteran: [
     { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [{ value: "APPLICANT", label: "خود متقاضی" }, { value: "RELATIVE", label: "یکی از بستگان" }] },
@@ -68,7 +84,7 @@ const RECORDS = {
     { key: "relative_first_name", label: "نام شخص ایثارگر", type: "text" },
     { key: "relative_last_name", label: "نام خانوادگی شخص ایثارگر", type: "text" },
     { key: "veteran_type", label: "نوع ایثارگری", type: "select", required: true, options: ["رزمندگی", "جانبازی", "آزادگی", "شهادت"] },
-    { key: "percentage", label: "درصد ایثارگری", type: "number" },
+    { key: "percentage", label: "درصد ایثارگری", type: "number", min: 0, max: 100 },
     { key: "occurrence_date", label: "تاریخ وقوع / اعزام", type: "date" },
     { key: "location", label: "محل وقوع / اعزام", type: "text" },
     { key: "issuing_authority", label: "اعزام‌کننده / مرجع", type: "text" },
@@ -198,7 +214,7 @@ const RECORDS = {
     { key: "company_name", label: "نام شرکت / مؤسسه", type: "text", required: true },
     { key: "activity_type", label: "نوع فعالیت", type: "text", required: true },
     { key: "country_name", label: "وابسته به کشور", type: "text", required: true },
-    { key: "income_amount", label: "میزان درآمد", type: "number" },
+    { key: "income_amount", label: "میزان درآمد", type: "number", min: 0 },
     { key: "start_date", label: "تاریخ شروع", type: "date" },
     { key: "end_date", label: "تاریخ پایان", type: "date" },
     { key: "acquaintance_method", label: "نحوه آشنایی", type: "textarea", full: true },
@@ -218,7 +234,7 @@ const RECORDS = {
     { key: "start_date", label: "تاریخ شروع", type: "date" },
     { key: "end_date", label: "تاریخ پایان", type: "date" },
     { key: "address", label: "نشانی محل کار / ارتباط", type: "textarea", full: true },
-    { key: "phone", label: "تلفن", type: "text" },
+    { key: "phone", label: "تلفن", type: "phone" },
   ],
   exit_restrictions: [
     { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [
@@ -249,7 +265,7 @@ const RECORDS = {
     { key: "termination_reason", label: "علت ترک فعالیت", type: "textarea", full: true, visibleWhen: (record) => Boolean(record.end_date) },
     { key: "manager_name", label: "نام مسئول", type: "text" },
     { key: "address", label: "نشانی محل فعالیت", type: "textarea", full: true },
-    { key: "phone", label: "تلفن", type: "text" },
+    { key: "phone", label: "تلفن", type: "phone" },
   ],
   weapons: [
     { key: "person_role", label: "برای", type: "select", options: [{ value: "APPLICANT", label: "داوطلب" }, { value: "SPOUSE", label: "همسر" }] },
