@@ -148,7 +148,10 @@ function WorkflowManager({ onError }) {
     const step = findConfiguredStep(stepKey);
     return Boolean(step && step.position_constraint !== "ANY");
   };
-  const isRequiredStep = (stepKey) => Boolean(findConfiguredStep(stepKey)?.required);
+  const isRequiredStep = (stepKey) => {
+    const catalogStep = catalog.find((step) => step.key === stepKey);
+    return Boolean(findConfiguredStep(stepKey)?.required || catalogStep?.is_required);
+  };
   const updateStepActive = (groupIndex, stepIndex, active) => {
     if (isRequiredStep(groups[groupIndex]?.steps[stepIndex]?.key) && !active) return;
     setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({

@@ -21,5 +21,7 @@ jobs:
           node-version: 22
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Unit tests
+        run: npm test
       - name: Build
         run: npm run build
