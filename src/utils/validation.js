@@ -51,7 +51,6 @@ function formatErrorPath(path) {
     position: "سمت و شغل",
     start_date: "تاریخ شروع",
     end_date: "تاریخ پایان",
-    organization_name: "سازمان خدمتی",
     unit_name: "یگان خدمتی",
     service_city_id: "شهر محل خدمت",
     exemption_type: "نوع معافیت",
@@ -64,13 +63,13 @@ function formatErrorPath(path) {
     occupation: "شغل",
     current_address_line: "نشانی محل سکونت",
     address: "نشانی",
-    address_line: "نشانی",
+
     spouse_family_residence_address: "نشانی محل سکونت خانواده همسر",
-    custom_label: "نام شبکه اجتماعی / پیام‌رسان",
+
     owner_name: "نام مالک",
     institution_type: "نوع مرکز آموزشی",
     membership_type: "نوع عضویت",
-    position: "سمت و شغل",
+
     termination_reason: "علت پایان همکاری",
     work_address: "نشانی محل کار",
     manager_name: "نام مسئول",
@@ -102,9 +101,9 @@ function formatErrorPath(path) {
     weapon_type: "نوع سلاح",
     manufacturer_country_name: "کشور سازنده",
     license_authority: "مرجع صدور مجوز",
-    unit_name: "یگان خدمتی",
-    first_name_child: "نام",
-    last_name_child: "نام خانوادگی",
+
+
+
     relative_first_name: "نام شخص",
     relative_last_name: "نام خانوادگی شخص",
     friend_first_name: "نام دوست",

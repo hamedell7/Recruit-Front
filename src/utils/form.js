@@ -91,7 +91,7 @@ function isNumericOnlyText(value) {
   if (!normalized) return false;
 
   // Ignore common numeric formatting characters, but preserve any real letter.
-  const compact = normalized.replace(/[\s.,،٬٫/\\\-+()]+/g, "");
+  const compact = normalized.replace(/[\s.,،٬٫\/\\()+-]/g, "");
   return compact.length > 0 && /^\d+$/.test(compact);
 }
 
