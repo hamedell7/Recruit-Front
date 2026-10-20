@@ -62,9 +62,9 @@ npm run dev
 - `APP_HOST`: آدرس bind شدن سرور؛ پیش‌فرض `0.0.0.0`
 - `APP_PORT`: پورت توسعه؛ پیش‌فرض `5173`
 - `APP_PREVIEW_PORT`: پورت preview؛ پیش‌فرض `4173`
-- `APP_ALLOWED_HOSTS`: فهرست hostnameهای مجاز با جداکنندهٔ کاما؛ پیش‌فرض `selection.esata.ir`
+- `APP_ALLOWED_HOSTS`: آرایهٔ JSON از hostnameهای مجاز؛ پیش‌فرض `["selection.esata.ir"]`
 
-این متغیرها با پیشوند `APP_` فقط برای پیکربندی Vite مصرف می‌شوند و برخلاف `VITE_*` به کد مرورگر expose نمی‌شوند. برای چند دامنه، مثلاً `APP_ALLOWED_HOSTS=selection.esata.ir,admin.example.com`، نام‌ها را با کاما جدا کنید. از مجاز کردن همهٔ hostها خودداری کنید.
+این متغیرها با پیشوند `APP_` فقط برای پیکربندی Vite مصرف می‌شوند و برخلاف `VITE_*` به کد مرورگر expose نمی‌شوند. برای چند دامنه، آرایهٔ JSON تعریف کنید؛ مثلاً `APP_ALLOWED_HOSTS=["selection.esata.ir","admin.example.com"]`. فرمت قبلیِ جداشده با کاما نیز برای سازگاری پشتیبانی می‌شود. از مجاز کردن همهٔ hostها خودداری کنید.
 
 نکته: `allowedHosts` فقط روی سرور توسعه و preview خود Vite اثر دارد؛ اگر خروجی build را از طریق Nginx یا وب‌سرور دیگری منتشر می‌کنید، محدودیت دامنه باید در همان وب‌سرور هم تنظیم شود.
 
