@@ -63,6 +63,7 @@ function formatErrorPath(path) {
     absence_status: "وضعیت غیبت",
     conscription_date: "تاریخ اعزام",
     marriages: "ازدواج‌ها",
+    spouse: "همسر",
     marriage_date: "تاریخ ازدواج",
     end_reason: "علت پایان ازدواج",
     occupation: "شغل",
@@ -116,7 +117,7 @@ function formatErrorPath(path) {
   const indexPattern = /^\d+$/;
   return parts
     .map((part) => {
-      if (indexPattern.test(part)) return "ردیف " + (Number(part) + 1);
+      if (indexPattern.test(part)) return "ردیف " + new Intl.NumberFormat("fa-IR").format(Number(part) + 1);
       return labels[part] || part.replace(/_/g, " ");
     })
     .join(" ← ");
