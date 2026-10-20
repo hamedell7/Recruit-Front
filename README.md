@@ -57,6 +57,17 @@ npm run dev
 
 برای Backend URL می‌توان مقدار `VITE_API_BASE_URL` را در `.env` تنظیم کرد.
 
+تنظیمات اجرای Vite نیز از متغیرهای `APP_*` در `.env` خوانده می‌شوند. از روی `.env.example` یک فایل `.env` بسازید و در صورت نیاز این مقادیر را تغییر دهید:
+
+- `APP_HOST`: آدرس bind شدن سرور؛ پیش‌فرض `0.0.0.0`
+- `APP_PORT`: پورت توسعه؛ پیش‌فرض `5173`
+- `APP_PREVIEW_PORT`: پورت preview؛ پیش‌فرض `4173`
+- `APP_ALLOWED_HOSTS`: فهرست hostnameهای مجاز با جداکنندهٔ کاما؛ پیش‌فرض `selection.esata.ir`
+
+این متغیرها با پیشوند `APP_` فقط برای پیکربندی Vite مصرف می‌شوند و برخلاف `VITE_*` به کد مرورگر expose نمی‌شوند. برای چند دامنه، مثلاً `APP_ALLOWED_HOSTS=selection.esata.ir,admin.example.com`، نام‌ها را با کاما جدا کنید. از مجاز کردن همهٔ hostها خودداری کنید.
+
+نکته: `allowedHosts` فقط روی سرور توسعه و preview خود Vite اثر دارد؛ اگر خروجی build را از طریق Nginx یا وب‌سرور دیگری منتشر می‌کنید، محدودیت دامنه باید در همان وب‌سرور هم تنظیم شود.
+
 پیش‌فرض API محلی:
 `http://localhost:8000/api/v1`
 
