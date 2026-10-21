@@ -261,10 +261,11 @@ function stepStatusClass(value) {
   return "neutral";
 }
 
-function renderStep(step) {
+function renderStep(step, compact = false) {
   if (step.data === null || step.data === undefined) return "";
   const meta = { title: step.title || step.key, kicker: step.group_title || "" };
   const body = renderObject(step.data);
+  if (compact && !body) return "";
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
   return `<section class="report-section">
     <div class="section-heading">
@@ -273,7 +274,7 @@ function renderStep(step) {
       <span class="step-badge ${stepStatusClass(step.status)}">${escapeHtml(stepStatusLabel(step.status))}</span>
     </div>
     ${step.data_source === "draft" ? '<div class="draft-note">این بخش شامل آخرین پیش‌نویس ذخیره‌شده است.</div>' : ""}
-    ${body || noData}
+    ${body || (compact ? "" : noData)}
   </section>`;
 }
 
@@ -297,7 +298,7 @@ function formatBytes(value) {
   return `${new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024))} مگابایت`;
 }
 
-function renderHtml(report) {
+function renderHtml(report, { compact = false } = {}) {
   const request = report.request || {};
   const applicant = report.applicant || {};
   const steps = Array.isArray(report.steps) ? report.steps : [];
@@ -310,7 +311,7 @@ function renderHtml(report) {
   const finalized = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"].includes(request.status);
   const generatedAt = new Date().toLocaleString("fa-IR-u-ca-persian", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
-  const title = `گزارش پرونده - ${safeTracking}`;
+  const title = `${compact ? "گزارش فشرده پرونده" : "گزارش پرونده"} - ${safeTracking}`;
   const progress = steps.map((step) => {
     const meta = { title: step.title || step.key };
     return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;
@@ -412,6 +413,58 @@ body{padding:0}
 .report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
 .print-footer{display:none}
+/* Dense layout used only by the optional compact report. */
+.compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
+.compact-report .brand-head{gap:5px;padding-bottom:4px;border-bottom-width:1px}
+.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:12pt;box-shadow:none}
+.compact-report .brand-kicker{font-size:6pt;margin-bottom:0}
+.compact-report .brand-copy h1{font-size:11pt;line-height:1.25}
+.compact-report .brand-copy p{font-size:6pt;margin-top:1px}
+.compact-report .security-tag{padding:2px 4px;border-radius:4px;font-size:5.5pt}
+.compact-report .meta-grid{gap:3px;margin:4px 0}
+.compact-report .meta-item{padding:3px 4px;border-radius:4px}
+.compact-report .meta-label{font-size:6pt;margin-bottom:1px}
+.compact-report .meta-value{font-size:6.5pt;line-height:1.2}
+.compact-report .identity-card,.compact-report .progress-summary{display:none!important}
+.compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
+.compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
+.compact-report .section-number{width:18px;height:18px;border-radius:4px;font-size:6.5pt}
+.compact-report .section-title h2{font-size:8.2pt;line-height:1.2}
+.compact-report .section-title p,.compact-report .step-badge{display:none}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;margin:1px 0 3px}
+.compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
+.compact-report .field-label{display:inline;font-size:5.8pt;line-height:1.2}
+.compact-report .field-label:after{content:": "}
+.compact-report .field-value{display:inline;margin-top:0;font-size:6.4pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .subsection{margin:3px 0 1px;padding:3px;border-radius:4px;break-inside:auto}
+.compact-report .subsection h4{margin:0 0 2px;font-size:7pt;line-height:1.2}
+.compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
+.compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
+.compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:6pt;line-height:1.2}
+.compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:6pt}
+.compact-report .document-row{gap:4px;padding:3px 4px}
+.compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:6pt}
+.compact-report .document-main strong{font-size:6.4pt}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5.8pt}
+.compact-report .report-end{margin-top:5px;padding-top:3px;font-size:6pt}
+.compact-report .print-footer{font-size:5.5pt}
+.compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
+@page compactReport{size:A4;margin:7mm 6mm 9mm}
+body.compact-report{page:compactReport}
+@media print{
+ .compact-report .report{width:auto;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
+ .compact-report .brand-head{padding-bottom:3px}
+ .compact-report .meta-grid{gap:2px;margin:3px 0}
+ .compact-report .report-section{margin-bottom:3px;padding:4px}
+ .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:1.5px}
+ .compact-report .field{padding:1.5px 2px}
+ .compact-report .subsection{margin-top:2px;padding:2px}
+ .compact-report .repeat-list{gap:2px}
+ .compact-report .repeat-card{padding:2px}
+ .compact-report .document-row{padding:2px 3px}
+ .compact-report .report-end{margin-top:3px}
+ .compact-report .print-footer{bottom:-6mm}
+}
 @page{size:A4;margin:13mm 12mm 17mm}
 @media print{
   html,body{background:#fff!important;font-size:9pt}
@@ -442,15 +495,16 @@ body{padding:0}
 }
 </style>
 </head>
-<body>
+<body class="${compact ? "compact-report" : ""}">
 <div class="screen-toolbar">
- <p>گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید.</p>
- <div class="toolbar-actions"><button id="report-print" class="primary" type="button">چاپ / ذخیره PDF</button><button id="report-close" type="button">بستن پنجره</button></div>
+ <p>${compact ? "قالب فشرده با هدف ۳ صفحه و در صورت حجم زیاد با هدف ۴ صفحه تنظیم می‌شود." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
+ ${compact ? '<small id="compact-fit-note">در حال تنظیم فشردگی صفحه‌ها…</small>' : ""}
+ <div class="toolbar-actions"><button id="report-print" class="primary" type="button">${compact ? "چاپ / ذخیره PDF فشرده" : "چاپ / ذخیره PDF"}</button><button id="report-close" type="button">بستن پنجره</button></div>
 </div>
 <main class="report">
  <header class="brand-head">
   <div class="brand-mark">R</div>
-  <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>گزارش جامع درخواست</h1><p>نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده</p></div>
+  <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
   <div class="security-tag">اطلاعات شخصی<br>ویژه استفاده مجاز</div>
  </header>
  <section class="meta-grid">${meta.map(([label, value]) => `<div class="meta-item"><span class="meta-label">${escapeHtml(label)}</span><strong class="meta-value">${escapeHtml(value)}</strong></div>`).join("")}</section>
@@ -462,7 +516,7 @@ body{padding:0}
   <div class="progress-top"><strong>نمای کلی فرآیند</strong><span>${new Intl.NumberFormat("fa-IR").format(submittedSteps)} مرحله دارای اطلاعات از ${new Intl.NumberFormat("fa-IR").format(steps.length)} مرحله ${finalized ? "· پرونده نهایی / در حال بررسی" : "· پرونده در جریان تکمیل"}</span></div>
   <div class="progress-track">${progress}</div>
  </section>
- ${steps.map(renderStep).join("")}
+ ${steps.map((step) => renderStep(step, compact)).join("")}
  ${renderDocumentList(report.documents || [])}
  <div class="report-end"><span>تهیه‌شده در ${escapeHtml(generatedAt)}</span><strong>کد رهگیری: ${escapeHtml(request.tracking_code || "—")}</strong></div>
 </main>
@@ -484,7 +538,29 @@ function errorHtml(message) {
 
 export { FIELD_LABELS, VALUE_LABELS, isInternalKey, labelFor, valueFor };
 
-export async function printRequestReport(requestId, { staff = false } = {}) {
+function fitCompactReport(popup) {
+  const reportElement = popup.document.querySelector(".report");
+  if (!reportElement) return;
+  const printableHeightPx = ((297 - 7 - 9) / 25.4) * 96;
+  const contentHeightPx = reportElement.scrollHeight + 12;
+  const threePageZoom = (printableHeightPx * 2.62) / contentHeightPx;
+  const fourPageZoom = (printableHeightPx * 3.55) / contentHeightPx;
+  let zoom = 1;
+  if (threePageZoom < 1) {
+    zoom = threePageZoom >= 0.78
+      ? threePageZoom
+      : Math.max(0.62, Math.min(1, fourPageZoom));
+  }
+  reportElement.style.setProperty("--compact-zoom", zoom.toFixed(3));
+  const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.93)));
+  const estimate = popup.document.getElementById("compact-fit-note");
+  if (estimate) {
+    const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
+    estimate.textContent = `برآورد تقریبی: ${faNumber} صفحه؛ تنظیمات چاپگر می‌تواند نتیجه را تغییر دهد.`;
+  }
+}
+
+export async function printRequestReport(requestId, { staff = false, compact = false } = {}) {
   const popup = window.open("", "_blank");
   if (!popup) throw new Error("مرورگر اجازه باز کردن پنجره گزارش را نداد. پنجره‌های بازشو را برای سامانه مجاز کنید.");
   try {
@@ -495,7 +571,7 @@ export async function printRequestReport(requestId, { staff = false } = {}) {
     const { api } = await import("../services/api");
     const report = staff ? await api.staffRequestReport(requestId) : await api.requestReport(requestId);
     popup.document.open();
-    popup.document.write(renderHtml(report));
+    popup.document.write(renderHtml(report, { compact }));
     popup.document.close();
     popup.document.getElementById("report-print")?.addEventListener("click", () => popup.print());
     popup.document.getElementById("report-close")?.addEventListener("click", () => popup.close());
@@ -507,6 +583,7 @@ export async function printRequestReport(requestId, { staff = false } = {}) {
       await popup.document.fonts.ready;
     }
     await new Promise((resolve) => popup.requestAnimationFrame(() => popup.requestAnimationFrame(resolve)));
+    if (compact) fitCompactReport(popup);
     popup.focus();
     popup.print();
   } catch (error) {

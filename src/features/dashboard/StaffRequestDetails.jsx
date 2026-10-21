@@ -471,6 +471,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   const [selectedInformationStepKey, setSelectedInformationStepKey] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [compactPdfLoading, setCompactPdfLoading] = useState(false);
   const [excelLoading, setExcelLoading] = useState(false);
   const [excelExportModal, setExcelExportModal] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
@@ -546,15 +547,20 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
     .flatMap((group) => group.steps || [])
     .filter((step) => returnableKeys.includes(step.key));
 
-  const exportPdf = async () => {
-    if (pdfLoading) return;
-    setPdfLoading(true);
+  const exportPdf = async (compact = false) => {
+    if (pdfLoading || compactPdfLoading) return;
+    if (compact) setCompactPdfLoading(true);
+    else setPdfLoading(true);
     try {
-      await printRequestReport(requestId, { staff: true });
+      await printRequestReport(requestId, { staff: true, compact });
     } catch (reason) {
-      onError?.({ type: "error", text: reason.message || "آماده‌سازی گزارش پی‌دی‌اف انجام نشد." });
+      onError?.({
+        type: "error",
+        text: reason.message || (compact ? "آماده‌سازی PDF فشرده انجام نشد." : "آماده‌سازی گزارش پی‌دی‌اف انجام نشد."),
+      });
     } finally {
-      setPdfLoading(false);
+      if (compact) setCompactPdfLoading(false);
+      else setPdfLoading(false);
     }
   };
 
@@ -689,7 +695,10 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <button type="button" className="srd-action-button is-secondary" onClick={openExcelExportModal} disabled={excelLoading}>
             <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "دریافت فایل اکسل"}
           </button>
-          <button type="button" className="srd-action-button is-primary" onClick={exportPdf} disabled={pdfLoading}>
+          <button type="button" className="srd-action-button is-secondary" onClick={() => exportPdf(true)} disabled={pdfLoading || compactPdfLoading} title="هدف حدود ۳ صفحه؛ برای پرونده‌های پرتراکم تا ۴ صفحه فشرده می‌شود">
+            <span aria-hidden="true">▤</span>{compactPdfLoading ? "در حال فشرده‌سازی…" : "PDF فشرده (۳–۴ صفحه)"}
+          </button>
+          <button type="button" className="srd-action-button is-primary" onClick={() => exportPdf(false)} disabled={pdfLoading || compactPdfLoading}>
             <span aria-hidden="true">↓</span>{pdfLoading ? "در حال آماده‌سازی…" : "چاپ / دریافت گزارش"}
           </button>
         </div>
