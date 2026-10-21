@@ -695,8 +695,8 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <button type="button" className="srd-action-button is-secondary" onClick={openExcelExportModal} disabled={excelLoading}>
             <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "دریافت فایل اکسل"}
           </button>
-          <button type="button" className="srd-action-button is-secondary" onClick={() => exportPdf(true)} disabled={pdfLoading || compactPdfLoading} title="هدف حدود ۳ صفحه؛ برای پرونده‌های پرتراکم تا ۴ صفحه فشرده می‌شود">
-            <span aria-hidden="true">▤</span>{compactPdfLoading ? "در حال فشرده‌سازی…" : "PDF فشرده (۳–۴ صفحه)"}
+          <button type="button" className="srd-action-button is-secondary" onClick={() => exportPdf(true)} disabled={pdfLoading || compactPdfLoading} title="قالب خوانا با چیدمان چندستونی برای چاپ روی کاغذ A4؛ تعداد صفحات به حجم اطلاعات بستگی دارد">
+            <span aria-hidden="true">▤</span>{compactPdfLoading ? "در حال آماده‌سازی…" : "PDF فشرده A4"}
           </button>
           <button type="button" className="srd-action-button is-primary" onClick={() => exportPdf(false)} disabled={pdfLoading || compactPdfLoading}>
             <span aria-hidden="true">↓</span>{pdfLoading ? "در حال آماده‌سازی…" : "چاپ / دریافت گزارش"}
