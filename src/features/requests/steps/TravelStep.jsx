@@ -8,7 +8,8 @@ import { withSpouseAvailability } from "../../../utils/form";
 const BENEFICIARY_OPTIONS = [
   { value: "APPLICANT", label: "خود متقاضی" },
   { value: "SPOUSE", label: "همسر" },
-  { value: "RELATIVE", label: "یکی از بستگان" },
+  { value: "APPLICANT_RELATIVE", label: "بستگان متقاضی" },
+  { value: "SPOUSE_RELATIVE", label: "بستگان همسر" },
 ];
 
 const RELATION_OPTIONS = [
@@ -77,7 +78,7 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError, has
           errorPrefix="records"
           render={(record, setRecord, index) => {
             const prefix = "records." + index;
-            const isRelative = record?.beneficiary_type === "RELATIVE";
+            const isRelative = ["APPLICANT_RELATIVE", "SPOUSE_RELATIVE"].includes(record?.beneficiary_type);
 
             const update = (key, value) => {
               clearValidationError(prefix + "." + key);
@@ -87,7 +88,8 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError, has
             const beneficiaryLabel = {
               APPLICANT: "خود متقاضی",
               SPOUSE: "همسر",
-              RELATIVE: "یکی از بستگان",
+              APPLICANT_RELATIVE: "بستگان متقاضی",
+              SPOUSE_RELATIVE: "بستگان همسر",
             }[record?.beneficiary_type] || "سفر / اقامت";
 
             const subjectName = isRelative
@@ -107,7 +109,7 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError, has
                     value={record?.beneficiary_type || "APPLICANT"}
                     onChange={(value) => {
                       clearValidationError(prefix + ".beneficiary_type");
-                      if (value === "RELATIVE") {
+                      if (["APPLICANT_RELATIVE", "SPOUSE_RELATIVE"].includes(value)) {
                         setRecord({ ...record, beneficiary_type: value });
                       } else {
                         setRecord({
@@ -128,7 +130,7 @@ function TravelStep({ form, setForm, readOnly, errors, clearValidationError, has
                   {isRelative && (
                     <>
                       <SelectField
-                        label="نسبت با متقاضی"
+                        label={record?.beneficiary_type === "SPOUSE_RELATIVE" ? "نسبت با همسر" : "نسبت با متقاضی"}
                         value={record?.relative_relation || ""}
                         onChange={(value) => update("relative_relation", value)}
                         options={RELATION_OPTIONS}
