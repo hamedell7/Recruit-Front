@@ -560,18 +560,22 @@ function fitCompactReport(popup) {
 
   // Measure at the exact printable width of A4 landscape, then scale the complete
   // report to leave a safety margin below three page-heights.
-  reportElement.style.width = "287mm";
+  const printableWidthMm = 287;
+  reportElement.style.width = `${printableWidthMm}mm`;
   reportElement.style.maxWidth = "none";
   reportElement.style.margin = "0";
   reportElement.style.padding = "0";
 
   const printableHeightPx = ((210 - 4 - 6) / 25.4) * 96;
   const contentHeightPx = Math.max(reportElement.scrollHeight, reportElement.getBoundingClientRect().height) + 8;
-  const targetHeightPx = printableHeightPx * 2.42;
+  const targetHeightPx = printableHeightPx * 2.35;
   const zoom = Math.min(1, targetHeightPx / Math.max(1, contentHeightPx));
+
+  // Counteract zoom's width reduction so the scaled report still spans the printable page.
+  reportElement.style.width = `${(printableWidthMm / zoom).toFixed(2)}mm`;
   reportElement.style.setProperty("--compact-zoom", zoom.toFixed(4));
 
-  const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.82)));
+  const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.78)));
   const estimate = popup.document.getElementById("compact-fit-note");
   if (estimate) {
     const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
