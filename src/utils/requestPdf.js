@@ -209,7 +209,8 @@ function renderField(key, value) {
   const rendered = escapeHtml(valueFor(key, value));
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ' class="field-value ltr-value"' : ' class="field-value"';
-  return `<div class="field"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
+  const addressClass = /^(address|address_line|current_address_line)$/.test(key) ? " field-address" : "";
+  return `<div class="field${addressClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
 
 function renderObject(value, options = {}) {
@@ -267,7 +268,8 @@ function renderStep(step, compact = false) {
   const body = renderObject(step.data);
   if (compact && !body) return "";
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
-  return `<section class="report-section">
+  const familyClass = step.key === "family" || step.title === "خانواده" ? " family-section" : "";
+  return `<section class="report-section${familyClass}">
     <div class="section-heading">
       <div class="section-number">${new Intl.NumberFormat("fa-IR").format(step.order)}</div>
       <div class="section-title"><h2>${escapeHtml(meta.title)}</h2><p>${escapeHtml(meta.kicker || "")}</p></div>
@@ -433,6 +435,7 @@ body{padding:0}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:1px 0 3px}
 .compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
+.family-section .field-address{grid-column:1/-1}
 .compact-report .field-label{display:inline;font-size:7pt;line-height:1.2}
 .compact-report .field-label:after{content:": "}
 .compact-report .field-value{display:inline;margin-top:0;font-size:7.6pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
