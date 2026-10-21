@@ -435,7 +435,7 @@ body{padding:0}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:1px 0 3px}
 .compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
-.family-section .field-address{grid-column:1/-1}
+.compact-report .family-section .field-address{grid-column:1/-1}
 .compact-report .field-label{display:inline;font-size:7pt;line-height:1.2}
 .compact-report .field-label:after{content:": "}
 .compact-report .field-value{display:inline;margin-top:0;font-size:7.6pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
