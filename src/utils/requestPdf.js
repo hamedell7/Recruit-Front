@@ -462,8 +462,7 @@ body{padding:0}
 .compact-report .report-end{margin-top:2px;padding-top:1px;font-size:5pt;line-height:1.05}
 .compact-report .print-footer{display:none!important}
 .compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
-@page compactReport{size:A4 landscape;margin:4mm 5mm 6mm}
-body.compact-report{page:compactReport}
+/* Page orientation is selected by the document-specific @page rule below. */
 @media print{
  .compact-report .report{width:287mm;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
  .compact-report .brand-head{padding-bottom:2px}
@@ -481,7 +480,7 @@ body.compact-report{page:compactReport}
  .compact-report .document-row{padding:1px}
  .compact-report .report-end{margin-top:1px}
 }
-@page{size:A4;margin:13mm 12mm 17mm}
+${compact ? "@page{size:A4 landscape;margin:4mm 5mm 6mm}" : "@page{size:A4 portrait;margin:13mm 12mm 17mm}"}
 @media print{
   html,body{background:#fff!important;font-size:9pt}
   .screen-toolbar{display:none!important}
