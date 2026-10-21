@@ -493,7 +493,9 @@ body.compact-report{page:compactReport}
  .compact-report .meta-grid{gap:2px;margin:3px 0}
  .compact-report .report-section{margin-bottom:3px;padding:4px}
  .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:2.5px}
- .compact-report .field{padding:3px 4px;margin:1px 0}\n .compact-report .compact-data-table{border-spacing:1px 0;margin:1px 0 3px;font-size:10pt}\n .compact-report .compact-data-table th,.compact-report .compact-data-table td{padding:2px 3px}
+ .compact-report .field{padding:3px 4px;margin:1px 0}
+ .compact-report .compact-data-table{border-spacing:1px 0;margin:1px 0 3px;font-size:10pt}
+ .compact-report .compact-data-table th,.compact-report .compact-data-table td{padding:2px 3px}
  .compact-report .subsection{margin-top:2px;padding:2px}
  .compact-report .repeat-list{gap:2px}
  .compact-report .repeat-card{padding:2px}
