@@ -24,7 +24,9 @@ function RecordStep({ fields, form, setForm, countries, readOnly, errors, clearV
               ))}
               {fields.some((field) => ["province_id", "county_id", "city_id", "village_id"].includes(field.key)) && (
                 <GeoFields record={record} setRecord={setRecord} countries={countries} readOnly={readOnly}
-                  errors={errors} errorPrefix={prefix} clearValidationError={clearValidationError} />
+                  errors={errors} errorPrefix={prefix} clearValidationError={clearValidationError}
+                  showCountry={fields.some((field) => field.key === "country_id")}
+                  fixedCountryId={fields.some((field) => field.key === "country_id") ? "" : (countries.find((country) => country.code === "IR")?.id || "")} />
               )}
             </div>
           </div>
