@@ -620,7 +620,7 @@ function RequestWizard({ user, request, onBack, onError, sidebarOpen = true }) {
     }
 
     if (readOnly) return;
-    const localErrors = validateStep(currentKey, form || {});
+    const localErrors = validateStep(currentKey, form || {}, hasSpouse);
     if (Object.keys(localErrors).length > 0) {
       setValidationErrors(localErrors);
       requestAnimationFrame(() => validationSummaryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
