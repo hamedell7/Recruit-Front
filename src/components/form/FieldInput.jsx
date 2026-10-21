@@ -2,7 +2,7 @@ import TextField, { TextArea, SelectField } from "./Fields";
 import { withSpouseAvailability } from "../../utils/form";
 
 function FieldInput({ field, value, onChange, countries, readOnly, record, error, hasSpouse = false }) {
-  const inputField = inputField.key === "relative_relation" && record?.beneficiary_type === "SPOUSE_RELATIVE"
+  const inputField = field.key === "relative_relation" && record?.beneficiary_type === "SPOUSE_RELATIVE"
     ? { ...field, label: "نسبت با همسر" }
     : field;
   if (inputField.visibleWhen && !inputField.visibleWhen(record || {})) return null;
