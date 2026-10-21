@@ -16,6 +16,7 @@ const emptyPassport = () => ({
   passport_number: "",
   issue_date: "",
   expiry_date: "",
+  validity_period: "",
   issue_location: "",
   notes: "",
 });
@@ -95,6 +96,14 @@ function PassportStep({ form, setForm, readOnly, errors, clearValidationError, h
                     value={record?.expiry_date || ""}
                     onChange={(value) => update("expiry_date", value)}
                     error={getFieldError(errors, prefix + ".expiry_date")}
+                    readOnly={readOnly}
+                  />
+
+                  <TextField
+                    label="مدت اعتبار"
+                    value={record?.validity_period || ""}
+                    onChange={(value) => update("validity_period", value)}
+                    error={getFieldError(errors, prefix + ".validity_period")}
                     readOnly={readOnly}
                   />
 
