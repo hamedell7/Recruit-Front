@@ -417,7 +417,7 @@ body{padding:0}
 .report-end strong{color:var(--navy)}
 .print-footer{display:none}
 /* Three-page target for dense A4 portrait printing. */
-.compact-report .report{width:200mm;max-width:none;margin:0;padding:0}
+.compact-report .report{width:200mm;max-width:calc(100vw - 32px);margin:18px auto 24px;padding:0}
 .compact-report .brand-head{gap:4px;padding-bottom:3px;border-bottom-width:1px}
 .compact-report .brand-mark{width:20px;height:20px;border-radius:4px;font-size:9pt;box-shadow:none}
 .compact-report .brand-kicker{font-size:5.5pt;margin-bottom:0;line-height:1.05}
@@ -464,7 +464,7 @@ body{padding:0}
 .compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
 /* Page orientation is selected by the document-specific @page rule below. */
 @media print{
- .compact-report .report{width:200mm;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
+ .compact-report .report{width:var(--compact-print-width,200mm);max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
  .compact-report .brand-head{padding-bottom:2px}
  .compact-report .meta-grid{gap:1px;margin:1px 0}
  .compact-report .meta-item{padding:1px 2px}
@@ -557,20 +557,25 @@ function fitCompactReport(popup) {
   const reportElement = popup.document.querySelector(".report");
   if (!reportElement) return;
 
-  // A4 portrait with compact margins: 200 mm wide by 287 mm high.
+  // A4 portrait with compact margins. The screen preview remains an ordinary
+  // centered A4-width page; only the print layout receives the compensating width.
   const printableWidthMm = 200;
   const printableHeightPx = ((297 - 4 - 6) / 25.4) * 96;
   const targetHeightPx = printableHeightPx * 2.2;
-  reportElement.style.maxWidth = "none";
-  reportElement.style.margin = "0";
-  reportElement.style.padding = "0";
+  const originalStyles = {
+    width: reportElement.style.width,
+    maxWidth: reportElement.style.maxWidth,
+    margin: reportElement.style.margin,
+    padding: reportElement.style.padding,
+  };
 
-  // Re-measure after widening the layout to compensate for zoom, so the final
-  // scaled report uses the printable width and aims to stay within 3 pages.
   let zoom = 1;
   let contentHeightPx = 0;
   for (let i = 0; i < 6; i += 1) {
     reportElement.style.width = `${(printableWidthMm / zoom).toFixed(2)}mm`;
+    reportElement.style.maxWidth = "none";
+    reportElement.style.margin = "0";
+    reportElement.style.padding = "0";
     contentHeightPx = Math.max(reportElement.scrollHeight, reportElement.getBoundingClientRect().height) + 8;
     const nextZoom = Math.min(1, targetHeightPx / Math.max(1, contentHeightPx));
     if (Math.abs(nextZoom - zoom) < 0.004) {
@@ -580,15 +585,21 @@ function fitCompactReport(popup) {
     zoom = nextZoom;
   }
 
-  reportElement.style.width = `${(printableWidthMm / zoom).toFixed(2)}mm`;
+  reportElement.style.setProperty("--compact-print-width", `${(printableWidthMm / zoom).toFixed(2)}mm`);
   reportElement.style.setProperty("--compact-zoom", zoom.toFixed(4));
-  contentHeightPx = Math.max(reportElement.scrollHeight, reportElement.getBoundingClientRect().height) + 8;
+
+  // Restore the normal on-screen A4 preview instead of leaving it expanded to
+  // the unscaled print width.
+  reportElement.style.width = originalStyles.width;
+  reportElement.style.maxWidth = originalStyles.maxWidth;
+  reportElement.style.margin = originalStyles.margin;
+  reportElement.style.padding = originalStyles.padding;
 
   const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.9)));
   const estimate = popup.document.getElementById("compact-fit-note");
   if (estimate) {
     const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
-    estimate.textContent = `چیدمان A4 عمودی؛ برآورد تقریبی ${faNumber} صفحه. برای نتیجه دقیق‌تر، در پنجره چاپ مقیاس را روی ۱۰۰٪ بگذار.`;
+    estimate.textContent = `پیش‌نمایش در عرض استاندارد A4 عمودی؛ برآورد چاپ حدود ${faNumber} صفحه است.`;
   }
 }
 
