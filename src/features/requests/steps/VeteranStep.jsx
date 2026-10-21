@@ -6,7 +6,8 @@ import ListEditor from "../../../components/form/ListEditor";
 
 const BENEFICIARY_OPTIONS = [
   { value: "APPLICANT", label: "خود متقاضی" },
-  { value: "RELATIVE", label: "یکی از بستگان (از جمله همسر)" },
+  { value: "APPLICANT_RELATIVE", label: "بستگان متقاضی" },
+  { value: "SPOUSE_RELATIVE", label: "بستگان همسر" },
 ];
 
 const RELATION_OPTIONS = [
@@ -47,7 +48,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
     <div className="form-stack">
       <FormSection
         title="سوابق ایثارگری"
-        hint="سوابق ایثارگری می‌تواند مربوط به خود متقاضی یا یکی از بستگان او باشد."
+        hint="سوابق ایثارگری می‌تواند مربوط به متقاضی، همسر، بستگان متقاضی یا بستگان همسر باشد."
       >
         <ListEditor
           title="سابقه ایثارگری"
@@ -66,11 +67,12 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
               setRecord({ ...record, [key]: value });
             };
 
-            const isRelative = record?.beneficiary_type === "RELATIVE";
+            const isRelative = ["APPLICANT_RELATIVE", "SPOUSE_RELATIVE"].includes(record?.beneficiary_type);
             const beneficiaryLabel = {
               APPLICANT: "خود متقاضی",
               SPOUSE: "همسر",
-              RELATIVE: "یکی از بستگان",
+              APPLICANT_RELATIVE: "بستگان متقاضی",
+              SPOUSE_RELATIVE: "بستگان همسر",
             }[record?.beneficiary_type] || "سابقه ایثارگری";
             const personName =
               isRelative && (record?.relative_first_name || record?.relative_last_name)
@@ -90,7 +92,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
                     value={record?.beneficiary_type || "APPLICANT"}
                     onChange={(value) => {
                       clearValidationError(prefix + ".beneficiary_type");
-                      if (value !== "RELATIVE") {
+                      if (!["APPLICANT_RELATIVE", "SPOUSE_RELATIVE"].includes(value)) {
                         setRecord({
                           ...record,
                           beneficiary_type: value,
@@ -111,7 +113,7 @@ function VeteranStep({ form, setForm, readOnly, errors, clearValidationError }) 
                   {isRelative && (
                     <>
                       <SelectField
-                        label="نسبت با متقاضی"
+                        label={record?.beneficiary_type === "SPOUSE_RELATIVE" ? "نسبت با همسر" : "نسبت با متقاضی"}
                         value={record?.relative_relation || ""}
                         onChange={(value) => update("relative_relation", value)}
                         options={RELATION_OPTIONS}
