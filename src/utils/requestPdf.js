@@ -419,40 +419,40 @@ body{padding:0}
 /* Dense layout used only by the optional compact report. */
 .compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
 .compact-report .brand-head{gap:5px;padding-bottom:4px;border-bottom-width:1px}
-.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:12pt;box-shadow:none}
-.compact-report .brand-kicker{font-size:7pt;margin-bottom:0}
-.compact-report .brand-copy h1{font-size:13pt;line-height:1.25}
-.compact-report .brand-copy p{font-size:7pt;margin-top:1px}
-.compact-report .security-tag{padding:2px 4px;border-radius:4px;font-size:6.5pt}
+.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:18pt;box-shadow:none}
+.compact-report .brand-kicker{font-size:10.5pt;margin-bottom:0}
+.compact-report .brand-copy h1{font-size:19.5pt;line-height:1.25}
+.compact-report .brand-copy p{font-size:10.5pt;margin-top:1px}
+.compact-report .security-tag{padding:2px 4px;border-radius:4px;font-size:9.75pt}
 .compact-report .meta-grid{gap:3px;margin:4px 0}
 .compact-report .meta-item{padding:3px 4px;border-radius:4px}
-.compact-report .meta-label{font-size:7pt;margin-bottom:1px}
-.compact-report .meta-value{font-size:7.5pt;line-height:1.2}
+.compact-report .meta-label{font-size:10.5pt;margin-bottom:1px}
+.compact-report .meta-value{font-size:11.25pt;line-height:1.2}
 .compact-report .identity-card,.compact-report .progress-summary{display:none!important}
 .compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
 .compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
-.compact-report .section-number{width:20px;height:20px;border-radius:4px;font-size:7.5pt}
-.compact-report .section-title h2{font-size:9.5pt;line-height:1.2}
+.compact-report .section-number{width:20px;height:20px;border-radius:4px;font-size:11.25pt}
+.compact-report .section-title h2{font-size:14.25pt;line-height:1.2}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:1px 0 3px}
 .compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
 .compact-report .field-full-row{grid-column:1/-1 !important;width:100%;}
-.compact-report .field-label{display:inline;font-size:7pt;line-height:1.2}
+.compact-report .field-label{display:inline;font-size:10.5pt;line-height:1.2}
 .compact-report .field-label:after{content:": "}
-.compact-report .field-value{display:inline;margin-top:0;font-size:7.6pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .field-value{display:inline;margin-top:0;font-size:11.4pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
 .compact-report .subsection{margin:3px 0 1px;padding:3px;border-radius:4px;break-inside:auto}
-.compact-report .subsection h4{margin:0 0 2px;font-size:8pt;line-height:1.2}
+.compact-report .subsection h4{margin:0 0 2px;font-size:12pt;line-height:1.2}
 .compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
 .compact-report .repeat-list-addresses{grid-template-columns:minmax(0,1fr)}
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
-.compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:7pt;line-height:1.2}
-.compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:7pt}
+.compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:10.5pt;line-height:1.2}
+.compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:10.5pt}
 .compact-report .document-row{gap:4px;padding:3px 4px}
-.compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:6pt}
-.compact-report .document-main strong{font-size:7.6pt}
-.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:6.8pt}
-.compact-report .report-end{margin-top:5px;padding-top:3px;font-size:6pt}
-.compact-report .print-footer{font-size:5.5pt}
+.compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:9pt}
+.compact-report .document-main strong{font-size:11.4pt}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:10.2pt}
+.compact-report .report-end{margin-top:5px;padding-top:3px;font-size:9pt}
+.compact-report .print-footer{font-size:8.25pt}
 @page compactReport{size:A4;margin:7mm 6mm 9mm}
 body.compact-report{page:compactReport}
 @media print{
