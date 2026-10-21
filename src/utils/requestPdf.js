@@ -456,6 +456,7 @@ body{padding:0}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:2px 0 4px}
 .compact-report .field{padding:4px 5px;margin:1px 0;border-radius:3px;line-height:1.3;break-inside:avoid}
+.compact-report .fields-grid > .compact-data-table{grid-column:1/-1;width:100%}
 .compact-report .compact-data-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:1px 0;margin:2px 0 4px;font-size:10.5pt;line-height:1.2}
 .compact-report .compact-data-table th,.compact-report .compact-data-table td{width:calc(100% / var(--compact-columns));padding:3px 4px;text-align:right;vertical-align:top;overflow-wrap:anywhere;word-break:normal}
 .compact-report .compact-data-table th{background:#edf3fa;color:#49627f;font-weight:600;border-bottom:1px solid #dce5f0}
