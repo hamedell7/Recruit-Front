@@ -384,8 +384,22 @@ export function validateStep(stepKey, form, hasSpouse = false) {
       if (!/^\d{11}$/.test(phone)) add("current_address.phone", "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
     }
 
-    for (let i = 0; i < (form?.contacts || []).length; i += 1) {
-      const contact = form.contacts[i];
+    const contacts = Array.isArray(form?.contacts) ? form.contacts : [];
+    const hasMobile = contacts.some((contact) => (
+      contact?.contact_type === "موبایل" && !empty(contact?.value)
+    ));
+    const hasLandline = contacts.some((contact) => (
+      contact?.contact_type === "تلفن ثابت" && !empty(contact?.value)
+    ));
+    if (!hasMobile) {
+      add("contacts", "ثبت حداقل یک شماره موبایل الزامی است.");
+    }
+    if (!hasLandline) {
+      add("contacts", "ثبت حداقل یک شماره تلفن ثابت الزامی است.");
+    }
+
+    for (let i = 0; i < contacts.length; i += 1) {
+      const contact = contacts[i];
       const prefix = "contacts." + i;
       const isSocialNetwork = Boolean(socialNetworkLabels[contact?.contact_type]);
       const allowedContactTypes = ["موبایل", "تلفن ثابت"];
