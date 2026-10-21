@@ -149,9 +149,13 @@ function WorkflowManager({ onError }) {
     return Boolean(step && step.position_constraint !== "ANY");
   };
   const isRequiredStep = (stepKey) => {
+    // The final declaration is optional, including in legacy workflow snapshots
+    // whose stored flags still say "required".
+    if (stepKey === "declaration") return false;
     const catalogStep = catalog.find((step) => step.key === stepKey);
     return Boolean(findConfiguredStep(stepKey)?.required || catalogStep?.is_required);
   };
+  const isStepRemovable = (stepKey) => stepKey !== "declaration" && !isRequiredStep(stepKey);
   const updateStepActive = (groupIndex, stepIndex, active) => {
     if (isRequiredStep(groups[groupIndex]?.steps[stepIndex]?.key) && !active) return;
     setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
@@ -531,7 +535,7 @@ function WorkflowManager({ onError }) {
 
   const removeStep = (groupIndex, stepIndex) => {
     const step = groups[groupIndex]?.steps[stepIndex];
-    if (!step || isRequiredStep(step.key)) return;
+    if (!step || !isStepRemovable(step.key)) return;
     setGroups((current) => current.map((group, index) => index !== groupIndex ? group : ({
       ...group,
       steps: group.steps.filter((_, itemIndex) => itemIndex !== stepIndex),
@@ -826,7 +830,7 @@ function WorkflowManager({ onError }) {
 
           <div className="workflow-sidebar-footer">
             <span className="workflow-sidebar-footer-icon">i</span>
-            <p>مرحله‌های «مشخصات فردی» و «تعهد نهایی» برای حفظ اعتبار مسیر الزامی‌اند.</p>
+            <p>«مشخصات فردی» و «وضعیت نظام وظیفه» الزامی‌اند؛ «تعهد نهایی» را می‌توان از همین بخش غیرفعال کرد.</p>
           </div>
         </aside>
 
@@ -1020,12 +1024,14 @@ function WorkflowManager({ onError }) {
                           <button
                             type="button"
                             className="workflow-stage-remove"
-                            disabled={isRequiredStep(step.key)}
+                            disabled={!isStepRemovable(step.key)}
                             aria-label="حذف مرحله از گردش‌کار"
                             title={
-                              isRequiredStep(step.key)
-                                ? "مرحله الزامی قابل حذف نیست"
-                                : "این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود"
+                              step.key === "declaration"
+                                ? "تعهد نهایی حذف نمی‌شود؛ در صورت نیاز آن را غیرفعال کنید"
+                                : isRequiredStep(step.key)
+                                  ? "مرحله الزامی قابل حذف نیست"
+                                  : "این مرحله فقط از نسخه جدید حذف می‌شود؛ اطلاعات قبلی پاک نمی‌شود"
                             }
                             onClick={() => removeStep(selectedGroupIndex, stepIndex)}
                           >
