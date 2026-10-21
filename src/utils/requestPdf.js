@@ -425,7 +425,14 @@ body{padding:0}
 .compact-report .meta-item{padding:3px 4px;border-radius:4px}
 .compact-report .meta-label{font-size:6pt;margin-bottom:1px}
 .compact-report .meta-value{font-size:6.5pt;line-height:1.2}
-.compact-report .identity-card,.compact-report .progress-summary{display:none!important}
+.compact-report .progress-summary{display:none!important}
+.compact-report .identity-card{margin:0 0 4px;padding:4px;border-radius:5px;break-inside:auto;background:#fff}
+.compact-report .identity-head{margin:0 0 3px;padding-bottom:2px;font-size:7.5pt;line-height:1.15}
+.compact-report .identity-head:before{width:2px;height:11px}
+.compact-report .identity-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
+.compact-report .identity-field{padding:2px 3px;border-radius:3px}
+.compact-report .identity-field span{font-size:5.8pt}
+.compact-report .identity-field strong{margin-top:1px;font-size:6.4pt;line-height:1.2}
 .compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
 .compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
 .compact-report .section-number{width:18px;height:18px;border-radius:4px;font-size:6.5pt}
@@ -556,7 +563,9 @@ function fitCompactReport(popup) {
   const estimate = popup.document.getElementById("compact-fit-note");
   if (estimate) {
     const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
-    estimate.textContent = `برآورد تقریبی: ${faNumber} صفحه؛ تنظیمات چاپگر می‌تواند نتیجه را تغییر دهد.`;
+    estimate.textContent = estimatedPages > 4
+      ? `حجم اطلاعات زیاد است؛ برآورد حدود ${faNumber} صفحه است. برای حفظ همه مقادیر، فشرده‌سازی بیشتر اعمال نشده است.`
+      : `برآورد تقریبی: ${faNumber} صفحه؛ تنظیمات چاپگر می‌تواند نتیجه را تغییر دهد.`;
   }
 }
 
