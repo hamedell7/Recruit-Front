@@ -209,7 +209,7 @@ function renderField(key, value) {
   const rendered = escapeHtml(valueFor(key, value));
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ' class="field-value ltr-value"' : ' class="field-value"';
-  const addressClass = /^(address|address_line|current_address_line)$/.test(key) ? " field-address" : "";
+  const addressClass = /address/i.test(key) && !/(phone|postal|zip)/i.test(key) ? " field-address" : "";
   return `<div class="field${addressClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
 
