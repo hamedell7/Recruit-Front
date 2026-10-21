@@ -22,13 +22,14 @@ function AddressFields({ item, setItem, countries, readOnly, residence, family =
           errorPrefix={errorPrefix}
           clearValidationError={clearValidationError}
           caption="موقعیت جغرافیایی"
-          hint="نوع نشانی، کشور، استان، شهر، آدرس دقیق، کد پستی و تلفن را وارد کنید."
+          hint="نوع نشانی، کشور، استان، شهر، روستا، آدرس دقیق، کد پستی و تلفن را وارد کنید."
           required
           addressTypeOptions={[
             { value: "RESIDENCE", label: "محل سکونت فعلی" },
             { value: "PREVIOUS_RESIDENCE", label: "محل سکونت قبلی" },
           ]}
           includeAddressDetails
+          includeVillageName
         >
           <TextField label="تاریخ شروع" type="date" value={item.from_date} onChange={(v) => update("from_date", v)} error={getFieldError(errors, fieldPath("from_date"))} readOnly={readOnly} />
           <TextField label="تاریخ پایان" type="date" value={item.to_date} onChange={(v) => update("to_date", v)} error={getFieldError(errors, fieldPath("to_date"))} readOnly={readOnly} />

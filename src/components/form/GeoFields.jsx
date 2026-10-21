@@ -18,6 +18,7 @@ function GeoFields({
   required = false,
   addressTypeOptions,
   includeAddressDetails = false,
+  includeVillageName = false,
   children
 }) {
   const countryKey = prefix + "country_id";
@@ -126,6 +127,16 @@ function GeoFields({
           required={required}
           readOnly={readOnly || !provinceId}
         />
+        {includeVillageName && (
+          <TextField
+            label="روستا"
+            value={record?.village_name || ""}
+            onChange={(value) => setValue("village_name", value)}
+            error={getFieldError(errors, pathFor("village_name"))}
+            placeholder="نام روستا را وارد کنید"
+            readOnly={readOnly}
+          />
+        )}
         {includeAddressDetails && (
           <>
             <TextArea
