@@ -514,7 +514,7 @@ body.compact-report{page:compactReport}
 </head>
 <body class="${compact ? "compact-report" : ""}">
 <div class="screen-toolbar">
- <p>${compact ? "قالب فشرده با هدف ۳ صفحه و در صورت حجم زیاد با هدف ۴ صفحه تنظیم می‌شود." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
+ <p>${compact ? "قالب خوانا و فشرده برای چاپ A4 است؛ فیلدها در ستون‌های بیشتر چیده شده‌اند." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
  ${compact ? '<small id="compact-fit-note">در حال تنظیم فشردگی صفحه‌ها…</small>' : ""}
  <div class="toolbar-actions"><button id="report-print" class="primary" type="button">${compact ? "چاپ / ذخیره PDF فشرده" : "چاپ / ذخیره PDF"}</button><button id="report-close" type="button">بستن پنجره</button></div>
 </div>
