@@ -19,12 +19,14 @@ function GeoFields({
   addressTypeOptions,
   includeAddressDetails = false,
   includeVillageName = false,
+  fixedCountryId = "",
+  showCountry = true,
   children
 }) {
   const countryKey = prefix + "country_id";
   const provinceKey = prefix + "province_id";
   const cityKey = prefix + "city_id";
-  const countryId = record?.[countryKey] || "";
+  const countryId = record?.[countryKey] || fixedCountryId;
   const provinceId = record?.[provinceKey] || "";
   const pathFor = (key) => (errorPrefix ? `${errorPrefix}.${key}` : key);
 
@@ -100,15 +102,17 @@ function GeoFields({
             readOnly={readOnly}
           />
         )}
-        <SelectField
-          label="کشور"
-          value={record?.[countryKey] || ""}
-          onChange={(value) => setValue(countryKey, value)}
-          error={getFieldError(errors, pathFor(countryKey))}
-          options={countries.map((item) => ({ value: item.id, label: item.name }))}
-          required={required}
-          readOnly={readOnly}
-        />
+        {showCountry && (
+          <SelectField
+            label="کشور"
+            value={record?.[countryKey] || fixedCountryId || ""}
+            onChange={(value) => setValue(countryKey, value)}
+            error={getFieldError(errors, pathFor(countryKey))}
+            options={countries.map((item) => ({ value: item.id, label: item.name }))}
+            required={required}
+            readOnly={readOnly}
+          />
+        )}
         <SelectField
           label="استان"
           value={record?.[provinceKey] || ""}
