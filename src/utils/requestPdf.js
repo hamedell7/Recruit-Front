@@ -216,7 +216,8 @@ function renderField(key, value) {
 function renderObject(value, options = {}) {
   if (Array.isArray(value)) {
     if (value.length === 0) return "";
-    return `<div class="repeat-list">${value.map((item, index) => {
+    const repeatListClass = options.key === "addresses" ? "repeat-list repeat-list-addresses" : "repeat-list";
+    return `<div class="${repeatListClass}">${value.map((item, index) => {
       if (item && typeof item === "object" && !Array.isArray(item)) {
         return `<article class="repeat-card"><div class="repeat-title">مورد ${new Intl.NumberFormat("fa-IR").format(index + 1)}</div>${renderObject(item, { nested: true })}</article>`;
       }
@@ -442,6 +443,7 @@ body{padding:0}
 .compact-report .subsection{margin:3px 0 1px;padding:3px;border-radius:4px;break-inside:auto}
 .compact-report .subsection h4{margin:0 0 2px;font-size:8pt;line-height:1.2}
 .compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
+.compact-report .repeat-list-addresses{grid-template-columns:minmax(0,1fr)}
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
 .compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:7pt;line-height:1.2}
 .compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:7pt}
