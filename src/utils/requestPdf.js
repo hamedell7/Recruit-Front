@@ -416,50 +416,50 @@ body{padding:0}
 .report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
 .print-footer{display:none}
-/* Three-page target for dense A4 portrait printing. */
-.compact-report .report{width:200mm;max-width:calc(100vw - 32px);margin:18px auto 24px;padding:0}
+/* Readable compact report: landscape A4, with a four-page print target. */
+.compact-report .report{width:285mm;max-width:calc(100vw - 32px);margin:18px auto 24px;padding:0}
 .compact-report .brand-head{gap:4px;padding-bottom:3px;border-bottom-width:1px}
-.compact-report .brand-mark{width:20px;height:20px;border-radius:4px;font-size:9pt;box-shadow:none}
-.compact-report .brand-kicker{font-size:5.5pt;margin-bottom:0;line-height:1.05}
-.compact-report .brand-copy h1{font-size:8.5pt;line-height:1.1}
-.compact-report .brand-copy p{font-size:5.5pt;margin-top:0;line-height:1.05}
-.compact-report .security-tag{padding:1px 3px;border-radius:3px;font-size:5pt;line-height:1.1}
-.compact-report .meta-grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:1px;margin:2px 0}
-.compact-report .meta-item{padding:2px 3px;border-radius:2px}
-.compact-report .meta-label{font-size:5pt;margin-bottom:0;line-height:1.1}
-.compact-report .meta-value{font-size:5.8pt;line-height:1.1}
-.compact-report .identity-card{margin:0 0 2px;padding:2px;border-radius:3px;break-inside:auto}
-.compact-report .identity-head{gap:3px;margin:0 0 1px;padding-bottom:1px;font-size:6.5pt;line-height:1.1}
-.compact-report .identity-head:before{width:2px;height:7px}
-.compact-report .identity-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:1px}
-.compact-report .identity-field{padding:1px 2px;border-radius:2px}
-.compact-report .identity-field span{font-size:5pt;line-height:1.05}
-.compact-report .identity-field strong{margin-top:0;font-size:5.8pt;line-height:1.08;overflow-wrap:anywhere}
+.compact-report .brand-mark{width:30px;height:30px;border-radius:6px;font-size:13pt;box-shadow:none}
+.compact-report .brand-kicker{font-size:7.5pt;margin-bottom:1px;line-height:1.25}
+.compact-report .brand-copy h1{font-size:13pt;line-height:1.35}
+.compact-report .brand-copy p{font-size:7pt;margin-top:1px;line-height:1.25}
+.compact-report .security-tag{padding:3px 6px;border-radius:5px;font-size:7pt;line-height:1.3}
+.compact-report .meta-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin:5px 0}
+.compact-report .meta-item{padding:5px 6px;border-radius:5px}
+.compact-report .meta-label{font-size:7pt;margin-bottom:2px;line-height:1.3}
+.compact-report .meta-value{font-size:8pt;line-height:1.35}
+.compact-report .identity-card{margin:0 0 6px;padding:6px;border-radius:7px;break-inside:avoid}
+.compact-report .identity-head{gap:5px;margin:0 0 4px;padding-bottom:4px;font-size:9pt;line-height:1.3}
+.compact-report .identity-head:before{width:3px;height:13px}
+.compact-report .identity-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+.compact-report .identity-field{padding:4px 6px;border-radius:5px}
+.compact-report .identity-field span{font-size:7pt;line-height:1.3}
+.compact-report .identity-field strong{margin-top:2px;font-size:8pt;line-height:1.35;overflow-wrap:anywhere}
 .compact-report .progress-summary{display:none!important}
-.compact-report .report-section{padding:2px 3px;margin:0 0 2px;border-radius:3px;break-inside:auto}
-.compact-report .section-heading{gap:3px;margin:0 0 1px;padding-bottom:1px;break-after:avoid}
-.compact-report .section-number{width:15px;height:15px;border-radius:3px;font-size:6pt}
-.compact-report .section-title h2{font-size:6.8pt;line-height:1.08}
+.compact-report .report-section{padding:6px 7px;margin:0 0 5px;border-radius:7px;break-inside:auto}
+.compact-report .section-heading{gap:6px;margin:0 0 5px;padding-bottom:4px;break-after:avoid}
+.compact-report .section-number{width:24px;height:24px;border-radius:5px;font-size:8pt}
+.compact-report .section-title h2{font-size:10pt;line-height:1.3}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
-.compact-report .fields-grid,.compact-report .subsection .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;margin:0 0 1px}
-.compact-report .field{padding:1px 2px;border:0;border-bottom:1px solid #e9edf2;border-radius:0;line-height:1.08;break-inside:avoid;min-width:0}
-.compact-report .field-label{display:inline;font-size:5.2pt;line-height:1.08;color:#738197}
-.compact-report .field-label:after{content:": "}
-.compact-report .field-value{display:inline;margin:0;font-size:6pt;font-weight:500;line-height:1.08;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin:0 0 3px}
+.compact-report .field{padding:4px 5px;border:1px solid #e9edf2;border-radius:4px;line-height:1.35;break-inside:avoid;min-width:0}
+.compact-report .field-label{display:block;font-size:7pt;line-height:1.3;color:#738197}
+.undefined
+.compact-report .field-value{display:block;margin-top:2px;font-size:8pt;font-weight:600;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
 .compact-report .field.wide-text{grid-column:span 2}
 .compact-report .field.full-text{grid-column:1 / -1}
-.compact-report .subsection{margin:1px 0;padding:2px;border:0;border-right:1px solid #e6ebf2;border-radius:0;break-inside:auto}
-.compact-report .subsection h4{margin:0 0 1px;font-size:5.8pt;line-height:1.05}
-.compact-report .repeat-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-top:1px}
-.compact-report .repeat-card{padding:2px;border:1px solid #e2e8ef;border-radius:2px;break-inside:auto;min-width:0}
-.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:0}
-.compact-report .repeat-title{margin:0 0 1px;padding:0 2px;font-size:5.2pt;line-height:1.05}
-.compact-report .draft-note{margin:0 0 1px;padding:1px 2px;font-size:5pt;line-height:1.05}
-.compact-report .document-row{gap:2px;padding:1px 2px}
-.compact-report .document-index{width:12px;height:12px;border-radius:2px;font-size:5pt}
-.compact-report .document-main strong{font-size:5.8pt;line-height:1.05}
-.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5pt;line-height:1.05}
-.compact-report .report-end{margin-top:2px;padding-top:1px;font-size:5pt;line-height:1.05}
+.compact-report .subsection{margin:4px 0;padding:5px;border:1px solid #e6ebf2;border-radius:5px;break-inside:auto}
+.compact-report .subsection h4{margin:0 0 4px;font-size:8pt;line-height:1.3}
+.compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin-top:3px}
+.compact-report .repeat-card{padding:5px;border:1px solid #e2e8ef;border-radius:5px;break-inside:avoid;min-width:0}
+.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;margin:0}
+.compact-report .repeat-title{margin:0 0 4px;padding:2px 5px;font-size:7pt;line-height:1.3}
+.compact-report .draft-note{margin:0 0 4px;padding:4px 6px;font-size:7pt;line-height:1.3}
+.compact-report .document-row{gap:5px;padding:4px 6px}
+.compact-report .document-index{width:22px;height:22px;border-radius:4px;font-size:7pt}
+.compact-report .document-main strong{font-size:8pt;line-height:1.3}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:7pt;line-height:1.3}
+.compact-report .report-end{margin-top:5px;padding-top:4px;font-size:7pt;line-height:1.3}
 .compact-report .print-footer{display:none!important}
 .compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
 /* Page orientation is selected by the document-specific @page rule below. */
@@ -480,7 +480,7 @@ body{padding:0}
  .compact-report .document-row{padding:1px}
  .compact-report .report-end{margin-top:1px}
 }
-${compact ? "@page{size:A4 portrait;margin:4mm 5mm 6mm}" : "@page{size:A4 portrait;margin:13mm 12mm 17mm}"}
+${compact ? "@page{size:A4 landscape;margin:6mm}" : "@page{size:A4 portrait;margin:13mm 12mm 17mm}"}
 @media print{
   html,body{background:#fff!important;font-size:9pt}
   .screen-toolbar{display:none!important}
@@ -559,9 +559,9 @@ function fitCompactReport(popup) {
 
   // A4 portrait with compact margins. The screen preview remains an ordinary
   // centered A4-width page; only the print layout receives the compensating width.
-  const printableWidthMm = 200;
-  const printableHeightPx = ((297 - 4 - 6) / 25.4) * 96;
-  const targetHeightPx = printableHeightPx * 2.2;
+  const printableWidthMm = 285;
+  const printableHeightPx = ((210 - 12) / 25.4) * 96;
+  const targetHeightPx = printableHeightPx * 3.7;
   const originalStyles = {
     width: reportElement.style.width,
     maxWidth: reportElement.style.maxWidth,
@@ -599,7 +599,7 @@ function fitCompactReport(popup) {
   const estimate = popup.document.getElementById("compact-fit-note");
   if (estimate) {
     const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
-    estimate.textContent = `پیش‌نمایش در عرض استاندارد A4 عمودی؛ برآورد چاپ حدود ${faNumber} صفحه است.`;
+    estimate.textContent = `پیش‌نمایش A4 افقی؛ برآورد چاپ حدود ${faNumber} صفحه است.`;
   }
 }
 
