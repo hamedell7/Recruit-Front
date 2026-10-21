@@ -415,61 +415,58 @@ body{padding:0}
 .print-footer{display:none}
 /* Dense layout used only by the optional compact report. */
 .compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
-.compact-report .brand-head{gap:5px;padding-bottom:4px;border-bottom-width:1px}
-.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:12pt;box-shadow:none}
-.compact-report .brand-kicker{font-size:6pt;margin-bottom:0}
-.compact-report .brand-copy h1{font-size:11pt;line-height:1.25}
-.compact-report .brand-copy p{font-size:6pt;margin-top:1px}
-.compact-report .security-tag{padding:2px 4px;border-radius:4px;font-size:5.5pt}
-.compact-report .meta-grid{gap:3px;margin:4px 0}
-.compact-report .meta-item{padding:3px 4px;border-radius:4px}
-.compact-report .meta-label{font-size:6pt;margin-bottom:1px}
-.compact-report .meta-value{font-size:6.5pt;line-height:1.2}
+.compact-report .brand-head{gap:3px;padding-bottom:2px;border-bottom-width:1px}
+.compact-report .brand-mark,.compact-report .brand-kicker,.compact-report .brand-copy p,.compact-report .security-tag{display:none!important}
+.compact-report .brand-copy h1{font-size:9pt;line-height:1.15}
+.compact-report .meta-grid{gap:2px;margin:2px 0}
+.compact-report .meta-item{padding:2px 3px;border:0;border-bottom:1px solid #e5e9ef;border-radius:0;background:#fff}
+.compact-report .meta-label{font-size:5.2pt;margin-bottom:0;line-height:1.1}
+.compact-report .meta-value{font-size:5.8pt;line-height:1.1}
 .compact-report .progress-summary{display:none!important}
-.compact-report .identity-card{margin:0 0 4px;padding:4px;border-radius:5px;break-inside:auto;background:#fff}
-.compact-report .identity-head{margin:0 0 3px;padding-bottom:2px;font-size:7.5pt;line-height:1.15}
-.compact-report .identity-head:before{width:2px;height:11px}
-.compact-report .identity-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
-.compact-report .identity-field{padding:2px 3px;border-radius:3px}
-.compact-report .identity-field span{font-size:5.8pt}
-.compact-report .identity-field strong{margin-top:1px;font-size:6.4pt;line-height:1.2}
-.compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
-.compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
-.compact-report .section-number{width:18px;height:18px;border-radius:4px;font-size:6.5pt}
-.compact-report .section-title h2{font-size:8.2pt;line-height:1.2}
+.compact-report .identity-card{margin:0 0 2px;padding:2px;border:0;border-bottom:1px solid #dfe5ed;border-radius:0;break-inside:auto;background:#fff}
+.compact-report .identity-head{margin:0 0 2px;padding-bottom:1px;font-size:6.5pt;line-height:1.1}
+.compact-report .identity-head:before{width:2px;height:8px}
+.compact-report .identity-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:1px}
+.compact-report .identity-field{padding:1px 2px;border:0;border-left:1px solid #edf0f4;border-radius:0}
+.compact-report .identity-field span{font-size:5.1pt;line-height:1.1}
+.compact-report .identity-field strong{margin-top:0;font-size:5.7pt;line-height:1.1}
+.compact-report .report-section{padding:3px 2px;margin:0 0 2px;border:0;border-top:1px solid #dce3ec;border-radius:0;break-inside:auto}
+.compact-report .section-heading{gap:2px;margin:0 0 2px;padding-bottom:1px;break-after:avoid}
+.compact-report .section-number{display:none}
+.compact-report .section-title h2{font-size:7pt;line-height:1.1}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
-.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;margin:1px 0 3px}
-.compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
-.compact-report .field-label{display:inline;font-size:5.8pt;line-height:1.2}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;margin:0 0 2px}
+.compact-report .field{padding:1px 2px;border:0;border-bottom:1px dotted #edf0f4;border-radius:0;line-height:1.05;break-inside:avoid}
+.compact-report .field-label{display:inline;font-size:5.1pt;line-height:1.05}
 .compact-report .field-label:after{content:": "}
-.compact-report .field-value{display:inline;margin-top:0;font-size:6.4pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
-.compact-report .subsection{margin:3px 0 1px;padding:3px;border-radius:4px;break-inside:auto}
-.compact-report .subsection h4{margin:0 0 2px;font-size:7pt;line-height:1.2}
-.compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
-.compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
-.compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:6pt;line-height:1.2}
-.compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:6pt}
-.compact-report .document-row{gap:4px;padding:3px 4px}
-.compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:6pt}
-.compact-report .document-main strong{font-size:6.4pt}
-.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5.8pt}
-.compact-report .report-end{margin-top:5px;padding-top:3px;font-size:6pt}
+.compact-report .field-value{display:inline;margin-top:0;font-size:5.6pt;font-weight:500;line-height:1.05;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .subsection{margin:2px 0 0;padding:2px;border:0;border-right:1px solid #e6ebf2;border-radius:0;background:#fff;break-inside:auto}
+.compact-report .subsection h4{margin:0 0 1px;font-size:6pt;line-height:1.05}
+.compact-report .repeat-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-top:1px}
+.compact-report .repeat-card{padding:2px;border:1px solid #e2e8ef;border-radius:2px;break-inside:auto;min-width:0}
+.compact-report .repeat-title{margin-bottom:1px;padding:0 2px;font-size:5pt;line-height:1.05}
+.compact-report .draft-note{margin-bottom:1px;padding:1px 2px;font-size:5pt}
+.compact-report .document-row{gap:2px;padding:1px 2px}
+.compact-report .document-index{width:12px;height:12px;border-radius:2px;font-size:5pt}
+.compact-report .document-main strong{font-size:5.6pt}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5.1pt}
+.compact-report .report-end{margin-top:2px;padding-top:1px;font-size:5.2pt}
 .compact-report .print-footer{font-size:5.5pt}
 .compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
 @page compactReport{size:A4;margin:7mm 6mm 9mm}
 body.compact-report{page:compactReport}
 @media print{
  .compact-report .report{width:auto;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
- .compact-report .brand-head{padding-bottom:3px}
- .compact-report .meta-grid{gap:2px;margin:3px 0}
- .compact-report .report-section{margin-bottom:3px;padding:4px}
- .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:1.5px}
- .compact-report .field{padding:1.5px 2px}
- .compact-report .subsection{margin-top:2px;padding:2px}
- .compact-report .repeat-list{gap:2px}
- .compact-report .repeat-card{padding:2px}
- .compact-report .document-row{padding:2px 3px}
- .compact-report .report-end{margin-top:3px}
+ .compact-report .brand-head{padding-bottom:1px}
+ .compact-report .meta-grid{gap:1px;margin:1px 0}
+ .compact-report .report-section{margin-bottom:1px;padding:2px 1px}
+ .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:0.5px}
+ .compact-report .field{padding:0.5px 1px}
+ .compact-report .subsection{margin-top:1px;padding:1px}
+ .compact-report .repeat-list{gap:1px}
+ .compact-report .repeat-card{padding:1px}
+ .compact-report .document-row{padding:1px}
+ .compact-report .report-end{margin-top:1px}
  .compact-report .print-footer{bottom:-6mm}
 }
 @page{size:A4;margin:13mm 12mm 17mm}
@@ -556,7 +553,7 @@ function fitCompactReport(popup) {
   if (threePageZoom < 1) {
     zoom = threePageZoom >= 0.78
       ? threePageZoom
-      : Math.max(0.62, Math.min(1, fourPageZoom));
+      : Math.max(0.58, Math.min(1, fourPageZoom));
   }
   reportElement.style.setProperty("--compact-zoom", zoom.toFixed(3));
   const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.93)));
