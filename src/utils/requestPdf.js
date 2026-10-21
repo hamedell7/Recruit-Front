@@ -270,7 +270,8 @@ function renderStep(step, compact = false) {
   if (compact && !body) return "";
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
   const familyClass = step.key === "family" || step.title === "خانواده" ? " family-section" : "";
-  return `<section class="report-section${familyClass}">
+  const contactClass = step.key === "contacts" || step.title === "راه‌های تماس" ? " contact-section" : "";
+  return `<section class="report-section${familyClass}${contactClass}">
     <div class="section-heading">
       <div class="section-number">${new Intl.NumberFormat("fa-IR").format(step.order)}</div>
       <div class="section-title"><h2>${escapeHtml(meta.title)}</h2><p>${escapeHtml(meta.kicker || "")}</p></div>
@@ -446,6 +447,11 @@ body{padding:0}
 .compact-report .repeat-list-addresses{grid-template-columns:minmax(0,1fr)}
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
 .compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:10.5pt;line-height:1.2}
+.compact-report .contact-section .repeat-list{grid-template-columns:minmax(0,1fr);gap:2px}
+.compact-report .contact-section .repeat-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:4px}
+.compact-report .contact-section .repeat-title{margin:0;white-space:nowrap}
+.compact-report .contact-section .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:0}
+.compact-report .contact-section .repeat-card .field{padding:2px 3px;margin:0}
 .compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:10.5pt}
 .compact-report .document-row{gap:4px;padding:3px 4px}
 .compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:9pt}
@@ -465,6 +471,8 @@ body.compact-report{page:compactReport}
  .compact-report .subsection{margin-top:2px;padding:2px}
  .compact-report .repeat-list{gap:2px}
  .compact-report .repeat-card{padding:2px}
+ .compact-report .contact-section .repeat-card .fields-grid{gap:1.5px}
+ .compact-report .contact-section .repeat-card .field{padding:2px}
  .compact-report .document-row{padding:2px 3px}
  .compact-report .report-end{margin-top:3px}
  .compact-report .print-footer{bottom:-6mm}
