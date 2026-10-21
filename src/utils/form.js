@@ -8,10 +8,12 @@ export function withSpouseAvailability(options = [], hasSpouse = false) {
       ? { value: option, label: option }
       : option;
 
-    if (!normalized || normalized.value !== "SPOUSE" || hasSpouse) return option;
+    if (!normalized || !["SPOUSE", "SPOUSE_RELATIVE"].includes(normalized.value) || hasSpouse) return option;
     return {
       ...normalized,
-      label: "همسر (ابتدا در سوابق ازدواج ثبت شود)",
+      label: normalized.value === "SPOUSE_RELATIVE"
+        ? "بستگان همسر (ابتدا در سوابق ازدواج ثبت شود)"
+        : "همسر (ابتدا در سوابق ازدواج ثبت شود)",
       disabled: true,
     };
   });
@@ -313,12 +315,36 @@ export function mergeDraft(base, draft, stepKey) {
   return { ...(hydratedBase || {}), ...hydratedDraft };
 }
 
-export function validateStep(stepKey, form) {
+const SPOUSE_DEPENDENT_BENEFICIARY_STEPS = new Set([
+  "veteran",
+  "travel",
+  "legal_incidents",
+  "migration",
+  "affiliations",
+  "addiction",
+  "foreign_company_relations",
+  "embassy_relations",
+  "exit_restrictions",
+]);
+
+export function validateStep(stepKey, form, hasSpouse = false) {
   const empty = (value) => value === undefined || value === null || String(value).trim() === "";
   const errors = {};
   const add = (path, message) => {
     if (!errors[path]) errors[path] = message;
   };
+
+  if (!hasSpouse && SPOUSE_DEPENDENT_BENEFICIARY_STEPS.has(stepKey)) {
+    const records = Array.isArray(form?.records) ? form.records : [];
+    for (let i = 0; i < records.length; i += 1) {
+      if (["SPOUSE", "SPOUSE_RELATIVE"].includes(records[i]?.beneficiary_type)) {
+        add(
+          "records." + i + ".beneficiary_type",
+          "برای ثبت سابقه مربوط به همسر یا بستگان همسر، ابتدا مشخصات همسر را در بخش «سوابق ازدواج» ثبت کنید.",
+        );
+      }
+    }
+  }
 
   if (stepKey === "personal") {
     if (empty(form?.first_name)) add("first_name", "نام را وارد کنید.");
