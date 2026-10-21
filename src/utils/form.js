@@ -392,10 +392,10 @@ export function validateStep(stepKey, form, hasSpouse = false) {
       contact?.contact_type === "تلفن ثابت" && !empty(contact?.value)
     ));
     if (!hasMobile) {
-      add("contacts", "ثبت حداقل یک شماره موبایل الزامی است.");
+      add("contacts.mobile", "ثبت حداقل یک شماره موبایل الزامی است.");
     }
     if (!hasLandline) {
-      add("contacts", "ثبت حداقل یک شماره تلفن ثابت الزامی است.");
+      add("contacts.landline", "ثبت حداقل یک شماره تلفن ثابت الزامی است.");
     }
 
     for (let i = 0; i < contacts.length; i += 1) {
