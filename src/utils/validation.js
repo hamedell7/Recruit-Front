@@ -11,6 +11,7 @@ function formatErrorPath(path) {
     father_name: "نام پدر",
     national_id: "کد ملی",
     mobile: "شماره موبایل",
+    landline: "شماره تلفن ثابت",
     birth_date: "تاریخ تولد",
     gender: "جنسیت",
     marital_status: "وضعیت تأهل",
