@@ -500,8 +500,8 @@ body.compact-report{page:compactReport}
 </head>
 <body class="${compact ? "compact-report" : ""}">
 <div class="screen-toolbar">
- <p>${compact ? "قالب فشرده با هدف ۳ صفحه و در صورت حجم زیاد با هدف ۴ صفحه تنظیم می‌شود." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
- ${compact ? '<small id="compact-fit-note">در حال تنظیم فشردگی صفحه‌ها…</small>' : ""}
+ <p>${compact ? "" : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
+ ${compact ? "" : ""}
  <div class="toolbar-actions"><button id="report-print" class="primary" type="button">${compact ? "چاپ / ذخیره PDF فشرده" : "چاپ / ذخیره PDF"}</button><button id="report-close" type="button">بستن پنجره</button></div>
 </div>
 <main class="report">
@@ -556,11 +556,7 @@ function fitCompactReport(popup) {
   }
   reportElement.style.setProperty("--compact-zoom", zoom.toFixed(3));
   const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.93)));
-  const estimate = popup.document.getElementById("compact-fit-note");
-  if (estimate) {
-    const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
-    estimate.textContent = `برآورد تقریبی: ${faNumber} صفحه؛ تنظیمات چاپگر می‌تواند نتیجه را تغییر دهد.`;
-  }
+
 }
 
 export async function printRequestReport(requestId, { staff = false, compact = false } = {}) {
