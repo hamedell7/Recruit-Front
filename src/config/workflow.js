@@ -56,6 +56,8 @@ const RECORDS = {
   ],
   screening_history: [
     { key: "organization_name", label: "نام سازمان / اداره", type: "text", required: true },
+    { key: "province_id", label: "استان", type: "select" },
+    { key: "city_id", label: "شهر", type: "select" },
     { key: "screening_date", label: "تاریخ گزینش", type: "date" },
     { key: "result", label: "نتیجه گزینش", type: "text", required: true },
     { key: "rejection_reason", label: "علت عدم پذیرش", type: "textarea", full: true, visibleWhen: (record) => /رد|عدم پذیرش|نپذیرفته/.test(record.result || "") },
