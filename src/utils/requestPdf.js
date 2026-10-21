@@ -451,7 +451,6 @@ body{padding:0}
 .compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:6.8pt}
 .compact-report .report-end{margin-top:5px;padding-top:3px;font-size:6pt}
 .compact-report .print-footer{font-size:5.5pt}
-.compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
 @page compactReport{size:A4;margin:7mm 6mm 9mm}
 body.compact-report{page:compactReport}
 @media print{
