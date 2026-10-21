@@ -213,13 +213,30 @@ function renderField(key, value) {
   return `<div class="field${addressClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
 
+function renderCompactTable(fields) {
+  if (!fields.length) return "";
+  const columnCount = Math.min(6, fields.length);
+  const headers = fields.map(([key]) =>
+    `<th scope="col">${escapeHtml(labelFor(key))}</th>`
+  ).join("");
+  const values = fields.map(([key, value]) => {
+    const rendered = escapeHtml(valueFor(key, value));
+    const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
+      ? " ltr-value" : "";
+    const addressClass = /address/i.test(key) && !/(phone|postal|zip)/i.test(key)
+      ? " compact-table-address" : "";
+    return `<td class="${codeClass.trim()}${addressClass}"><span>${rendered}</span></td>`;
+  }).join("");
+  return `<table class="compact-data-table" style="--compact-columns:${columnCount}"><thead><tr>${headers}</tr></thead><tbody><tr>${values}</tr></tbody></table>`;
+}
+
 function renderObject(value, options = {}) {
   if (Array.isArray(value)) {
     if (value.length === 0) return "";
     const repeatListClass = options.key === "addresses" ? "repeat-list repeat-list-addresses" : "repeat-list";
     return `<div class="${repeatListClass}">${value.map((item, index) => {
       if (item && typeof item === "object" && !Array.isArray(item)) {
-        return `<article class="repeat-card"><div class="repeat-title">مورد ${new Intl.NumberFormat("fa-IR").format(index + 1)}</div>${renderObject(item, { nested: true })}</article>`;
+        return `<article class="repeat-card"><div class="repeat-title">مورد ${new Intl.NumberFormat("fa-IR").format(index + 1)}</div>${renderObject(item, { nested: true, compact: options.compact })}</article>`;
       }
       return `<div class="field"><span class="field-label">مورد ${new Intl.NumberFormat("fa-IR").format(index + 1)}</span><strong class="field-value">${escapeHtml(valueFor("", item))}</strong></div>`;
     }).join("")}</div>`;
@@ -233,9 +250,11 @@ function renderObject(value, options = {}) {
     if (item && typeof item === "object") nested.push([key, item]);
     else scalar.push([key, item]);
   });
-  const fields = scalar.map(([key, item]) => renderField(key, item)).join("");
+  const fields = options.compact
+    ? renderCompactTable(scalar)
+    : scalar.map(([key, item]) => renderField(key, item)).join("");
   const subSections = nested.map(([key, item]) => {
-    const content = renderObject(item, { key });
+    const content = renderObject(item, { key, compact: options.compact });
     if (!content) return "";
     return `<div class="subsection"><h4>${escapeHtml(labelFor(key))}</h4>${content}</div>`;
   }).join("");
@@ -266,7 +285,7 @@ function stepStatusClass(value) {
 function renderStep(step, compact = false) {
   if (step.data === null || step.data === undefined) return "";
   const meta = { title: step.title || step.key, kicker: step.group_title || "" };
-  const body = renderObject(step.data);
+  const body = renderObject(step.data, { compact });
   if (compact && !body) return "";
   const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
   const familyClass = step.key === "family" || step.title === "خانواده" ? " family-section" : "";
@@ -437,6 +456,13 @@ body{padding:0}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:2px 0 4px}
 .compact-report .field{padding:4px 5px;margin:1px 0;border-radius:3px;line-height:1.3;break-inside:avoid}
+.compact-report .compact-data-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:1px 0;margin:2px 0 4px;font-size:10.5pt;line-height:1.2}
+.compact-report .compact-data-table th,.compact-report .compact-data-table td{width:calc(100% / var(--compact-columns));padding:3px 4px;text-align:right;vertical-align:top;overflow-wrap:anywhere;word-break:normal}
+.compact-report .compact-data-table th{background:#edf3fa;color:#49627f;font-weight:600;border-bottom:1px solid #dce5f0}
+.compact-report .compact-data-table td{background:#fff;color:#203752;font-weight:500;border-bottom:1px solid #e6ebf2}
+.compact-report .compact-data-table td span{display:block;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .compact-data-table .ltr-value{direction:ltr;text-align:right;unicode-bidi:plaintext;font-variant-numeric:tabular-nums}
+.compact-report .compact-data-table .compact-table-address{overflow-wrap:anywhere}
 .compact-report .field-full-row{grid-column:1/-1 !important;width:100%;}
 .compact-report .field-label{display:inline;font-size:10.5pt;line-height:1.2}
 .compact-report .field-label:after{content:": "}
@@ -467,7 +493,7 @@ body.compact-report{page:compactReport}
  .compact-report .meta-grid{gap:2px;margin:3px 0}
  .compact-report .report-section{margin-bottom:3px;padding:4px}
  .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:2.5px}
- .compact-report .field{padding:3px 4px;margin:1px 0}
+ .compact-report .field{padding:3px 4px;margin:1px 0}\n .compact-report .compact-data-table{border-spacing:1px 0;margin:1px 0 3px;font-size:10pt}\n .compact-report .compact-data-table th,.compact-report .compact-data-table td{padding:2px 3px}
  .compact-report .subsection{margin-top:2px;padding:2px}
  .compact-report .repeat-list{gap:2px}
  .compact-report .repeat-card{padding:2px}
