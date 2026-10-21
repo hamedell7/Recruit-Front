@@ -79,7 +79,7 @@ const RECORDS = {
     { key: "phone", label: "تلفن محل گزینش", type: "phone" },
   ],
   veteran: [
-    { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [{ value: "APPLICANT", label: "خود متقاضی" }, { value: "RELATIVE", label: "یکی از بستگان" }] },
+    { key: "beneficiary_type", label: "این سابقه مربوط به", type: "select", required: true, options: [{ value: "APPLICANT", label: "خود متقاضی" }, { value: "SPOUSE", label: "همسر" }, { value: "APPLICANT_RELATIVE", label: "بستگان متقاضی" }, { value: "SPOUSE_RELATIVE", label: "بستگان همسر" }] },
     { key: "relative_relation", label: "نسبت با متقاضی", type: "text" },
     { key: "relative_first_name", label: "نام شخص ایثارگر", type: "text" },
     { key: "relative_last_name", label: "نام خانوادگی شخص ایثارگر", type: "text" },
