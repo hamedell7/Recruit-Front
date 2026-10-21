@@ -6,6 +6,7 @@ import ListEditor from "../../../components/form/ListEditor";
 
 const BENEFICIARY_OPTIONS = [
   { value: "APPLICANT", label: "خود متقاضی" },
+  { value: "SPOUSE", label: "همسر" },
   { value: "APPLICANT_RELATIVE", label: "بستگان متقاضی" },
   { value: "SPOUSE_RELATIVE", label: "بستگان همسر" },
 ];
