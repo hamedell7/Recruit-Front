@@ -209,10 +209,7 @@ function renderField(key, value) {
   const rendered = escapeHtml(valueFor(key, value));
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ' class="field-value ltr-value"' : ' class="field-value"';
-  const fullText = /^(statement_text|disability_description|disease_description|details|notes_text)$/i.test(key);
-  const wideText = /description|notes|reason|motivation|responsibility|address|statement|details/i.test(key);
-  const layoutClass = fullText ? " full-text" : wideText ? " wide-text" : "";
-  return `<div class="field${layoutClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
+  return `<div class="field"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
 
 function renderObject(value, options = {}) {
@@ -314,11 +311,16 @@ function renderHtml(report, { compact = false } = {}) {
   const finalized = ["SUBMITTED", "UNDER_REVIEW", "APPROVED", "REJECTED", "COMPLETED"].includes(request.status);
   const generatedAt = new Date().toLocaleString("fa-IR-u-ca-persian", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
-  const title = `${compact ? "گزارش پرونده" : "گزارش جامع پرونده"} - ${safeTracking}`;
-  const progress = steps.map((step) => `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(step.title || step.key)}</span></div>`).join("");
+  const title = `${compact ? "گزارش فشرده پرونده" : "گزارش پرونده"} - ${safeTracking}`;
+  const progress = steps.map((step) => {
+    const meta = { title: step.title || step.key };
+    return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;
+  }).join("");
   const summaryFields = [
-    ["نام و نام خانوادگی", fullName], ["نام پدر", person.father_name || "ثبت نشده"],
-    ["کد ملی", nationalId], ["شماره همراه", phone],
+    ["نام و نام خانوادگی", fullName],
+    ["نام پدر", person.father_name || "ثبت نشده"],
+    ["کد ملی", nationalId],
+    ["شماره همراه", phone],
     ["تاریخ تولد", person.birth_date ? formatDate(person.birth_date) : "ثبت نشده"],
     ["جنسیت", person.gender || "ثبت نشده"],
   ];
@@ -339,123 +341,170 @@ function renderHtml(report, { compact = false } = {}) {
 @font-face{font-family:IranYekan;src:url("${regularFont}") format("woff2");font-weight:400;font-style:normal}
 @font-face{font-family:IranYekan;src:url("${mediumFont}") format("woff2");font-weight:500 600;font-style:normal}
 @font-face{font-family:IranYekan;src:url("${boldFont}") format("woff2");font-weight:700 900;font-style:normal}
-:root{color-scheme:light;--navy:#142d50;--blue:#285b98;--muted:#63748a;--line:#dce4ee;--pale:#f4f7fb;--gold:#c49a52;--green:#16774f}
+:root{color-scheme:light;--navy:#142d50;--blue:#285b98;--muted:#6b7b91;--line:#e2e8f0;--pale:#f5f8fc;--gold:#c49a52;--green:#16774f}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:IranYekan,Tahoma,sans-serif;color:#26364a;background:#fff;font-size:10.5pt;line-height:1.75;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.screen-toolbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 5vw;background:var(--navy);color:#fff;box-shadow:0 6px 18px #142d5022}
+html,body{margin:0;padding:0;font-family:IranYekan,Tahoma,sans-serif;color:#26364a;background:#fff;font-size:10pt;line-height:1.8;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{padding:0}
+.screen-toolbar{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 5vw;background:#142d50;color:#fff;box-shadow:0 6px 18px #142d5022}
 .screen-toolbar p{margin:0;font-size:10pt}
 .toolbar-actions{display:flex;gap:8px;flex-shrink:0}
 .toolbar-actions button{border:1px solid #ffffff55;border-radius:8px;padding:8px 14px;background:#ffffff12;color:#fff;font:inherit;cursor:pointer}
-.toolbar-actions .primary{background:#fff;color:var(--navy);font-weight:700}
-.report{width:100%;max-width:297mm;margin:24px auto 40px;padding:0 12mm 12mm}
-.brand-head{display:flex;align-items:center;gap:14px;padding:0 0 14px;border-bottom:2px solid var(--navy)}
-.brand-mark{display:grid;place-items:center;width:48px;height:48px;flex:0 0 auto;border-radius:12px;background:var(--navy);color:#fff;font-size:23pt;font-weight:800;box-shadow:inset 0 -4px 0 var(--gold)}
+.toolbar-actions .primary{background:#fff;color:#142d50;font-weight:700}
+.report{max-width:210mm;margin:26px auto 40px;padding:0 15mm 15mm}
+.brand-head{display:flex;align-items:center;gap:14px;padding:0 0 20px;border-bottom:2px solid var(--navy);position:relative}
+.brand-mark{display:grid;place-items:center;width:53px;height:53px;flex:0 0 auto;border-radius:15px;background:var(--navy);color:#fff;font-size:25px;font-weight:800;box-shadow:inset 0 -4px 0 var(--gold)}
 .brand-copy{min-width:0;flex:1}
-.brand-kicker{margin:0 0 2px;color:var(--blue);font-size:9pt;font-weight:700}
-.brand-copy h1{margin:0;color:var(--navy);font-size:19pt;font-weight:800;line-height:1.45}
-.brand-copy p{margin:3px 0 0;color:var(--muted);font-size:9pt}
-.security-tag{align-self:flex-start;border:1px solid #d8c6a6;border-radius:8px;padding:5px 9px;color:#7b6338;background:#fbf7ee;text-align:center;font-size:8.5pt;font-weight:700;white-space:nowrap}
-.meta-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:13px 0 10px}
-.meta-item{min-width:0;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--pale)}
-.meta-label{display:block;margin-bottom:3px;color:var(--muted);font-size:8.5pt}
-.meta-value{display:block;color:var(--navy);font-size:9.5pt;font-weight:700;overflow-wrap:anywhere}
-.identity-card{margin:0 0 12px;padding:11px 12px;border:1px solid #d9e4f1;border-radius:10px;background:#f8faff;break-inside:avoid}
-.identity-head{display:flex;align-items:center;gap:8px;margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid #e1e9f4;color:var(--navy);font-size:12pt;font-weight:800}
-.identity-head:before{content:"";width:4px;height:18px;border-radius:3px;background:var(--gold)}
-.identity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-.identity-field{min-width:0;padding:6px 8px;border:1px solid #e5ebf3;border-radius:7px;background:#fff}
-.identity-field span{display:block;color:var(--muted);font-size:8.5pt}
-.identity-field strong{display:block;margin-top:2px;color:#1c324e;font-size:10pt;overflow-wrap:anywhere}
+.brand-kicker{margin:0 0 3px;color:var(--blue);font-size:9pt;font-weight:700;letter-spacing:.02em}
+.brand-copy h1{margin:0;color:var(--navy);font-size:21pt;font-weight:800;line-height:1.6}
+.brand-copy p{margin:2px 0 0;color:var(--muted);font-size:9pt}
+.security-tag{align-self:flex-start;border:1px solid #d8c6a6;border-radius:8px;padding:6px 10px;color:#7b6338;background:#fbf7ee;text-align:center;font-size:8pt;font-weight:700;white-space:nowrap}
+.meta-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:17px 0 13px}
+.meta-item{min-width:0;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--pale)}
+.meta-label{display:block;margin-bottom:4px;color:var(--muted);font-size:8pt}
+.meta-value{display:block;color:var(--navy);font-size:9pt;font-weight:700;overflow-wrap:anywhere}
+.status-pill{display:inline-block;border-radius:5px;padding:1px 7px;background:#eaf1fb;color:#285b98}
+.identity-card{margin:0 0 17px;padding:15px;border:1px solid #d9e4f1;border-radius:14px;background:linear-gradient(110deg,#f7faff,#fff 75%);break-inside:avoid}
+.identity-head{display:flex;align-items:center;gap:9px;margin:0 0 12px;padding-bottom:9px;border-bottom:1px solid #e4ebf5;color:var(--navy);font-size:12pt;font-weight:800}
+.identity-head:before{content:"";width:4px;height:20px;border-radius:3px;background:var(--gold)}
+.identity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.identity-field{min-width:0;padding:8px 10px;border:1px solid #e8edf5;border-radius:8px;background:#fff}
+.identity-field span{display:block;color:var(--muted);font-size:8pt}
+.identity-field strong{display:block;margin-top:3px;color:#1c324e;font-size:10pt;overflow-wrap:anywhere}
 .ltr-value{direction:ltr;text-align:right;unicode-bidi:plaintext;font-variant-numeric:tabular-nums}
-.progress-summary{margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:9px}
-.progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.progress-summary{margin:0 0 19px;padding:12px 15px;border:1px solid var(--line);border-radius:12px}
+.progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .progress-top strong{color:var(--navy);font-size:10pt}
-.progress-top span{color:var(--muted);font-size:8.5pt}
+.progress-top span{color:var(--muted);font-size:8pt}
 .progress-track{display:flex;flex-wrap:wrap;gap:6px 12px}
-.progress-item{display:flex;align-items:center;gap:5px;color:#52647b;font-size:8.5pt}
+.progress-item{display:flex;align-items:center;gap:5px;color:#52647b;font-size:8pt}
 .progress-dot{width:7px;height:7px;flex:0 0 auto;border-radius:50%;background:#bcc7d5}
 .progress-dot.success{background:#1e9565}.progress-dot.warning{background:#cb7b29}.progress-dot.active{background:#3d79ba}
-.report-section{margin:0 0 10px;padding:10px 11px;border:1px solid #dfe6ef;border-radius:9px;break-inside:auto}
-.section-heading{display:flex;align-items:center;gap:9px;margin:0 0 9px;padding-bottom:7px;border-bottom:1px solid #e8edf3;break-after:avoid}
-.section-number{display:grid;place-items:center;width:30px;height:30px;flex:0 0 auto;border-radius:8px;background:var(--navy);color:#fff;font-size:10.5pt;font-weight:800}
+.report-section{margin:0 0 18px;padding:14px;border:1px solid #dfe6ef;border-radius:13px;break-inside:auto}
+.section-heading{display:flex;align-items:center;gap:10px;margin:0 0 13px;padding-bottom:10px;border-bottom:1px solid #e8edf3;break-after:avoid}
+.section-number{display:grid;place-items:center;width:35px;height:35px;flex:0 0 auto;border-radius:10px;background:var(--navy);color:#fff;font-size:11pt;font-weight:800}
 .section-title{flex:1;min-width:0}
-.section-title h2{margin:0;color:var(--navy);font-size:13pt;font-weight:800;line-height:1.5}
-.section-title p{margin:2px 0 0;color:var(--muted);font-size:9pt}
-.step-badge{flex:0 0 auto;border-radius:6px;padding:3px 7px;font-size:8.5pt;font-weight:700;white-space:nowrap}
+.section-title h2{margin:0;color:var(--navy);font-size:13pt;font-weight:800}
+.section-title p{margin:2px 0 0;color:var(--muted);font-size:8pt}
+.step-badge{flex:0 0 auto;border-radius:7px;padding:4px 8px;font-size:8pt;font-weight:700;white-space:nowrap}
 .step-badge.success{background:#eaf7ef;color:#17764c}.step-badge.warning{background:#fff3e7;color:#965a15}
 .step-badge.active{background:#edf4fc;color:#285b98}.step-badge.neutral{background:#f0f2f5;color:#6b7788}
-.fields-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:3px 0 7px}
-.field{min-width:0;padding:6px 8px;border:1px solid #e7ecf2;border-radius:6px;background:#fff;break-inside:avoid}
-.field-label{display:block;color:#687991;font-size:9pt;line-height:1.5}
-.field-value{display:block;margin-top:2px;color:#203752;font-size:10.5pt;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
-.field.wide-text{grid-column:1/-1}
-.field.full-text{grid-column:1/-1;background:#fbfcfe}
-.subsection{margin:8px 0 3px;padding:8px;border:1px solid #e3eaf2;border-radius:8px;background:#f9fbfd;break-inside:auto}
-.subsection h4{margin:0 0 6px;color:#31527b;font-size:10.5pt;font-weight:800;break-after:avoid}
-.repeat-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:5px}
-.repeat-card{min-width:0;padding:8px;border:1px solid #dfe6ef;border-radius:8px;background:#fff;break-inside:avoid}
-.repeat-title{display:inline-block;margin-bottom:6px;padding:3px 7px;border-radius:5px;background:#eef3f9;color:#355779;font-size:9pt;font-weight:700}
-.repeat-card .fields-grid,.subsection .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
-.empty-section{padding:12px;text-align:center;color:#748399;font-size:10pt;background:#f8fafc;border-radius:7px}
-.draft-note{margin:0 0 8px;padding:6px 9px;border-right:3px solid var(--gold);background:#fbf6eb;color:#7a6339;font-size:9pt}
+.fields-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 10px}
+.field{min-width:0;padding:8px 10px;border:1px solid #edf0f4;border-radius:8px;background:#fff;break-inside:avoid}
+.field-label{display:block;color:#738197;font-size:8pt;line-height:1.6}
+.field-value{display:block;margin-top:4px;color:#263b56;font-size:9.4pt;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75}
+.subsection{margin:12px 0 3px;padding:11px;border:1px solid #e7edf4;border-radius:10px;background:#fafbfd;break-inside:auto}
+.subsection h4{margin:0 0 9px;color:#31527b;font-size:10pt;font-weight:800;break-after:avoid}
+.subsection .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.repeat-list{display:grid;grid-template-columns:1fr;gap:9px;margin-top:5px}
+.repeat-card{padding:11px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;break-inside:avoid}
+.repeat-title{display:inline-block;margin-bottom:8px;padding:3px 8px;border-radius:6px;background:#eef3f9;color:#466384;font-size:8pt;font-weight:700}
+.repeat-card .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.empty-section{padding:14px;text-align:center;color:#8793a4;font-size:9pt;background:#f9fafc;border-radius:8px}
+.draft-note{margin:0 0 10px;padding:7px 10px;border-right:3px solid var(--gold);background:#fbf6eb;color:#7a6339;font-size:8pt}
 .documents-section{break-inside:auto}
-.document-list{border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.document-row{display:flex;align-items:center;gap:9px;padding:7px 9px;border-bottom:1px solid #edf0f4;break-inside:avoid}
+.document-list{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.document-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid #edf0f4;break-inside:avoid}
 .document-row:last-child{border-bottom:0}
-.document-index{display:grid;place-items:center;width:27px;height:27px;flex:0 0 auto;border-radius:6px;background:#edf3fb;color:#315e96;font-weight:700}
+.document-index{display:grid;place-items:center;width:28px;height:28px;flex:0 0 auto;border-radius:7px;background:#edf3fb;color:#315e96;font-weight:700}
 .document-main{display:flex;flex:1;min-width:0;flex-direction:column}
-.document-main strong{color:#263b56;overflow-wrap:anywhere;font-size:9.5pt}
-.document-main small,.document-size{color:var(--muted);font-size:8.5pt}
-.document-note{margin:7px 0 0;color:#6c7b8f;font-size:8.5pt}
-.report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:8px;border-top:1px solid #dfe6ef;color:#6f7e91;font-size:8.5pt}
+.document-main strong{color:#263b56;overflow-wrap:anywhere;font-size:9pt}
+.document-main small,.document-size{color:var(--muted);font-size:8pt}
+.document-note{margin:9px 0 0;color:#7a8798;font-size:8pt}
+.report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
 .print-footer{display:none}
-.compact-report .report{max-width:285mm;padding:0}
-.compact-report .progress-summary{display:none}
-.compact-report .section-title p{display:block}
-.compact-report .report-section{break-inside:auto}
-.compact-report .section-heading{break-after:avoid}
-@page{size:${compact ? "A4 landscape" : "A4 portrait"};margin:${compact ? "8mm" : "13mm 12mm 17mm"}}
+/* Dense layout used only by the optional compact report. */
+.compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
+.compact-report .brand-head{gap:5px;padding-bottom:4px;border-bottom-width:1px}
+.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:12pt;box-shadow:none}
+.compact-report .brand-kicker{font-size:6pt;margin-bottom:0}
+.compact-report .brand-copy h1{font-size:11pt;line-height:1.25}
+.compact-report .brand-copy p{font-size:6pt;margin-top:1px}
+.compact-report .security-tag{padding:2px 4px;border-radius:4px;font-size:5.5pt}
+.compact-report .meta-grid{gap:3px;margin:4px 0}
+.compact-report .meta-item{padding:3px 4px;border-radius:4px}
+.compact-report .meta-label{font-size:6pt;margin-bottom:1px}
+.compact-report .meta-value{font-size:6.5pt;line-height:1.2}
+.compact-report .identity-card,.compact-report .progress-summary{display:none!important}
+.compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
+.compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
+.compact-report .section-number{width:18px;height:18px;border-radius:4px;font-size:6.5pt}
+.compact-report .section-title h2{font-size:8.2pt;line-height:1.2}
+.compact-report .section-title p,.compact-report .step-badge{display:none}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;margin:1px 0 3px}
+.compact-report .field{padding:2px 3px;border-radius:3px;line-height:1.2;break-inside:avoid}
+.compact-report .field-label{display:inline;font-size:5.8pt;line-height:1.2}
+.compact-report .field-label:after{content:": "}
+.compact-report .field-value{display:inline;margin-top:0;font-size:6.4pt;font-weight:500;line-height:1.2;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .subsection{margin:3px 0 1px;padding:3px;border-radius:4px;break-inside:auto}
+.compact-report .subsection h4{margin:0 0 2px;font-size:7pt;line-height:1.2}
+.compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
+.compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
+.compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:6pt;line-height:1.2}
+.compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:6pt}
+.compact-report .document-row{gap:4px;padding:3px 4px}
+.compact-report .document-index{width:16px;height:16px;border-radius:3px;font-size:6pt}
+.compact-report .document-main strong{font-size:6.4pt}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5.8pt}
+.compact-report .report-end{margin-top:5px;padding-top:3px;font-size:6pt}
+.compact-report .print-footer{font-size:5.5pt}
+.compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
+@page compactReport{size:A4;margin:7mm 6mm 9mm}
+body.compact-report{page:compactReport}
 @media print{
- html,body{background:#fff!important;font-size:10.5pt}
- .screen-toolbar{display:none!important}
- .report{width:auto;max-width:none;margin:0;padding:0}
- .brand-head{padding-bottom:10px}
- .brand-mark{width:42px;height:42px}
- .brand-copy h1{font-size:17pt}
- .meta-grid{gap:5px;margin:9px 0}
- .meta-item{padding:6px}
- .identity-card{padding:8px;margin-bottom:9px}
- .report-section{padding:8px 9px;margin-bottom:7px}
- .section-number{width:27px;height:27px}
- .fields-grid,.subsection .fields-grid,.repeat-card .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
- .field{padding:5px 7px}
- .field-value{font-size:10pt}
- .repeat-list{gap:5px}
- .repeat-card{padding:6px}
- .print-footer{display:block;position:fixed;left:0;right:0;bottom:-10mm;border-top:1px solid #dfe6ef;padding-top:3px;color:#758296;text-align:center;font-size:8pt}
- .report-section,.identity-card,.meta-item,.field,.repeat-card,.document-row{box-shadow:none}
+ .compact-report .report{width:auto;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
+ .compact-report .brand-head{padding-bottom:3px}
+ .compact-report .meta-grid{gap:2px;margin:3px 0}
+ .compact-report .report-section{margin-bottom:3px;padding:4px}
+ .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:1.5px}
+ .compact-report .field{padding:1.5px 2px}
+ .compact-report .subsection{margin-top:2px;padding:2px}
+ .compact-report .repeat-list{gap:2px}
+ .compact-report .repeat-card{padding:2px}
+ .compact-report .document-row{padding:2px 3px}
+ .compact-report .report-end{margin-top:3px}
+ .compact-report .print-footer{bottom:-6mm}
+}
+@page{size:A4;margin:13mm 12mm 17mm}
+@media print{
+  html,body{background:#fff!important;font-size:9pt}
+  .screen-toolbar{display:none!important}
+  .report{width:auto;max-width:none;margin:0;padding:0}
+  .brand-head{padding-bottom:13px}
+  .brand-mark{width:45px;height:45px}
+  .brand-copy h1{font-size:17pt}
+  .meta-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0 9px}
+  .meta-item{padding:7px}
+  .identity-card{padding:11px;margin-bottom:12px}
+  .report-section{padding:10px;margin-bottom:11px}
+  .section-number{width:30px;height:30px}
+  .fields-grid,.subsection .fields-grid,.repeat-card .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .field{padding:6px 8px}
+  .field-value{font-size:8.6pt}
+  .print-footer{display:block;position:fixed;left:0;right:0;bottom:-12mm;border-top:1px solid #dfe6ef;padding-top:4px;color:#758296;text-align:center;font-size:7pt}
+  .report-section,.identity-card,.meta-item,.field,.repeat-card,.document-row{box-shadow:none}
 }
 @media screen and (max-width:760px){
- .report{margin:14px auto;padding:0 14px 24px}
+ .report{margin:16px auto;padding:0 16px 28px}
  .screen-toolbar{align-items:flex-start;flex-direction:column;padding:12px 16px}
  .toolbar-actions{width:100%}.toolbar-actions button{flex:1}
  .meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .identity-grid,.fields-grid,.subsection .fields-grid,.repeat-card .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .repeat-list{grid-template-columns:1fr}
- .brand-copy h1{font-size:15pt}.security-tag{display:none}
+ .identity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .fields-grid,.subsection .fields-grid,.repeat-card .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .brand-copy h1{font-size:16pt}.security-tag{display:none}
 }
 </style>
 </head>
 <body class="${compact ? "compact-report" : ""}">
 <div class="screen-toolbar">
- <p>${compact ? "نسخه خوانا برای چاپ افقی A4؛ اندازه متن حفظ می‌شود و برای جا شدن، کوچک‌سازی خودکار انجام نمی‌شود." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
- <div class="toolbar-actions"><button id="report-print" class="primary" type="button">چاپ / ذخیره PDF</button><button id="report-close" type="button">بستن پنجره</button></div>
+ <p>${compact ? "قالب فشرده با هدف ۳ صفحه و در صورت حجم زیاد با هدف ۴ صفحه تنظیم می‌شود." : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
+ ${compact ? '<small id="compact-fit-note">در حال تنظیم فشردگی صفحه‌ها…</small>' : ""}
+ <div class="toolbar-actions"><button id="report-print" class="primary" type="button">${compact ? "چاپ / ذخیره PDF فشرده" : "چاپ / ذخیره PDF"}</button><button id="report-close" type="button">بستن پنجره</button></div>
 </div>
 <main class="report">
  <header class="brand-head">
   <div class="brand-mark">R</div>
-  <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>${compact ? "گزارش درخواست" : "گزارش جامع درخواست"}</h1><p>نسخه خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده</p></div>
+  <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
   <div class="security-tag">اطلاعات شخصی<br>ویژه استفاده مجاز</div>
  </header>
  <section class="meta-grid">${meta.map(([label, value]) => `<div class="meta-item"><span class="meta-label">${escapeHtml(label)}</span><strong class="meta-value">${escapeHtml(value)}</strong></div>`).join("")}</section>
@@ -467,13 +516,14 @@ html,body{margin:0;padding:0;font-family:IranYekan,Tahoma,sans-serif;color:#2636
   <div class="progress-top"><strong>نمای کلی فرآیند</strong><span>${new Intl.NumberFormat("fa-IR").format(submittedSteps)} مرحله دارای اطلاعات از ${new Intl.NumberFormat("fa-IR").format(steps.length)} مرحله ${finalized ? "· پرونده نهایی / در حال بررسی" : "· پرونده در جریان تکمیل"}</span></div>
   <div class="progress-track">${progress}</div>
  </section>
- ${steps.map((step) => renderStep(step, false)).join("")}
+ ${steps.map((step) => renderStep(step, compact)).join("")}
  ${renderDocumentList(report.documents || [])}
  <div class="report-end"><span>تهیه‌شده در ${escapeHtml(generatedAt)}</span><strong>کد رهگیری: ${escapeHtml(request.tracking_code || "—")}</strong></div>
 </main>
 <div class="print-footer">این سند حاوی اطلاعات شخصی است؛ فقط در چارچوب مجاز نگهداری و استفاده شود.</div>
 </body></html>`;
 }
+
 function loadingHtml() {
   return `<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>آماده‌سازی گزارش</title>
   <body style="font-family:Tahoma,sans-serif;background:#f4f7fb;color:#18314f;padding:56px;text-align:center">
@@ -489,13 +539,27 @@ function errorHtml(message) {
 export { FIELD_LABELS, VALUE_LABELS, isInternalKey, labelFor, valueFor };
 
 function fitCompactReport(popup) {
-  // Deliberately do not scale the report to force a page limit. Readability is
-  // more important than squeezing every record into an arbitrary page count.
   const reportElement = popup.document.querySelector(".report");
   if (!reportElement) return;
-  reportElement.style.removeProperty("--compact-print-width");
-  reportElement.style.removeProperty("--compact-zoom");
+  const printableHeightPx = ((297 - 7 - 9) / 25.4) * 96;
+  const contentHeightPx = reportElement.scrollHeight + 12;
+  const threePageZoom = (printableHeightPx * 2.62) / contentHeightPx;
+  const fourPageZoom = (printableHeightPx * 3.55) / contentHeightPx;
+  let zoom = 1;
+  if (threePageZoom < 1) {
+    zoom = threePageZoom >= 0.78
+      ? threePageZoom
+      : Math.max(0.62, Math.min(1, fourPageZoom));
+  }
+  reportElement.style.setProperty("--compact-zoom", zoom.toFixed(3));
+  const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.93)));
+  const estimate = popup.document.getElementById("compact-fit-note");
+  if (estimate) {
+    const faNumber = new Intl.NumberFormat("fa-IR").format(estimatedPages);
+    estimate.textContent = `برآورد تقریبی: ${faNumber} صفحه؛ تنظیمات چاپگر می‌تواند نتیجه را تغییر دهد.`;
+  }
 }
+
 export async function printRequestReport(requestId, { staff = false, compact = false } = {}) {
   const popup = window.open("", "_blank");
   if (!popup) throw new Error("مرورگر اجازه باز کردن پنجره گزارش را نداد. پنجره‌های بازشو را برای سامانه مجاز کنید.");
