@@ -100,7 +100,7 @@ function Login({ onLogin }) {
           <div className="auth-heading">
             <span className="eyebrow">ورود به حساب</span>
             <h2>خوش آمدید</h2>
-            <p>برای مشاهده درخواست‌ها، کد ملی و شماره موبایل خود را وارد کنید.</p>
+            <p>برای ورود، کد ملی و شماره موبایلی را وارد کنید که حساب آن از قبل توسط مدیر سامانه تعریف شده است.</p>
           </div>
           {authError && (
             <div className="auth-error" role="alert" aria-live="assertive">
