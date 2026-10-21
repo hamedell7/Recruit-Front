@@ -413,61 +413,74 @@ body{padding:0}
 .report-end{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:12px;border-top:1px solid #dfe6ef;color:#7b8798;font-size:8pt}
 .report-end strong{color:var(--navy)}
 .print-footer{display:none}
-/* Dense layout used only by the optional compact report. */
-.compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
-.compact-report .brand-head{gap:3px;padding-bottom:2px;border-bottom-width:1px}
-.compact-report .brand-mark,.compact-report .brand-kicker,.compact-report .brand-copy p,.compact-report .security-tag{display:none!important}
-.compact-report .brand-copy h1{font-size:9pt;line-height:1.15}
-.compact-report .meta-grid{gap:2px;margin:2px 0}
-.compact-report .meta-item{padding:2px 3px;border:0;border-bottom:1px solid #e5e9ef;border-radius:0;background:#fff}
-.compact-report .meta-label{font-size:5.2pt;margin-bottom:0;line-height:1.1}
-.compact-report .meta-value{font-size:5.8pt;line-height:1.1}
-.compact-report .progress-summary{display:none!important}
-.compact-report .identity-card{margin:0 0 2px;padding:2px;border:0;border-bottom:1px solid #dfe5ed;border-radius:0;break-inside:auto;background:#fff}
-.compact-report .identity-head{margin:0 0 2px;padding-bottom:1px;font-size:6.5pt;line-height:1.1}
-.compact-report .identity-head:before{width:2px;height:8px}
-.compact-report .identity-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:1px}
-.compact-report .identity-field{padding:1px 2px;border:0;border-left:1px solid #edf0f4;border-radius:0}
-.compact-report .identity-field span{font-size:5.1pt;line-height:1.1}
-.compact-report .identity-field strong{margin-top:0;font-size:5.7pt;line-height:1.1}
-.compact-report .report-section{padding:3px 2px;margin:0 0 2px;border:0;border-top:1px solid #dce3ec;border-radius:0;break-inside:auto}
-.compact-report .section-heading{gap:2px;margin:0 0 2px;padding-bottom:1px;break-after:avoid}
-.compact-report .section-number{display:none}
-.compact-report .section-title h2{font-size:7pt;line-height:1.1}
-.compact-report .section-title p,.compact-report .step-badge{display:none}
-.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;margin:0 0 2px}
-.compact-report .field{padding:1px 2px;border:0;border-bottom:1px dotted #edf0f4;border-radius:0;line-height:1.05;break-inside:avoid}
-.compact-report .field-label{display:inline;font-size:5.1pt;line-height:1.05}
-.compact-report .field-label:after{content:": "}
-.compact-report .field-value{display:inline;margin-top:0;font-size:5.6pt;font-weight:500;line-height:1.05;white-space:pre-wrap;overflow-wrap:anywhere}
-.compact-report .subsection{margin:2px 0 0;padding:2px;border:0;border-right:1px solid #e6ebf2;border-radius:0;background:#fff;break-inside:auto}
-.compact-report .subsection h4{margin:0 0 1px;font-size:6pt;line-height:1.05}
-.compact-report .repeat-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;margin-top:1px}
-.compact-report .repeat-card{padding:2px;border:1px solid #e2e8ef;border-radius:2px;break-inside:auto;min-width:0}
-.compact-report .repeat-title{margin-bottom:1px;padding:0 2px;font-size:5pt;line-height:1.05}
-.compact-report .draft-note{margin-bottom:1px;padding:1px 2px;font-size:5pt}
-.compact-report .document-row{gap:2px;padding:1px 2px}
-.compact-report .document-index{width:12px;height:12px;border-radius:2px;font-size:5pt}
-.compact-report .document-main strong{font-size:5.6pt}
-.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:5.1pt}
-.compact-report .report-end{margin-top:2px;padding-top:1px;font-size:5.2pt}
-.compact-report .print-footer{font-size:5.5pt}
+/* Readable compact A4 layout: preserve the report design and use more columns. */
+.compact-report .report{max-width:210mm;margin:10px auto 20px;padding:0 3mm 4mm}
+.compact-report .brand-head{gap:9px;padding-bottom:9px;border-bottom-width:1px}
+.compact-report .brand-mark{width:36px;height:36px;border-radius:9px;font-size:17pt;box-shadow:none}
+.compact-report .brand-kicker{font-size:7.5pt;margin-bottom:1px}
+.compact-report .brand-copy h1{font-size:14pt;line-height:1.3}
+.compact-report .brand-copy p{font-size:7pt;margin-top:1px}
+.compact-report .security-tag{padding:3px 6px;border-radius:5px;font-size:6.5pt}
+.compact-report .meta-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:7px 0 6px}
+.compact-report .meta-item{padding:5px 6px;border-radius:6px}
+.compact-report .meta-label{font-size:6.8pt;margin-bottom:1px;line-height:1.3}
+.compact-report .meta-value{font-size:7.6pt;line-height:1.35}
+.compact-report .identity-card{margin:0 0 7px;padding:7px;border-radius:8px;break-inside:avoid}
+.compact-report .identity-head{gap:6px;margin:0 0 5px;padding-bottom:4px;font-size:10pt}
+.compact-report .identity-head:before{width:3px;height:13px}
+.compact-report .identity-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.compact-report .identity-field{padding:4px 5px;border-radius:5px}
+.compact-report .identity-field span{font-size:6.8pt;line-height:1.3}
+.compact-report .identity-field strong{margin-top:1px;font-size:8pt;line-height:1.4}
+.compact-report .progress-summary{margin:0 0 8px;padding:7px 9px;border-radius:8px}
+.compact-report .progress-top{gap:7px;margin-bottom:5px}
+.compact-report .progress-top strong{font-size:8.5pt}
+.compact-report .progress-top span,.compact-report .progress-item{font-size:6.8pt}
+.compact-report .progress-track{gap:3px 7px}
+.compact-report .report-section{padding:7px;margin:0 0 7px;border-radius:8px;break-inside:auto}
+.compact-report .section-heading{gap:6px;margin:0 0 6px;padding-bottom:4px;break-after:avoid}
+.compact-report .section-number{width:25px;height:25px;border-radius:6px;font-size:8.5pt}
+.compact-report .section-title h2{font-size:10.5pt;line-height:1.35}
+.compact-report .section-title p{font-size:7pt;line-height:1.3}
+.compact-report .step-badge{padding:2px 5px;border-radius:5px;font-size:6.8pt}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:2px 0 5px}
+.compact-report .field{padding:4px 5px;border-radius:5px;line-height:1.35;break-inside:avoid}
+.compact-report .field-label{display:block;font-size:7pt;line-height:1.35}
+.compact-report .field-value{display:block;margin-top:1px;font-size:8.2pt;font-weight:600;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.compact-report .subsection{margin:6px 0 2px;padding:6px;border-radius:7px;break-inside:auto}
+.compact-report .subsection h4{margin:0 0 4px;font-size:8.5pt;line-height:1.35}
+.compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:3px}
+.compact-report .repeat-card{padding:5px;border-radius:6px;break-inside:auto;min-width:0}
+.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin:2px 0 3px}
+.compact-report .repeat-title{margin-bottom:3px;padding:2px 5px;font-size:7pt;line-height:1.3}
+.compact-report .draft-note{margin-bottom:5px;padding:4px 6px;font-size:7pt}
+.compact-report .document-row{gap:5px;padding:4px 6px}
+.compact-report .document-index{width:21px;height:21px;border-radius:5px;font-size:7pt}
+.compact-report .document-main strong{font-size:8pt}
+.compact-report .document-main small,.compact-report .document-size,.compact-report .document-note{font-size:7pt}
+.compact-report .report-end{margin-top:7px;padding-top:4px;font-size:7pt}
+.compact-report .print-footer{font-size:6.5pt}
 .compact-report #compact-fit-note{font-size:7pt;color:#dce8f5}
-@page compactReport{size:A4;margin:7mm 6mm 9mm}
+@page compactReport{size:A4;margin:8mm 7mm 10mm}
 body.compact-report{page:compactReport}
 @media print{
  .compact-report .report{width:auto;max-width:none;margin:0;padding:0;zoom:var(--compact-zoom,1)}
- .compact-report .brand-head{padding-bottom:1px}
- .compact-report .meta-grid{gap:1px;margin:1px 0}
- .compact-report .report-section{margin-bottom:1px;padding:2px 1px}
- .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{gap:0.5px}
- .compact-report .field{padding:0.5px 1px}
- .compact-report .subsection{margin-top:1px;padding:1px}
- .compact-report .repeat-list{gap:1px}
- .compact-report .repeat-card{padding:1px}
- .compact-report .document-row{padding:1px}
- .compact-report .report-end{margin-top:1px}
- .compact-report .print-footer{bottom:-6mm}
+ .compact-report .brand-head{padding-bottom:7px}
+ .compact-report .meta-grid{gap:3px;margin:5px 0}
+ .compact-report .meta-item{padding:4px 5px}
+ .compact-report .identity-card{padding:6px;margin-bottom:6px}
+ .compact-report .identity-grid{gap:3px}
+ .compact-report .identity-field{padding:3px 4px}
+ .compact-report .progress-summary{margin-bottom:6px;padding:5px 7px}
+ .compact-report .report-section{margin-bottom:5px;padding:6px}
+ .compact-report .fields-grid,.compact-report .subsection .fields-grid{gap:3px}
+ .compact-report .field{padding:3px 4px}
+ .compact-report .subsection{margin-top:4px;padding:5px}
+ .compact-report .repeat-list{gap:4px}
+ .compact-report .repeat-card{padding:4px}
+ .compact-report .document-row{padding:3px 5px}
+ .compact-report .report-end{margin-top:5px}
+ .compact-report .print-footer{bottom:-7mm}
 }
 @page{size:A4;margin:13mm 12mm 17mm}
 @media print{
@@ -549,12 +562,8 @@ function fitCompactReport(popup) {
   const contentHeightPx = reportElement.scrollHeight + 12;
   const threePageZoom = (printableHeightPx * 2.62) / contentHeightPx;
   const fourPageZoom = (printableHeightPx * 3.55) / contentHeightPx;
-  let zoom = 1;
-  if (threePageZoom < 1) {
-    zoom = threePageZoom >= 0.78
-      ? threePageZoom
-      : Math.max(0.58, Math.min(1, fourPageZoom));
-  }
+  // Keep the text readable for A4 printing; let very dense reports use extra pages instead of shrinking excessively.
+  const zoom = Math.max(0.92, Math.min(1, fourPageZoom));
   reportElement.style.setProperty("--compact-zoom", zoom.toFixed(3));
   const estimatedPages = Math.max(1, Math.ceil((contentHeightPx * zoom) / (printableHeightPx * 0.93)));
   const estimate = popup.document.getElementById("compact-fit-note");
