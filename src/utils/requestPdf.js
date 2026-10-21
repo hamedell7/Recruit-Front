@@ -560,7 +560,6 @@ function fitCompactReport(popup) {
   if (!reportElement) return;
   const printableHeightPx = ((297 - 7 - 9) / 25.4) * 96;
   const contentHeightPx = reportElement.scrollHeight + 12;
-  const threePageZoom = (printableHeightPx * 2.62) / contentHeightPx;
   const fourPageZoom = (printableHeightPx * 3.55) / contentHeightPx;
   // Keep the text readable for A4 printing; let very dense reports use extra pages instead of shrinking excessively.
   const zoom = Math.max(0.92, Math.min(1, fourPageZoom));
