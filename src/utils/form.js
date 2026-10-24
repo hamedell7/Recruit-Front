@@ -2,6 +2,28 @@ import { RECORDS } from "../config/workflow";
 import { normalizeList } from "./collections";
 import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
 
+const SOCIAL_STEP_ROLES = {
+  social_references: "REFERENCE",
+  social_friends: "FRIEND",
+  social_neighbors: "NEIGHBOR",
+  social_relatives: "RELATIVE",
+  social_family_friends: "FAMILY_FRIEND",
+};
+
+const SOCIAL_GROUP_REQUIREMENTS = {
+  FRIEND: { count: 3, message: "مشخصات حداقل سه نفر از دوستان دوران تحصیل یا سربازی را ثبت کنید." },
+  NEIGHBOR: { count: 4, message: "مشخصات حداقل چهار نفر از همسایگان و معتمدان محل را ثبت کنید." },
+  RELATIVE: { count: 2, message: "مشخصات حداقل دو نفر از بستگان را ثبت کنید." },
+  FAMILY_FRIEND: { count: 3, message: "مشخصات حداقل سه نفر از معاشرین و دوستان خانوادگی را ثبت کنید." },
+};
+
+function personBelongsToSocialStep(person, stepKey) {
+  const role = SOCIAL_STEP_ROLES[stepKey];
+  return !role
+    || person?.role_type === role
+    || (role === "FRIEND" && person?.role_type === "MILITARY_RELATIVE");
+}
+
 export { withSpouseAvailability } from "./spouseAvailability.js";
 
 export function normalizeDigits(value) {
@@ -222,9 +244,12 @@ export function cleanMilitaryPayload(value) {
 export function mergeDraft(base, draft, stepKey) {
   const hydratedBase = hydrateDateFields(base);
   const hydratedDraft = draft && typeof draft === "object" ? hydrateDateFields(draft) : null;
-  if (stepKey === "family" || stepKey === "social_relations") {
+  const socialRole = SOCIAL_STEP_ROLES[stepKey];
+  if (stepKey === "family" || stepKey === "social_relations" || socialRole) {
     const isFamily = stepKey === "family";
-    const people = normalizeList(hydratedDraft?.people ?? hydratedBase?.people).map((person) => {
+    const sourcePeople = normalizeList(hydratedDraft?.people ?? hydratedBase?.people)
+      .filter((person) => personBelongsToSocialStep(person, stepKey));
+    const people = sourcePeople.map((person) => {
       const nextPerson = { ...(person || {}) };
       delete nextPerson.contacts;
       if (isFamily) {
@@ -578,7 +603,9 @@ export function validateStep(stepKey, form, hasSpouse = false) {
     }
   }
 
-  if (stepKey === "family" || stepKey === "social_relations") {
+  const socialRole = SOCIAL_STEP_ROLES[stepKey];
+  const isLegacySocialStep = stepKey === "social_relations";
+  if (stepKey === "family" || isLegacySocialStep || socialRole) {
     const people = Array.isArray(form?.people) ? form.people : [];
     for (let i = 0; i < people.length; i += 1) {
       const person = people[i];
@@ -592,19 +619,22 @@ export function validateStep(stepKey, form, hasSpouse = false) {
       }
     }
 
-    if (stepKey === "social_relations") {
-      const requirements = [
-        { role: "FRIEND", count: 3, message: "مشخصات حداقل سه نفر از دوستان دوران تحصیل یا سربازی را ثبت کنید." },
-        { role: "NEIGHBOR", count: 4, message: "مشخصات حداقل چهار نفر از همسایگان و معتمدان محل را ثبت کنید." },
-        { role: "RELATIVE", count: 2, message: "مشخصات حداقل دو نفر از بستگان را ثبت کنید." },
-        { role: "FAMILY_FRIEND", count: 3, message: "مشخصات حداقل سه نفر از معاشرین و دوستان خانوادگی را ثبت کنید." },
-      ];
-      for (const requirement of requirements) {
-        const count = people.filter((person) => person.role_type === requirement.role
-          || (requirement.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE")).length;
-        if (count < requirement.count) add("people.requirements." + requirement.role, requirement.message);
+    if (isLegacySocialStep) {
+      for (const [role, requirement] of Object.entries(SOCIAL_GROUP_REQUIREMENTS)) {
+        const count = people.filter((person) => person.role_type === role
+          || (role === "FRIEND" && person.role_type === "MILITARY_RELATIVE")).length;
+        if (count < requirement.count) add("people.requirements." + role, requirement.message);
       }
+    } else if (socialRole) {
+      const requirement = SOCIAL_GROUP_REQUIREMENTS[socialRole];
+      if (requirement) {
+        const count = people.filter((person) => person.role_type === socialRole
+          || (socialRole === "FRIEND" && person.role_type === "MILITARY_RELATIVE")).length;
+        if (count < requirement.count) add("people.requirements." + socialRole, requirement.message);
+      }
+    }
 
+    if (isLegacySocialStep) {
       const normalizedName = (person) => [person?.first_name, person?.last_name]
         .map((value) => normalizeDigits(String(value || ""))
           .normalize("NFKC")
@@ -756,10 +786,12 @@ export function makeForm(stepKey, data, user) {
       })),
     };
   }
-  if (stepKey === "family" || stepKey === "social_relations") {
+  const socialRole = SOCIAL_STEP_ROLES[stepKey];
+  if (stepKey === "family" || stepKey === "social_relations" || socialRole) {
     const isFamily = stepKey === "family";
-    return {
-      people: normalizeList(data?.people).map((person) => {
+    const people = normalizeList(data?.people)
+      .filter((person) => personBelongsToSocialStep(person, stepKey))
+      .map((person) => {
         const nextPerson = { ...(person || {}) };
         delete nextPerson.contacts;
         if (isFamily) {
@@ -778,8 +810,8 @@ export function makeForm(stepKey, data, user) {
           return nextAddress;
         });
         return nextPerson;
-      }),
-    };
+      });
+    return { people };
   }
   if (stepKey === "residence") return { addresses: normalizeList(data?.addresses) };
   if (stepKey === "additional") return { details: data?.record?.details || "" };
