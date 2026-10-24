@@ -216,7 +216,11 @@ function renderField(key, value) {
 function renderObject(value, options = {}) {
   if (Array.isArray(value)) {
     if (value.length === 0) return "";
-    return `<div class="repeat-list">${value.map((item, index) => {
+    const recordKey = String(options.key || "").toLowerCase();
+    const compactRecordType = /marriage|spouse|education|employment|work|job/.test(recordKey)
+      ? " compact-record-list"
+      : "";
+    return `<div class="repeat-list${compactRecordType}">${value.map((item, index) => {
       if (item && typeof item === "object" && !Array.isArray(item)) {
         return `<article class="repeat-card"><div class="repeat-title">مورد ${new Intl.NumberFormat("fa-IR").format(index + 1)}</div>${renderObject(item, { nested: true })}</article>`;
       }
@@ -399,6 +403,10 @@ body{padding:0}
 .repeat-card{padding:11px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;break-inside:avoid}
 .repeat-title{display:inline-block;margin-bottom:8px;padding:3px 8px;border-radius:6px;background:#eef3f9;color:#466384;font-size:8pt;font-weight:700}
 .repeat-card .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* Compact PDF: marriage, education and employment records use the available row width. */
+.compact-record-list{display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0}
+.compact-record-list>.repeat-card{width:100%;min-width:0}
+.compact-record-list>.repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));width:100%}
 .empty-section{padding:14px;text-align:center;color:#8793a4;font-size:9pt;background:#f9fafc;border-radius:8px}
 .draft-note{margin:0 0 10px;padding:7px 10px;border-right:3px solid var(--gold);background:#fbf6eb;color:#7a6339;font-size:8pt}
 .documents-section{break-inside:auto}
@@ -427,6 +435,8 @@ body{padding:0}
   .report-section{padding:10px;margin-bottom:11px}
   .section-number{width:30px;height:30px}
   .fields-grid,.subsection .fields-grid,.repeat-card .fields-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .compact-record-list>.repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .compact-record-list>.repeat-card{width:100%}
   .field{padding:6px 8px}
   .field-value{font-size:8.6pt}
   .print-footer{display:block;position:fixed;left:0;right:0;bottom:-12mm;border-top:1px solid #dfe6ef;padding-top:4px;color:#758296;text-align:center;font-size:7pt}
