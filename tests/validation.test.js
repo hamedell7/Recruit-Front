@@ -17,6 +17,25 @@ test("formats repeated field paths using Persian row numbers", () => {
   );
 });
 
+test("formats social relations requirement paths entirely in Persian", () => {
+  assert.equal(
+    formatErrorPath("people.requirements.FRIEND"),
+    "افراد ← حداقل تعداد ← دوستان دوران تحصیل و سربازی",
+  );
+  assert.equal(
+    formatErrorPath("people.requirements.NEIGHBOR"),
+    "افراد ← حداقل تعداد ← همسایگان و معتمدان محل",
+  );
+  assert.equal(
+    formatErrorPath("people.requirements.RELATIVE"),
+    "افراد ← حداقل تعداد ← بستگان",
+  );
+  assert.equal(
+    formatErrorPath("people.requirements.FAMILY_FRIEND"),
+    "افراد ← حداقل تعداد ← معاشرین و دوستان خانوادگی",
+  );
+});
+
 test("falls back to a general form label for an empty path", () => {
   assert.equal(formatErrorPath(""), "اطلاعات فرم");
 });
