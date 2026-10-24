@@ -579,8 +579,9 @@ export function validateStep(stepKey, form, hasSpouse = false) {
   }
 
   if (stepKey === "family" || stepKey === "social_relations") {
-    for (let i = 0; i < (form?.people || []).length; i += 1) {
-      const person = form.people[i];
+    const people = Array.isArray(form?.people) ? form.people : [];
+    for (let i = 0; i < people.length; i += 1) {
+      const person = people[i];
       if (empty(person.first_name)) add("people." + i + ".first_name", "نام را وارد کنید.");
       if (empty(person.last_name)) add("people." + i + ".last_name", "نام خانوادگی را وارد کنید.");
       for (let addressIndex = 0; addressIndex < (person.addresses || []).length; addressIndex += 1) {
@@ -589,6 +590,35 @@ export function validateStep(stepKey, form, hasSpouse = false) {
           add("people." + i + ".addresses." + addressIndex + ".phone", "تلفن باید دقیقاً ۱۱ رقم باشد؛ نمونه: 02112345678.");
         }
       }
+    }
+
+    if (stepKey === "social_relations") {
+      const requirements = [
+        { role: "REFERENCE", count: 1, message: "حداقل مشخصات یک معرف را ثبت کنید." },
+        { role: "FRIEND", count: 3, message: "مشخصات حداقل سه نفر از دوستان دوران تحصیل یا سربازی را ثبت کنید." },
+        { role: "NEIGHBOR", count: 4, message: "مشخصات حداقل چهار نفر از همسایگان و معتمدان محل را ثبت کنید." },
+        { role: "RELATIVE", count: 2, message: "مشخصات حداقل دو نفر از بستگان را ثبت کنید." },
+        { role: "FAMILY_FRIEND", count: 3, message: "مشخصات حداقل سه نفر از معاشرین و دوستان خانوادگی را ثبت کنید." },
+      ];
+      for (const requirement of requirements) {
+        const count = people.filter((person) => person.role_type === requirement.role
+          || (requirement.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE")).length;
+        if (count < requirement.count) add("people", requirement.message);
+      }
+
+      const normalizedName = (person) => [person?.first_name, person?.last_name]
+        .map((value) => normalizeDigits(String(value || "")).trim().replace(/\s+/g, " ").toLocaleLowerCase("fa"))
+        .join(" ");
+      const seenNames = new Map();
+      people.forEach((person, index) => {
+        const fullName = normalizedName(person);
+        if (!fullName.trim()) return;
+        if (seenNames.has(fullName)) {
+          add("people." + index + ".first_name", "این فرد قبلاً در یکی از گروه‌ها ثبت شده است؛ از ثبت تکراری نام خودداری کنید.");
+        } else {
+          seenNames.set(fullName, index);
+        }
+      });
     }
   }
 
