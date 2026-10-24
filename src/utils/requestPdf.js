@@ -196,8 +196,8 @@ function formatDate(value) {
   };
   const parts = new Intl.DateTimeFormat("fa-IR-u-ca-persian", options).formatToParts(date);
   const part = (type) => parts.find((item) => item.type === type)?.value || "";
-  const formattedDate = `${part("year")}-${part("month")}-${part("day")}`;
-  return hasTime ? `${formattedDate} ${part("hour")}:${part("minute")}` : formattedDate;
+  const formattedDate = `${part("year")}/${part("month")}/${part("day")}`;
+  return hasTime ? `${formattedDate} - ${part("hour")}:${part("minute")}` : formattedDate;
 }
 
 function valueFor(key, value) {
