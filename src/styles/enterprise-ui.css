@@ -941,3 +941,77 @@
   border-color: #bfd0df;
   background: #edf3f8;
 }
+
+
+/* Improve form label contrast and make form outlines survive printing. */
+.wizard-content .field > span {
+  color: #26384c;
+  font-weight: 700;
+}
+.wizard-content .form-section-head h3 {
+  color: #24384f;
+}
+.wizard-content .form-section-head p,
+.wizard-content .step-header p,
+.wizard-content .geo-caption span,
+.wizard-content .upload-zone span,
+.wizard-content .accept-card small {
+  color: #5d6d80;
+}
+.wizard-content .step-section-title {
+  color: #66768a;
+}
+.wizard-content .form-section {
+  border-color: #d1dae5;
+}
+.wizard-content .form-section-head {
+  border-bottom-color: #dbe2eb;
+}
+.wizard-content .field input,
+.wizard-content .field select,
+.wizard-content .field textarea {
+  border-color: #c8d2df;
+}
+.wizard-content .field input[readonly],
+.wizard-content .field textarea[readonly],
+.wizard-content .field select:disabled {
+  border-color: #cbd5e1;
+}
+.wizard-content .record-card,
+.wizard-content .person-card,
+.wizard-content .geo-block,
+.wizard-content .social-network-item,
+.wizard-content .review-item,
+.wizard-content .document-row {
+  border-color: #d1dae5;
+}
+.wizard-content .upload-zone {
+  border-color: #aebed1;
+}
+@media print {
+  .wizard-content .field > span,
+  .wizard-content .form-section-head h3 {
+    color: #1f2d3d !important;
+  }
+  .wizard-content .form-section-head p,
+  .wizard-content .step-header p,
+  .wizard-content .geo-caption span,
+  .wizard-content .upload-zone span,
+  .wizard-content .accept-card small {
+    color: #435267 !important;
+  }
+  .wizard-content .form-section,
+  .wizard-content .record-card,
+  .wizard-content .person-card,
+  .wizard-content .geo-block,
+  .wizard-content .social-network-item,
+  .wizard-content .review-item,
+  .wizard-content .document-row,
+  .wizard-content .field input,
+  .wizard-content .field select,
+  .wizard-content .field textarea {
+    border-color: #b9c4d1 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
