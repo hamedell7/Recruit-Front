@@ -603,7 +603,7 @@ export function validateStep(stepKey, form, hasSpouse = false) {
       for (const requirement of requirements) {
         const count = people.filter((person) => person.role_type === requirement.role
           || (requirement.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE")).length;
-        if (count < requirement.count) add("people", requirement.message);
+        if (count < requirement.count) add("people.requirements." + requirement.role, requirement.message);
       }
 
       const normalizedName = (person) => [person?.first_name, person?.last_name]
