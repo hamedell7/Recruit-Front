@@ -67,7 +67,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
   });
 
   const updateGroup = (role, items) => {
-    const retained = people.filter((person) => person.role_type !== role);
+    const retained = people.filter((person) => person.role_type !== role && !(role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
     setForm({ people: [...retained, ...items] });
   };
 
@@ -149,7 +149,7 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
         </div>
       </FormSection>
       {SOCIAL_GROUPS.map((group) => {
-        const groupPeople = people.filter((person) => person.role_type === group.role);
+        const groupPeople = people.filter((person) => person.role_type === group.role || (group.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
         return (
           <ListEditor
             key={group.role}
