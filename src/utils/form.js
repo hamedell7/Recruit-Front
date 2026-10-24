@@ -1,6 +1,6 @@
-import { RECORDS } from "../config/workflow";
-import { normalizeList } from "./collections";
-import { gregorianToJalaliString, jalaliToGregorianString } from "./date";
+import { RECORDS } from "../config/workflow.js";
+import { normalizeList } from "./collections.js";
+import { gregorianToJalaliString, jalaliToGregorianString } from "./date.js";
 
 const SOCIAL_STEP_ROLES = {
   social_references: "REFERENCE",
