@@ -57,6 +57,18 @@ test("requires the minimum number of people in each social relations group", asy
   assert.equal(errors["people.requirements.FAMILY_FRIEND"], undefined);
 });
 
+test("allows completing social relations without any reference", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const people = socialPeople().filter((person) => person.role_type !== "REFERENCE");
+  const errors = validateStep("social_relations", { people });
+
+  assert.equal(errors["people.requirements.REFERENCE"], undefined);
+  assert.equal(errors["people.requirements.FRIEND"], undefined);
+  assert.equal(errors["people.requirements.NEIGHBOR"], undefined);
+  assert.equal(errors["people.requirements.RELATIVE"], undefined);
+  assert.equal(errors["people.requirements.FAMILY_FRIEND"], undefined);
+});
+
 test("rejects duplicate names across social relations groups", async () => {
   const { validateStep } = await import("../src/utils/form.js");
   const people = socialPeople();
