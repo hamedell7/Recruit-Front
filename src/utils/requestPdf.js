@@ -401,7 +401,7 @@ body{padding:0}
 .identity-head:before{content:"";width:4px;height:20px;border-radius:3px;background:var(--gold)}
 .identity-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .identity-field{min-width:0;padding:8px 10px;border:1px solid #d4dce7;border-radius:8px;background:#fff}
-.identity-field span{display:block;color:var(--muted);font-size:8pt}
+.identity-field span{display:block;color:#344256;font-size:8pt}
 .identity-field strong{display:block;margin-top:3px;color:#1c324e;font-size:10pt;overflow-wrap:anywhere}
 .ltr-value{direction:ltr;text-align:right;unicode-bidi:plaintext;font-variant-numeric:tabular-nums}
 .progress-summary{margin:0 0 19px;padding:12px 15px;border:1px solid var(--line);border-radius:12px}
