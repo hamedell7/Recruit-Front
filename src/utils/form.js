@@ -594,7 +594,6 @@ export function validateStep(stepKey, form, hasSpouse = false) {
 
     if (stepKey === "social_relations") {
       const requirements = [
-        { role: "REFERENCE", count: 1, message: "حداقل مشخصات یک معرف را ثبت کنید." },
         { role: "FRIEND", count: 3, message: "مشخصات حداقل سه نفر از دوستان دوران تحصیل یا سربازی را ثبت کنید." },
         { role: "NEIGHBOR", count: 4, message: "مشخصات حداقل چهار نفر از همسایگان و معتمدان محل را ثبت کنید." },
         { role: "RELATIVE", count: 2, message: "مشخصات حداقل دو نفر از بستگان را ثبت کنید." },
