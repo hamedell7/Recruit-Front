@@ -277,7 +277,9 @@ function renderStep(step, compact = false) {
       ? " compact-record-education"
       : /employment|job|work|شغلی|اشتغال/.test(recordIdentity)
         ? " compact-record-employment"
-        : "";
+        : /foreign.?contact|ارتباطات خارج|خارج از کشور|screening|گزینش|veteran|ایثارگر|travel|سفر|اقامت خارج|judicial|criminal|قضایی|انتظامی|migration|مهاجرت|پناهندگی|passport|گذرنامه|cooperation|collaboration|ارتباط و همکاری|addiction|اعتیاد|foreign.?company|شرکت.*خارجی|embassy|consulate|سفارت|کنسولگری|exit.?ban|ممنوع.?الخروج|social|فرهنگی|اجتماعی|weapon|سلاح|family|خانواده|introducer|معرفین|معرف|neighbor|همسایه|معتمد|relative|بستگان|acquaintance|دوستان خانوادگی|معاشرین/.test(recordIdentity)
+          ? " compact-record-wide"
+          : "";
   return `<section class="report-section${familyClass}${contactClass}${compactRecordClass}">
     <div class="section-heading">
       <div class="section-number">${new Intl.NumberFormat("fa-IR").format(step.order)}</div>
@@ -467,10 +469,13 @@ body{padding:0}
 /* Full-width records only in the compact PDF: marriage, education and employment. */
 .compact-report .compact-record-marriage .repeat-list,
 .compact-report .compact-record-education .repeat-list,
-.compact-report .compact-record-employment .repeat-list{grid-template-columns:minmax(0,1fr)}
+.compact-report .compact-record-employment .repeat-list,
+.compact-report .compact-record-wide .repeat-list{grid-template-columns:minmax(0,1fr);width:100%;min-width:0}
 .compact-report .compact-record-marriage .repeat-card .fields-grid,
 .compact-report .compact-record-education .repeat-card .fields-grid,
 .compact-report .compact-record-employment .repeat-card .fields-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
+.compact-report .compact-record-wide .repeat-card{width:100%;min-width:0}
+.compact-report .compact-record-wide .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));width:100%}
 
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
 .compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:10.5pt;line-height:1.2}
