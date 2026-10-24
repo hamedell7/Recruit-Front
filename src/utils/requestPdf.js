@@ -235,7 +235,7 @@ function renderObject(value, options = {}) {
     else scalar.push([key, item]);
   });
   const fields = scalar.map(([key, item]) => renderField(key, item)).join("");
-  const fieldCount = Math.min(scalar.length, 12);
+  const fieldCount = Math.min(scalar.length, 6);
   const subSections = nested.map(([key, item]) => {
     const content = renderObject(item, { key });
     if (!content) return "";
@@ -465,12 +465,6 @@ body{padding:0}
  .compact-report .fields-grid[data-field-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
  .compact-report .fields-grid[data-field-count="5"]{grid-template-columns:repeat(5,minmax(0,1fr))}
  .compact-report .fields-grid[data-field-count="6"]{grid-template-columns:repeat(6,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="7"]{grid-template-columns:repeat(7,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="8"]{grid-template-columns:repeat(8,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="9"]{grid-template-columns:repeat(9,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="10"]{grid-template-columns:repeat(10,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="11"]{grid-template-columns:repeat(11,minmax(0,1fr))}
- .compact-report .fields-grid[data-field-count="12"]{grid-template-columns:repeat(12,minmax(0,1fr))}
 .compact-report .field{padding:4px 5px;margin:1px 0;border-radius:3px;line-height:1.3;break-inside:avoid}
 .compact-report .field-full-row{grid-column:1/-1 !important;width:100%;}
 .compact-report .field-label{display:inline;font-size:10.5pt;line-height:1.2}
@@ -497,6 +491,12 @@ body{padding:0}
 .compact-report .contact-section .repeat-card{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:4px}
 .compact-report .contact-section .repeat-title{margin:0;white-space:nowrap}
 .compact-report .contact-section .repeat-card .fields-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:0}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="1"]{grid-template-columns:repeat(1,minmax(0,1fr))}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="5"]{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .compact-report .contact-section .repeat-card .fields-grid[data-field-count="6"]{grid-template-columns:repeat(6,minmax(0,1fr))}
 .compact-report .contact-section .repeat-card .field{padding:2px 3px;margin:0}
 .compact-report .draft-note{margin-bottom:3px;padding:2px 4px;font-size:10.5pt}
 .compact-report .document-row{gap:4px;padding:3px 4px}
