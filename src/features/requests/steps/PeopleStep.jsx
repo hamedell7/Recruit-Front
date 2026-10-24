@@ -51,7 +51,7 @@ const SOCIAL_GROUPS = [
   },
 ];
 
-function PeopleStep({ kind, groupRole, form, setForm, countries, readOnly, errors, clearValidationError }) {
+function PeopleStep({ kind, stepKey, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const people = normalizeList(form?.people);
   const isFamily = kind === "family";
   const empty = (role = (isFamily ? "FATHER" : "REFERENCE")) => ({
@@ -143,7 +143,7 @@ function PeopleStep({ kind, groupRole, form, setForm, countries, readOnly, error
 
   return (
     <div className="form-stack">
-      {SOCIAL_GROUPS.filter((group) => !groupRole || group.role === groupRole).map((group) => {
+      {SOCIAL_GROUPS.filter((group) => !stepKey || group.stepKey === stepKey).map((group) => {
         const groupPeople = people.filter((person) => person.role_type === group.role || (group.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
         return (
           <div key={group.role} className="social-group-editor">
