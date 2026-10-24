@@ -3,6 +3,7 @@ import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import ListEditor from "../../../components/form/ListEditor";
 import FormSection from "../../../components/form/FormSection";
+import FieldError from "../../../components/form/FieldError";
 import AddressFields from "./AddressFields";
 import { EDUCATION_LEVEL_OPTIONS } from "../../../config/workflow";
 
@@ -151,8 +152,8 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
       {SOCIAL_GROUPS.map((group) => {
         const groupPeople = people.filter((person) => person.role_type === group.role || (group.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
         return (
+          <div key={group.role} className="social-group-editor">
           <ListEditor
-            key={group.role}
             title={group.title}
             hint={group.hint}
             items={groupPeople}
@@ -164,6 +165,8 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
             readOnly={readOnly}
             render={(item, setItem) => renderPerson(item, setItem)}
           />
+          <FieldError error={getFieldError(errors, `people.requirements.${group.role}`)} />
+          </div>
         );
       })}
     </div>
