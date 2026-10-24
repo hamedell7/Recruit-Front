@@ -607,7 +607,12 @@ export function validateStep(stepKey, form, hasSpouse = false) {
       }
 
       const normalizedName = (person) => [person?.first_name, person?.last_name]
-        .map((value) => normalizeDigits(String(value || "")).trim().replace(/\s+/g, " ").toLocaleLowerCase("fa"))
+        .map((value) => normalizeDigits(String(value || ""))
+          .normalize("NFKC")
+          .replace(/[يىك]/g, (character) => ({ ي: "ی", ى: "ی", ك: "ک" })[character])
+          .trim()
+          .replace(/\s+/g, " ")
+          .toLocaleLowerCase("fa"))
         .join(" ");
       const seenNames = new Map();
       people.forEach((person, index) => {
