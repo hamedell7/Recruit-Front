@@ -456,6 +456,14 @@ body{padding:0}
 .compact-report .subsection h4{margin:0 0 2px;font-size:12pt;line-height:1.2}
 .compact-report .repeat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;margin-top:2px}
 .compact-report .repeat-list-addresses{grid-template-columns:minmax(0,1fr)}
+/* Full-width records only in the compact PDF: marriage, education and employment. */
+.compact-report .compact-record-marriage .repeat-list,
+.compact-report .compact-record-education .repeat-list,
+.compact-report .compact-record-employment .repeat-list{grid-template-columns:minmax(0,1fr)}
+.compact-report .compact-record-marriage .repeat-card .fields-grid,
+.compact-report .compact-record-education .repeat-card .fields-grid,
+.compact-report .compact-record-employment .repeat-card .fields-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
+
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
 .compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:10.5pt;line-height:1.2}
 .compact-report .contact-section .repeat-list{grid-template-columns:minmax(0,1fr);gap:2px}
