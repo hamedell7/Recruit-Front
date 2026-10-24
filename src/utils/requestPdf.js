@@ -235,13 +235,14 @@ function renderObject(value, options = {}) {
     else scalar.push([key, item]);
   });
   const fields = scalar.map(([key, item]) => renderField(key, item)).join("");
+  const fieldCount = Math.min(scalar.length, 12);
   const subSections = nested.map(([key, item]) => {
     const content = renderObject(item, { key });
     if (!content) return "";
     return `<div class="subsection"><h4>${escapeHtml(labelFor(key))}</h4>${content}</div>`;
   }).join("");
   if (!fields && !subSections) return "";
-  return `${fields ? `<div class="fields-grid">${fields}</div>` : ""}${subSections}`;
+  return `${fields ? `<div class="fields-grid" data-field-count="${fieldCount}">${fields}</div>` : ""}${subSections}`;
 }
 
 function statusLabel(value) {
@@ -457,6 +458,19 @@ body{padding:0}
 .compact-report .section-title h2{font-size:14.25pt;line-height:1.2}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
 .compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:2px 0 4px}
+ /* Use the actual number of fields in each record so unused columns become usable width. */
+ .compact-report .fields-grid[data-field-count="1"]{grid-template-columns:repeat(1,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="5"]{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="6"]{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="7"]{grid-template-columns:repeat(7,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="8"]{grid-template-columns:repeat(8,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="9"]{grid-template-columns:repeat(9,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="10"]{grid-template-columns:repeat(10,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="11"]{grid-template-columns:repeat(11,minmax(0,1fr))}
+ .compact-report .fields-grid[data-field-count="12"]{grid-template-columns:repeat(12,minmax(0,1fr))}
 .compact-report .field{padding:4px 5px;margin:1px 0;border-radius:3px;line-height:1.3;break-inside:avoid}
 .compact-report .field-full-row{grid-column:1/-1 !important;width:100%;}
 .compact-report .field-label{display:inline;font-size:10.5pt;line-height:1.2}
