@@ -457,6 +457,7 @@ body{padding:0}
 .compact-report .meta-grid{gap:3px;margin:4px 0}
 .compact-report .meta-item{padding:3px 4px;border-radius:4px}
 .compact-report .meta-label{font-size:10.5pt;margin-bottom:1px}
+.compact-report .identity-field span{font-size:10.5pt;line-height:1.2}
 .compact-report .meta-value{font-size:11.25pt;line-height:1.2}
 .compact-report .identity-card,.compact-report .progress-summary{display:none!important}
  .compact-report.include-applicant .identity-card{display:block!important}
