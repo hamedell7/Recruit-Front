@@ -2,7 +2,6 @@ import { normalizeList } from "../../../utils/collections";
 import { getFieldError } from "../../../utils/validation";
 import TextField, { TextArea, SelectField } from "../../../components/form/Fields";
 import ListEditor from "../../../components/form/ListEditor";
-import FormSection from "../../../components/form/FormSection";
 import FieldError from "../../../components/form/FieldError";
 import AddressFields from "./AddressFields";
 import { EDUCATION_LEVEL_OPTIONS } from "../../../config/workflow";
@@ -139,14 +138,6 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
 
   return (
     <div className="form-stack">
-      <FormSection
-        title="معرفین، دوستان و همسایگان"
-        hint="افرادی را معرفی کنید که شناخت کافی از شما دارند. هر گروه را در بخش مربوط به خودش ثبت کنید؛ برای ثبت هر فرد از دکمه افزودن همان بخش استفاده کنید."
-      >
-        <div className="inline-info" role="note">
-          اطلاعات این پنج گروه جداگانه تکمیل می‌شوند. نام افراد را در بیش از یک گروه وارد نکنید.
-        </div>
-      </FormSection>
       {SOCIAL_GROUPS.map((group) => {
         const groupPeople = people.filter((person) => person.role_type === group.role || (group.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
         return (
