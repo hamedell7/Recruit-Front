@@ -145,7 +145,7 @@ const VALUE_LABELS = {
   accepted: "پذیرفته‌شده", rejected: "ردشده", passed: "قبول‌شده", failed: "ردشده",
   ended: "پایان‌یافته",
   divorce: "طلاق", death: "فوت", annulment: "ابطال", other: "سایر",
-  GENERAL: "عمومی", CURRENT: "نشانی فعلی", RESIDENCE: "محل سکونت",
+  GENERAL: "عمومی", CURRENT: "نشانی فعلی", RESIDENCE: "محل سکونت", WORK: "محل کار",
   PREVIOUS_RESIDENCE: "محل سکونت قبلی",
   alive: "در قید حیات", deceased: "فوت‌شده",
   completed_service: "پایان خدمت", exempt: "معاف", subject: "مشمول",
@@ -220,7 +220,7 @@ function renderField(key, value) {
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ` class="field-value ltr-value${dateValueClass}"`
     : ` class="field-value${dateValueClass}"`;
-  const addressClass = /address/i.test(key) && !/(phone|postal|zip)/i.test(key) ? " field-address field-full-row" : "";
+  const addressClass = /address/i.test(key) && key !== "address_type" && !/(phone|postal|zip)/i.test(key) ? " field-address field-full-row" : "";
   const semanticLongText = /note|remark|description|comment|reason|result|explanation|detail|observation|ملاحظه|توضیح|شرح|علت|نتیجه|توضیحات|دلیل/i.test(String(key));
   const textLength = String(valueFor(key, value) || "").length;
   const longTextClass = addressClass
