@@ -196,7 +196,7 @@ function formatDate(value) {
   };
   const parts = new Intl.DateTimeFormat("fa-IR-u-ca-persian", options).formatToParts(date);
   const part = (type) => parts.find((item) => item.type === type)?.value || "";
-  const formattedDate = `${part("year")}/${part("month")}/${part("day")}`;
+  const formattedDate = `${part("year")}-${part("month")}-${part("day")}`;
   return hasTime ? `${formattedDate} ${part("hour")}:${part("minute")}` : formattedDate;
 }
 
@@ -214,8 +214,12 @@ function valueFor(key, value) {
 function renderField(key, value) {
   const label = escapeHtml(labelFor(key));
   const rendered = escapeHtml(valueFor(key, value));
+  const dateValueClass = /date|_at$/.test(key) && /^\\d{4}-\\d{2}-\\d{2}/.test(String(value ?? ""))
+    ? " date-value"
+    : "";
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
-    ? ' class="field-value ltr-value"' : ' class="field-value"';
+    ? ` class="field-value ltr-value${dateValueClass}"`
+    : ` class="field-value${dateValueClass}"`;
   const addressClass = /address/i.test(key) && !/(phone|postal|zip)/i.test(key) ? " field-address field-full-row" : "";
   const semanticLongText = /note|remark|description|comment|reason|result|explanation|detail|observation|ملاحظه|توضیح|شرح|علت|نتیجه|توضیحات|دلیل/i.test(String(key));
   const textLength = String(valueFor(key, value) || "").length;
@@ -410,6 +414,8 @@ body{padding:0}
 .identity-field span{display:block;color:#344256;font-size:8pt}
 .identity-field strong{display:block;margin-top:3px;color:#1c324e;font-size:10pt;overflow-wrap:anywhere}
 .ltr-value{direction:ltr;text-align:right;unicode-bidi:plaintext;font-variant-numeric:tabular-nums}
+.date-value{direction:ltr;unicode-bidi:isolate;white-space:nowrap;font-variant-numeric:tabular-nums}
+.compact-report .date-value{direction:ltr;unicode-bidi:isolate;white-space:nowrap;display:inline-block}
 .progress-summary{margin:0 0 19px;padding:12px 15px;border:1px solid var(--line);border-radius:12px}
 .progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .progress-top strong{color:var(--navy);font-size:10pt}
