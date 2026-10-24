@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Modal from "../../components/common/Modal";
 import "../../styles/pdf-export-modal.css";
+import { getSelectablePdfSteps, pdfStepSectionKey } from "../../utils/pdfSections";
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
 
@@ -138,8 +139,8 @@ function createPdfGroups(report) {
   ];
 
   const stepGroups = new Map();
-  const steps = Array.isArray(report?.steps) ? report.steps : [];
-  steps.filter((step) => step && step.data !== null && step.data !== undefined).forEach((step) => {
+  const steps = getSelectablePdfSteps(report);
+  steps.forEach((step) => {
     const title = step.group_title || "سایر مراحل";
     if (!stepGroups.has(title)) {
       stepGroups.set(title, {
@@ -152,7 +153,7 @@ function createPdfGroups(report) {
     }
     const state = STEP_STATUS_LABELS[step.status] || step.status || "ثبت نشده";
     stepGroups.get(title).sections.push({
-      key: "step:" + step.key,
+      key: pdfStepSectionKey(step.key),
       icon: iconForStep(step.key),
       tone: iconTone(iconForStep(step.key)),
       title: step.title || step.key,

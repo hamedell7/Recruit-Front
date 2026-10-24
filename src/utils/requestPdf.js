@@ -2,6 +2,7 @@ import { STATUS } from "../config/workflow";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
+import { pdfStepSectionKey, pdfStepEmptyMessage } from "./pdfSections";
 
 const FIELD_LABELS = {
   person: "مشخصات فرد", profile: "اطلاعات تکمیلی فردی", contacts: "راه‌های تماس",
@@ -264,11 +265,9 @@ function stepStatusClass(value) {
 }
 
 function renderStep(step, compact = false) {
-  if (step.data === null || step.data === undefined) return "";
   const meta = { title: step.title || step.key, kicker: step.group_title || "" };
   const body = renderObject(step.data);
-  if (compact && !body) return "";
-  const noData = '<div class="empty-section">برای این بخش، اطلاعاتی ثبت نشده است.</div>';
+  const noData = `<div class="empty-section">${escapeHtml(pdfStepEmptyMessage(step))}</div>`;
   const familyClass = step.key === "family" || step.title === "خانواده" ? " family-section" : "";
   const contactClass = step.key === "contacts" || step.title === "راه‌های تماس" ? " contact-section" : "";
   return `<section class="report-section${familyClass}${contactClass}">
@@ -309,7 +308,7 @@ function renderHtml(report, { compact = false, sections = null } = {}) {
   const selectedSections = Array.isArray(sections) ? new Set(sections) : null;
   const includes = (key) => !selectedSections || selectedSections.has(key);
   const visibleSteps = selectedSections
-    ? steps.filter((step) => selectedSections.has("step:" + step.key))
+    ? steps.filter((step) => selectedSections.has(pdfStepSectionKey(step.key)))
     : steps;
   const bodyClasses = [
     compact ? "compact-report" : "",
