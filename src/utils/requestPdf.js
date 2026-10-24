@@ -509,6 +509,11 @@ body{padding:0}
 .compact-report .compact-record-employment .repeat-card .fields-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
 .compact-report .compact-record-wide .repeat-card{width:100%;min-width:0}
 .compact-report .compact-record-wide .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));width:100%}
+.compact-report .compact-record-wide .repeat-card .fields-grid[data-field-count="1"]{grid-template-columns:repeat(1,minmax(0,1fr))}
+.compact-report .compact-record-wide .repeat-card .fields-grid[data-field-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.compact-report .compact-record-wide .repeat-card .fields-grid[data-field-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.compact-report .compact-record-wide .repeat-card .fields-grid[data-field-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+.compact-report .compact-record-wide .repeat-card .fields-grid[data-field-count="5"]{grid-template-columns:repeat(5,minmax(0,1fr))}
 
 .compact-report .repeat-card{padding:3px;border-radius:4px;break-inside:auto;min-width:0}
 .compact-report .repeat-title{margin-bottom:2px;padding:1px 3px;font-size:10.5pt;line-height:1.2}
