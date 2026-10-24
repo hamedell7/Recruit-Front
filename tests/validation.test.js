@@ -17,6 +17,11 @@ test("formats repeated field paths using Persian row numbers", () => {
   );
 });
 
+test("formats social person name fields in Persian", () => {
+  assert.equal(formatErrorPath("people.0.first_name"), "افراد ← ردیف ۱ ← نام");
+  assert.equal(formatErrorPath("people.0.last_name"), "افراد ← ردیف ۱ ← نام خانوادگی");
+});
+
 test("formats social relations requirement paths entirely in Persian", () => {
   assert.equal(
     formatErrorPath("people.requirements.FRIEND"),
