@@ -211,7 +211,16 @@ function renderField(key, value) {
   const codeClass = /national_id|mobile|phone|postal_code|passport_number|tracking_code|number|accepted_ip|accepted_by/.test(key)
     ? ' class="field-value ltr-value"' : ' class="field-value"';
   const addressClass = /address/i.test(key) && !/(phone|postal|zip)/i.test(key) ? " field-address field-full-row" : "";
-  return `<div class="field${addressClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
+  const semanticLongText = /note|remark|description|comment|reason|result|explanation|detail|observation|ملاحظه|توضیح|شرح|علت|نتیجه|توضیحات|دلیل/i.test(String(key));
+  const textLength = String(valueFor(key, value) || "").length;
+  const longTextClass = addressClass
+    ? ""
+    : (semanticLongText || textLength >= 125)
+      ? " field-long-text"
+      : textLength >= 65
+        ? " field-medium-text"
+        : "";
+  return `<div class="field${addressClass}${longTextClass}"><span class="field-label">${label}</span><strong${codeClass}>${rendered}</strong></div>`;
 }
 
 function renderObject(value, options = {}) {
@@ -457,7 +466,10 @@ body{padding:0}
 .compact-report .section-number{width:20px;height:20px;border-radius:4px;font-size:11.25pt}
 .compact-report .section-title h2{font-size:14.25pt;line-height:1.2}
 .compact-report .section-title p,.compact-report .step-badge{display:none}
-.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin:2px 0 4px}
+.compact-report .fields-grid,.compact-report .subsection .fields-grid,.compact-report .repeat-card .fields-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-flow:dense;gap:3px;margin:2px 0 4px}
+.compact-report .field-medium-text{grid-column:span 2;min-width:0}
+.compact-report .field-long-text{grid-column:span 3;min-width:0}
+.compact-report .field-full-row{grid-column:1/-1 !important;width:100%}
  /* Use the actual number of fields in each record so unused columns become usable width. */
  .compact-report .fields-grid[data-field-count="1"]{grid-template-columns:repeat(1,minmax(0,1fr))}
  .compact-report .fields-grid[data-field-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
