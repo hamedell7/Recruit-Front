@@ -186,12 +186,18 @@ function formatDate(value) {
     ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 12)
     : new Date(raw);
   if (Number.isNaN(date.getTime())) return escapeHtml(raw);
-  const options = { year: "numeric", month: "long", day: "numeric" };
-  if (raw.includes("T") || raw.includes(":")) {
-    options.hour = "2-digit";
-    options.minute = "2-digit";
-  }
-  return date.toLocaleString("fa-IR-u-ca-persian", options);
+
+  const hasTime = raw.includes("T") || raw.includes(":");
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    ...(hasTime ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } : {}),
+  };
+  const parts = new Intl.DateTimeFormat("fa-IR-u-ca-persian", options).formatToParts(date);
+  const part = (type) => parts.find((item) => item.type === type)?.value || "";
+  const formattedDate = `${part("year")}/${part("month")}/${part("day")}`;
+  return hasTime ? `${formattedDate} ${part("hour")}:${part("minute")}` : formattedDate;
 }
 
 function valueFor(key, value) {
