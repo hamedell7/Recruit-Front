@@ -125,3 +125,58 @@ test("accepts all five social relations groups when minimum counts are met", asy
   assert.equal(errors["people.requirements.RELATIVE"], undefined);
   assert.equal(errors["people.requirements.FAMILY_FRIEND"], undefined);
 });
+
+test("validates each split social step independently", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const people = socialPeople();
+
+  const referenceErrors = validateStep("social_references", { people: [] });
+  assert.equal(referenceErrors["people.requirements.REFERENCE"], undefined);
+
+  const friendErrors = validateStep("social_friends", {
+    people: people.filter((person) => person.role_type === "FRIEND").slice(0, 2),
+  });
+  assert.match(friendErrors["people.requirements.FRIEND"], /سه نفر از دوستان/);
+  assert.equal(friendErrors["people.requirements.NEIGHBOR"], undefined);
+  assert.equal(friendErrors["people.requirements.RELATIVE"], undefined);
+  assert.equal(friendErrors["people.requirements.FAMILY_FRIEND"], undefined);
+
+  const neighborErrors = validateStep("social_neighbors", {
+    people: people.filter((person) => person.role_type === "NEIGHBOR").slice(0, 3),
+  });
+  assert.match(neighborErrors["people.requirements.NEIGHBOR"], /چهار نفر از همسایگان/);
+  assert.equal(neighborErrors["people.requirements.FRIEND"], undefined);
+
+  const relativeErrors = validateStep("social_relatives", {
+    people: people.filter((person) => person.role_type === "RELATIVE").slice(0, 1),
+  });
+  assert.match(relativeErrors["people.requirements.RELATIVE"], /دو نفر از بستگان/);
+
+  const familyFriendErrors = validateStep("social_family_friends", {
+    people: people.filter((person) => person.role_type === "FAMILY_FRIEND").slice(0, 2),
+  });
+  assert.match(familyFriendErrors["people.requirements.FAMILY_FRIEND"], /سه نفر از معاشرین/);
+});
+
+test("loads and merges only the selected social group while retaining legacy friend records", async () => {
+  const { makeForm, mergeDraft } = await import("../src/utils/form.js");
+  const people = [
+    ...socialPeople(),
+    { role_type: "MILITARY_RELATIVE", first_name: "دوست", last_name: "قدیمی", addresses: [] },
+  ];
+
+  const friendForm = makeForm("social_friends", { people });
+  assert.deepEqual(
+    friendForm.people.map((person) => person.role_type),
+    ["FRIEND", "FRIEND", "FRIEND", "MILITARY_RELATIVE"],
+  );
+
+  const neighborDraft = mergeDraft({}, { people }, "social_neighbors");
+  assert.equal(neighborDraft.people.length, 4);
+  assert.ok(neighborDraft.people.every((person) => person.role_type === "NEIGHBOR"));
+
+  const referenceForm = makeForm("social_references", { people });
+  assert.equal(referenceForm.people.length, 1);
+  assert.equal(referenceForm.people[0].role_type, "REFERENCE");
+});
+
