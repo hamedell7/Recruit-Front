@@ -302,10 +302,20 @@ function formatBytes(value) {
   return `${new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 1 }).format(bytes / (1024 * 1024))} مگابایت`;
 }
 
-function renderHtml(report, { compact = false } = {}) {
+function renderHtml(report, { compact = false, sections = null } = {}) {
   const request = report.request || {};
   const applicant = report.applicant || {};
   const steps = Array.isArray(report.steps) ? report.steps : [];
+  const selectedSections = Array.isArray(sections) ? new Set(sections) : null;
+  const includes = (key) => !selectedSections || selectedSections.has(key);
+  const visibleSteps = selectedSections
+    ? steps.filter((step) => selectedSections.has("step:" + step.key))
+    : steps;
+  const bodyClasses = [
+    compact ? "compact-report" : "",
+    selectedSections && includes("applicant") ? "include-applicant" : "",
+    selectedSections && includes("progress") ? "include-progress" : "",
+  ].filter(Boolean).join(" ");
   const personal = steps.find((step) => step.key === "personal")?.data || {};
   const person = personal.person || {};
   const fullName = [person.first_name, person.last_name].filter(Boolean).join(" ") || "نام متقاضی ثبت نشده";
@@ -430,6 +440,8 @@ body{padding:0}
 .compact-report .meta-label{font-size:10.5pt;margin-bottom:1px}
 .compact-report .meta-value{font-size:11.25pt;line-height:1.2}
 .compact-report .identity-card,.compact-report .progress-summary{display:none!important}
+ .compact-report.include-applicant .identity-card{display:block!important}
+ .compact-report.include-progress .progress-summary{display:block!important}
 .compact-report .report-section{padding:5px;margin:0 0 4px;border-radius:5px;border-color:#e8edf3;break-inside:auto}
 .compact-report .section-heading{gap:4px;margin:0 0 4px;padding-bottom:3px;break-after:avoid}
 .compact-report .section-number{width:20px;height:20px;border-radius:4px;font-size:11.25pt}
@@ -507,7 +519,7 @@ body.compact-report{page:compactReport}
 }
 </style>
 </head>
-<body class="${compact ? "compact-report" : ""}">
+<body class="${bodyClasses}">
 <div class="screen-toolbar">
  <p>${compact ? "" : "گزارش آماده است؛ برای دریافت فایل، در پنجره چاپ مقصد «ذخیره به‌صورت PDF» را انتخاب کنید."}</p>
  ${compact ? "" : ""}
@@ -519,17 +531,17 @@ body.compact-report{page:compactReport}
   <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
   <div class="security-tag">اطلاعات شخصی<br>ویژه استفاده مجاز</div>
  </header>
- <section class="meta-grid">${meta.map(([label, value]) => `<div class="meta-item"><span class="meta-label">${escapeHtml(label)}</span><strong class="meta-value">${escapeHtml(value)}</strong></div>`).join("")}</section>
- <section class="identity-card">
+ ${includes("request_info") ? `<section class="meta-grid">${meta.map(([label, value]) => `<div class="meta-item"><span class="meta-label">${escapeHtml(label)}</span><strong class="meta-value">${escapeHtml(value)}</strong></div>`).join("")}</section>` : ""}
+ ${includes("applicant") ? `<section class="identity-card">
   <h2 class="identity-head">مشخصات متقاضی</h2>
   <div class="identity-grid">${summaryFields.map(([label, value]) => `<div class="identity-field"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}</div>
- </section>
- <section class="progress-summary">
+ </section>` : ""}
+ ${includes("progress") ? `<section class="progress-summary">
   <div class="progress-top"><strong>نمای کلی فرآیند</strong><span>${new Intl.NumberFormat("fa-IR").format(submittedSteps)} مرحله دارای اطلاعات از ${new Intl.NumberFormat("fa-IR").format(steps.length)} مرحله ${finalized ? "· پرونده نهایی / در حال بررسی" : "· پرونده در جریان تکمیل"}</span></div>
   <div class="progress-track">${progress}</div>
- </section>
- ${steps.map((step) => renderStep(step, compact)).join("")}
- ${renderDocumentList(report.documents || [])}
+ </section>` : ""}
+ ${visibleSteps.map((step) => renderStep(step, compact)).join("")}
+ ${includes("documents") ? renderDocumentList(report.documents || []) : ""}
  <div class="report-end"><span>تهیه‌شده در ${escapeHtml(generatedAt)}</span><strong>کد رهگیری: ${escapeHtml(request.tracking_code || "—")}</strong></div>
 </main>
 <div class="print-footer">این سند حاوی اطلاعات شخصی است؛ فقط در چارچوب مجاز نگهداری و استفاده شود.</div>
@@ -568,7 +580,7 @@ function fitCompactReport(popup) {
 
 }
 
-export async function printRequestReport(requestId, { staff = false, compact = false } = {}) {
+export async function printRequestReport(requestId, { staff = false, compact = false, sections = null, report: reportSnapshot = null } = {}) {
   const popup = window.open("", "_blank");
   if (!popup) throw new Error("مرورگر اجازه باز کردن پنجره گزارش را نداد. پنجره‌های بازشو را برای سامانه مجاز کنید.");
   try {
@@ -576,10 +588,13 @@ export async function printRequestReport(requestId, { staff = false, compact = f
     popup.document.write(loadingHtml());
     popup.document.close();
     popup.opener = null;
-    const { api } = await import("../services/api");
-    const report = staff ? await api.staffRequestReport(requestId) : await api.requestReport(requestId);
+    let report = reportSnapshot;
+    if (!report) {
+      const { api } = await import("../services/api");
+      report = staff ? await api.staffRequestReport(requestId) : await api.requestReport(requestId);
+    }
     popup.document.open();
-    popup.document.write(renderHtml(report, { compact }));
+    popup.document.write(renderHtml(report, { compact, sections }));
     popup.document.close();
     popup.document.getElementById("report-print")?.addEventListener("click", () => popup.print());
     popup.document.getElementById("report-close")?.addEventListener("click", () => popup.close());

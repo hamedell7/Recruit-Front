@@ -6,6 +6,7 @@ import PersianDateFilter from "../../components/form/PersianDateFilter";
 import { normalizeList } from "../../utils/collections";
 import Modal from "../../components/common/Modal";
 import ExcelExportModal from "./ExcelExportModal";
+import PdfExportModal from "./PdfExportModal";
 import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
 import RequestSettings from "./RequestSettings";
@@ -107,6 +108,7 @@ function StaffRequestsDashboard({ onError, user }) {
   const [staffDocumentsLoading, setStaffDocumentsLoading] = useState(false);
   const [staffDocumentsError, setStaffDocumentsError] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
+  const [pdfExportModal, setPdfExportModal] = useState(null);
   const [excelExportLoading, setExcelExportLoading] = useState(false);
   const [singleExcelLoading, setSingleExcelLoading] = useState(false);
   const [excelExportModal, setExcelExportModal] = useState(null);
@@ -343,11 +345,39 @@ function StaffRequestsDashboard({ onError, user }) {
     }
   };
 
-  const exportSelectedRequest = async () => {
+  const openPdfExportModal = async () => {
     if (!canExportReport || !selectedRequest?.id || reportLoading) return;
     setReportLoading(true);
     try {
-      await printRequestReport(selectedRequest.id, { staff: true });
+      const report = await api.staffRequestReport(selectedRequest.id);
+      setPdfExportModal({
+        requestId: String(selectedRequest.id),
+        report,
+        compact: false,
+        scopeLabel: "پرونده " + (selectedRequest.tracking_code || fullName(selectedRequest.applicant)),
+      });
+    } catch (reason) {
+      onError?.({
+        type: "error",
+        text: reason.message || "دریافت اطلاعات گزارش PDF انجام نشد.",
+      });
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  const handlePdfExport = async (sections, compact) => {
+    const scope = pdfExportModal;
+    if (!scope || reportLoading) return;
+    setReportLoading(true);
+    try {
+      await printRequestReport(scope.requestId, {
+        staff: true,
+        compact,
+        sections,
+        report: scope.report,
+      });
+      setPdfExportModal(null);
     } catch (reason) {
       onError?.({
         type: "error",
@@ -854,7 +884,7 @@ function StaffRequestsDashboard({ onError, user }) {
                   <button className="ghost-button staff-excel-export-button" type="button" onClick={openSingleExcelExportModal} disabled={singleExcelLoading || excelExportLoading}>
                     {singleExcelLoading ? "در حال ساخت اکسل…" : "خروجی اکسل پرونده"}
                   </button>
-                  <button className="primary-button" type="button" onClick={exportSelectedRequest} disabled={reportLoading}>
+                  <button className="primary-button" type="button" onClick={openPdfExportModal} disabled={reportLoading}>
                     {reportLoading ? "در حال آماده‌سازی…" : "چاپ / ذخیره PDF کامل"}
                   </button>
                 </>
@@ -872,6 +902,18 @@ function StaffRequestsDashboard({ onError, user }) {
             if (!excelModalLoading) setExcelExportModal(null);
           }}
           onExport={handleExcelExport}
+        />
+      )}
+      {pdfExportModal && (
+        <PdfExportModal
+          scopeLabel={pdfExportModal.scopeLabel}
+          report={pdfExportModal.report}
+          initialCompact={pdfExportModal.compact}
+          loading={reportLoading}
+          onClose={() => {
+            if (!reportLoading) setPdfExportModal(null);
+          }}
+          onExport={handlePdfExport}
         />
       )}
     </main>

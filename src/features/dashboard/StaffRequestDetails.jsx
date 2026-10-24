@@ -11,6 +11,7 @@ import {
 } from "../../utils/requestPdf";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 import ExcelExportModal from "./ExcelExportModal";
+import PdfExportModal from "./PdfExportModal";
 import "../../styles/staff-request-details.css";
 
 const numberFormat = new Intl.NumberFormat("fa-IR");
@@ -472,6 +473,7 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [compactPdfLoading, setCompactPdfLoading] = useState(false);
+  const [pdfExportModal, setPdfExportModal] = useState(null);
   const [excelLoading, setExcelLoading] = useState(false);
   const [excelExportModal, setExcelExportModal] = useState(null);
   const [decisionMode, setDecisionMode] = useState("");
@@ -547,12 +549,33 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
     .flatMap((group) => group.steps || [])
     .filter((step) => returnableKeys.includes(step.key));
 
-  const exportPdf = async (compact = false) => {
+  const openPdfExportModal = (compact = false) => {
     if (pdfLoading || compactPdfLoading) return;
+    if (!report) {
+      onError?.({ type: "error", text: "اطلاعات گزارش هنوز بارگذاری نشده است." });
+      return;
+    }
+    setPdfExportModal({
+      requestId: String(requestId),
+      report,
+      compact,
+      scopeLabel: "پرونده " + (request.tracking_code || applicantName),
+    });
+  };
+
+  const handlePdfExport = async (sections, compact) => {
+    const scope = pdfExportModal;
+    if (!scope || pdfLoading || compactPdfLoading) return;
     if (compact) setCompactPdfLoading(true);
     else setPdfLoading(true);
     try {
-      await printRequestReport(requestId, { staff: true, compact });
+      await printRequestReport(scope.requestId, {
+        staff: true,
+        compact,
+        sections,
+        report: scope.report,
+      });
+      setPdfExportModal(null);
     } catch (reason) {
       onError?.({
         type: "error",
@@ -695,10 +718,10 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
           <button type="button" className="srd-action-button is-secondary" onClick={openExcelExportModal} disabled={excelLoading}>
             <span aria-hidden="true">▦</span>{excelLoading ? "در حال ساخت اکسل…" : "دریافت فایل اکسل"}
           </button>
-          <button type="button" className="srd-action-button is-secondary" onClick={() => exportPdf(true)} disabled={pdfLoading || compactPdfLoading} title="چیدمان فشرده A4 عمودی با ستون‌های بیشتر برای قرارگیری اطلاعات در حداکثر ۳ صفحه">
+          <button type="button" className="srd-action-button is-secondary" onClick={() => openPdfExportModal(true)} disabled={pdfLoading || compactPdfLoading} title="چیدمان فشرده A4 عمودی با ستون‌های بیشتر برای قرارگیری اطلاعات در حداکثر ۳ صفحه">
             <span aria-hidden="true">▤</span>{compactPdfLoading ? "در حال آماده‌سازی…" : "PDF فشرده"}
           </button>
-          <button type="button" className="srd-action-button is-primary" onClick={() => exportPdf(false)} disabled={pdfLoading || compactPdfLoading}>
+          <button type="button" className="srd-action-button is-primary" onClick={() => openPdfExportModal(false)} disabled={pdfLoading || compactPdfLoading}>
             <span aria-hidden="true">↓</span>{pdfLoading ? "در حال آماده‌سازی…" : "چاپ / دریافت گزارش"}
           </button>
         </div>
@@ -924,6 +947,18 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
             if (!excelLoading) setExcelExportModal(null);
           }}
           onExport={handleExcelExport}
+        />
+      )}
+      {pdfExportModal && (
+        <PdfExportModal
+          scopeLabel={pdfExportModal.scopeLabel}
+          report={pdfExportModal.report}
+          initialCompact={pdfExportModal.compact}
+          loading={pdfLoading || compactPdfLoading}
+          onClose={() => {
+            if (!pdfLoading && !compactPdfLoading) setPdfExportModal(null);
+          }}
+          onExport={handlePdfExport}
         />
       )}
     </main>
