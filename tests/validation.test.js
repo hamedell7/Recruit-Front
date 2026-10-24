@@ -25,3 +25,55 @@ test("returns the exact validation message for a matching field", () => {
   assert.equal(getFieldError({ first_name: "نام الزامی است." }, "first_name"), "نام الزامی است.");
   assert.equal(getFieldError({}, "first_name"), null);
 });
+
+
+function socialPeople() {
+  return [
+    { role_type: "REFERENCE", first_name: "معرف", last_name: "اول" },
+    { role_type: "FRIEND", first_name: "دوست", last_name: "اول" },
+    { role_type: "FRIEND", first_name: "دوست", last_name: "دوم" },
+    { role_type: "FRIEND", first_name: "دوست", last_name: "سوم" },
+    { role_type: "NEIGHBOR", first_name: "همسایه", last_name: "اول" },
+    { role_type: "NEIGHBOR", first_name: "همسایه", last_name: "دوم" },
+    { role_type: "NEIGHBOR", first_name: "همسایه", last_name: "سوم" },
+    { role_type: "NEIGHBOR", first_name: "همسایه", last_name: "چهارم" },
+    { role_type: "RELATIVE", first_name: "بستگان", last_name: "اول" },
+    { role_type: "RELATIVE", first_name: "بستگان", last_name: "دوم" },
+    { role_type: "FAMILY_FRIEND", first_name: "دوست خانوادگی", last_name: "اول" },
+    { role_type: "FAMILY_FRIEND", first_name: "دوست خانوادگی", last_name: "دوم" },
+    { role_type: "FAMILY_FRIEND", first_name: "دوست خانوادگی", last_name: "سوم" },
+  ];
+}
+
+test("requires the minimum number of people in each social relations group", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const people = socialPeople().filter((person) => person.role_type !== "NEIGHBOR");
+  const errors = validateStep("social_relations", { people });
+
+  assert.match(errors["people.requirements.NEIGHBOR"], /چهار نفر/);
+  assert.equal(errors["people.requirements.REFERENCE"], undefined);
+  assert.equal(errors["people.requirements.FRIEND"], undefined);
+  assert.equal(errors["people.requirements.RELATIVE"], undefined);
+  assert.equal(errors["people.requirements.FAMILY_FRIEND"], undefined);
+});
+
+test("rejects duplicate names across social relations groups", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const people = socialPeople();
+  people[1].first_name = people[0].first_name;
+  people[1].last_name = people[0].last_name;
+
+  const errors = validateStep("social_relations", { people });
+  assert.match(errors["people.1.first_name"], /ثبت تکراری نام/);
+});
+
+test("accepts all five social relations groups when minimum counts are met", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const errors = validateStep("social_relations", { people: socialPeople() });
+
+  assert.equal(errors["people.requirements.REFERENCE"], undefined);
+  assert.equal(errors["people.requirements.FRIEND"], undefined);
+  assert.equal(errors["people.requirements.NEIGHBOR"], undefined);
+  assert.equal(errors["people.requirements.RELATIVE"], undefined);
+  assert.equal(errors["people.requirements.FAMILY_FRIEND"], undefined);
+});
