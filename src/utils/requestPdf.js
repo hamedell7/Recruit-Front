@@ -270,7 +270,15 @@ function renderStep(step, compact = false) {
   const noData = `<div class="empty-section">${escapeHtml(pdfStepEmptyMessage(step))}</div>`;
   const familyClass = step.key === "family" || step.title === "خانواده" ? " family-section" : "";
   const contactClass = step.key === "contacts" || step.title === "راه‌های تماس" ? " contact-section" : "";
-  return `<section class="report-section${familyClass}${contactClass}">
+  const recordIdentity = `${step.key || ""} ${step.title || ""} ${step.group_title || ""}`.toLowerCase();
+  const compactRecordClass = /marriage|spouse|ازدواج|همسر/.test(recordIdentity)
+    ? " compact-record-marriage"
+    : /education|تحصیل|آموزش/.test(recordIdentity)
+      ? " compact-record-education"
+      : /employment|job|work|شغلی|اشتغال/.test(recordIdentity)
+        ? " compact-record-employment"
+        : "";
+  return `<section class="report-section${familyClass}${contactClass}${compactRecordClass}">
     <div class="section-heading">
       <div class="section-number">${new Intl.NumberFormat("fa-IR").format(step.order)}</div>
       <div class="section-title"><h2>${escapeHtml(meta.title)}</h2><p>${escapeHtml(meta.kicker || "")}</p></div>
