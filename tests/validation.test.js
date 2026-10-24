@@ -67,6 +67,18 @@ test("rejects duplicate names across social relations groups", async () => {
   assert.match(errors["people.1.first_name"], /ثبت تکراری نام/);
 });
 
+test("normalizes Arabic and Persian letters when detecting duplicate social names", async () => {
+  const { validateStep } = await import("../src/utils/form.js");
+  const people = socialPeople();
+  people[0].first_name = "علي";
+  people[0].last_name = "رضا";
+  people[1].first_name = "علی";
+  people[1].last_name = "رضا";
+
+  const errors = validateStep("social_relations", { people });
+  assert.match(errors["people.1.first_name"], /ثبت تکراری نام/);
+});
+
 test("accepts all five social relations groups when minimum counts are met", async () => {
   const { validateStep } = await import("../src/utils/form.js");
   const errors = validateStep("social_relations", { people: socialPeople() });
