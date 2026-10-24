@@ -13,11 +13,13 @@ function withCurrentOption(options, currentValue) {
 const SOCIAL_GROUPS = [
   {
     role: "REFERENCE",
+    stepKey: "social_references",
     title: "معرفین",
     hint: "در صورت تمایل، مشخصات معرفینی را وارد کنید که شناخت کافی از شما دارند؛ ثبت معرف الزامی نیست.",
   },
   {
     role: "FRIEND",
+    stepKey: "social_friends",
     title: "دوستان دوران تحصیل و سربازی",
     hint: "مشخصات سه نفر از دوستان دوران تحصیل در مدارس و دانشگاه یا دوران سربازی را ثبت کنید که همچنان با شما در ارتباط هستند. ترجیحاً افرادی را معرفی کنید که در شهر محل زندگی شما ساکن‌اند.",
     minimum: 3,
@@ -25,6 +27,7 @@ const SOCIAL_GROUPS = [
   },
   {
     role: "NEIGHBOR",
+    stepKey: "social_neighbors",
     title: "همسایگان و معتمدان محل",
     hint: "مشخصات چهار نفر از همسایگان، مدیر ساختمان، کسبه محل یا امام جماعت مسجد محل سکونت را وارد کنید که شما را می‌شناسند.",
     minimum: 4,
@@ -32,6 +35,7 @@ const SOCIAL_GROUPS = [
   },
   {
     role: "RELATIVE",
+    stepKey: "social_relatives",
     title: "بستگان",
     hint: "مشخصات دو نفر از بستگانی را ثبت کنید که شناخت کافی از شما دارند.",
     minimum: 2,
@@ -39,6 +43,7 @@ const SOCIAL_GROUPS = [
   },
   {
     role: "FAMILY_FRIEND",
+    stepKey: "social_family_friends",
     title: "معاشرین و دوستان خانوادگی",
     hint: "مشخصات سه نفر از معاشرین و دوستانی را وارد کنید که با آن‌ها رفت‌وآمد خانوادگی دارید. از معرفی افرادی که در بخش‌های قبلی ثبت کرده‌اید خودداری کنید.",
     minimum: 3,
@@ -46,7 +51,7 @@ const SOCIAL_GROUPS = [
   },
 ];
 
-function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearValidationError }) {
+function PeopleStep({ kind, groupRole, form, setForm, countries, readOnly, errors, clearValidationError }) {
   const people = normalizeList(form?.people);
   const isFamily = kind === "family";
   const empty = (role = (isFamily ? "FATHER" : "REFERENCE")) => ({
@@ -138,26 +143,27 @@ function PeopleStep({ kind, form, setForm, countries, readOnly, errors, clearVal
 
   return (
     <div className="form-stack">
-      {SOCIAL_GROUPS.map((group) => {
+      {SOCIAL_GROUPS.filter((group) => !groupRole || group.role === groupRole).map((group) => {
         const groupPeople = people.filter((person) => person.role_type === group.role || (group.role === "FRIEND" && person.role_type === "MILITARY_RELATIVE"));
         return (
           <div key={group.role} className="social-group-editor">
-          <ListEditor
-            title={group.title}
-            hint={group.hint}
-            items={groupPeople}
-            setItems={(items) => updateGroup(group.role, items)}
-            clearValidationError={clearValidationError}
-            errorPrefix="people"
-            empty={() => empty(group.role)}
-            addLabel="افزودن فرد"
-            readOnly={readOnly}
-            render={(item, setItem) => renderPerson(item, setItem)}
-          />
-          <FieldError error={getFieldError(errors, `people.requirements.${group.role}`)} />
+            <ListEditor
+              title={group.title}
+              hint={group.hint}
+              items={groupPeople}
+              setItems={(items) => updateGroup(group.role, items)}
+              clearValidationError={clearValidationError}
+              errorPrefix="people"
+              empty={() => empty(group.role)}
+              addLabel="افزودن فرد"
+              readOnly={readOnly}
+              render={(item, setItem) => renderPerson(item, setItem)}
+            />
+            <FieldError error={getFieldError(errors, `people.requirements.${group.role}`)} />
           </div>
         );
       })}
+
     </div>
   );
 }
