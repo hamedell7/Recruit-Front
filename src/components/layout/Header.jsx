@@ -46,6 +46,15 @@ function MenuGlyph({ name, className }) {
         </>
       );
       break;
+    case "users":
+      content = (
+        <>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="10" cy="7" r="4" />
+          <path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </>
+      );
+      break;
     case "arrow":
       content = <path d="M19 12H5m7-7-7 7 7 7" />;
       break;
@@ -107,6 +116,13 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
             title: "تنظیمات درخواست‌ها",
             description: "مهلت ثبت، ویرایش و سقف درخواست",
             category: "پیکربندی",
+          },
+          {
+            path: "/staff/users",
+            icon: "users",
+            title: "مدیریت کاربران",
+            description: "فهرست کاربران و ورود گروهی از اکسل",
+            category: "مدیریت",
           },
         ]
       : []),

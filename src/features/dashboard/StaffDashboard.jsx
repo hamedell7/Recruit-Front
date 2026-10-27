@@ -10,6 +10,7 @@ import PdfExportModal from "./PdfExportModal";
 import { printRequestReport } from "../../utils/requestPdf";
 import WorkflowManager from "./WorkflowManager";
 import RequestSettings from "./RequestSettings";
+import UserManagement from "./UserManagement";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
 
 const PAGE_SIZE = 10;
@@ -923,12 +924,14 @@ function StaffRequestsDashboard({ onError, user }) {
 const STAFF_REQUESTS_PATH = "/staff/requests";
 const STAFF_WORKFLOW_PATH = "/staff/workflows";
 const STAFF_SETTINGS_PATH = "/staff/request-settings";
+const STAFF_USERS_PATH = "/staff/users";
 
 function getStaffWorkspace(pathname, role) {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/";
   if (role !== "ADMIN") return "requests";
   if (normalizedPath === STAFF_WORKFLOW_PATH) return "workflow";
   if (normalizedPath === STAFF_SETTINGS_PATH) return "settings";
+  if (normalizedPath === STAFF_USERS_PATH) return "users";
   return "requests";
 }
 
@@ -943,7 +946,9 @@ function StaffDashboard({ onError, user }) {
         ? STAFF_WORKFLOW_PATH
         : nextWorkspace === "settings"
           ? STAFF_SETTINGS_PATH
-          : STAFF_REQUESTS_PATH;
+          : nextWorkspace === "users"
+            ? STAFF_USERS_PATH
+            : STAFF_REQUESTS_PATH;
 
       if (normalizedPath !== canonicalPath) {
         window.history.replaceState({ view: "dashboard", workspace: nextWorkspace }, "", canonicalPath);
@@ -969,6 +974,10 @@ function StaffDashboard({ onError, user }) {
 
   if (workspace === "settings" && user?.role === "ADMIN") {
     return <RequestSettings onError={onError} />;
+  }
+
+  if (workspace === "users" && user?.role === "ADMIN") {
+    return <UserManagement onError={onError} />;
   }
 
   return <StaffRequestsDashboard user={user} onError={onError} />;

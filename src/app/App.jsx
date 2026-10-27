@@ -24,7 +24,7 @@ function App() {
   const restoreRoute = async (currentUser) => {
     const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
     const staffDetailMatch = pathname.match(/^\/staff\/requests\/([^/]+)$/);
-    const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
+    const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings", "/staff/users"].includes(pathname);
     if (STAFF_ROLES.includes(currentUser?.role)) {
       if (staffDetailMatch && currentUser?.role === "ADMIN") {
         setStaffPath("/staff/requests");
@@ -33,7 +33,7 @@ function App() {
         setView("staff-request-details");
         return;
       }
-      const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
+      const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings" || pathname === "/staff/users";
       const requestedPath = staffRouteMatch ? pathname : "/staff/requests";
       const canonicalPath = adminOnlyRoute && currentUser?.role !== "ADMIN" ? "/staff/requests" : requestedPath;
       if (canonicalPath !== pathname) {
@@ -81,7 +81,7 @@ function App() {
 
   const navigateStaffWorkspace = (path) => {
     const allowedPaths = ["/staff/requests"];
-    if (user?.role === "ADMIN") allowedPaths.push("/staff/workflows", "/staff/request-settings");
+    if (user?.role === "ADMIN") allowedPaths.push("/staff/workflows", "/staff/request-settings", "/staff/users");
     if (!allowedPaths.includes(path)) return;
     if (window.location.pathname !== path) {
       window.history.pushState({ view: "dashboard", workspace: path }, "", path);
@@ -126,7 +126,7 @@ function App() {
     const onPopState = async () => {
       const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
       const staffDetailMatch = pathname.match(/^\/staff\/requests\/([^/]+)$/);
-      const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings"].includes(pathname);
+      const staffRouteMatch = ["/staff/requests", "/staff/workflows", "/staff/request-settings", "/staff/users"].includes(pathname);
       if (STAFF_ROLES.includes(user.role)) {
         if (staffDetailMatch && user.role === "ADMIN") {
           setStaffPath("/staff/requests");
@@ -135,7 +135,7 @@ function App() {
           setView("staff-request-details");
           return;
         }
-        const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings";
+        const adminOnlyRoute = pathname === "/staff/workflows" || pathname === "/staff/request-settings" || pathname === "/staff/users";
         const requestedPath = staffRouteMatch ? pathname : "/staff/requests";
         const canonicalPath = adminOnlyRoute && user.role !== "ADMIN" ? "/staff/requests" : requestedPath;
         if (canonicalPath !== pathname) {
