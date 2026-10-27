@@ -109,6 +109,11 @@
 .wizard-sidebar {
   top: 92px;
   max-height: calc(100vh - 108px);
+  max-height: calc(100dvh - 108px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 16px 13px;
   border-color: var(--enterprise-border);
   border-radius: 18px;
@@ -496,7 +501,14 @@
   .wizard-identity { width: 100%; justify-content: flex-start; }
   .wizard-layout { grid-template-columns: minmax(0, 1fr); gap: 13px; }
   .wizard-layout.is-sidebar-closed { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .wizard-sidebar { position: static; max-height: 420px; padding: 13px; }
+  .wizard-sidebar {
+    position: static;
+    max-height: min(420px, calc(100vh - 110px));
+    max-height: min(420px, calc(100dvh - 110px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 13px;
+  }
   .wizard-progress-head { padding: 0 2px 12px; }
   .step-sections {
     display: flex;
