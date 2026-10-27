@@ -24,7 +24,7 @@ function Icon({ name, size = 20 }) {
 }
 
 function downloadTemplate() {
-  const blob = new Blob(["\uFEFFنام,نام خانوادگی,کد ملی,موبایل\r\n"], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFFکد ملی,موبایل\r\n"], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -39,10 +39,6 @@ function formatDate(value) {
   if (!value || Number.isNaN(new Date(value).getTime())) return "—";
   return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "short", day: "numeric" }).format(new Date(value));
 }
-function userFullName(user) {
-  return [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "نام ثبت نشده";
-}
-
 function UserManagement({ onError }) {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
@@ -101,7 +97,7 @@ function UserManagement({ onError }) {
     setImporting(true); setFileError("");
     try {
       const result = await api.importStaffUsers({ users: importRows.map((row) => ({
-        first_name: row.first_name, last_name: row.last_name, national_id: row.national_id, mobile: row.mobile, source_row: row.sourceRow,
+        national_id: row.national_id, mobile: row.mobile, source_row: row.sourceRow,
       })) });
       setImportResult(result); setPage(1); setSearch(""); setSearchInput(""); setRefreshKey((value) => value + 1);
       onError?.({ type: "success", text: nf.format(result?.created_count || 0) + " کاربر ثبت شد؛ " + nf.format(result?.skipped_count || 0) + " ردیف تکراری رد شد." });
@@ -122,7 +118,7 @@ function UserManagement({ onError }) {
         <div className="staff-dashboard-heading">
           <span className="eyebrow"><span className="eyebrow-dot" /> مدیریت حساب‌های کاربری</span>
           <h1>مدیریت کاربران</h1>
-          <p>فهرست حساب‌های سامانه را بررسی کنید یا کاربران جدید را با اعتبارسنجی کامل از فایل اکسل وارد نمایید.</p>
+          <p>فهرست حساب‌های سامانه را بررسی کنید یا کاربران جدید را با کد ملی و موبایل از فایل اکسل وارد نمایید.</p>
           <div className="um-hero-actions">
             <button type="button" className="um-primary" onClick={() => setImportOpen(true)}><Icon name="upload" /> ورود کاربران از اکسل</button>
             <button type="button" className="um-secondary" onClick={downloadTemplate}><Icon name="download" size={18} /> دانلود قالب اکسل</button>
@@ -158,7 +154,7 @@ function UserManagement({ onError }) {
           <div>
             <span className="eyebrow">مدیریت و جست‌وجو</span>
             <h2>فهرست کاربران</h2>
-            <p>کاربران را بر اساس نام، نام خانوادگی، کد ملی یا شماره موبایل پیدا کنید.</p>
+            <p>کاربران را بر اساس کد ملی یا شماره موبایل پیدا کنید.</p>
           </div>
           <div className="staff-list-heading-side">
             <span className="staff-data-chip"><span className="staff-data-chip-dot" /> {nf.format(pagination.total_items || 0)} نتیجه</span>
@@ -175,10 +171,10 @@ function UserManagement({ onError }) {
           </div>
           <div className="staff-filter-grid um-filter-grid">
             <label className="staff-search-field">
-              <span>نام، نام خانوادگی، کد ملی یا موبایل</span>
+              <span>کد ملی یا موبایل</span>
               <div className="staff-search-control">
                 <span className="staff-search-icon" aria-hidden="true"><Icon name="search" size={18} /></span>
-                <input type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="مشخصات کاربر را وارد کنید…" aria-label="جست‌وجوی کاربران" />
+                <input type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="کد ملی یا شماره موبایل را وارد کنید…" aria-label="جست‌وجوی کاربران" />
                 {searchInput && <button type="button" onClick={() => setSearchInput("")} aria-label="پاک کردن جست‌وجو">×</button>}
               </div>
             </label>
@@ -194,12 +190,11 @@ function UserManagement({ onError }) {
           </div>
           <div className="staff-table-scroll">
             <table className="staff-requests-table um-users-table">
-              <thead><tr><th>کاربر</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th></tr></thead>
+              <thead><tr><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th></tr></thead>
               <tbody>
-                {loading ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
-                  : users.length === 0 ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
+                {loading ? <tr><td colSpan={5} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
+                  : users.length === 0 ? <tr><td colSpan={5} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
                   : users.map((user) => <tr key={user.id}>
-                    <td><div className="staff-applicant-cell"><span className="staff-applicant-avatar">{(user.first_name || user.last_name || "ک").trim().slice(0, 1)}</span><span className="staff-applicant-copy"><strong>{userFullName(user)}</strong><small>{user.status === "ACTIVE" ? "حساب فعال" : "حساب غیرفعال"}</small></span></div></td>
                     <td><bdi dir="ltr" className="um-mono">{user.national_id || "—"}</bdi></td>
                     <td><bdi dir="ltr" className="um-mono">{user.mobile || "—"}</bdi></td>
                     <td><span className={"um-role" + (user.role === "ADMIN" ? " admin" : "")}>{ROLE_LABELS[user.role] || user.role || "—"}</span></td>
@@ -225,11 +220,11 @@ function UserManagement({ onError }) {
       {importOpen && <div className="ui-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeImport(); }}>
         <section className="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="ui-title" dir="rtl">
           <header className="ui-header"><span className="ui-title-icon"><Icon name="file" size={23} /></span><div><span className="um-kicker">ورود گروهی</span><h2 id="ui-title">افزودن کاربران از اکسل</h2><p>فایل را انتخاب کنید، پیش‌نمایش را بررسی و سپس ثبت کنید.</p></div><button type="button" className="ui-close" onClick={closeImport} disabled={importing || reading} aria-label="بستن"><Icon name="close" /></button></header>
-          <div className="ui-guide"><strong>ساختار ستون‌ها</strong><div className="ui-columns"><span>نام</span><span>نام خانوادگی</span><span>کد ملی</span><span>موبایل</span></div><p>این چهار ستون را به همین ترتیب قرار دهید. اگر عنوان ستون‌ها در ردیف اول باشد، ترتیب از روی عنوان تشخیص داده می‌شود.</p><p>فرمت‌های <bdi dir="ltr">.xlsx</bdi>، <bdi dir="ltr">.csv</bdi> و <bdi dir="ltr">.tsv</bdi> تا ۱۰ مگابایت و ۱۰۰۰ ردیف پشتیبانی می‌شوند.</p></div>
+          <div className="ui-guide"><strong>ساختار ستون‌ها</strong><div className="ui-columns"><span>کد ملی</span><span>موبایل</span></div><p>این دو ستون را به همین ترتیب قرار دهید. اگر عنوان ستون‌ها در ردیف اول باشد، ترتیب از روی عنوان تشخیص داده می‌شود.</p><p>فرمت‌های <bdi dir="ltr">.xlsx</bdi>، <bdi dir="ltr">.csv</bdi> و <bdi dir="ltr">.tsv</bdi> تا ۱۰ مگابایت و ۱۰۰۰ ردیف پشتیبانی می‌شوند.</p></div>
           <div className="ui-drop"><span className="ui-upload-icon"><Icon name="upload" size={25} /></span><strong>{fileName || "انتخاب فایل اکسل"}</strong><span>{reading ? "در حال خواندن و اعتبارسنجی…" : "فایل را انتخاب کنید تا پیش‌نمایش آن نمایش داده شود."}</span><label className="ui-file-button">{reading ? "در حال پردازش…" : "انتخاب فایل"}<input type="file" accept=".xlsx,.csv,.tsv,text/csv,text/tab-separated-values" onChange={chooseFile} disabled={reading || importing} /></label><button type="button" className="ui-template" onClick={downloadTemplate}>دانلود قالب CSV</button></div>
           {fileError && <div className="ui-error" role="alert"><Icon name="alert" size={18} /><span>{fileError}</span></div>}
           {importRows.length > 0 && <div className="ui-preview"><div className="ui-preview-head"><div><h3>پیش‌نمایش اطلاعات</h3><span>{nf.format(importRows.length)} ردیف خوانده شد</span></div><div className="ui-validation-count"><span>{nf.format(importRows.length - invalidRows.length)} معتبر</span><span className={invalidRows.length ? "invalid" : ""}>{nf.format(invalidRows.length)} دارای خطا</span></div></div>
-            <div className="ui-table-scroll"><table className="ui-table"><thead><tr><th>ردیف</th><th>نام</th><th>نام خانوادگی</th><th>کد ملی</th><th>موبایل</th><th>اعتبارسنجی</th></tr></thead><tbody>{importRows.slice(0, 50).map((row, index) => <tr key={String(row.sourceRow) + index} className={row.errors.length ? "invalid-row" : ""}><td>{nf.format(row.sourceRow || index + 1)}</td><td>{row.first_name || "—"}</td><td>{row.last_name || "—"}</td><td><bdi dir="ltr" className="um-mono">{row.national_id || "—"}</bdi></td><td><bdi dir="ltr" className="um-mono">{row.mobile || "—"}</bdi></td><td>{row.errors.length ? <span className="ui-row-errors" title={row.errors.join(" ")}>{row.errors.join(" ")}</span> : <span className="ui-valid"><Icon name="check" size={14} /> معتبر</span>}</td></tr>)}</tbody></table></div>
+            <div className="ui-table-scroll"><table className="ui-table"><thead><tr><th>ردیف</th><th>کد ملی</th><th>موبایل</th><th>اعتبارسنجی</th></tr></thead><tbody>{importRows.slice(0, 50).map((row, index) => <tr key={String(row.sourceRow) + index} className={row.errors.length ? "invalid-row" : ""}><td>{nf.format(row.sourceRow || index + 1)}</td><td><bdi dir="ltr" className="um-mono">{row.national_id || "—"}</bdi></td><td><bdi dir="ltr" className="um-mono">{row.mobile || "—"}</bdi></td><td>{row.errors.length ? <span className="ui-row-errors" title={row.errors.join(" ")}>{row.errors.join(" ")}</span> : <span className="ui-valid"><Icon name="check" size={14} /> معتبر</span>}</td></tr>)}</tbody></table></div>
             {importRows.length > 50 && <p className="ui-preview-limit">۵۰ ردیف اول نمایش داده شده؛ اعتبارسنجی همه ردیف‌ها انجام شده است.</p>}
             <div className="ui-note"><Icon name="check" size={17} /> در صورت کوتاه بودن کد ملی تا ۱۰ رقم و موبایل تا ۱۱ رقم، صفرهای ابتدایی اضافه می‌شوند. صحت چک‌سام کد ملی و قالب موبایل ۰۹ بررسی می‌شود؛ مقدار بلندتر کوتاه نمی‌شود.</div>
           </div>}

@@ -33,17 +33,13 @@ export function isValidIranianNationalId(value) {
 
 export function validateUserImportRows(sourceRows) {
   const rows = sourceRows.map((source) => {
-    const first_name = String(source.first_name ?? "").trim();
-    const last_name = String(source.last_name ?? "").trim();
     const national_id = normalizeNationalIdForImport(source.national_id);
     const mobile = normalizeMobileForImport(source.mobile);
     const errors = [];
-    if (!first_name) errors.push("نام الزامی است.");
-    if (!last_name) errors.push("نام خانوادگی الزامی است.");
     if (!/^\d{10}$/.test(national_id)) errors.push("کد ملی باید دقیقاً ۱۰ رقم باشد.");
     else if (!isValidIranianNationalId(national_id)) errors.push("کد ملی معتبر نیست؛ رقم کنترلی را بررسی کنید.");
     if (!/^09\d{9}$/.test(mobile)) errors.push("موبایل باید ۱۱ رقم و با ۰۹ شروع شود.");
-    return { ...source, first_name, last_name, national_id, mobile, errors };
+    return { ...source, national_id, mobile, errors };
   });
   const positions = new Map();
   rows.forEach((row, index) => {
@@ -218,8 +214,6 @@ function normalizedHeader(value) {
   return String(value ?? "").replace(/[يى]/g, "ی").replace(/ك/g, "ک").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 }
 const aliases = {
-  first_name: new Set(["نام", "firstname", "givenname"]),
-  last_name: new Set(["نامخانوادگی", "نامفامیلی", "lastname", "surname", "familyname"]),
   national_id: new Set(["کدملی", "nationalid", "nationalidentitynumber", "nid"]),
   mobile: new Set(["موبایل", "موبيل", "شمارههمراه", "تلفنهمراه", "شمارهتلفنهمراه", "mobile", "phone", "phonenumber"]),
 };
@@ -251,10 +245,8 @@ export async function readUserSpreadsheet(file) {
   const data = headerIndex >= 0 ? nonEmpty.slice(headerIndex + 1) : nonEmpty;
   if (data.length > MAX_ROWS) throw new Error("در هر بار ورود حداکثر ۱۰۰۰ کاربر قابل پردازش است.");
   if (!data.length) throw new Error("هیچ ردیف کاربری در فایل پیدا نشد.");
-  const columns = mapping || { first_name: 0, last_name: 1, national_id: 2, mobile: 3 };
+  const columns = mapping || { national_id: 0, mobile: 1 };
   return validateUserImportRows(data.map((row, index) => ({
-    first_name: row.cells[columns.first_name] ?? "",
-    last_name: row.cells[columns.last_name] ?? "",
     national_id: row.cells[columns.national_id] ?? "",
     mobile: row.cells[columns.mobile] ?? "",
     sourceRow: row.sourceRow ?? (headerIndex >= 0 ? index + 2 : index + 1),

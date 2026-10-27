@@ -24,15 +24,20 @@ test("does not truncate longer-than-valid identifiers", () => {
 });
 
 test("rejects bad checksum and invalid mobile formats", () => {
-  const [row] = validateUserImportRows([{ first_name: "آزمایش", last_name: "کاربر", national_id: "0123456780", mobile: "12345" }]);
+  const [row] = validateUserImportRows([{ national_id: "0123456780", mobile: "12345" }]);
   assert.ok(row.errors.some((error) => error.includes("کد ملی")));
   assert.ok(row.errors.some((error) => error.includes("موبایل")));
 });
 
+test("requires only national ID and mobile", () => {
+  const [row] = validateUserImportRows([{ national_id: "0123456789", mobile: "09123456789" }]);
+  assert.deepEqual(row.errors, []);
+});
+
 test("marks both rows when a valid national id appears more than once", () => {
   const rows = validateUserImportRows([
-    { first_name: "اول", last_name: "کاربر", national_id: "0123456789", mobile: "09123456789" },
-    { first_name: "دوم", last_name: "کاربر", national_id: "0123456789", mobile: "09123456780" },
+    { national_id: "0123456789", mobile: "09123456789" },
+    { national_id: "0123456789", mobile: "09123456780" },
   ]);
   assert.ok(rows.every((row) => row.errors.some((error) => error.includes("تکراری"))));
 });
