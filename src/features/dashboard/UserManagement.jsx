@@ -115,57 +115,110 @@ function UserManagement({ onError }) {
   }
 
   return (
-    <main className="page user-management-page">
+    <main className="page staff-dashboard-page user-management-page">
       <AdminBreadcrumb items={["پنل مدیریت", "مدیریت کاربران"]} />
-      <section className="um-hero">
-        <div className="um-hero-copy">
-          <span className="um-eyebrow"><i /> مدیریت دسترسی و حساب‌ها</span>
+
+      <section className="staff-dashboard-hero um-dashboard-hero">
+        <div className="staff-dashboard-heading">
+          <span className="eyebrow"><span className="eyebrow-dot" /> مدیریت حساب‌های کاربری</span>
           <h1>مدیریت کاربران</h1>
-          <p>حساب‌های سامانه را جست‌وجو کنید یا اطلاعات کاربران را با کنترل و اعتبارسنجی کامل از فایل اکسل وارد کنید.</p>
+          <p>فهرست حساب‌های سامانه را بررسی کنید یا کاربران جدید را با اعتبارسنجی کامل از فایل اکسل وارد نمایید.</p>
           <div className="um-hero-actions">
             <button type="button" className="um-primary" onClick={() => setImportOpen(true)}><Icon name="upload" /> ورود کاربران از اکسل</button>
             <button type="button" className="um-secondary" onClick={downloadTemplate}><Icon name="download" size={18} /> دانلود قالب اکسل</button>
           </div>
         </div>
-        <div className="um-hero-icon"><Icon name="users" size={31} /></div><i className="um-orbit one" /><i className="um-orbit two" />
+        <div className="staff-dashboard-hero-meta">
+          <div className="staff-live-indicator"><span /> مدیریت کاربران</div>
+          <div className="staff-dashboard-meta-note">ورود گروهی · اعتبارسنجی پیش از ثبت</div>
+        </div>
       </section>
 
-      <section className="um-stats">
-        <article><span className="um-stat-icon"><Icon name="users" /></span><span>کل کاربران</span><strong>{nf.format(stats.total || 0)}</strong><small>تمام حساب‌های ثبت‌شده</small></article>
-        <article><span className="um-stat-icon active"><Icon name="check" /></span><span>کاربران فعال</span><strong>{nf.format(stats.active || 0)}</strong><small>حساب‌های مجاز به ورود</small></article>
-        <article><span className="um-stat-icon inactive"><Icon name="alert" /></span><span>کاربران غیرفعال</span><strong>{nf.format(stats.inactive || 0)}</strong><small>حساب‌های غیرفعال یا مسدود</small></article>
+      <section className="staff-metrics-grid um-user-metrics" aria-label="آمار کاربران">
+        <article className="staff-metric-card tone-blue">
+          <div className="staff-metric-top"><span className="staff-metric-icon"><Icon name="users" /></span><span className="staff-metric-caption">کل کاربران</span></div>
+          <strong className="staff-metric-value">{nf.format(stats.total || 0)}</strong>
+          <span className="staff-metric-foot">تمام حساب‌های ثبت‌شده در سامانه</span>
+        </article>
+        <article className="staff-metric-card tone-blue">
+          <div className="staff-metric-top"><span className="staff-metric-icon"><Icon name="check" /></span><span className="staff-metric-caption">کاربران فعال</span></div>
+          <strong className="staff-metric-value">{nf.format(stats.active || 0)}</strong>
+          <span className="staff-metric-foot">حساب‌های مجاز به ورود</span>
+        </article>
+        <article className="staff-metric-card tone-blue">
+          <div className="staff-metric-top"><span className="staff-metric-icon"><Icon name="alert" /></span><span className="staff-metric-caption">کاربران غیرفعال</span></div>
+          <strong className="staff-metric-value">{nf.format(stats.inactive || 0)}</strong>
+          <span className="staff-metric-foot">حساب‌های غیرفعال یا مسدود</span>
+        </article>
       </section>
 
-      <section className="um-list-card">
-        <div className="um-list-heading">
-          <div><span className="um-kicker">فهرست حساب‌ها</span><h2>کاربران سامانه</h2><p>جست‌وجو بر اساس نام، نام خانوادگی، کد ملی یا موبایل</p></div>
-          <button type="button" className="um-outline" disabled={loading} onClick={() => setRefreshKey((value) => value + 1)}><Icon name="refresh" size={17} /> به‌روزرسانی</button>
+
+      <section className="staff-list-section um-users-section">
+        <div className="staff-list-heading">
+          <div>
+            <span className="eyebrow">مدیریت و جست‌وجو</span>
+            <h2>فهرست کاربران</h2>
+            <p>کاربران را بر اساس نام، نام خانوادگی، کد ملی یا شماره موبایل پیدا کنید.</p>
+          </div>
+          <div className="staff-list-heading-side">
+            <span className="staff-data-chip"><span className="staff-data-chip-dot" /> {nf.format(pagination.total_items || 0)} نتیجه</span>
+            <button className="staff-refresh-button" type="button" onClick={() => setRefreshKey((value) => value + 1)} disabled={loading} aria-label="به‌روزرسانی فهرست">
+              <span className={loading ? "staff-refresh-icon is-spinning" : "staff-refresh-icon"}>↻</span> به‌روزرسانی
+            </button>
+          </div>
         </div>
-        <div className="um-toolbar">
-          <label className="um-search"><Icon name="search" /><input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="جست‌وجوی نام، کد ملی یا موبایل…" aria-label="جست‌وجوی کاربران" />{searchInput && <button type="button" onClick={() => setSearchInput("")} aria-label="پاک کردن جست‌وجو"><Icon name="close" size={15} /></button>}</label>
-          <span>{nf.format(pagination.total_items || 0)} نتیجه</span>
+
+        <div className="staff-filter-panel um-users-filter">
+          <div className="staff-filter-panel-head">
+            <div className="staff-filter-title"><span aria-hidden="true">⌕</span><strong>جست‌وجوی کاربران</strong></div>
+            {searchInput && <button className="staff-clear-filters" type="button" onClick={() => setSearchInput("")}>پاک کردن جست‌وجو <span>×</span></button>}
+          </div>
+          <div className="staff-filter-grid um-filter-grid">
+            <label className="staff-search-field">
+              <span>نام، نام خانوادگی، کد ملی یا موبایل</span>
+              <div className="staff-search-control">
+                <span className="staff-search-icon" aria-hidden="true"><Icon name="search" size={18} /></span>
+                <input type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="مشخصات کاربر را وارد کنید…" aria-label="جست‌وجوی کاربران" />
+                {searchInput && <button type="button" onClick={() => setSearchInput("")} aria-label="پاک کردن جست‌وجو">×</button>}
+              </div>
+            </label>
+          </div>
         </div>
+
         {loadError && <div className="um-error" role="alert"><Icon name="alert" /><span>{loadError}</span><button type="button" onClick={() => setRefreshKey((value) => value + 1)}>تلاش مجدد</button></div>}
-        <div className="um-table-wrap">
-          <table className="um-table">
-            <thead><tr><th>کاربر</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th></tr></thead>
-            <tbody>
-              {loading ? <tr><td colSpan={6} className="um-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
-                : users.length === 0 ? <tr><td colSpan={6} className="um-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
-                : users.map((user) => <tr key={user.id}>
-                  <td><div className="um-person"><span className="um-avatar">{(user.first_name || user.last_name || "ک").trim().slice(0, 1)}</span><span><strong>{userFullName(user)}</strong><small>حساب سامانه</small></span></div></td>
-                  <td><bdi dir="ltr" className="um-mono">{user.national_id || "—"}</bdi></td>
-                  <td><bdi dir="ltr" className="um-mono">{user.mobile || "—"}</bdi></td>
-                  <td><span className={"um-role" + (user.role === "ADMIN" ? " admin" : "")}>{ROLE_LABELS[user.role] || user.role || "—"}</span></td>
-                  <td><span className={"um-status" + (user.status === "ACTIVE" ? " active" : " inactive")}><i />{user.status === "ACTIVE" ? "فعال" : "غیرفعال"}</span></td>
-                  <td className="um-date">{formatDate(user.created_at)}</td>
-                </tr>)}
-            </tbody>
-          </table>
-        </div>
-        <div className="um-pagination">
-          <span>نمایش {nf.format(firstRow)} تا {nf.format(lastRow)} از {nf.format(pagination.total_items || 0)} کاربر</span>
-          <div><button type="button" disabled={loading || page <= 1} onClick={() => setPage((v) => Math.max(1, v - 1))}>قبلی</button><span>صفحه {nf.format(page)} از {nf.format(totalPages)}</span><button type="button" disabled={loading || page >= totalPages} onClick={() => setPage((v) => Math.min(totalPages, v + 1))}>بعدی</button></div>
+
+        <div className="staff-table-card um-users-table-card">
+          <div className="staff-table-topline">
+            <div><strong>کاربران سامانه</strong><span>{nf.format(pagination.total_items || 0)} نتیجه</span></div>
+            <span className="staff-table-page-size">نمایش {nf.format(firstRow)} تا {nf.format(lastRow)}</span>
+          </div>
+          <div className="staff-table-scroll">
+            <table className="staff-requests-table um-users-table">
+              <thead><tr><th>کاربر</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th></tr></thead>
+              <tbody>
+                {loading ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
+                  : users.length === 0 ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
+                  : users.map((user) => <tr key={user.id}>
+                    <td><div className="staff-applicant-cell"><span className="staff-applicant-avatar">{(user.first_name || user.last_name || "ک").trim().slice(0, 1)}</span><span className="staff-applicant-copy"><strong>{userFullName(user)}</strong><small>{user.status === "ACTIVE" ? "حساب فعال" : "حساب غیرفعال"}</small></span></div></td>
+                    <td><bdi dir="ltr" className="um-mono">{user.national_id || "—"}</bdi></td>
+                    <td><bdi dir="ltr" className="um-mono">{user.mobile || "—"}</bdi></td>
+                    <td><span className={"um-role" + (user.role === "ADMIN" ? " admin" : "")}>{ROLE_LABELS[user.role] || user.role || "—"}</span></td>
+                    <td><span className={"um-status" + (user.status === "ACTIVE" ? " active" : " inactive")}><i />{user.status === "ACTIVE" ? "فعال" : "غیرفعال"}</span></td>
+                    <td><span className="staff-updated-date">{formatDate(user.created_at)}</span></td>
+                  </tr>)}
+              </tbody>
+            </table>
+          </div>
+          {!loadError && !loading && users.length > 0 && (
+            <div className="staff-pagination">
+              <span>نمایش {nf.format(firstRow)} تا {nf.format(lastRow)} از {nf.format(pagination.total_items || 0)} کاربر</span>
+              <div>
+                <button type="button" className="staff-page-button" disabled={page <= 1} onClick={() => setPage((v) => Math.max(1, v - 1))}>قبلی</button>
+                <span className="staff-page-number">{nf.format(page)}</span>
+                <button type="button" className="staff-page-button" disabled={loading || page >= totalPages} onClick={() => setPage((v) => Math.min(totalPages, v + 1))}>بعدی</button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
