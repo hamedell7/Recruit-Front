@@ -397,7 +397,7 @@ body{padding:0}
 .toolbar-actions .primary{background:#fff;color:#142d50;font-weight:700}
 .report{max-width:210mm;margin:26px auto 40px;padding:0 15mm 15mm}
 .brand-head{display:flex;align-items:center;gap:14px;padding:0 0 20px;border-bottom:2px solid var(--navy);position:relative}
-.brand-mark{display:block;object-fit:cover;width:53px;height:53px;flex:0 0 auto;border-radius:15px;background:transparent;box-shadow:none}
+.brand-mark{display:block;object-fit:contain;width:78px;height:78px;flex:0 0 auto;border-radius:15px;background:transparent;box-shadow:none}
 .brand-copy{min-width:0;flex:1}
 .brand-kicker{margin:0 0 3px;color:var(--blue);font-size:9pt;font-weight:700;letter-spacing:.02em}
 .brand-copy h1{margin:0;color:var(--navy);font-size:21pt;font-weight:800;line-height:1.6}
@@ -463,7 +463,7 @@ body{padding:0}
 /* Dense layout used only by the optional compact report. */
 .compact-report .report{max-width:210mm;margin:5px auto;padding:0 2mm 2mm}
 .compact-report .brand-head{gap:5px;padding-bottom:4px;border-bottom-width:1px}
-.compact-report .brand-mark{width:25px;height:25px;border-radius:5px;font-size:18pt;box-shadow:none}
+.compact-report .brand-mark{width:52px;height:52px;border-radius:8px;font-size:18pt;box-shadow:none}
 .compact-report .brand-kicker{font-size:10.5pt;margin-bottom:0}
 .compact-report .brand-copy h1{font-size:19.5pt;line-height:1.25}
 .compact-report .brand-copy p{font-size:10.5pt;margin-top:1px}
@@ -561,7 +561,7 @@ body.compact-report{page:compactReport}
   .screen-toolbar{display:none!important}
   .report{width:auto;max-width:none;margin:0;padding:0}
   .brand-head{padding-bottom:13px}
-  .brand-mark{width:45px;height:45px}
+  .brand-mark{width:68px;height:68px}
   .brand-copy h1{font-size:17pt}
   .meta-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0 9px}
   .meta-item{padding:7px}
