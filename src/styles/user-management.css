@@ -181,12 +181,33 @@
   vertical-align: middle;
 }
 
-.user-management-page .um-users-table th:nth-child(1) { width: 27%; }
-.user-management-page .um-users-table th:nth-child(2) { width: 15%; }
-.user-management-page .um-users-table th:nth-child(3) { width: 16%; }
-.user-management-page .um-users-table th:nth-child(4) { width: 15%; }
-.user-management-page .um-users-table th:nth-child(5) { width: 11%; }
-.user-management-page .um-users-table th:nth-child(6) { width: 16%; }
+.user-management-page .um-users-table th:nth-child(1) { width: 5%; }
+.user-management-page .um-users-table th:nth-child(2) { width: 8%; }
+.user-management-page .um-users-table th:nth-child(3) { width: 15%; }
+.user-management-page .um-users-table th:nth-child(4) { width: 14%; }
+.user-management-page .um-users-table th:nth-child(5) { width: 13%; }
+.user-management-page .um-users-table th:nth-child(6) { width: 12%; }
+.user-management-page .um-users-table th:nth-child(7) { width: 12%; }
+.user-management-page .um-users-table th:nth-child(8) { width: 21%; }
+
+.user-management-page .um-users-table .um-avatar-cell {
+  text-align: center;
+}
+
+.user-management-page .um-users-table .um-row-number {
+  display: inline-flex;
+  min-width: 27px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border: 1px solid #e2e9f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #7b8da1;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 
 .user-management-page .um-users-table .staff-applicant-cell {
   min-width: 0;
