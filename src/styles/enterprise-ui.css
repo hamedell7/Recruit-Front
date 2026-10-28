@@ -58,7 +58,6 @@
 .brand { gap: 11px; }
 .brand-mark {
   border-radius: 12px;
-  box-shadow: 0 5px 13px rgba(23,59,115,.17);
 }
 .brand strong { color: var(--enterprise-ink); letter-spacing: -.02em; }
 .brand span { font-size: 11px; }
