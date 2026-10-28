@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import brandLogo from "../../assets/brand-logo.png";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
 import { formatDate } from "../../utils/date";
@@ -212,7 +213,7 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
           <div className="ud-visual-orbit ud-orbit-two" />
           <div className="ud-visual-card">
             <div className="ud-visual-card-head">
-              <img className="ud-visual-card-mark" src="/brand-logo.png" alt="" />
+              <img className="ud-visual-card-mark" src={brandLogo} alt="" />
               <div><strong>مسیر پرونده</strong><small>نمای کلی مراحل</small></div>
               <span className="ud-visual-live"><i /> پیگیری</span>
             </div>

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import brandLogo from "../../assets/brand-logo.png";
 import { api } from "../../services/api";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import { getFieldError } from "../../utils/validation";
@@ -74,7 +75,7 @@ function Login({ onLogin }) {
       <div className="auth-showcase">
         <div className="showcase-top">
           <div className="brand">
-            <img className="brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
+            <img className="brand-mark" src={brandLogo} alt="" aria-hidden="true" />
             <div>
               <strong>سامانه جامع گزینش</strong>
               <span>مدیریت فرایندهای گزینش و پرونده‌ها</span>

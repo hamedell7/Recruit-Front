@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import brandLogo from "../../assets/brand-logo.png";
 import "../../styles/staff-menu.css";
 
 const ROLE_LABELS = {
@@ -197,7 +198,7 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
             </button>
           )}
           <div className="brand">
-            <img className="brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
+            <img className="brand-mark" src={brandLogo} alt="" aria-hidden="true" />
             <div><strong>سامانه جامع گزینش</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
           </div>
         </div>
@@ -242,7 +243,7 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
         
                           <div className="staff-drawer-hero-top">
                             <div className="staff-drawer-brand">
-                              <img className="staff-drawer-brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
+                              <img className="staff-drawer-brand-mark" src={brandLogo} alt="" aria-hidden="true" />
                               <span className="staff-drawer-brand-wordmark">
                                 <strong>سامانه جامع گزینش</strong>
                               </span>

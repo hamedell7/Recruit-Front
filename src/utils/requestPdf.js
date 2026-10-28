@@ -2,6 +2,7 @@ import { STATUS } from "../config/workflow";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
+import brandLogo from "../assets/brand-logo.png?no-inline";
 import { pdfStepSectionKey, pdfStepEmptyMessage } from "./pdfSections";
 
 const FIELD_LABELS = {
@@ -355,6 +356,7 @@ function renderHtml(report, { compact = false, sections = null } = {}) {
   const generatedAt = new Date().toLocaleString("fa-IR-u-ca-persian", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
   const title = `${compact ? "گزارش فشرده پرونده" : "گزارش پرونده"} - ${safeTracking}`;
+  const brandLogoUrl = new URL(brandLogo, window.location.href).href;
   const progress = steps.map((step) => {
     const meta = { title: step.title || step.key };
     return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;
@@ -612,7 +614,7 @@ body.compact-report{page:compactReport}
 </div>
 <main class="report">
  <header class="brand-head">
-  <img class="brand-mark" src="${window.location.origin}/brand-logo.png" alt="" />
+  <img class="brand-mark" src="${brandLogoUrl}" alt="" />
   <div class="brand-copy"><p class="brand-kicker">سامانه جامع گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
   <div class="security-tag">اطلاعات شخصی<br>ویژه استفاده مجاز</div>
  </header>
