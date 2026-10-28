@@ -600,3 +600,39 @@
     transition: none;
   }
 }
+
+
+/* Role filter in the user-management list. */
+.user-management-page .um-filter-grid {
+  grid-template-columns: minmax(280px, 1.2fr) minmax(220px, .8fr);
+  align-items: end;
+}
+
+.user-management-page .um-filter-grid .um-role-filter {
+  max-width: none;
+}
+
+.user-management-page .um-role-filter select {
+  width: 100%;
+  min-height: 43px;
+  padding: 9px 12px;
+  border: 1px solid #dce5ee;
+  border-radius: 10px;
+  background: #fff;
+  color: #314b66;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.user-management-page .um-role-filter select:focus {
+  border-color: #8fb4d8;
+  box-shadow: 0 0 0 3px rgba(66, 117, 178, .1);
+}
+
+@media (max-width: 700px) {
+  .user-management-page .um-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

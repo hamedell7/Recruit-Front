@@ -55,6 +55,7 @@ function UserManagement({ onError, onViewRequests }) {
   const [pagination, setPagination] = useState({ page: 1, page_size: PAGE_SIZE, total_items: 0, total_pages: 0 });
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -80,7 +81,7 @@ function UserManagement({ onError, onViewRequests }) {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true); setLoadError("");
-    api.staffUsers({ page, page_size: PAGE_SIZE, search }, controller.signal)
+    api.staffUsers({ page, page_size: PAGE_SIZE, search, role: roleFilter }, controller.signal)
       .then((data) => {
         setUsers(Array.isArray(data?.items) ? data.items : []);
         setStats(data?.stats || { total: 0, active: 0, inactive: 0 });
@@ -89,7 +90,7 @@ function UserManagement({ onError, onViewRequests }) {
       .catch((error) => { if (error.name !== "AbortError") setLoadError(error.message || "دریافت فهرست کاربران انجام نشد."); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [page, search, refreshKey]);
+  }, [page, search, roleFilter, refreshKey]);
 
   const invalidRows = useMemo(() => importRows.filter((row) => row.errors?.length), [importRows]);
   const canImport = importRows.length > 0 && invalidRows.length === 0 && !reading && !importing;
@@ -114,7 +115,7 @@ function UserManagement({ onError, onViewRequests }) {
       const result = await api.importStaffUsers({ users: importRows.map((row) => ({
         national_id: row.national_id, mobile: row.mobile, source_row: row.sourceRow,
       })) });
-      setImportResult(result); setPage(1); setSearch(""); setSearchInput(""); setRefreshKey((value) => value + 1);
+      setImportResult(result); setPage(1); setSearch(""); setSearchInput(""); setRoleFilter(""); setRefreshKey((value) => value + 1);
       onError?.({ type: "success", text: nf.format(result?.created_count || 0) + " کاربر ثبت شد؛ " + nf.format(result?.skipped_count || 0) + " ردیف تکراری رد شد." });
     } catch (error) { setFileError(error.message || "ثبت کاربران انجام نشد."); }
     finally { setImporting(false); }
@@ -264,7 +265,7 @@ function UserManagement({ onError, onViewRequests }) {
         <div className="staff-filter-panel um-users-filter">
           <div className="staff-filter-panel-head">
             <div className="staff-filter-title"><span aria-hidden="true">⌕</span><strong>جست‌وجوی کاربران</strong></div>
-            {searchInput && <button className="staff-clear-filters" type="button" onClick={() => setSearchInput("")}>پاک کردن جست‌وجو <span>×</span></button>}
+            {(searchInput || roleFilter) && <button className="staff-clear-filters" type="button" onClick={() => { setSearchInput(""); setRoleFilter(""); setPage(1); }}>پاک کردن فیلترها <span>×</span></button>}
           </div>
           <div className="staff-filter-grid um-filter-grid">
             <label className="staff-search-field">
@@ -274,6 +275,19 @@ function UserManagement({ onError, onViewRequests }) {
                 <input type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="کد ملی یا شماره موبایل را وارد کنید…" aria-label="جست‌وجوی کاربران" />
                 {searchInput && <button type="button" onClick={() => setSearchInput("")} aria-label="پاک کردن جست‌وجو">×</button>}
               </div>
+            </label>
+            <label className="staff-search-field um-role-filter">
+              <span>فیلتر بر اساس نقش</span>
+              <select
+                value={roleFilter}
+                onChange={(event) => { setRoleFilter(event.target.value); setPage(1); }}
+                aria-label="فیلتر بر اساس نقش کاربر"
+              >
+                <option value="">همه نقش‌ها</option>
+                {Object.entries(ROLE_LABELS).map(([role, label]) => (
+                  <option key={role} value={role}>{label}</option>
+                ))}
+              </select>
             </label>
           </div>
         </div>
@@ -290,7 +304,7 @@ function UserManagement({ onError, onViewRequests }) {
               <thead><tr><th>ردیف</th><th>آواتار</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>درخواست‌ها</th><th>عملیات</th></tr></thead>
               <tbody>
                 {loading ? <tr><td colSpan={9} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
-                  : users.length === 0 ? <tr><td colSpan={9} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
+                  : users.length === 0 ? <tr><td colSpan={9} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search || roleFilter ? "کاربری با این فیلترها پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search || roleFilter ? "عبارت جست‌وجو یا نقش انتخاب‌شده را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
                   : users.map((user, index) => <tr key={user.id}>
                     <td><span className="um-row-number">{nf.format((page - 1) * PAGE_SIZE + index + 1)}</span></td>
                     <td className="um-avatar-cell">
