@@ -89,8 +89,9 @@ function StaffRequestsDashboard({ onError, user }) {
   const [metadataLoading, setMetadataLoading] = useState(true);
   const [metadataError, setMetadataError] = useState("");
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const initialSearch = new URLSearchParams(window.location.search).get("search") || "";
+  const [searchInput, setSearchInput] = useState(initialSearch);
+  const [search, setSearch] = useState(initialSearch);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("");
@@ -935,7 +936,7 @@ function getStaffWorkspace(pathname, role) {
   return "requests";
 }
 
-function StaffDashboard({ onError, user }) {
+function StaffDashboard({ onError, user, onViewUserRequests }) {
   const [workspace, setWorkspace] = useState(() => getStaffWorkspace(window.location.pathname, user?.role));
 
   useEffect(() => {
@@ -977,7 +978,7 @@ function StaffDashboard({ onError, user }) {
   }
 
   if (workspace === "users" && user?.role === "ADMIN") {
-    return <UserManagement onError={onError} />;
+    return <UserManagement onError={onError} onViewRequests={onViewUserRequests} />;
   }
 
   return <StaffRequestsDashboard user={user} onError={onError} />;

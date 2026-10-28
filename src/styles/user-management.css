@@ -330,3 +330,47 @@
     min-width: 980px;
   }
 }
+
+
+/* Per-user shortcut to the request list, scoped to the user-management table. */
+.user-management-page .um-user-requests-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #cfe0ef;
+  border-radius: 9px;
+  background: #f3f8fd;
+  color: #2d668f;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.user-management-page .um-user-requests-button:hover:not(:disabled) {
+  border-color: #a9c9e1;
+  background: #e8f3fc;
+  transform: translateY(-1px);
+}
+
+.user-management-page .um-user-requests-button:focus-visible {
+  outline: 3px solid rgba(62, 132, 179, .25);
+  outline-offset: 2px;
+}
+
+.user-management-page .um-user-requests-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-management-page .um-user-requests-button {
+    transition: none;
+  }
+}

@@ -92,6 +92,24 @@ function App() {
     setView("dashboard");
   };
 
+  const navigateToUserRequests = (targetUser) => {
+    if (user?.role !== "ADMIN") return;
+
+    const searchTerm = String(targetUser?.national_id || targetUser?.mobile || "").trim();
+    if (!searchTerm) {
+      setToast({ type: "error", text: "برای این کاربر کد ملی یا شماره موبایل ثبت نشده است." });
+      return;
+    }
+
+    const query = new URLSearchParams({ search: searchTerm }).toString();
+    const path = "/staff/requests?" + query;
+    window.history.pushState({ view: "dashboard", workspace: "/staff/requests", search: searchTerm }, "", path);
+    setStaffPath("/staff/requests");
+    setActiveRequest(null);
+    setActiveStaffRequestId(null);
+    setView("dashboard");
+  };
+
   const backToStaffRequests = () => {
     navigateStaffWorkspace("/staff/requests");
   };
@@ -272,6 +290,7 @@ function App() {
                 key={staffPath}
                 user={user}
                 onError={setToast}
+                onViewUserRequests={navigateToUserRequests}
               />
             ) : (
               <Dashboard
