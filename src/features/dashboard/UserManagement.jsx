@@ -11,6 +11,7 @@ const ROLE_LABELS = { APPLICANT: "متقاضی", OFFICER: "کارشناس", REVI
 function Icon({ name, size = 20 }) {
   const icons = {
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="10" cy="7" r="4" /><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></>,
+    user: <><circle cx="12" cy="8" r="3.5" /><path d="M5 20a7 7 0 0 1 14 0" /></>,
     requests: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h6" /></>,
     upload: <><path d="M12 16V4m-5 5 5-5 5 5" /><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></>,
     download: <><path d="M12 4v12m-5-5 5 5 5-5" /><path d="M4 18v2h16v-2" /></>,
@@ -39,6 +40,17 @@ function downloadTemplate() {
 function formatDate(value) {
   if (!value || Number.isNaN(new Date(value).getTime())) return "—";
   return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "short", day: "numeric" }).format(new Date(value));
+}
+
+function avatarTone(user) {
+  const seed = String(user?.id || user?.national_id || user?.mobile || "user");
+  let hash = 0;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) | 0;
+  }
+
+  return Math.abs(hash % 5);
 }
 function UserManagement({ onError, onViewRequests }) {
   const [users, setUsers] = useState([]);
@@ -191,12 +203,19 @@ function UserManagement({ onError, onViewRequests }) {
           </div>
           <div className="staff-table-scroll">
             <table className="staff-requests-table um-users-table">
-              <thead><tr><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>درخواست‌ها</th></tr></thead>
+              <thead><tr><th>حساب کاربری / کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>درخواست‌ها</th></tr></thead>
               <tbody>
                 {loading ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
                   : users.length === 0 ? <tr><td colSpan={6} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
                   : users.map((user) => <tr key={user.id}>
-                    <td><bdi dir="ltr" className="um-mono">{user.national_id || "—"}</bdi></td>
+                    <td>
+                      <div className="um-user-account">
+                        <span className={"um-user-avatar um-user-avatar-tone-" + avatarTone(user)} aria-hidden="true">
+                          <Icon name="user" size={19} />
+                        </span>
+                        <bdi dir="ltr" className="um-mono">{user.national_id || "—"}</bdi>
+                      </div>
+                    </td>
                     <td><bdi dir="ltr" className="um-mono">{user.mobile || "—"}</bdi></td>
                     <td><span className={"um-role" + (user.role === "ADMIN" ? " admin" : "")}>{ROLE_LABELS[user.role] || user.role || "—"}</span></td>
                     <td><span className={"um-status" + (user.status === "ACTIVE" ? " active" : " inactive")}><i />{user.status === "ACTIVE" ? "فعال" : "غیرفعال"}</span></td>

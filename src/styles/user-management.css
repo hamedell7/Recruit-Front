@@ -374,3 +374,71 @@
     transition: none;
   }
 }
+
+
+/* Decorative user avatars in the account list (no uploaded profile photos required). */
+.user-management-page .um-user-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.user-management-page .um-user-avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+.user-management-page .um-user-avatar svg {
+  display: block;
+}
+
+.user-management-page .um-user-avatar-tone-0 {
+  border-color: #d9e8f8;
+  background: linear-gradient(145deg, #eef6ff, #dbeafe);
+  color: #326da4;
+}
+
+.user-management-page .um-user-avatar-tone-1 {
+  border-color: #d7eee6;
+  background: linear-gradient(145deg, #effbf6, #d8f3e8);
+  color: #287b64;
+}
+
+.user-management-page .um-user-avatar-tone-2 {
+  border-color: #e5def9;
+  background: linear-gradient(145deg, #f7f3ff, #e9e2ff);
+  color: #7456aa;
+}
+
+.user-management-page .um-user-avatar-tone-3 {
+  border-color: #f2e3d1;
+  background: linear-gradient(145deg, #fff8ed, #f8e9d4);
+  color: #a56a2e;
+}
+
+.user-management-page .um-user-avatar-tone-4 {
+  border-color: #d9e9ed;
+  background: linear-gradient(145deg, #effafd, #d9f0f4);
+  color: #337d8b;
+}
+
+@media (max-width: 540px) {
+  .user-management-page .um-user-avatar {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    border-radius: 11px;
+  }
+
+  .user-management-page .um-user-account {
+    gap: 8px;
+  }
+}
