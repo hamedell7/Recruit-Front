@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import brandLogo from "../../assets/brand-logo.png";
+import { brandLogo } from "../../assets/images";
 import { api } from "../../services/api";
 import { normalizeList } from "../../utils/collections";
 import { formatDate } from "../../utils/date";

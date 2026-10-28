@@ -2,7 +2,7 @@ import { STATUS } from "../config/workflow";
 import regularFont from "../assets/fonts/IRANYekanWebRegular.woff2?url";
 import mediumFont from "../assets/fonts/IRANYekanWebMedium.woff2?url";
 import boldFont from "../assets/fonts/IRANYekanWebBold.woff2?url";
-import brandLogo from "../assets/brand-logo.png?no-inline";
+import { brandLogoPdf } from "../assets/images";
 import { pdfStepSectionKey, pdfStepEmptyMessage } from "./pdfSections";
 
 const FIELD_LABELS = {
@@ -356,7 +356,7 @@ function renderHtml(report, { compact = false, sections = null } = {}) {
   const generatedAt = new Date().toLocaleString("fa-IR-u-ca-persian", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
   const safeTracking = String(request.tracking_code || "request").replace(/[^\w\-]/g, "-");
   const title = `${compact ? "گزارش فشرده پرونده" : "گزارش پرونده"} - ${safeTracking}`;
-  const brandLogoUrl = new URL(brandLogo, window.location.href).href;
+  const brandLogoUrl = new URL(brandLogoPdf, window.location.href).href;
   const progress = steps.map((step) => {
     const meta = { title: step.title || step.key };
     return `<div class="progress-item"><span class="progress-dot ${stepStatusClass(step.status)}"></span><span>${escapeHtml(meta.title)}</span></div>`;

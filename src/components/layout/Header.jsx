@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import brandLogo from "../../assets/brand-logo.png";
+import { brandLogo } from "../../assets/images";
 import "../../styles/staff-menu.css";
 
 const ROLE_LABELS = {

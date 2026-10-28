@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import brandLogo from "../../assets/brand-logo.png";
+import { brandLogo } from "../../assets/images";
 import { api } from "../../services/api";
 import ValidationSummary from "../../components/form/ValidationSummary";
 import { getFieldError } from "../../utils/validation";
