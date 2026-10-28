@@ -636,3 +636,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Compact user-management filters: keep controls and labels tightly aligned. */
+.user-management-page .um-filter-grid {
+  gap: 0;
+}
+
+.user-management-page .um-filter-grid .staff-search-field {
+  gap: 0;
+}
