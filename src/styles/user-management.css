@@ -435,3 +435,168 @@
     gap: 8px;
   }
 }
+
+
+/* User identity editing and activation controls in the admin table. */
+.user-management-page .um-users-table {
+  min-width: 1180px;
+}
+
+.user-management-page .um-users-table th:nth-child(1) { width: 5%; }
+.user-management-page .um-users-table th:nth-child(2) { width: 6%; }
+.user-management-page .um-users-table th:nth-child(3) { width: 12%; }
+.user-management-page .um-users-table th:nth-child(4) { width: 13%; }
+.user-management-page .um-users-table th:nth-child(5) { width: 10%; }
+.user-management-page .um-users-table th:nth-child(6) { width: 9%; }
+.user-management-page .um-users-table th:nth-child(7) { width: 10%; }
+.user-management-page .um-users-table th:nth-child(8) { width: 15%; }
+.user-management-page .um-users-table th:nth-child(9) { width: 20%; }
+
+.user-management-page .um-user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.user-management-page .um-user-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 33px;
+  padding: 6px 9px;
+  border: 1px solid #dce5ee;
+  border-radius: 9px;
+  background: #fff;
+  color: #4d647e;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.user-management-page .um-user-edit-button {
+  border-color: #cfe0f0;
+  background: #f3f8fd;
+  color: #326d9a;
+}
+
+.user-management-page .um-user-status-button.is-deactivate {
+  border-color: #f0dfc9;
+  background: #fff9f0;
+  color: #976425;
+}
+
+.user-management-page .um-user-status-button.is-activate {
+  border-color: #cde9dc;
+  background: #f1faf5;
+  color: #287a59;
+}
+
+.user-management-page .um-user-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(.98);
+}
+
+.user-management-page .um-user-action-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.user-management-page .um-user-protected-account {
+  display: inline-flex;
+  padding: 6px 9px;
+  border: 1px solid #e3e8ef;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #8592a2;
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.user-management-page .um-edit-dialog {
+  width: min(540px, 100%);
+}
+
+.user-management-page .um-edit-form {
+  padding-top: 17px;
+}
+
+.user-management-page .um-edit-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 22px 18px;
+}
+
+.user-management-page .um-edit-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #516780;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.user-management-page .um-edit-fields input {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #dbe4ed;
+  border-radius: 10px;
+  background: #fbfdff;
+  color: #29435f;
+  font: inherit;
+  font-size: 13px;
+  direction: ltr;
+  text-align: left;
+  outline: none;
+}
+
+.user-management-page .um-edit-fields input:focus {
+  border-color: #89b7d8;
+  box-shadow: 0 0 0 3px rgba(71, 139, 184, .13);
+}
+
+.user-management-page .um-edit-form .ui-error {
+  margin-right: 22px;
+  margin-left: 22px;
+}
+
+.user-management-page .um-edit-form .ui-footer {
+  position: static;
+  margin-top: 3px;
+  flex-wrap: wrap;
+  background: #fff;
+}
+
+.user-management-page .um-edit-form .ui-footer > span {
+  flex: 1 1 150px;
+}
+
+@media (max-width: 620px) {
+  .user-management-page .um-user-actions {
+    min-width: 220px;
+  }
+
+  .user-management-page .um-edit-fields {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .user-management-page .um-edit-form .ui-footer {
+    padding: 12px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-management-page .um-user-action-button {
+    transition: none;
+  }
+}

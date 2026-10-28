@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import AdminBreadcrumb from "../../components/layout/AdminBreadcrumb";
-import { readUserSpreadsheet } from "../../utils/userSpreadsheet";
+import {
+  isValidIranianNationalId,
+  normalizeMobileForImport,
+  normalizeNationalIdForImport,
+  readUserSpreadsheet,
+} from "../../utils/userSpreadsheet";
 import "../../styles/user-management.css";
 
 const nf = new Intl.NumberFormat("fa-IR");
@@ -20,6 +25,8 @@ function Icon({ name, size = 20 }) {
     alert: <><path d="M12 3 2.5 20h19L12 3Z" /><path d="M12 9v4m0 3h.01" /></>,
     file: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h8" /></>,
     refresh: <><path d="M20 7v5h-5M4 17v-5h5" /><path d="M5.5 9A7 7 0 0 1 17 6l3 6M4 12l3 6a7 7 0 0 0 11.5-3" /></>,
+    edit: <><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" /></>,
+    power: <><path d="M12 2v10" /><path d="M18.4 5.6a8 8 0 1 1-12.8 0" /></>,
     close: <path d="m6 6 12 12M18 6 6 18" />,
   };
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[name] || icons.users}</svg>;
@@ -52,6 +59,11 @@ function UserManagement({ onError, onViewRequests }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({ national_id: "", mobile: "" });
+  const [editError, setEditError] = useState("");
+  const [savingUser, setSavingUser] = useState(false);
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
   const [importOpen, setImportOpen] = useState(false);
   const [fileName, setFileName] = useState("");
   const [importRows, setImportRows] = useState([]);
@@ -106,6 +118,88 @@ function UserManagement({ onError, onViewRequests }) {
       onError?.({ type: "success", text: nf.format(result?.created_count || 0) + " کاربر ثبت شد؛ " + nf.format(result?.skipped_count || 0) + " ردیف تکراری رد شد." });
     } catch (error) { setFileError(error.message || "ثبت کاربران انجام نشد."); }
     finally { setImporting(false); }
+  }
+
+  function openUserEditor(user) {
+    if (!user || user.role === "ADMIN") return;
+    setEditingUser(user);
+    setEditForm({
+      national_id: String(user.national_id || ""),
+      mobile: String(user.mobile || ""),
+    });
+    setEditError("");
+  }
+
+  function closeUserEditor() {
+    if (savingUser) return;
+    setEditingUser(null);
+    setEditForm({ national_id: "", mobile: "" });
+    setEditError("");
+  }
+
+  async function saveUserChanges(event) {
+    event.preventDefault();
+    if (!editingUser || savingUser || editingUser.role === "ADMIN") return;
+
+    const national_id = normalizeNationalIdForImport(editForm.national_id);
+    const mobile = normalizeMobileForImport(editForm.mobile);
+    if (!isValidIranianNationalId(national_id)) {
+      setEditError("کد ملی معتبر نیست؛ رقم کنترلی را بررسی کنید.");
+      return;
+    }
+    if (!/^09\d{9}$/.test(mobile)) {
+      setEditError("شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود.");
+      return;
+    }
+
+    setSavingUser(true);
+    setEditError("");
+    try {
+      const updated = await api.updateStaffUser(editingUser.id, { national_id, mobile });
+      setUsers((current) => current.map((user) =>
+        String(user.id) === String(updated?.id || editingUser.id) ? { ...user, ...updated } : user
+      ));
+      setEditingUser(null);
+      setEditForm({ national_id: "", mobile: "" });
+      setRefreshKey((value) => value + 1);
+      onError?.({
+        type: "success",
+        text: "اطلاعات کاربر ذخیره شد؛ برای امنیت، نشست‌های فعال او لغو شدند.",
+      });
+    } catch (error) {
+      setEditError(error.message || "ذخیره اطلاعات کاربر انجام نشد.");
+    } finally {
+      setSavingUser(false);
+    }
+  }
+
+  async function toggleUserStatus(user) {
+    if (!user || user.role === "ADMIN" || statusUpdatingId !== null) return;
+    const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    if (nextStatus === "INACTIVE" && !window.confirm(
+      "این کاربر غیرفعال شود؟ ورود جدید او مسدود و نشست‌های فعالش لغو می‌شود."
+    )) return;
+
+    setStatusUpdatingId(String(user.id));
+    try {
+      const updated = await api.updateStaffUserStatus(user.id, nextStatus);
+      setUsers((current) => current.map((item) =>
+        String(item.id) === String(user.id) ? { ...item, ...updated } : item
+      ));
+      setRefreshKey((value) => value + 1);
+      onError?.({
+        type: "success",
+        text: nextStatus === "ACTIVE" ? "حساب کاربر فعال شد." : "حساب کاربر غیرفعال شد.",
+      });
+    } catch (error) {
+      onError?.({
+        type: "error",
+        text: error.message || "تغییر وضعیت کاربر انجام نشد.",
+        requestId: error.requestId,
+      });
+    } finally {
+      setStatusUpdatingId(null);
+    }
   }
 
   function closeImport() {
@@ -193,10 +287,10 @@ function UserManagement({ onError, onViewRequests }) {
           </div>
           <div className="staff-table-scroll">
             <table className="staff-requests-table um-users-table">
-              <thead><tr><th>ردیف</th><th>آواتار</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>درخواست‌ها</th></tr></thead>
+              <thead><tr><th>ردیف</th><th>آواتار</th><th>کد ملی</th><th>موبایل</th><th>نقش</th><th>وضعیت</th><th>تاریخ عضویت</th><th>درخواست‌ها</th><th>عملیات</th></tr></thead>
               <tbody>
-                {loading ? <tr><td colSpan={8} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
-                  : users.length === 0 ? <tr><td colSpan={8} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
+                {loading ? <tr><td colSpan={9} className="um-user-table-message"><span className="um-spinner" /> در حال دریافت کاربران…</td></tr>
+                  : users.length === 0 ? <tr><td colSpan={9} className="um-user-table-message"><span className="um-empty"><Icon name="users" size={25} /></span><strong>{search ? "کاربری با این مشخصات پیدا نشد" : "هنوز کاربری برای نمایش وجود ندارد"}</strong><span>{search ? "عبارت جست‌وجو را تغییر دهید." : "می‌توانید کاربران را از طریق اکسل اضافه کنید."}</span></td></tr>
                   : users.map((user, index) => <tr key={user.id}>
                     <td><span className="um-row-number">{nf.format((page - 1) * PAGE_SIZE + index + 1)}</span></td>
                     <td className="um-avatar-cell">
@@ -222,6 +316,34 @@ function UserManagement({ onError, onViewRequests }) {
                         مشاهده درخواست‌ها
                       </button>
                     </td>
+                    <td>
+                      {user.role === "ADMIN" ? (
+                        <span className="um-user-protected-account">حساب مدیر محافظت‌شده</span>
+                      ) : (
+                        <div className="um-user-actions">
+                          <button
+                            type="button"
+                            className="um-user-action-button um-user-edit-button"
+                            onClick={() => openUserEditor(user)}
+                            disabled={savingUser || statusUpdatingId !== null}
+                            title="ویرایش کد ملی یا شماره موبایل"
+                          >
+                            <Icon name="edit" size={15} />
+                            ویرایش
+                          </button>
+                          <button
+                            type="button"
+                            className={"um-user-action-button um-user-status-button " + (user.status === "ACTIVE" ? "is-deactivate" : "is-activate")}
+                            onClick={() => toggleUserStatus(user)}
+                            disabled={statusUpdatingId !== null || savingUser}
+                            title={user.status === "ACTIVE" ? "غیرفعال کردن حساب کاربر" : "فعال کردن حساب کاربر"}
+                          >
+                            <Icon name="power" size={15} />
+                            {statusUpdatingId === String(user.id) ? "در حال ثبت…" : user.status === "ACTIVE" ? "غیرفعال‌سازی" : "فعال‌سازی"}
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>)}
               </tbody>
             </table>
@@ -238,6 +360,60 @@ function UserManagement({ onError, onViewRequests }) {
           )}
         </div>
       </section>
+
+      {editingUser && <div className="ui-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeUserEditor(); }}>
+        <section className="ui-dialog um-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="um-edit-title" dir="rtl">
+          <header className="ui-header">
+            <span className="ui-title-icon"><Icon name="edit" size={23} /></span>
+            <div>
+              <span className="um-kicker">ویرایش حساب</span>
+              <h2 id="um-edit-title">تغییر مشخصات کاربر</h2>
+              <p>کد ملی و شماره موبایل جدید را وارد و ذخیره کنید.</p>
+            </div>
+            <button type="button" className="ui-close" onClick={closeUserEditor} disabled={savingUser} aria-label="بستن"><Icon name="close" /></button>
+          </header>
+          <form className="um-edit-form" onSubmit={saveUserChanges}>
+            <div className="um-edit-fields">
+              <label>
+                <span>کد ملی</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={editForm.national_id}
+                  onChange={(event) => setEditForm((current) => ({ ...current, national_id: event.target.value }))}
+                  placeholder="کد ملی ۱۰ رقمی"
+                  maxLength={10}
+                  required
+                />
+              </label>
+              <label>
+                <span>شماره موبایل</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  value={editForm.mobile}
+                  onChange={(event) => setEditForm((current) => ({ ...current, mobile: event.target.value }))}
+                  placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                  maxLength={15}
+                  required
+                />
+              </label>
+            </div>
+            {editError && <div className="ui-error" role="alert"><Icon name="alert" size={18} /><span>{editError}</span></div>}
+            <footer className="ui-footer">
+              <span>حساب مدیر سامانه از ویرایش و تغییر وضعیت مستثنا است.</span>
+              <div>
+                <button type="button" className="ui-cancel" onClick={closeUserEditor} disabled={savingUser}>انصراف</button>
+                <button type="submit" className="ui-submit" disabled={savingUser}>
+                  {savingUser ? "در حال ذخیره…" : "ذخیره تغییرات"}
+                </button>
+              </div>
+            </footer>
+          </form>
+        </section>
+      </div>}
 
       {importOpen && <div className="ui-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeImport(); }}>
         <section className="ui-dialog" role="dialog" aria-modal="true" aria-labelledby="ui-title" dir="rtl">

@@ -75,6 +75,14 @@ const api = {
     return apiFetch("/staff/users" + (query ? "?" + query : ""), { signal });
   },
   importStaffUsers: (payload) => apiFetch("/staff/users/import", { method: "POST", body: payload }),
+  updateStaffUser: (userId, payload) => apiFetch("/staff/users/" + path(userId), {
+    method: "PUT",
+    body: payload,
+  }),
+  updateStaffUserStatus: (userId, status) => apiFetch("/staff/users/" + path(userId) + "/status", {
+    method: "PATCH",
+    body: { status },
+  }),
   stepData: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key)),
   stepDraft: (id, key) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft"),
   saveDraft: (id, key, data, signal) => apiFetch("/requests/" + path(id) + "/steps/" + path(key) + "/draft", { method: "PUT", body: { data }, signal }),
