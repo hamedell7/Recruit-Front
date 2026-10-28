@@ -107,8 +107,20 @@ function attributes(source) {
   return result;
 }
 
+function attributeByLocalName(items, name) {
+  const found = Object.entries(items).find(([key]) => key === name || key.endsWith(":" + name));
+  return found?.[1];
+}
+
+function xmlElementPattern(name) {
+  const tag = "(?:[A-Za-z_][\\w.-]*:)?" + name;
+  return new RegExp("<" + tag + "\\b([^>]*?)(?:>([\\s\\S]*?)</" + tag + "\\s*>|\\s*\\/>)", "g");
+}
+
 function textRuns(source) {
-  return [...String(source).matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g)].map((item) => decodeXml(item[1])).join("");
+  return [...String(source).matchAll(xmlElementPattern("t"))]
+    .map((item) => decodeXml(item[2] || ""))
+    .join("");
 }
 
 function normalizeZipPath(path) {
@@ -148,6 +160,7 @@ async function parseXlsx(buffer) {
     entries.set(name, { method, compressedSize, localOffset });
     cursor += 46 + nameLength + extraLength + commentLength;
   }
+
   async function readEntry(name) {
     const item = entries.get(name);
     if (!item) return null;
@@ -167,47 +180,69 @@ async function parseXlsx(buffer) {
       throw new Error("فشرده‌سازی فایل اکسل قابل خواندن نیست؛ فایل را دوباره ذخیره یا به CSV تبدیل کنید.");
     }
   }
+
   const workbook = await readEntry("xl/workbook.xml");
   const rels = await readEntry("xl/_rels/workbook.xml.rels");
   if (!workbook || !rels) throw new Error("برگه‌های فایل اکسل پیدا نشدند.");
-  const firstSheet = workbook.match(/<sheet\b([^>]*?)\/?\s*>/);
-  if (!firstSheet) throw new Error("فایل اکسل هیچ برگه‌ای ندارد.");
-  const sheetAttrs = attributes(firstSheet[1]);
-  const relId = sheetAttrs["r:id"];
-  const relationship = [...rels.matchAll(/<Relationship\b([^>]*?)\/?\s*>/g)]
-    .map((item) => attributes(item[1])).find((item) => item.Id === relId);
-  if (!relationship?.Target) throw new Error("برگه اول اکسل قابل شناسایی نیست.");
-  const path = relationship.Target.startsWith("/") ? normalizeZipPath(relationship.Target.slice(1)) : normalizeZipPath("xl/" + relationship.Target);
-  const sheet = await readEntry(path);
-  if (!sheet) throw new Error("محتوای برگه اول اکسل خوانده نشد.");
+
+  const sheets = [...workbook.matchAll(xmlElementPattern("sheet"))]
+    .map((item) => attributes(item[1]));
+  if (!sheets.length) throw new Error("فایل اکسل هیچ برگه‌ای ندارد.");
+
+  const relationships = [...rels.matchAll(xmlElementPattern("Relationship"))]
+    .map((item) => attributes(item[1]));
+  const relationshipById = new Map(relationships.map((item) => [item.Id, item]));
   const sharedXml = await readEntry("xl/sharedStrings.xml");
-  const sharedStrings = sharedXml ? [...sharedXml.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g)].map((item) => textRuns(item[1])) : [];
-  const output = [];
-  for (const rowMatch of sheet.matchAll(/<row\b([^>]*?)(?:>([\s\S]*?)<\/row\s*>|\s*\/)>/g)) {
-    const rowAttrs = attributes(rowMatch[1]);
-    const rowNumber = Number(rowAttrs.r) || output.length + 1;
-    const cells = [];
-    for (const cellMatch of (rowMatch[2] || "").matchAll(/<c\b([^>]*?)(?:>([\s\S]*?)<\/c\s*>|\s*\/)>/g)) {
-      const cellAttrs = attributes(cellMatch[1]);
-      const ref = String(cellAttrs.r || "").match(/^[A-Z]+/i)?.[0]?.toUpperCase();
-      if (!ref) continue;
-      let column = 0;
-      for (const letter of ref) column = column * 26 + letter.charCodeAt(0) - 64;
-      column -= 1;
-      const content = cellMatch[2] || "";
-      let value = "";
-      if (cellAttrs.t === "inlineStr") {
-        const inline = content.match(/<is\b[^>]*>([\s\S]*?)<\/is>/);
-        value = inline ? textRuns(inline[1]) : "";
-      } else {
-        value = decodeXml(content.match(/<v\b[^>]*>([\s\S]*?)<\/v>/)?.[1] || "");
-        if (cellAttrs.t === "s" && value !== "") value = sharedStrings[Number(value)] ?? "";
+  const sharedStrings = sharedXml
+    ? [...sharedXml.matchAll(xmlElementPattern("si"))].map((item) => textRuns(item[2] || ""))
+    : [];
+
+  let firstParsedRows = null;
+  for (const sheetInfo of sheets) {
+    const relationshipId = attributeByLocalName(sheetInfo, "id");
+    const relationship = relationshipById.get(relationshipId);
+    if (!relationship?.Target) continue;
+
+    const path = relationship.Target.startsWith("/")
+      ? normalizeZipPath(relationship.Target.slice(1))
+      : normalizeZipPath("xl/" + relationship.Target);
+    const sheet = await readEntry(path);
+    if (!sheet) continue;
+
+    const rows = [];
+    for (const rowMatch of sheet.matchAll(xmlElementPattern("row"))) {
+      const rowAttrs = attributes(rowMatch[1]);
+      const rowNumber = Number(rowAttrs.r) || rows.length + 1;
+      const cells = [];
+      for (const cellMatch of String(rowMatch[2] || "").matchAll(xmlElementPattern("c"))) {
+        const cellAttrs = attributes(cellMatch[1]);
+        const ref = String(attributeByLocalName(cellAttrs, "r") || "").match(/^[A-Z]+/i)?.[0]?.toUpperCase();
+        if (!ref) continue;
+        let column = 0;
+        for (const letter of ref) column = column * 26 + letter.charCodeAt(0) - 64;
+        column -= 1;
+        const content = cellMatch[2] || "";
+        let value = "";
+        if (cellAttrs.t === "inlineStr") {
+          const inline = [...content.matchAll(xmlElementPattern("is"))][0];
+          value = inline ? textRuns(inline[2] || "") : "";
+        } else {
+          const valueMatch = [...content.matchAll(xmlElementPattern("v"))][0];
+          value = decodeXml(valueMatch?.[2] || "");
+          if (cellAttrs.t === "s" && value !== "") value = sharedStrings[Number(value)] ?? "";
+        }
+        cells[column] = String(value);
       }
-      cells[column] = String(value);
+      rows.push({ cells, sourceRow: rowNumber });
     }
-    output.push({ cells, sourceRow: rowNumber });
+
+    if (!firstParsedRows) firstParsedRows = rows;
+    if (rows.some((row) => row.cells.some((cell) => String(cell ?? "").trim() !== ""))) {
+      return rows;
+    }
   }
-  return output;
+
+  return firstParsedRows || [];
 }
 
 function normalizedHeader(value) {
