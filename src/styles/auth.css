@@ -3,7 +3,7 @@
 .auth-showcase:before{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(255,255,255,.08);border-radius:50%;top:-190px;left:-100px}
 .auth-showcase:after{content:"";position:absolute;width:520px;height:520px;border:1px solid rgba(255,255,255,.06);border-radius:50%;bottom:-290px;right:-210px}
 .showcase-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
-.showcase-top .brand strong{font-size:16px}.showcase-top .brand span{color:#aebfdb}
+.showcase-top .brand strong{font-size:16px;color:#f4f8ff}.showcase-top .brand span{color:#aebfdb}
 .secure-pill{font-size:11px;padding:7px 10px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.07);color:#dfe8f8}
 .showcase-main{max-width:570px;position:relative;z-index:1;padding:9vh 0}
 .showcase-main .eyebrow{color:#b9cae6}
