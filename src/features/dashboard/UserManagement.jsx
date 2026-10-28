@@ -12,6 +12,7 @@ import "../../styles/user-management.css";
 const nf = new Intl.NumberFormat("fa-IR");
 const PAGE_SIZE = 10;
 const ROLE_LABELS = { APPLICANT: "متقاضی", OFFICER: "کارشناس", REVIEWER: "بازبین پرونده", SUPERVISOR: "سرپرست", ADMIN: "مدیر سامانه" };
+const ROLE_FILTER_OPTIONS = ["ADMIN", "APPLICANT"];
 
 function Icon({ name, size = 20 }) {
   const icons = {
@@ -284,8 +285,8 @@ function UserManagement({ onError, onViewRequests }) {
                 aria-label="فیلتر بر اساس نقش کاربر"
               >
                 <option value="">همه نقش‌ها</option>
-                {Object.entries(ROLE_LABELS).map(([role, label]) => (
-                  <option key={role} value={role}>{label}</option>
+                {ROLE_FILTER_OPTIONS.map((role) => (
+                  <option key={role} value={role}>{ROLE_LABELS[role]}</option>
                 ))}
               </select>
             </label>
