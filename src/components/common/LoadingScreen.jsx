@@ -1,7 +1,7 @@
 function LoadingScreen() {
   return (
     <div className="loading-screen">
-      <div className="brand-mark large">R</div>
+      <img className="brand-mark large" src="/brand-logo.png" alt="" aria-hidden="true" />
       <div className="loading-spinner" />
       <strong>در حال آماده‌سازی سامانه</strong>
     </div>

@@ -74,10 +74,10 @@ function Login({ onLogin }) {
       <div className="auth-showcase">
         <div className="showcase-top">
           <div className="brand">
-            <div className="brand-mark">R</div>
+            <img className="brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
             <div>
-              <strong>Recruit</strong>
-              <span>سامانه مدیریت درخواست</span>
+              <strong>سامانه جامع گزینش</strong>
+              <span>مدیریت فرایندهای گزینش و پرونده‌ها</span>
             </div>
           </div>
           <span className="secure-pill">گزینش و استخدام</span>

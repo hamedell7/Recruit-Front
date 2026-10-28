@@ -5,7 +5,7 @@ function Modal({ title, children, onClose }) {
     }}>
       <section className="modal" role="dialog" aria-modal="true" aria-label={title}>
         <div className="modal-top">
-          <div><span className="eyebrow">Recruit</span><h3>{title}</h3></div>
+          <div><span className="eyebrow">سامانه جامع گزینش</span><h3>{title}</h3></div>
           <button className="modal-close" onClick={onClose} aria-label="بستن">×</button>
         </div>
         {children}

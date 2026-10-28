@@ -197,8 +197,8 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
             </button>
           )}
           <div className="brand">
-            <div className="brand-mark">R</div>
-            <div><strong>Recruit</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
+            <img className="brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
+            <div><strong>سامانه جامع گزینش</strong><span>{isStaff ? "مرکز مدیریت درخواست‌ها" : "پنل کاربری"}</span></div>
           </div>
         </div>
         {isStaff && (
@@ -242,9 +242,9 @@ function Header({ user, onLogout, staffPath, onNavigateStaff, showSidebarToggle 
         
                           <div className="staff-drawer-hero-top">
                             <div className="staff-drawer-brand">
-                              <span className="staff-drawer-brand-mark">R</span>
+                              <img className="staff-drawer-brand-mark" src="/brand-logo.png" alt="" aria-hidden="true" />
                               <span className="staff-drawer-brand-wordmark">
-                                <strong>Recruit</strong>
+                                <strong>سامانه جامع گزینش</strong>
                               </span>
                             </div>
                             <button

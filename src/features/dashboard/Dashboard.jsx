@@ -196,7 +196,7 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
     <main className="page dashboard-page ud-dashboard-page" dir="rtl">
       <section className="ud-dashboard-hero">
         <div className="ud-hero-copy">
-          <span className="ud-hero-overline"><i /> پنل شخصی <b>RECRUIT</b></span>
+          <span className="ud-hero-overline"><i /> پنل شخصی <b>سامانه جامع گزینش</b></span>
           <h1>مسیر پرونده‌تان را <span>با خیال راحت</span> دنبال کنید.</h1>
           <p>وضعیت درخواست‌ها را یک‌جا ببینید و هر پرونده را از همان مرحله‌ای که مانده، ادامه دهید.</p>
           <div className="ud-hero-actions">
@@ -212,7 +212,7 @@ function Dashboard({ user, onOpenRequest, onCreated, onError }) {
           <div className="ud-visual-orbit ud-orbit-two" />
           <div className="ud-visual-card">
             <div className="ud-visual-card-head">
-              <span className="ud-visual-card-mark">R</span>
+              <img className="ud-visual-card-mark" src="/brand-logo.png" alt="" />
               <div><strong>مسیر پرونده</strong><small>نمای کلی مراحل</small></div>
               <span className="ud-visual-live"><i /> پیگیری</span>
             </div>

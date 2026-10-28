@@ -70,9 +70,10 @@
   padding-right: 9px;
   border-right: 1px solid rgba(255,255,255,.22);
   color: #e7f0fb;
-  direction: ltr;
+  direction: rtl;
   font-size: 10px;
-  letter-spacing: .13em;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 .ud-hero-copy h1 {
   max-width: 640px;
@@ -160,16 +161,13 @@
 }
 .ud-visual-card-head { display: flex; align-items: center; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #edf1f6; }
 .ud-visual-card-mark {
-  display: grid;
-  place-items: center;
+  display: block;
+  flex: 0 0 35px;
   width: 35px;
   height: 35px;
+  object-fit: cover;
   border-radius: 11px;
-  background: linear-gradient(145deg, #204b7b, #337eb1);
   box-shadow: 0 5px 11px rgba(38, 94, 151, .18);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
 }
 .ud-visual-card-head > div { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
 .ud-visual-card-head strong { font-size: 12px; }

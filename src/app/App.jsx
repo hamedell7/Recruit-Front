@@ -121,6 +121,36 @@ function App() {
   }, [toast]);
 
   useEffect(() => {
+    if (booting) {
+      document.title = "سامانه جامع گزینش";
+      return;
+    }
+
+    let pageTitle;
+    if (!user) {
+      pageTitle = "ورود به سامانه";
+    } else if (view === "wizard") {
+      pageTitle = activeRequest?.tracking_code
+        ? "پرونده " + activeRequest.tracking_code
+        : "تکمیل پرونده";
+    } else if (view === "staff-request-details") {
+      pageTitle = "جزئیات پرونده";
+    } else if (STAFF_ROLES.includes(user.role)) {
+      const workspaceTitles = {
+        "/staff/requests": "مدیریت درخواست‌ها",
+        "/staff/workflows": "مدیریت گردش‌کار",
+        "/staff/request-settings": "تنظیمات درخواست‌ها",
+        "/staff/users": "مدیریت کاربران",
+      };
+      pageTitle = workspaceTitles[staffPath] || "پنل مدیریت";
+    } else {
+      pageTitle = "پنل متقاضی";
+    }
+
+    document.title = pageTitle + " | سامانه جامع گزینش";
+  }, [booting, user, view, staffPath, activeRequest]);
+
+  useEffect(() => {
     if (!user) return undefined;
     let cancelled = false;
     const onPopState = async () => {

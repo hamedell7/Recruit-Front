@@ -379,7 +379,7 @@ function renderHtml(report, { compact = false, sections = null } = {}) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHtml(title)}</title>
+<title>${escapeHtml(title)} | سامانه جامع گزینش</title>
 <style>
 @font-face{font-family:IranYekan;src:url("${regularFont}") format("woff2");font-weight:400;font-style:normal}
 @font-face{font-family:IranYekan;src:url("${mediumFont}") format("woff2");font-weight:500 600;font-style:normal}
@@ -395,7 +395,7 @@ body{padding:0}
 .toolbar-actions .primary{background:#fff;color:#142d50;font-weight:700}
 .report{max-width:210mm;margin:26px auto 40px;padding:0 15mm 15mm}
 .brand-head{display:flex;align-items:center;gap:14px;padding:0 0 20px;border-bottom:2px solid var(--navy);position:relative}
-.brand-mark{display:grid;place-items:center;width:53px;height:53px;flex:0 0 auto;border-radius:15px;background:var(--navy);color:#fff;font-size:25px;font-weight:800;box-shadow:inset 0 -4px 0 var(--gold)}
+.brand-mark{display:block;object-fit:cover;width:53px;height:53px;flex:0 0 auto;border-radius:15px;background:transparent;box-shadow:none}
 .brand-copy{min-width:0;flex:1}
 .brand-kicker{margin:0 0 3px;color:var(--blue);font-size:9pt;font-weight:700;letter-spacing:.02em}
 .brand-copy h1{margin:0;color:var(--navy);font-size:21pt;font-weight:800;line-height:1.6}
@@ -612,8 +612,8 @@ body.compact-report{page:compactReport}
 </div>
 <main class="report">
  <header class="brand-head">
-  <div class="brand-mark">R</div>
-  <div class="brand-copy"><p class="brand-kicker">سامانه جامع استخدام و گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
+  <img class="brand-mark" src="${window.location.origin}/brand-logo.png" alt="" />
+  <div class="brand-copy"><p class="brand-kicker">سامانه جامع گزینش</p><h1>${compact ? "گزارش فشرده درخواست" : "گزارش جامع درخواست"}</h1><p>${compact ? "نمای فشرده اطلاعات ثبت‌شده پرونده" : "نسخهٔ خوانا و ساختاریافته از اطلاعات ثبت‌شده در پرونده"}</p></div>
   <div class="security-tag">اطلاعات شخصی<br>ویژه استفاده مجاز</div>
  </header>
  ${includes("request_info") ? `<section class="meta-grid">${meta.map(([label, value]) => `<div class="meta-item"><span class="meta-label">${escapeHtml(label)}</span><strong class="meta-value">${escapeHtml(value)}</strong></div>`).join("")}</section>` : ""}
