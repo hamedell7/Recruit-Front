@@ -211,7 +211,7 @@ function UserManagement({ onError, onViewRequests }) {
 
   return (
     <main className="page staff-dashboard-page user-management-page">
-      <AdminBreadcrumb items={["پنل مدیریت", "مدیریت کاربران"]} />
+      <AdminBreadcrumb items={[{ label: "پنل مدیریت", href: "/staff/requests" }, { label: "مدیریت کاربران" }]} />
 
       <section className="staff-dashboard-hero um-dashboard-hero">
         <div className="staff-dashboard-heading">

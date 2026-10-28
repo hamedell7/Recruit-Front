@@ -486,7 +486,7 @@ function StaffRequestsDashboard({ onError, user }) {
 
   return (
     <main className="page staff-dashboard-page">
-      <AdminBreadcrumb items={["پنل مدیریت", "پرونده‌ها"]} />
+      <AdminBreadcrumb items={[{ label: "پنل مدیریت", href: "/staff/requests" }, { label: "پرونده‌ها" }]} />
       <section className="staff-dashboard-hero">
         <div className="staff-dashboard-heading">
           <span className="eyebrow"><span className="eyebrow-dot" /> مرکز عملیات و پایش</span>
@@ -965,7 +965,7 @@ function StaffDashboard({ onError, user, onViewUserRequests }) {
   if (workspace === "workflow" && user?.role === "ADMIN") {
     return (
       <main className="page staff-dashboard-page">
-        <AdminBreadcrumb items={["پنل مدیریت", "مدیریت گردش‌کار"]} />
+        <AdminBreadcrumb items={[{ label: "پنل مدیریت", href: "/staff/requests" }, { label: "مدیریت گردش‌کار" }]} />
         <div className="staff-workflow-workspace">
           <WorkflowManager onError={onError} />
         </div>

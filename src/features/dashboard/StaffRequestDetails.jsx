@@ -696,7 +696,11 @@ function StaffRequestDetails({ requestId, onBack, onError }) {
   return (
     <main className="page srd-page" dir="rtl">
       <AdminBreadcrumb
-        items={["پنل مدیریت", "پرونده‌ها", "جزئیات کامل"]}
+        items={[
+          { label: "پنل مدیریت", href: "/staff/requests" },
+          { label: "پرونده‌ها", href: "/staff/requests" },
+          { label: "جزئیات کامل" },
+        ]}
         onBack={onBack}
         backLabel="بازگشت به فهرست پرونده‌ها"
       />

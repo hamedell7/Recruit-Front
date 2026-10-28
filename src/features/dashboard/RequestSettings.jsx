@@ -105,7 +105,7 @@ function RequestSettings({ onError }) {
 
   return (
     <main className="page staff-dashboard-page request-settings-page" dir="rtl">
-      <AdminBreadcrumb items={["پنل مدیریت", "تنظیمات درخواست‌ها"]} />
+      <AdminBreadcrumb items={[{ label: "پنل مدیریت", href: "/staff/requests" }, { label: "تنظیمات درخواست‌ها" }]} />
       <section className="request-settings-hero">
         <div>
           <span className="eyebrow"><span className="request-settings-eyebrow-dot" /> تنظیمات سامانه</span>

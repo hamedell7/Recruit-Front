@@ -62,3 +62,22 @@
     padding-top: 24px !important;
   }
 }
+
+
+.srd-admin-breadcrumb-toolbar .srd-breadcrumb a {
+  color: #657b93;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: color .15s ease;
+}
+
+.srd-admin-breadcrumb-toolbar .srd-breadcrumb a:hover {
+  color: #245b91;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.srd-admin-breadcrumb-toolbar .srd-breadcrumb a:focus-visible {
+  outline: 2px solid #7ba0cf;
+  outline-offset: 3px;
+}
