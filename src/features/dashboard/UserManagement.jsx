@@ -42,16 +42,6 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "short", day: "numeric" }).format(new Date(value));
 }
 
-function avatarTone(user) {
-  const seed = String(user?.id || user?.national_id || user?.mobile || "user");
-  let hash = 0;
-
-  for (let index = 0; index < seed.length; index += 1) {
-    hash = (hash * 31 + seed.charCodeAt(index)) | 0;
-  }
-
-  return Math.abs(hash % 5);
-}
 function UserManagement({ onError, onViewRequests }) {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
@@ -210,7 +200,7 @@ function UserManagement({ onError, onViewRequests }) {
                   : users.map((user, index) => <tr key={user.id}>
                     <td><span className="um-row-number">{nf.format((page - 1) * PAGE_SIZE + index + 1)}</span></td>
                     <td className="um-avatar-cell">
-                      <span className={"um-user-avatar um-user-avatar-tone-" + avatarTone(user)} aria-hidden="true">
+                      <span className="um-user-avatar" aria-hidden="true">
                         <Icon name="user" size={19} />
                       </span>
                     </td>
